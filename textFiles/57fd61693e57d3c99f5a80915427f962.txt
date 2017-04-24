@@ -1,0 +1,484 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quadratic sieve - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Quadratic_sieve";
+		var wgTitle = "Quadratic sieve";
+		var wgAction = "view";
+		var wgArticleId = "582340";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 271106105;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Quadratic sieve
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The quadratic sieve algorithm (QS) is a modern integer factorization algorithm and, in practice, the second fastest method known (after the general number field sieve). It is still the fastest for integers under 100 decimal digits or so, and is considerably simpler than the number field sieve. It is a general-purpose factorization algorithm, meaning that its running time depends solely on the size of the integer to be factored, and not on special structure or properties. It was invented by Carl Pomerance in 1981 as an improvement to Dixon's factorization method.
+
+
+
+
+Contents
+
+
+1 Basic aim
+2 The approach
+3 The algorithm
+4 How QS optimizes finding congruences
+
+4.1 Partial relations and cycles
+4.2 Checking smoothness by sieving
+
+
+5 Large primes
+
+5.1 One large prime
+5.2 More large primes
+
+
+6 Multiple polynomials
+7 Example
+
+7.1 Data collection
+7.2 Data processing
+
+
+8 Factoring records
+9 Implementations
+10 See also
+11 References
+12 Other external links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Basic aim
+The algorithm attempts to set up a congruence of squares modulo n (the integer to be factorized), which often leads to a factorization of n. The algorithm works in two phases: the data collection phase, where it collects information that may lead to a congruence of squares; and the data processing phase, where it puts all the data it has collected into a matrix and solves it to obtain a congruence of squares. The data collection phase can be easily parallelized to many processors, but the data processing phase requires large amounts of memory, and is difficult to parallelize efficiently over many nodes or if the processing nodes do not each have enough memory to store the whole matrix. The block Wiedemann algorithm can be used in the case of a few systems each capable of holding the matrix.
+The naïve approach to finding a congruence of squares is to pick a random number, square it, and hope the least non-negative remainder modulo n is a perfect square (in the integers). For example, 802 mod 5959 is 441, which is 212. This approach finds a congruence of squares only rarely for large n, but when it does find one, more often than not, the congruence is nontrivial and the factorization is complete. This is roughly the basis of Fermat's factorization method.
+The quadratic sieve is a modification of Dixon's factorization method.
+The general running time required for the quadratic sieve (to factor an integer n) is
+
+
+
+in the O and L notations[1].
+The constant e is usually used as the base of the logarithm.
+
+[edit] The approach
+Let x mod y denote the remainder after dividing x by y. Fermat's method entails a search for a single number a such that a2 mod n is a square. But these a are hard to find. The quadratic sieve consists of computing a2 mod n for several a, then finding a subset of these whose product is a square. This will yield a congruence of squares.
+For example, 412 mod 1649 = 32, 422 mod 1649 = 115, and 432 mod 1649 is 200. None of these is a square, but the product (32)(200) = 6400 = 802, and mod 1649, (32)(200) = (412)(432) = ((41)(43))2. Since (41)(43) mod 1649 = 114, this is a congruence of squares: 1142 ≡ 802 (mod 1649).
+But how to solve the problem of, given a set of numbers, finding a subset whose product is a square? The solution uses the concept of an exponent vector. For example, the prime-power factorization of 504 is 23327. It can be represented by the exponent vector (3,2,0,1), which gives the exponents of 2, 3, 5, and 7 in the prime factorization. The number 490 would similarly have the vector (1,0,1,2). Multiplying the numbers is the same as componentwise adding their exponent vectors: (504)(490) has the vector (4,2,1,3).
+A number is a square if every number in its exponent vector is even. For example, the vectors (3,0,0,1) and (1,2,0,1) add to (4,2,0,2), so (56)(126) is a square. Searching for a square requires knowledge only of the parity of the numbers in the vectors, so it is possible to reduce the entire vector mod 2 and perform addition of elements mod 2: (1,0,0,1) + (1,0,0,1) = (0,0,0,0). This is particularly efficient in practical implementations, as the vectors can be represented as bitsets and addition mod 2 reduces to bitwise XOR.
+The problem is reduced to: given a set of (0,1)-vectors, find a subset which adds to the zero vector mod 2. This is a linear algebra problem; the solution is a linear dependency. It is a theorem of linear algebra that with more vectors than each vector has elements, such a dependency must exist. It can be found efficiently, for example by placing the vectors as rows in a matrix and then using Gaussian elimination, which is easily adapted to work for integers mod 2 instead of real numbers. The desired square is then the product of the numbers corresponding to those vectors.
+However, simply squaring many random numbers mod n produces a very large number of different prime factors, and so very long vectors and a very large matrix. The answer is to look specifically for numbers a such that a2 mod n has only small prime factors (they are smooth numbers). They are harder to find, but using only smooth numbers keeps the vectors and matrices smaller and more tractable. The quadratic sieve searches for smooth numbers using a technique called sieving, discussed later, from which the algorithm takes its name.
+
+[edit] The algorithm
+To summarize, the basic quadratic sieve algorithm has these main steps:
+
+Choose a smoothness bound B. The number π(B), denoting the number of prime numbers less than B, will control both the length of the vectors and the number of vectors needed.
+Use sieving to locate π(B) + 1 numbers ai such that bi=(ai2 mod n) is B-smooth.
+Factor the bi and generate exponent vectors mod 2 for each one.
+Use linear algebra to find a subset of these vectors which add to the zero vector. Multiply the corresponding ai together naming the result mod n: a and the bi together which yields a B-smooth square b2.
+We are now left with the equality a2=b2 mod n from which we get two square roots of (a2 mod n), one by taking the square root in the integers of b2 namely b, and the other the a computed in step 4.
+We now have the desired identity: (a + b)(a − b) = 0(mod n). Compute the GCD of n with the difference (or sum) of a and b. This produces a factor, although it may be a trivial factor (n or 1). If the factor is trivial, try again with a different linear dependency or different a.
+
+The remainder of this article explains details and extensions of this basic algorithm.
+
+[edit] How QS optimizes finding congruences
+The quadratic sieve attempts to find pairs of integers x and y(x) (where y(x) is a function of x) satisfying a much weaker condition than x2 ≡ y2 (mod n). It selects a set of primes called the factor base, and attempts to find x such that the least absolute remainder of y(x) = x2 mod n factorizes completely over the factor base. Such x values are said to be smooth with respect to the factor base.
+The factorization of a value of y(x) that splits over the factor base, together with the value of x, is known as a relation. The quadratic sieve speeds up the process of finding relations by taking x close to the square root of n. This ensures that y(x) will be smaller, and thus have a greater chance of being smooth.
+
+
+
+
+This implies that y is on the order of 2x[√n]. However, it also implies that y grows linearly with x times the square root of n.
+Another way to increase the chance of smoothness is by simply increasing the size of the factor base. However, it is necessary to find at least one smooth relation more than the number of primes in the factor base, to ensure the existence of a linear dependency.
+
+[edit] Partial relations and cycles
+Even if for some relation y(x) is not smooth, it may be possible to merge two of these partial relations to form a full one, if the two y 's are products of the same prime(s) outside the factor base. For example, if the factor base is {2, 3, 5, 7} and n = 91, there are partial relations:
+
+
+
+
+Multiply these together:
+
+
+
+and multiply both sides by (11−1)2 modulo 91. 11−1 modulo 91 is 58, so:
+
+
+
+
+producing a full relation. Such a full relation (obtained by combining partial relations) is called a cycle. Sometimes, forming a cycle from two partial relations leads directly to a congruence of squares, but rarely.
+
+[edit] Checking smoothness by sieving
+There are several ways to check for smoothness of the ys. The most obvious is by trial division, although this increases the running time for the data collection phase. Another method that has some acceptance is the elliptic curve method. However, in practice, a process called sieving is used.
+
+y(x) = x2 − n
+y(x + kp) = (x + kp)2 − n
+y(x + kp) = x2 + 2xkp + (kp)2 − n
+
+
+Thus solving y(x) ≡ 0 (mod p) for x generates a whole sequence of ys which are divisible by p. This is finding a square root modulo a prime, for which there exist efficient algorithms, such as the Shanks-Tonelli algorithm. (This is where the quadratic sieve gets its name – y is a quadratic polynomial in x, and the sieving process works like the Sieve of Eratosthenes.)
+The sieve starts by setting every entry in a large array A[] of bytes to zero. For each p, solve the quadratic equation mod p to get two roots α and β, and then add an approximation to log(p) to every entry for which y(x) = 0 mod p ... that is, A[kp+α] and A[kp+β]. It is also necessary to solve the quadratic equation modulo small powers of p in order to recognise numbers divisible by the square of a factor-base prime.
+At the end of the factor base, any A[] containing a value above a threshold of roughly log(n) will correspond to a value of y(x) which splits over the factor base. The information about exactly which primes divide y(x) has been lost, but it has only small factors, and there are many good algorithms (trial division by small primes, SQUFOF, Pollard rho, and ECM are usually used in some combination) for factoring a number known to have only small factors.
+There are many y(x) values that work, so the factorization process at the end doesn't have to be entirely reliable; often the processes misbehave on say 5% of inputs, requiring a small amount of extra sieving.
+
+[edit] Large primes
+
+[edit] One large prime
+After dividing by all the factors less than A, if the remaining part of the number (the cofactor) is less than A2, then this cofactor must be prime. In effect, it can be added to the factor base, by sorting the list of relations into order by cofactor. If y(a) = 7*11*23*137 and y(b) = 3*5*7*137, then y(a)y(b) = 3*5*11*23 * 7^2 * 1372. This works by reducing the threshold of entries in the sieving array above which a full factorization is performed.
+
+[edit] More large primes
+Reducing the threshold even further, and using an effective process for factoring y(x) values into products of even relatively large primes - ECM is superb for this - can find relations with most of their factors in the factor base, but with two or even three larger primes. Cycle finding then allows combining a set of relations sharing several primes into a single relation.
+
+[edit] Multiple polynomials
+In practice, many different polynomials are used for y, since only one polynomial will not typically provide enough (x, y) pairs that are smooth over the factor base. The polynomials used must have a special form, since they need to be squares modulo n. The polynomials must all have a similar form to the original y(x) = x2 − n:
+
+
+
+Assuming B2 − n is a multiple of A, so that B2 − n = AC the polynomial y(x) can be written as y(x) = A * (Ax2 + 2Bx + C). If then A is a square, only the factor (Ax2 + 2Bx + C) have to be considered.
+This approach (called MPQS, Multiple Polynomial Quadratic Sieve) is ideally suited for parallelization, since each processor involved in the factorization can be given n, the factor base and a collection of polynomials, and it will have no need to communicate with the central processor until it is finished with its polynomials.
+
+[edit] Example
+Here is an example. Let n = 1817, therefore m, the floor of the square root of n, is 42. Since n is small, the basic polynomial is enough: y(x) = (x + 42)2 − 1817.
+
+[edit] Data collection
+Only primes p such that n is a quadratic residue (mod p) are needed:
+
+F = { − 1,2,7,13}.
+
+Now, for sieving purposes, solve the congruence
+
+
+
+for each p in the factor base. The square roots are:
+
+Mod 2: 1
+Mod 7: 2 and 5
+Mod 13: 6 and 7.
+
+This can be easily verified. Next list all the y(x) values for 0 ≤ x ≤ 100 (this interval can always be expanded later if it does not yield enough relations). Then, for each prime p, start at the y-value at the square root of n mod p and divide p out of that y-value. Move p positions up in the list and repeat the procedure. This is the sieving process in action.
+Once the sieving has been completed for all primes in the factor base, the positions in the list that have been reduced to 1 correspond to y-values which are smooth over F. At least five are needed, and in this case the interval used has yielded four. The pairs (x, y) are:
+
+(1, 32), (3, 208), (9, 784), (81, 13312).
+
+Find one more by expanding the interval as necessary (note that x can also take on negative values). Increasing the upper bound produces:
+
+(103, 19208).
+
+
+[edit] Data processing
+There are enough relations to build the exponent vector matrix, but first the y-values must be factored. This is easy, since there are only have three primes to trial-divide by. Here are the factorizations:
+
+
+x
+y
+
+
+1
+−10 • 25 • 70 • 130
+
+
+3
+−10 • 24 • 70 • 131
+
+
+9
+−10 • 24 • 72 • 130
+
+
+81
+−10 • 210 • 70 • 131
+
+
+103
+−10 • 23 • 74 • 130
+
+
+Now form the exponent vector matrix:
+
+
+
+Here, rows that add to all-zero vectors modulo 2 can be found by inspection. The third row (corresponding to (x, y) = (9, 784)) is already a congruence of squares, so try to factor n using that.
+
+y(x) = (x + 42)2 − 1817
+
+
+gcd(51 + 28, 1817) = 79 and gcd(51 − 28, 1817) = 23. These are the two non-trivial factors of 1817.
+This demonstration should also serve to show that the quadratic sieve is only appropriate when n is large. For a number as small as 1817, this algorithm is overkill. Trial division could have found a factor with 9 divisions.
+
+[edit] Factoring records
+Until the discovery of the number field sieve (NFS), QS was the asymptotically-fastest known general-purpose factoring algorithm. Now, Lenstra elliptic curve factorization has the same asymptotic running time as QS (in the case where n has exactly two prime factors of equal size), but in practice, QS is faster since it uses single-precision operations instead of the multi-precision operations used by the elliptic curve method.
+On April 2, 1994, the factorization of RSA-129 was completed using QS. It was a 129-digit number, the product of two large primes, one of 64 digits and the other of 65. The factor base for this factorization contained 524339 primes. The data collection phase took 5000 MIPS-years, done in distributed fashion over the Internet. The data collected totaled 2GB. The data processing phase took 45 hours on Bellcore's (now Telcordia Technologies) MasPar (massively parallel) supercomputer. This was the largest published factorization by a general-purpose algorithm, until NFS was used to factor RSA-130, completed April 10, 1996. All RSA numbers factored since then have been factored using NFS.
+
+[edit] Implementations
+
+PPMPQS and PPSIQS
+mpqs
+SIMPQS is a fast implementation of the self initialising multiple polynomial quadratic sieve written by William Hart. It provides support for the large prime variant and uses Jason Papadopoulos' block Lanczos code for the linear algebra stage. SIMPQS is accessible as the qsieve command in the SAGE computer algebra package or can be downloaded in source form. SIMPQS is optimized for use on Athlon and Opteron machines, but will operate on most common 32 and 64 bit architectures. It is written entirely in C.
+a factoring applet by Dario Alpern, that uses the quadratic sieve if certain conditions are met.
+The PARI/GP computer algebra package includes an implementation of the self initialising multiple polynomial quadratic sieve implementing the large prime variant. It was adapted by Thomas Papanikolaou and Xavier Roblot from a sieve written for the LiDIA project. The self initialisation scheme is based on an idea from the thesis of Thomas Sosnowski.
+A variant of the quadratic sieve is available in the MAGMA computer algebra package. It is based on an implementation of Arjen Lenstra from 1995, used in his "factoring by email" program.
+msieve, an implementation of the multiple polynomial quadratic sieve with support for single and double large primes, written by Jason Papadopoulos. It is the fastest implementation for Pentium 4, Athlon and Opteron machines. Source code and a Windows binary are available.
+YAFU, written by Ben Buhrow, is similar to msieve but is faster for most modern processors. It uses Jason Papadopoulos' block Lanczos code. Source code and binaries for Windows and Linux are available.
+
+
+[edit] See also
+
+Lenstra elliptic curve factorization
+primality test
+
+
+[edit] References
+
+
+^ Pomerance, Carl (December 1996), "A Tale of Two Sieves", Notices of the AMS 43 (12): 1473–1485, http://www.ams.org/notices/199612/pomerance.pdf 
+
+
+
+
+Richard Crandall and Carl Pomerance (2001). Prime Numbers: A Computational Perspective (1st edition ed.). Springer. ISBN 0-387-94777-9.  Section 6.1: The quadratic sieve factorization method, pp.227–244.
+
+
+
+[edit] Other external links
+
+Reference paper from University of Illinois at Urbana-Champaign
+
+
+
+
+
+
+
+
+v • d • e
+
+Number-theoretic algorithms
+
+
+
+
+
+Primality tests
+
+AKS · APR · Ballie-PSW · ECPP · Fermat · Lucas–Lehmer · Lucas–Lehmer (Mersenne numbers) · Lucas–Lehmer–Riesel · Proth's theorem · Pépin's · Solovay–Strassen · Miller–Rabin · Trial division
+
+
+
+
+
+
+Sieving algorithms
+
+Sieve of Atkin · Sieve of Eratosthenes · Sieve of Sundaram · Wheel factorization
+
+
+
+
+
+
+Integer factorization algorithms
+
+CFRAC · Dixon's · ECM · Euler's · Pollard's rho · P − 1 · P + 1 · QS · GNFS · SNFS · rational sieve · Fermat's · Shanks' square forms · Trial division · Shor's
+
+
+
+
+
+
+Other algorithms
+
+Ancient Egyptian multiplication · Aryabhata · Binary GCD · Chakravala · Euclidean · Extended Euclidean · integer relation algorithm · integer square root · Modular exponentiation · Schoof's · Shanks-Tonelli
+
+
+
+
+
+
+Italics indicate that algorithm is for numbers of special forms; bold indicates deterministic algorithm for primality tests.
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Quadratic_sieve"
+Categories: Integer factorization algorithms 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+Italiano
+עברית
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 February 2009, at 12:40.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

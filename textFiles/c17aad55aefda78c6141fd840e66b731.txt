@@ -1,0 +1,408 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Signal (computing) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Signal_(computing)";
+		var wgTitle = "Signal (computing)";
+		var wgAction = "view";
+		var wgArticleId = "938602";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279813148;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Signal (computing)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about POSIX-style signals.  For signals in event-driven processing, see Signal programming.
+A signal is a limited form of inter-process communication used in Unix, Unix-like, and other POSIX-compliant operating systems. Essentially it is an asynchronous notification sent to a process in order to notify it of an event that occurred. When a signal is sent to a process, the operating system interrupts the process' normal flow of execution. Execution can be interrupted during any non-atomic instruction. If the process has previously registered a signal handler, that routine is executed. Otherwise the default signal handler is executed.
+
+
+
+
+Contents
+
+
+1 Sending signals
+2 Handling signals
+3 Relationship with Hardware Exceptions
+4 List of signals
+5 See also
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Sending signals
+
+Typing certain combinations at the controlling terminal of a running process causes the system to send it certain signals:
+
+Ctrl-C (in older Unices, DEL) sends an INT signal (SIGINT); by default, this causes the process to terminate.
+Ctrl-Z sends a TSTP signal (SIGTSTP); by default, this causes the process to suspend execution.
+Ctrl-\ sends a QUIT signal (SIGQUIT); by default, this causes the process to terminate and dump core.
+
+
+The kill(2) system call will send the specified signal to the process, if permissions allow. Similarly, the kill(1) command allows a user to send signals to processes. The raise library function sends the specified signal to the current process.
+Exceptions such as division by zero or a segmentation violation will generate signals (here, SIGFPE and SIGSEGV respectively, which both cause a core dump by default).
+The kernel can generate a signal to notify the process of an event. For example, SIGPIPE will be generated when a process writes to a pipe which has been closed by the reader; by default, this causes the process to terminate, which is convenient when constructing shell pipelines.
+
+
+[edit] Handling signals
+Signal handlers can be installed with the signal() system call. If a signal handler is not installed for a particular signal, the default handler is used. Otherwise the signal is intercepted and the signal handler is invoked. The process can also specify two default behaviors, without creating a handler: ignore the signal (SIG_IGN) and use the default signal handler (SIG_DFL). There are two signals which cannot be intercepted and handled: SIGKILL and SIGSTOP.
+Signal handling is vulnerable to race conditions. Because signals are asynchronous, another signal (even of the same type) can be delivered to the process during execution of the signal handling routine. The sigprocmask() call can be used to block and unblock delivery of signals.
+Signals can cause the interruption of a system call in progress, leaving it to the application to manage a non-transparent restart.
+Signal handlers should be written in a way that doesn't result in any unwanted side-effects, e.g. errno alteration, signal mask alteration, signal disposition change, and other global process attribute changes. Use of non-reentrant functions, e.g. malloc or printf, inside signal handlers is also unsafe.
+
+[edit] Relationship with Hardware Exceptions
+A process's execution may result in the generation of a hardware exception, for instance, if the process attempts to divide by zero or incurs a TLB miss. In Unix-like operating systems, this event automatically changes the processor context to start executing a kernel exception handler. With some exceptions, such as a page fault, the kernel has sufficient information to fully handle the event and resume the process's execution. In other exceptions, however, the kernel cannot proceed intelligently and must instead defer the exception handling operation to the faulting process. This deferral is achieved via the signal mechanism, wherein the kernel sends to the process a signal corresponding to the current exception. For example, if a process attempted to divide by zero on an x86 CPU, a divide error exception would be generated and cause the kernel to send the SIGFPE signal to the process. Similarly, if the process attempted to access a memory address outside of its virtual address space, the kernel would notify the process of this violation via a SIGSEGV signal. The exact mapping between signal names and exceptions is obviously dependent upon the CPU, since exception types differ between architectures.
+
+[edit] List of signals
+The Single Unix Specification specifies the following signals which are defined in <signal.h>:
+
+
+Signal
+Description
+
+
+SIGABRT
+Process aborted
+
+
+SIGALRM
+Signal raised by alarm
+
+
+SIGBUS
+Bus error: "access to undefined portion of memory object"
+
+
+SIGCHLD
+Child process terminated, stopped (*or continued)
+
+
+SIGCONT
+Continue if stopped
+
+
+SIGFPE
+Floating point exception: "erroneous arithmetic operation"
+
+
+SIGHUP
+Hangup
+
+
+SIGILL
+Illegal instruction
+
+
+SIGINT
+Interrupt
+
+
+SIGKILL
+Kill
+
+
+SIGPIPE
+Write to pipe with no one reading
+
+
+SIGQUIT
+Quit and dump core
+
+
+SIGSEGV
+Segmentation violation
+
+
+SIGSTOP
+Stop executing temporarily
+
+
+SIGTERM
+Termination
+
+
+SIGTSTP
+Terminal stop signal
+
+
+SIGTTIN
+Background process attempting to read ("in")
+
+
+SIGTTOU
+Background process attempting to write ("out")
+
+
+SIGUSR1
+User-defined 1
+
+
+SIGUSR2
+User-defined 2
+
+
+SIGPOLL
+Pollable event
+
+
+SIGPROF
+Profiling timer expired
+
+
+SIGSYS
+Bad syscall
+
+
+SIGTRAP
+Trace/breakpoint trap
+
+
+SIGURG
+Urgent data available on socket
+
+
+SIGVTALRM
+Signal raised by timer counting virtual time: "virtual timer expired"
+
+
+SIGXCPU
+CPU time limit exceeded
+
+
+SIGXFSZ
+File size limit exceeded
+
+
+Note: Where a section is marked by an asterisk, this denotes an X/Open System Interfaces (XSI) extension. Wording in quotes appended with (SUS) denotes the wording from the SUS[1].
+
+[edit] See also
+
+<signal.h>
+
+
+[edit] External links
+
+Introduction to Unix Signals Programming
+Another Introduction to Unix Signals Programming
+UNIX and Reliable POSIX Signals by Baris Simsek
+Signal Handlers by Henning Brauer
+
+
+
+
+
+
+
+
+v • d • e
+
+Computing signals
+
+
+
+
+
+POSIX
+
+SIGABRT · SIGALRM · SIGFPE · SIGHUP · SIGILL · SIGINT · SIGKILL · SIGPIPE · SIGQUIT · SIGSEGV · SIGTERM · SIGUSR1 · SIGUSR2 · SIGCHLD · SIGCONT · SIGSTOP · SIGTSTP · SIGTTIN · SIGTTOU · SIGBUS · SIGPOLL · SIGPROF · SIGSYS · SIGTRAP · SIGURG · SIGVTALRM · SIGXCPU · SIGXFSZ · Realtime signals are user definable (SIGRTMIN+n through SIGRTMAX)
+
+
+
+
+
+
+non-POSIX
+
+SIGIOT · SIGEMT · SIGSTKFLT · SIGIO · SIGCLD · SIGINFO · SIGPWR · SIGLOST · SIGWINCH · SIGUNUSED
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Signal_(computing)"
+Categories: Unix signals | Control flow 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Česky
+Deutsch
+Español
+Italiano
+日本語
+Português
+Русский
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 15:29 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

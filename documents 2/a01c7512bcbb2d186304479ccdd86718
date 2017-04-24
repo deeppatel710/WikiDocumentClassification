@@ -1,0 +1,997 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Kalman filter,Kalman filter,Accuracy and precision,Autopilot,Brain-computer interface,Cholesky decomposition,Computer vision,Control system,Control theory,Coordinate system,Covariance matrix" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Kalman_filter&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Kalman_filter&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Kalman filter - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Kalman_filter";
+		var wgTitle = "Kalman filter";
+		var wgAction = "view";
+		var wgArticleId = "180855";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280466683;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Kalman_filter skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Kalman filter</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>The <b>Kalman filter</b> is an efficient <a href="/wiki/Recursive_filter" title="Recursive filter">recursive filter</a> that <a href="/wiki/Estimator" title="Estimator">estimates</a> the state of a <a href="/wiki/Linear_system" title="Linear system">linear dynamic system</a> from a series of <a href="/wiki/Noise" title="Noise">noisy</a> measurements. It is used in a wide range of engineering applications from <a href="/wiki/Radar" title="Radar">radar</a> to <a href="/wiki/Computer_vision" title="Computer vision">computer vision</a>, and is an important topic in <a href="/wiki/Control_theory" title="Control theory">control theory</a> and <a href="/wiki/Control_system" title="Control system">control systems</a> engineering. Together with the <a href="/wiki/Linear-quadratic_regulator" title="Linear-quadratic regulator">linear-quadratic regulator</a> (LQR), the Kalman filter solves the <a href="/wiki/Linear-quadratic-Gaussian_control" title="Linear-quadratic-Gaussian control">linear-quadratic-Gaussian control</a> problem (LQG). The Kalman filter, the linear-quadratic regulator and the linear-quadratic-Gaussian controller are solutions to what probably are the most fundamental problems in <a href="/wiki/Control_theory" title="Control theory">control theory</a>.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Example_applications"><span class="tocnumber">1</span> <span class="toctext">Example applications</span></a></li>
+<li class="toclevel-1"><a href="#Naming_and_historical_development"><span class="tocnumber">2</span> <span class="toctext">Naming and historical development</span></a></li>
+<li class="toclevel-1"><a href="#Underlying_dynamic_system_model"><span class="tocnumber">3</span> <span class="toctext">Underlying dynamic system model</span></a></li>
+<li class="toclevel-1"><a href="#The_Kalman_filter"><span class="tocnumber">4</span> <span class="toctext">The Kalman filter</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Predict"><span class="tocnumber">4.1</span> <span class="toctext">Predict</span></a></li>
+<li class="toclevel-2"><a href="#Update"><span class="tocnumber">4.2</span> <span class="toctext">Update</span></a></li>
+<li class="toclevel-2"><a href="#Invariants"><span class="tocnumber">4.3</span> <span class="toctext">Invariants</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Examples"><span class="tocnumber">5</span> <span class="toctext">Examples</span></a></li>
+<li class="toclevel-1"><a href="#Derivations"><span class="tocnumber">6</span> <span class="toctext">Derivations</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Deriving_the_posterior_estimate_covariance_matrix"><span class="tocnumber">6.1</span> <span class="toctext">Deriving the posterior estimate covariance matrix</span></a></li>
+<li class="toclevel-2"><a href="#Kalman_gain_derivation"><span class="tocnumber">6.2</span> <span class="toctext">Kalman gain derivation</span></a></li>
+<li class="toclevel-2"><a href="#Simplification_of_the_posterior_error_covariance_formula"><span class="tocnumber">6.3</span> <span class="toctext">Simplification of the posterior error covariance formula</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Relationship_to_the_digital_filter"><span class="tocnumber">7</span> <span class="toctext">Relationship to the digital filter</span></a></li>
+<li class="toclevel-1"><a href="#Relationship_to_recursive_Bayesian_estimation"><span class="tocnumber">8</span> <span class="toctext">Relationship to recursive Bayesian estimation</span></a></li>
+<li class="toclevel-1"><a href="#Information_filter"><span class="tocnumber">9</span> <span class="toctext">Information filter</span></a></li>
+<li class="toclevel-1"><a href="#Fixed-lag_smoother"><span class="tocnumber">10</span> <span class="toctext">Fixed-lag smoother</span></a></li>
+<li class="toclevel-1"><a href="#Non-linear_filters"><span class="tocnumber">11</span> <span class="toctext">Non-linear filters</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Extended_Kalman_filter"><span class="tocnumber">11.1</span> <span class="toctext">Extended Kalman filter</span></a></li>
+<li class="toclevel-2"><a href="#Unscented_Kalman_filter"><span class="tocnumber">11.2</span> <span class="toctext">Unscented Kalman filter</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Kalman-Bucy_filter"><span class="tocnumber">12</span> <span class="toctext">Kalman-Bucy filter</span></a></li>
+<li class="toclevel-1"><a href="#Applications"><span class="tocnumber">13</span> <span class="toctext">Applications</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">14</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">15</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#Further_reading"><span class="tocnumber">16</span> <span class="toctext">Further reading</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">17</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Example_applications" id="Example_applications"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=1" title="Edit section: Example applications">edit</a>]</span> <span class="mw-headline">Example applications</span></h2>
+<p>An example application would be providing accurate, continuously updated information about the <a href="/wiki/Coordinate_system" title="Coordinate system">position</a> and <a href="/wiki/Velocity" title="Velocity">velocity</a> of an object given only a sequence of observations about its position, each of which includes some error.</p>
+<p>For a similar, more concrete example, in a <a href="/wiki/Radar" title="Radar">radar</a> application, where one is interested in <a href="/wiki/Radar_tracker" title="Radar tracker">tracking a target</a>, information about the location, speed, and acceleration of the target is measured at each time instant, with a great deal of corruption by noise. The Kalman filter exploits the dynamics of the target, which govern its time evolution, to remove the effects of the noise and get a good estimate of the location of the target at the present time (filtering), at a future time (prediction), or at a time in the past (interpolation or smoothing).</p>
+<p><a name="Naming_and_historical_development" id="Naming_and_historical_development"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=2" title="Edit section: Naming and historical development">edit</a>]</span> <span class="mw-headline">Naming and historical development</span></h2>
+<p>The filter is named after <a href="/wiki/Rudolf_E._Kalman" title="Rudolf E. Kalman">Rudolf E. Kalman</a>, though <a href="/wiki/Thorvald_Nicolai_Thiele" title="Thorvald Nicolai Thiele" class="mw-redirect">Thorvald Nicolai Thiele</a><sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup> and <a href="/wiki/Peter_Swerling" title="Peter Swerling">Peter Swerling</a> developed a similar algorithm earlier. <a href="/wiki/Stanley_F._Schmidt" title="Stanley F. Schmidt">Stanley F. Schmidt</a> is generally credited with developing the first implementation of a Kalman filter. It was during a visit of Kalman to the <a href="/wiki/NASA_Ames_Research_Center" title="NASA Ames Research Center">NASA Ames Research Center</a> that he saw the applicability of his ideas to the problem of trajectory estimation for the <a href="/wiki/Project_Apollo" title="Project Apollo" class="mw-redirect">Apollo program</a>, leading to its incorporation in the Apollo navigation computer. The filter was developed in papers by Swerling (1958), Kalman (1960), and Kalman and Bucy (1961).</p>
+<p>The filter is sometimes called <a href="/wiki/Stratonovich-Kalman-Bucy" title="Stratonovich-Kalman-Bucy" class="mw-redirect">Stratonovich-Kalman-Bucy</a> filter because it is a special case of a more general, non-linear filter developed earlier by <a href="/wiki/Ruslan_L._Stratonovich" title="Ruslan L. Stratonovich">Ruslan L. Stratonovich</a>.<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup><sup id="cite_ref-2" class="reference"><a href="#cite_note-2" title=""><span>[</span>3<span>]</span></a></sup> In fact, equations of the special case, linear filter appeared in these papers by Stratonovich that were published before summer 1960, when Kalman met with Stratonovich during a conference in Moscow.</p>
+<p>In <a href="/wiki/Control_theory" title="Control theory">control theory</a>, the Kalman filter is most commonly referred to as <b>linear quadratic estimation</b> (LQE).</p>
+<p>A wide variety of Kalman filters have now been developed, from Kalman's original formulation, now called the <i>simple</i> Kalman filter, to Schmidt's <i>extended</i> filter, the <i>information</i> filter and a variety of <i>square-root</i> filters developed by Bierman, Thornton and many others. Perhaps the most commonly used type of Kalman filter is the <a href="/wiki/Phase-locked_loop" title="Phase-locked loop">phase-locked loop</a> now ubiquitous in radios, computers, and nearly any other type of video or communications equipment.</p>
+<p><a name="Underlying_dynamic_system_model" id="Underlying_dynamic_system_model"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=3" title="Edit section: Underlying dynamic system model">edit</a>]</span> <span class="mw-headline">Underlying dynamic system model</span></h2>
+<p>Kalman filters are based on <a href="/wiki/Linear_dynamical_system" title="Linear dynamical system">linear dynamical systems</a> discretised in the time domain. They are modelled on a <a href="/wiki/Markov_chain" title="Markov chain">Markov chain</a> built on <a href="/wiki/Linear_operator" title="Linear operator" class="mw-redirect">linear operators</a> perturbed by <a href="/wiki/Normal_distribution" title="Normal distribution">Gaussian</a> <a href="/wiki/Noise_(physics)" title="Noise (physics)" class="mw-redirect">noise</a>. The <a href="/wiki/State_space_(controls)" title="State space (controls)">state</a> of the system is represented as a <a href="/wiki/Vector_space" title="Vector space">vector</a> of <a href="/wiki/Real_number" title="Real number">real numbers</a>. At each <a href="/wiki/Discrete_time" title="Discrete time">discrete time</a> increment, a linear operator is applied to the state to generate the new state, with some noise mixed in, and optionally some information from the controls on the system if they are known. Then, another linear operator mixed with more noise generates the visible outputs from the hidden state. The Kalman filter may be regarded as analogous to the <a href="/wiki/Hidden_Markov_model" title="Hidden Markov model">hidden Markov model</a>, with the key difference that the hidden state variables take values in a continuous space (as opposed to a discrete state space as in the hidden Markov model). Additionally, the hidden Markov model can represent an arbitrary distribution for the next value of the state variables, in contrast to the Gaussian noise model that is used for the Kalman filter. There is a strong duality between the equations of the Kalman Filter and those of the hidden Markov model. A review of this and other models is given in Roweis and Ghahramani (1999).<sup id="cite_ref-3" class="reference"><a href="#cite_note-3" title=""><span>[</span>4<span>]</span></a></sup></p>
+<p>In order to use the Kalman filter to estimate the internal state of a process given only a sequence of noisy observations, one must model the process in accordance with the framework of the Kalman filter. This means specifying the <a href="/wiki/Matrix_(mathematics)" title="Matrix (mathematics)">matrices</a> <b>F</b><sub><i>k</i></sub>, <b>H</b><sub><i>k</i></sub>, <b>Q</b><sub><i>k</i></sub>, <b>R</b><sub><i>k</i></sub>, and sometimes <b>B</b><sub><i>k</i></sub> for each time-step <i>k</i> as described below.</p>
+<div class="thumb tright">
+<div class="thumbinner" style="width:252px;"><a href="/wiki/File:Kalman_filter_model.png" class="image" title="Model underlying the Kalman filter. Circles are vectors, squares are matrices, and stars represent Gaussian noise with the associated covariance matrix at the lower right."><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/b/b6/Kalman_filter_model.png/250px-Kalman_filter_model.png" width="250" height="174" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Kalman_filter_model.png" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+Model underlying the Kalman filter. Circles are <a href="/wiki/Vector_space" title="Vector space">vectors</a>, squares are <a href="/wiki/Matrix_(mathematics)" title="Matrix (mathematics)">matrices</a>, and stars represent <a href="/wiki/Multivariate_normal_distribution" title="Multivariate normal distribution">Gaussian noise</a> with the associated <a href="/wiki/Covariance_matrix" title="Covariance matrix">covariance matrix</a> at the lower right.</div>
+</div>
+</div>
+<p>The Kalman filter model assumes the true state at time <i>k</i> is evolved from the state at (<i>k</i>&#160;−&#160;1) according to</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{x}_{k} = \textbf{F}_{k} \textbf{x}_{k-1} + \textbf{B}_{k} \textbf{u}_{k} + \textbf{w}_{k} " src="http://upload.wikimedia.org/math/0/6/f/06f49c69d3e6dc76c706b9c67946f95b.png" /></dd>
+</dl>
+<p>where</p>
+<ul>
+<li><b>F</b><sub><i>k</i></sub> is the state transition model which is applied to the previous state <b>x</b><sub><i>k</i>−1</sub>;</li>
+<li><b>B</b><sub><i>k</i></sub> is the control-input model which is applied to the control vector <b>u</b><sub><i>k</i></sub>;</li>
+<li><b>w</b><sub><i>k</i></sub> is the process noise which is assumed to be drawn from a zero mean <a href="/wiki/Multivariate_normal_distribution" title="Multivariate normal distribution">multivariate normal distribution</a> with <a href="/wiki/Covariance_matrix" title="Covariance matrix">covariance</a> <b>Q</b><sub><i>k</i></sub>.</li>
+</ul>
+<dl>
+<dd><img class="tex" alt="\textbf{w}_{k} \sim N(0, \textbf{Q}_k) " src="http://upload.wikimedia.org/math/5/2/b/52ba560e18b97fe321f5959df555db1d.png" /></dd>
+</dl>
+<p>At time <i>k</i> an observation (or measurement) <b>z</b><sub><i>k</i></sub> of the true state <b>x</b><sub><i>k</i></sub> is made according to</p>
+<dl>
+<dd><img class="tex" alt="\textbf{z}_{k} = \textbf{H}_{k} \textbf{x}_{k} + \textbf{v}_{k}" src="http://upload.wikimedia.org/math/6/b/7/6b79ebe71eb32caa5db3151fe37eee00.png" /></dd>
+</dl>
+<p>where <b>H</b><sub><i>k</i></sub> is the observation model which maps the true state space into the observed space and <b>v</b><sub><i>k</i></sub> is the observation noise which is assumed to be zero mean Gaussian white noise with covariance <b>R</b><sub><i>k</i></sub>.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{v}_{k} \sim N(0, \textbf{R}_k) " src="http://upload.wikimedia.org/math/a/b/b/abb28ad3e0265f95a920c297c0a6bc24.png" /></dd>
+</dl>
+<p>The initial state, and the noise vectors at each step {<b>x</b><sub>0</sub>, <b>w</b><sub>1</sub>, ..., <b>w</b><sub><i>k</i></sub>, <b>v</b><sub>1</sub> ... <b>v</b><sub><i>k</i></sub>} are all assumed to be mutually <a href="/wiki/Statistical_independence" title="Statistical independence" class="mw-redirect">independent</a>.</p>
+<p>Many real dynamical systems do not exactly fit this model; however, because the Kalman filter is designed to operate in the presence of noise, an approximate fit is often good enough for the filter to be very useful. Variations on the Kalman filter described below allow richer and more sophisticated models.</p>
+<p><a name="The_Kalman_filter" id="The_Kalman_filter"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=4" title="Edit section: The Kalman filter">edit</a>]</span> <span class="mw-headline">The Kalman filter</span></h2>
+<p>The Kalman filter is a <a href="/wiki/Infinite_impulse_response" title="Infinite impulse response">recursive</a> estimator. This means that only the estimated state from the previous time step and the current measurement are needed to compute the estimate for the current state. In contrast to batch estimation techniques, no history of observations and/or estimates is required. It is unusual in being purely a <a href="/wiki/Time_domain" title="Time domain">time domain</a> filter; most filters (for example, a <a href="/wiki/Low-pass_filter" title="Low-pass filter">low-pass filter</a>) are formulated in the <a href="/wiki/Frequency_domain" title="Frequency domain">frequency domain</a> and then transformed back to the time domain for implementation. In what follows, the notation <img class="tex" alt="\hat{\textbf{x}}_{n|m}" src="http://upload.wikimedia.org/math/5/f/c/5fc9aad589b9c8b01b4e48628ea5671f.png" /> represents the estimate of <img class="tex" alt="\textbf{x}" src="http://upload.wikimedia.org/math/f/2/a/f2a48e1cd2da440643ea07a3b2f60e6f.png" /> at time <i>n</i> given observations up to, and including time <i>m</i>.</p>
+<p>The state of the filter is represented by two variables:</p>
+<ul>
+<li><img class="tex" alt="\hat{\textbf{x}}_{k|k}" src="http://upload.wikimedia.org/math/9/d/c/9dc21b3fb09c4c0bd36032fba98b9159.png" />, the estimate of the state at time <i>k</i> given observations up to and including time <i>k</i>;</li>
+<li><img class="tex" alt="\textbf{P}_{k|k}" src="http://upload.wikimedia.org/math/2/8/9/2897a995e8c9b1915d67be32470d60e5.png" />, the error covariance matrix (a measure of the estimated <a href="/wiki/Accuracy_and_precision" title="Accuracy and precision">accuracy</a> of the state estimate).</li>
+</ul>
+<p>The Kalman filter has two distinct phases: <b>Predict</b> and <b>Update</b>. The predict phase uses the state estimate from the previous timestep to produce an estimate of the state at the current timestep. In the update phase, measurement information at the current timestep is used to refine this prediction to arrive at a new, (hopefully) more accurate state estimate, again for the current timestep.</p>
+<p><a name="Predict" id="Predict"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=5" title="Edit section: Predict">edit</a>]</span> <span class="mw-headline">Predict</span></h3>
+<table>
+<tr>
+<td width="50%">Predicted state</td>
+<td>
+<p><img class="tex" alt="\hat{\textbf{x}}_{k|k-1} = \textbf{F}_{k}\hat{\textbf{x}}_{k-1|k-1} + \textbf{B}_{k-1} \textbf{u}_{k-1} " src="http://upload.wikimedia.org/math/f/7/e/f7ea760f45dd4cdd982a41f80dd38df2.png" /></p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Predicted estimate covariance</p>
+</td>
+<td>
+<p><img class="tex" alt="\textbf{P}_{k|k-1} =  \textbf{F}_{k} \textbf{P}_{k-1|k-1} \textbf{F}_{k}^{\text{T}} + \textbf{Q}_{k-1} " src="http://upload.wikimedia.org/math/7/e/d/7edee05211521dfd88cad58453fdf9e2.png" /></p>
+</td>
+</tr>
+</table>
+<p><a name="Update" id="Update"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=6" title="Edit section: Update">edit</a>]</span> <span class="mw-headline">Update</span></h3>
+<table>
+<tr>
+<td width="50%">Innovation or measurement residual</td>
+<td>
+<p><img class="tex" alt="
+\tilde{\textbf{y}}_k = \textbf{z}_k - \textbf{H}_k\hat{\textbf{x}}_{k|k-1}
+" src="http://upload.wikimedia.org/math/9/4/d/94dedb0aa8b611741e57b2fe40cd9be3.png" /></p>
+</td>
+</tr>
+<tr>
+<td>Innovation (or residual) covariance</td>
+<td><img class="tex" alt="\textbf{S}_k = \textbf{H}_k \textbf{P}_{k|k-1} \textbf{H}_k^\text{T} + \textbf{R}_k " src="http://upload.wikimedia.org/math/1/a/3/1a33df39f1447f0b1c358f4d51e13a40.png" /></td>
+</tr>
+<tr>
+<td><i>Optimal</i> Kalman gain</td>
+<td><img class="tex" alt="\textbf{K}_k = \textbf{P}_{k|k-1}\textbf{H}_k^\text{T}\textbf{S}_k^{-1}" src="http://upload.wikimedia.org/math/b/9/e/b9eb23558d548cb7f3bb2375398ba4ef.png" /></td>
+</tr>
+<tr>
+<td>Updated state estimate</td>
+<td><img class="tex" alt="\hat{\textbf{x}}_{k|k} = \hat{\textbf{x}}_{k|k-1} + \textbf{K}_k\tilde{\textbf{y}}_k" src="http://upload.wikimedia.org/math/b/e/b/bebb31e78e560130427c2f9aac0d0fff.png" /></td>
+</tr>
+<tr>
+<td>Updated estimate covariance</td>
+<td><img class="tex" alt="\textbf{P}_{k|k} = (I - \textbf{K}_k \textbf{H}_k) \textbf{P}_{k|k-1}" src="http://upload.wikimedia.org/math/9/6/b/96b934387acd18af06506e491fd3a5e2.png" /></td>
+</tr>
+</table>
+<p>The formula for the updated estimate covariance above is only valid for the optimal Kalman gain. Usage of other gain values require a more complex formula found in the <i><a href="/wiki/Kalman_filter#Derivations" title="Kalman filter">derivations</a></i> section.</p>
+<p><a name="Invariants" id="Invariants"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=7" title="Edit section: Invariants">edit</a>]</span> <span class="mw-headline">Invariants</span></h3>
+<p>If the model is accurate, and the values for <img class="tex" alt="\hat{\textbf{x}}_{0|0}" src="http://upload.wikimedia.org/math/7/7/0/770978f72a59054f845ae0f61ce3f119.png" /> and <img class="tex" alt="\textbf{P}_{0|0}" src="http://upload.wikimedia.org/math/7/c/f/7cf6451ff82e28af27ec062042973faf.png" /> accurately reflect the distribution of the initial state values, then the following invariants are preserved: all estimates have mean error zero</p>
+<ul>
+<li><img class="tex" alt="\textrm{E}[\textbf{x}_k - \hat{\textbf{x}}_{k|k}] = \textrm{E}[\textbf{x}_k - \hat{\textbf{x}}_{k|k-1}] = 0" src="http://upload.wikimedia.org/math/4/c/4/4c4bbb2da083dae032f5a7930e7b5d80.png" /></li>
+<li><img class="tex" alt="\textrm{E}[\tilde{\textbf{y}}_k] = 0" src="http://upload.wikimedia.org/math/0/0/7/00703cccab98e464367ae2b34e9b1493.png" /></li>
+</ul>
+<p>where <span class="texhtml">E[ξ]</span> is the <a href="/wiki/Expected_value" title="Expected value">expected value</a> of <span class="texhtml">ξ</span>, and <a href="/wiki/Covariance_matrix" title="Covariance matrix">covariance matrices</a> accurately reflect the covariance of estimates</p>
+<ul>
+<li><img class="tex" alt="\textbf{P}_{k|k} = \textrm{cov}(\textbf{x}_k - \hat{\textbf{x}}_{k|k})" src="http://upload.wikimedia.org/math/e/2/9/e297f5caf73b41b43f26aeb994bfe906.png" /></li>
+<li><img class="tex" alt="\textbf{P}_{k|k-1} = \textrm{cov}(\textbf{x}_k - \hat{\textbf{x}}_{k|k-1})" src="http://upload.wikimedia.org/math/3/8/f/38f4fdca35654311f5af88fb9e8c3400.png" /></li>
+<li><img class="tex" alt="\textbf{S}_{k} = \textrm{cov}(\tilde{\textbf{y}}_k)" src="http://upload.wikimedia.org/math/0/1/7/017f64b4795a9fe61e02aa8a6742e877.png" /></li>
+</ul>
+<p><a name="Examples" id="Examples"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=8" title="Edit section: Examples">edit</a>]</span> <span class="mw-headline">Examples</span></h2>
+<p>Consider a truck on perfectly frictionless, infinitely long straight rails. Initially the truck is stationary at position 0, but it is buffeted this way and that by random acceleration. We measure the position of the truck every <i>Δt</i> seconds, but these measurements are imprecise; we want to maintain a model of where the truck is and what its <a href="/wiki/Velocity" title="Velocity">velocity</a> is. We show here how we derive the model from which we create our Kalman filter.</p>
+<p>There are no controls on the truck, so we ignore <b>B</b><sub><i>k</i></sub> and <b>u</b><sub><i>k</i></sub>. Since <b>F</b>, <b>H</b>, <b>R</b> and <b>Q</b> are constant, their time indices are dropped.</p>
+<p>The position and velocity of the truck is described by the linear state space</p>
+<dl>
+<dd><img class="tex" alt="\textbf{x}_{k} = \begin{bmatrix} x \\ \dot{x} \end{bmatrix} " src="http://upload.wikimedia.org/math/c/0/2/c02cd9b3235f6868c7e002fe9fe43e96.png" /></dd>
+</dl>
+<p>where <img class="tex" alt="\dot{x}" src="http://upload.wikimedia.org/math/3/4/e/34e40f4975c7207a5e98551ba34eedb6.png" /> is the velocity, that is, the derivative of position with respect to time.</p>
+<p>We assume that between the (<i>k</i>&#160;−&#160;1)<sup>th</sup> and <i>k</i><sup>th</sup> timestep the truck undergoes a constant acceleration of <i>a</i><sub><i>k</i></sub> that is <a href="/wiki/Normal_distribution" title="Normal distribution">normally distributed</a>, with mean 0 and standard deviation <i>σ</i><sub><i>a</i></sub>. From <a href="/wiki/Newton%27s_laws_of_motion" title="Newton's laws of motion">Newton's laws of motion</a> we conclude that</p>
+<dl>
+<dd><img class="tex" alt="\textbf{x}_{k} = \textbf{F} \textbf{x}_{k-1} + \textbf{G}a_{k}" src="http://upload.wikimedia.org/math/c/b/2/cb28003538d2fa1d2bfd7ec5dce580d4.png" /></dd>
+</dl>
+<p>where</p>
+<dl>
+<dd><img class="tex" alt="\textbf{F} = \begin{bmatrix} 1 &amp; \Delta t \\ 0 &amp; 1 \end{bmatrix}" src="http://upload.wikimedia.org/math/b/3/0/b3076282b8d3ec87de015b316d227617.png" /></dd>
+</dl>
+<p>and</p>
+<dl>
+<dd><img class="tex" alt="\textbf{G} = \begin{bmatrix} \frac{\Delta t^{2}}{2} \\ \Delta t \end{bmatrix} " src="http://upload.wikimedia.org/math/5/5/1/55118df6aa82f9d734b42eea8d53fc57.png" /></dd>
+</dl>
+<p>We find that</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{Q} = \textrm{cov}(\textbf{G}a) = \textrm{E}[(\textbf{G}a)(\textbf{G}a)^{\text{T}}] = \textbf{G} \textrm{E}[a^2] \textbf{G}^{\text{T}} = \textbf{G}[\sigma_a^2]\textbf{G}^{\text{T}} = \sigma_a^2 \textbf{G}\textbf{G}^{\text{T}}" src="http://upload.wikimedia.org/math/a/3/5/a35c82aabf9ae1297ef04300537c8112.png" /> (since <i>σ</i><sub><i>a</i></sub> is a scalar).</dd>
+</dl>
+<p>At each time step, a noisy measurement of the true position of the truck is made. Let us suppose the noise is also normally distributed, with mean 0 and standard deviation <i>σ</i><sub>z</sub>.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{z}_{k} = \textbf{H x}_{k} + \textbf{v}_{k}" src="http://upload.wikimedia.org/math/0/5/b/05b8292ae16b19291903dfe4b69f2632.png" /></dd>
+</dl>
+<p>where</p>
+<dl>
+<dd><img class="tex" alt="\textbf{H} = \begin{bmatrix} 1 &amp; 0 \end{bmatrix} " src="http://upload.wikimedia.org/math/f/a/0/fa03009e0c22badbe2032312c1dd89f8.png" /></dd>
+</dl>
+<p>and</p>
+<dl>
+<dd><img class="tex" alt="\textbf{R} = \textrm{E}[\textbf{v}_k \textbf{v}_k^{\text{T}}] = \begin{bmatrix} \sigma_z^2 \end{bmatrix} " src="http://upload.wikimedia.org/math/1/3/c/13c0f6c1c05e1576664884f7b32ba0e2.png" /></dd>
+</dl>
+<p>We know the initial starting state of the truck with perfect precision, so we initialize</p>
+<dl>
+<dd><img class="tex" alt="\hat{\textbf{x}}_{0|0} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} " src="http://upload.wikimedia.org/math/4/7/4/474a0604c06577d93d577923decbe670.png" /></dd>
+</dl>
+<p>and to tell the filter that we know the exact position, we give it a zero covariance matrix:</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{0|0} = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0 \end{bmatrix} " src="http://upload.wikimedia.org/math/f/e/8/fe83496e7f4613fa3fa4eacdbf4370dd.png" /></dd>
+</dl>
+<p>If the initial position and velocity are not known perfectly the covariance matrix should be initialized with a suitably large number, say <i>B</i>, on its diagonal.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{0|0} = \begin{bmatrix} B &amp; 0 \\ 0 &amp; B \end{bmatrix} " src="http://upload.wikimedia.org/math/f/b/9/fb91665c05cab299a032c4333a9147c3.png" /></dd>
+</dl>
+<p>The filter will then prefer the information from the first measurements over the information already in the model.</p>
+<p><a name="Derivations" id="Derivations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=9" title="Edit section: Derivations">edit</a>]</span> <span class="mw-headline">Derivations</span></h2>
+<p><a name="Deriving_the_posterior_estimate_covariance_matrix" id="Deriving_the_posterior_estimate_covariance_matrix"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=10" title="Edit section: Deriving the posterior estimate covariance matrix">edit</a>]</span> <span class="mw-headline">Deriving the posterior estimate covariance matrix</span></h3>
+<p>Starting with our invariant on the error covariance <b>P</b><sub><i>k</i>|<i>k</i></sub> as above</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k}  = \textrm{cov}(\textbf{x}_{k} - \hat{\textbf{x}}_{k|k})" src="http://upload.wikimedia.org/math/f/b/4/fb42b906a0ab1b154b0817ce09a4c81e.png" /></dd>
+</dl>
+<p>substitute in the definition of <img class="tex" alt="\hat{\textbf{x}}_{k|k}" src="http://upload.wikimedia.org/math/9/d/c/9dc21b3fb09c4c0bd36032fba98b9159.png" /></p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = \textrm{cov}(\textbf{x}_{k} - (\hat{\textbf{x}}_{k|k-1} + \textbf{K}_k\tilde{\textbf{y}}_{k}))" src="http://upload.wikimedia.org/math/0/6/e/06e94f80c6e4c41c44dfa42dfba09af4.png" /></dd>
+</dl>
+<p>and substitute <img class="tex" alt="\tilde{\textbf{y}}_k" src="http://upload.wikimedia.org/math/b/f/3/bf3b01796ccd12373fa972799ae3a3f7.png" /></p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = \textrm{cov}(\textbf{x}_{k} - (\hat{\textbf{x}}_{k|k-1} + \textbf{K}_k(\textbf{z}_k - \textbf{H}_k\hat{\textbf{x}}_{k|k-1})))" src="http://upload.wikimedia.org/math/8/3/f/83f250cbec7bbca0630df27da4bfaaa6.png" /></dd>
+</dl>
+<p>and <img class="tex" alt="\textbf{z}_{k}" src="http://upload.wikimedia.org/math/2/2/e/22eeda9bb9b17ea20e75808f482db515.png" /></p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = \textrm{cov}(\textbf{x}_{k} - (\hat{\textbf{x}}_{k|k-1} + \textbf{K}_k(\textbf{H}_k\textbf{x}_k + \textbf{v}_k - \textbf{H}_k\hat{\textbf{x}}_{k|k-1})))" src="http://upload.wikimedia.org/math/d/3/d/d3d19c1d1823d973d3eaeef636fe43cc.png" /></dd>
+</dl>
+<p>and by collecting the error vectors we get</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = \textrm{cov}((I - \textbf{K}_k \textbf{H}_{k})(\textbf{x}_k - \hat{\textbf{x}}_{k|k-1}) - \textbf{K}_k \textbf{v}_k )" src="http://upload.wikimedia.org/math/f/2/b/f2b36a0615bf7b39e9f0a384a16cd949.png" /></dd>
+</dl>
+<p>Since the measurement error <b>v</b><sub><i>k</i></sub> is uncorrelated with the other terms, this becomes</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = \textrm{cov}((I - \textbf{K}_k \textbf{H}_{k})(\textbf{x}_k - \hat{\textbf{x}}_{k|k-1}))  + \textrm{cov}(\textbf{K}_k \textbf{v}_k )" src="http://upload.wikimedia.org/math/7/1/b/71bbafc96d5fee61c6b584de5a5d3850.png" /></dd>
+</dl>
+<p>by the properties of <a href="/wiki/Covariance_matrix" title="Covariance matrix">vector covariance</a> this becomes</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = (I - \textbf{K}_k \textbf{H}_{k})\textrm{cov}(\textbf{x}_k - \hat{\textbf{x}}_{k|k-1})(I - \textbf{K}_k \textbf{H}_{k})^{\text{T}}  + \textbf{K}_k\textrm{cov}(\textbf{v}_k )\textbf{K}_k^{\text{T}}" src="http://upload.wikimedia.org/math/7/4/3/74352d27f7337900c60238e9ae2f9556.png" /></dd>
+</dl>
+<p>which, using our invariant on <b>P</b><sub><i>k</i>|<i>k</i>-1</sub> and the definition of <b>R</b><sub><i>k</i></sub> becomes</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = 
+(I - \textbf{K}_k \textbf{H}_{k}) \textbf{P}_{k|k-1} (I - \textbf{K}_k \textbf{H}_{k})^\text{T} +
+\textbf{K}_k \textbf{R}_k \textbf{K}_k^\text{T}
+" src="http://upload.wikimedia.org/math/b/2/1/b213ce3d467be9134104724004efe5b6.png" /></dd>
+</dl>
+<p>This formula (sometimes known as the "<b>Joseph form</b>" of the covariance update equation) is valid no matter what the value of <b>K</b><sub><i>k</i></sub>. It turns out that if <b>K</b><sub><i>k</i></sub> is the optimal Kalman gain, this can be simplified further as shown below.</p>
+<p><a name="Kalman_gain_derivation" id="Kalman_gain_derivation"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=11" title="Edit section: Kalman gain derivation">edit</a>]</span> <span class="mw-headline">Kalman gain derivation</span></h3>
+<p>The Kalman filter is a <a href="/wiki/Minimum_mean-square_error" title="Minimum mean-square error" class="mw-redirect">minimum mean-square error</a> estimator. The error in the posterior state estimation is</p>
+<dl>
+<dd><img class="tex" alt="\textbf{x}_{k} - \hat{\textbf{x}}_{k|k}" src="http://upload.wikimedia.org/math/b/3/c/b3c73d3726fc7dc1d84106dffbef83f3.png" /></dd>
+</dl>
+<p>We seek to minimize the expected value of the square of the magnitude of this vector, <img class="tex" alt="\textrm{E}[|\textbf{x}_{k} - \hat{\textbf{x}}_{k|k}|^2]" src="http://upload.wikimedia.org/math/d/a/c/dac65520055c06e789c58462cc7b7738.png" />. This is equivalent to minimizing the <a href="/wiki/Trace_(matrix)" title="Trace (matrix)" class="mw-redirect">trace</a> of the posterior estimate covariance matrix <img class="tex" alt=" \textbf{P}_{k|k} " src="http://upload.wikimedia.org/math/2/8/9/2897a995e8c9b1915d67be32470d60e5.png" />. By expanding out the terms in the equation above and collecting, we get:</p>
+<dl>
+<dd>
+<table>
+<tr>
+<td><img class="tex" alt=" \textbf{P}_{k|k} " src="http://upload.wikimedia.org/math/2/8/9/2897a995e8c9b1915d67be32470d60e5.png" /></td>
+<td><img class="tex" alt=" = \textbf{P}_{k|k-1} - \textbf{K}_k \textbf{H}_k \textbf{P}_{k|k-1} - \textbf{P}_{k|k-1} \textbf{H}_k^\text{T} \textbf{K}_k^\text{T} + \textbf{K}_k (\textbf{H}_k \textbf{P}_{k|k-1} \textbf{H}_k^\text{T} + \textbf{R}_k) \textbf{K}_k^\text{T}" src="http://upload.wikimedia.org/math/0/4/f/04fbf35ef3660df4785639f47ae070f5.png" /></td>
+</tr>
+<tr>
+<td></td>
+<td><img class="tex" alt=" = \textbf{P}_{k|k-1} - \textbf{K}_k \textbf{H}_k \textbf{P}_{k|k-1} - \textbf{P}_{k|k-1} \textbf{H}_k^\text{T} \textbf{K}_k^\text{T} + \textbf{K}_k \textbf{S}_k\textbf{K}_k^\text{T}" src="http://upload.wikimedia.org/math/8/d/9/8d9b0572e5d6d1c88d71574932d468ea.png" /></td>
+</tr>
+</table>
+</dd>
+</dl>
+<p>The trace is minimized when the <a href="/wiki/Matrix_calculus" title="Matrix calculus">matrix derivative</a> is zero:</p>
+<dl>
+<dd><img class="tex" alt="\frac{\partial \; \textrm{tr}(\textbf{P}_{k|k})}{\partial \;\textbf{K}_k} = -2 (\textbf{H}_k \textbf{P}_{k|k-1})^\text{T} + 2 \textbf{K}_k \textbf{S}_k  = 0" src="http://upload.wikimedia.org/math/b/7/6/b7670d8abde9217040369c966dd5edb5.png" /></dd>
+</dl>
+<p>Solving this for <b>K</b><sub><i>k</i></sub> yields the Kalman gain:</p>
+<dl>
+<dd><img class="tex" alt="\textbf{K}_k \textbf{S}_k = (\textbf{H}_k \textbf{P}_{k|k-1})^\text{T} = \textbf{P}_{k|k-1} \textbf{H}_k^\text{T}" src="http://upload.wikimedia.org/math/d/7/c/d7c581ce767c7198ad421a43ba8a38c9.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt=" \textbf{K}_{k} = \textbf{P}_{k|k-1} \textbf{H}_k^\text{T} \textbf{S}_k^{-1}" src="http://upload.wikimedia.org/math/4/2/4/424aaf795cc4206014230c9cac9ed88f.png" /></dd>
+</dl>
+<p>This gain, which is known as the <i>optimal Kalman gain</i>, is the one that yields <a href="/wiki/Minimum_mean-square_error" title="Minimum mean-square error" class="mw-redirect">MMSE</a> estimates when used.</p>
+<p><a name="Simplification_of_the_posterior_error_covariance_formula" id="Simplification_of_the_posterior_error_covariance_formula"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=12" title="Edit section: Simplification of the posterior error covariance formula">edit</a>]</span> <span class="mw-headline">Simplification of the posterior error covariance formula</span></h3>
+<p>The formula used to calculate the posterior error covariance can be simplified when the Kalman gain equals the optimal value derived above. Multiplying both sides of our Kalman gain formula on the right by <b>S</b><sub><i>k</i></sub><b>K</b><sub><i>k</i></sub><sup><i>T</i></sup>, it follows that</p>
+<dl>
+<dd><img class="tex" alt="\textbf{K}_k \textbf{S}_k \textbf{K}_k^T = \textbf{P}_{k|k-1} \textbf{H}_k^T \textbf{K}_k^T" src="http://upload.wikimedia.org/math/1/6/0/160d006ebcb8a6f22925bf1d888cf820.png" /></dd>
+</dl>
+<p>Referring back to our expanded formula for the posterior error covariance,</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{P}_{k|k} = \textbf{P}_{k|k-1} - \textbf{K}_k \textbf{H}_k \textbf{P}_{k|k-1}  - \textbf{P}_{k|k-1} \textbf{H}_k^T \textbf{K}_k^T + \textbf{K}_k \textbf{S}_k \textbf{K}_k^T" src="http://upload.wikimedia.org/math/f/2/6/f26776cd1f5e849fa7a3b720421a9c35.png" /></dd>
+</dl>
+<p>we find the last two terms cancel out, giving</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{P}_{k|k} = \textbf{P}_{k|k-1} - \textbf{K}_k \textbf{H}_k \textbf{P}_{k|k-1} = (I - \textbf{K}_{k} \textbf{H}_{k}) \textbf{P}_{k|k-1}." src="http://upload.wikimedia.org/math/f/2/2/f229a9c21d12abe38ac4bca2d8efe161.png" /></dd>
+</dl>
+<p>This formula is computationally cheaper and thus nearly always used in practice, but is only correct for the optimal gain. If arithmetic precision is unusually low causing problems with <a href="/wiki/Numerical_stability" title="Numerical stability">numerical stability</a>, or if a non-optimal Kalman gain is deliberately used, this simplification cannot be applied; the posterior error covariance formula as derived above must be used.</p>
+<p><a name="Relationship_to_the_digital_filter" id="Relationship_to_the_digital_filter"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=13" title="Edit section: Relationship to the digital filter">edit</a>]</span> <span class="mw-headline">Relationship to the digital filter</span></h2>
+<p>The Kalman filter can be regarded as an adaptive low-pass infinite impulse response <a href="/wiki/Digital_filter" title="Digital filter">digital filter</a>, with cut-off frequency depending on the ratio between the process- and measurement (or observation) noise, as well as the estimate covariance. Frequency response is, however, rarely of interest when designing state estimators such as the Kalman Filter, whereas for digital filters such as <a href="/wiki/Infinite_impulse_response" title="Infinite impulse response">IIR</a> and <a href="/wiki/Finite_impulse_response" title="Finite impulse response">FIR</a> filters, frequency response is usually of primary concern. For the Kalman Filter, the important goal is how accurate the filter is, and this is most often decided based on empirical Monte Carlo simulations, where "truth" (the true state) is known.</p>
+<p><a name="Relationship_to_recursive_Bayesian_estimation" id="Relationship_to_recursive_Bayesian_estimation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=14" title="Edit section: Relationship to recursive Bayesian estimation">edit</a>]</span> <span class="mw-headline">Relationship to <a href="/wiki/Recursive_Bayesian_estimation" title="Recursive Bayesian estimation">recursive Bayesian estimation</a></span></h2>
+<p>The true state is assumed to be an unobserved <a href="/wiki/Markov_process" title="Markov process">Markov process</a>, and the measurements are the observed states of a hidden Markov model.</p>
+<div class="center">
+<div class="floatnone"><a href="/wiki/File:HMM_Kalman_Filter_Derivation.svg" class="image" title="Hidden Markov model"><img alt="Hidden Markov model" src="http://upload.wikimedia.org/wikipedia/commons/thumb/8/81/HMM_Kalman_Filter_Derivation.svg/466px-HMM_Kalman_Filter_Derivation.svg.png" width="466" height="195" border="0" /></a></div>
+</div>
+<p>Because of the Markov assumption, the true state is conditionally independent of all earlier states given the immediately previous state.</p>
+<dl>
+<dd><img class="tex" alt="p(\textbf{x}_k|\textbf{x}_0,\dots,\textbf{x}_{k-1}) = p(\textbf{x}_k|\textbf{x}_{k-1})" src="http://upload.wikimedia.org/math/0/4/b/04b9679161c7616c59d7eae3dd49e495.png" /></dd>
+</dl>
+<p>Similarly the measurement at the <i>k</i>-th timestep is dependent only upon the current state and is conditionally independent of all other states given the current state.</p>
+<dl>
+<dd><img class="tex" alt="p(\textbf{z}_k|\textbf{x}_0,\dots,\textbf{x}_{k}) = p(\textbf{z}_k|\textbf{x}_{k} )" src="http://upload.wikimedia.org/math/6/2/6/626ee96fdc4b8befd2259d2f76dd864e.png" /></dd>
+</dl>
+<p>Using these assumptions the probability distribution over all states of the hidden Markov model can be written simply as:</p>
+<dl>
+<dd><img class="tex" alt="p(\textbf{x}_0,\dots,\textbf{x}_k,\textbf{z}_1,\dots,\textbf{z}_k) = p(\textbf{x}_0)\prod_{i=1}^k p(\textbf{z}_i|\textbf{x}_i)p(\textbf{x}_i|\textbf{x}_{i-1})" src="http://upload.wikimedia.org/math/0/5/1/0511e8acb9a1d4dc598ae1819138fa37.png" /></dd>
+</dl>
+<p>However, when the Kalman filter is used to estimate the state <b>x</b>, the probability distribution of interest is that associated with the current states conditioned on the measurements up to the current timestep. (This is achieved by marginalizing out the previous states and dividing by the probability of the measurement set.)</p>
+<p>This leads to the <i>predict</i> and <i>update</i> steps of the Kalman filter written probabilistically. The probability distribution associated with the predicted state is the sum (integral) of the products of the probability distribution associated with the transition from the (<i>k</i> - 1)-th timestep to the <i>k</i>-th and the probability distribution associated with the previous state, over all possible <img class="tex" alt="x_{k_-1}" src="http://upload.wikimedia.org/math/b/f/e/bfeb73a0c53623b6839b6a73f62e075d.png" />.</p>
+<dl>
+<dd><img class="tex" alt=" p(\textbf{x}_k|\textbf{Z}_{k-1}) = \int p(\textbf{x}_k | \textbf{x}_{k-1}) p(\textbf{x}_{k-1} | \textbf{Z}_{k-1} )  \, d\textbf{x}_{k-1} " src="http://upload.wikimedia.org/math/e/b/a/ebaf1314bbc51c25daabff9f3795c722.png" /></dd>
+</dl>
+<p>The measurement set up to time <i>t</i> is</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{Z}_{t} = \left \{ \textbf{z}_{1},\dots,\textbf{z}_{t} \right \} " src="http://upload.wikimedia.org/math/3/1/7/3176d699be3bcb927199773ed9c4299c.png" /></dd>
+</dl>
+<p>The probability distribution of the update is proportional to the product of the measurement likelihood and the predicted state.</p>
+<dl>
+<dd><img class="tex" alt=" p(\textbf{x}_k|\textbf{Z}_{k}) = \frac{p(\textbf{z}_k|\textbf{x}_k) p(\textbf{x}_k|\textbf{Z}_{k-1})}{p(\textbf{z}_k|\textbf{Z}_{k-1})} " src="http://upload.wikimedia.org/math/2/9/c/29c75286790c43bc2874c628c8977d88.png" /></dd>
+</dl>
+<p>The denominator</p>
+<dl>
+<dd><img class="tex" alt="p(\textbf{z}_k|\textbf{Z}_{k-1}) = \int p(\textbf{z}_k|\textbf{x}_k) p(\textbf{x}_k|\textbf{Z}_{k-1}) d\textbf{x}_k" src="http://upload.wikimedia.org/math/4/f/1/4f19ec2c4ae37942e46aa59dce2fd70e.png" /></dd>
+</dl>
+<p>is a normalization term.</p>
+<p>The remaining probability density functions are</p>
+<dl>
+<dd><img class="tex" alt=" p(\textbf{x}_k | \textbf{x}_{k-1}) = N(\textbf{F}_k\textbf{x}_{k-1}, \textbf{Q}_k)" src="http://upload.wikimedia.org/math/5/7/d/57dac974aaee3a436f90a91ba34298d1.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt=" p(\textbf{z}_k|\textbf{x}_k) = N(\textbf{H}_{k}\textbf{x}_k, \textbf{R}_k) " src="http://upload.wikimedia.org/math/d/3/0/d309ca91ca04033b56d3bd601847d300.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt=" p(\textbf{x}_{k-1}|\textbf{Z}_{k-1}) = N(\hat{\textbf{x}}_{k-1},\textbf{P}_{k-1} )" src="http://upload.wikimedia.org/math/e/4/9/e49d55f843239877f93af66c1c6ad664.png" /></dd>
+</dl>
+<p>Note that the PDF at the previous timestep is inductively assumed to be the estimated state and covariance. This is justified because, as an optimal estimator, the Kalman filter makes best use of the measurements, therefore the PDF for <img class="tex" alt="\mathbf{x}_k" src="http://upload.wikimedia.org/math/f/7/4/f746f9ef837d783f6918d8a8bff650b7.png" /> given the measurements <img class="tex" alt="\mathbf{Z}_k" src="http://upload.wikimedia.org/math/d/9/c/d9c8f16141a2aedf7b0315e8bd9c0a4a.png" /> <i>is</i> the Kalman filter estimate.</p>
+<p><a name="Information_filter" id="Information_filter"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=15" title="Edit section: Information filter">edit</a>]</span> <span class="mw-headline">Information filter</span></h2>
+<p>In the <b>information filter</b>, or <b>inverse covariance filter</b>, the estimated covariance and estimated state are replaced by the <a href="/wiki/Fisher_information_matrix" title="Fisher information matrix" class="mw-redirect">information matrix</a> and <a href="/wiki/Fisher_information" title="Fisher information">information</a> vector respectively. These are defined as:</p>
+<dl>
+<dd><img class="tex" alt="\textbf{Y}_{k|k} =  \textbf{P}_{k|k}^{-1} " src="http://upload.wikimedia.org/math/7/0/d/70d94ba19fa627286ffac3c272d3d16e.png" /></dd>
+<dd><img class="tex" alt="\hat{\textbf{y}}_{k|k} =  \textbf{P}_{k|k}^{-1}\hat{\textbf{x}}_{k|k} " src="http://upload.wikimedia.org/math/e/4/d/e4d6db0d158a4f62df8bb56e0ed94403.png" /></dd>
+</dl>
+<p>Similarly the predicted covariance and state have equivalent information forms, defined as:</p>
+<dl>
+<dd><img class="tex" alt="\textbf{Y}_{k|k-1} =  \textbf{P}_{k|k-1}^{-1} " src="http://upload.wikimedia.org/math/b/2/e/b2e12a617cc225a6725775080f55f789.png" /></dd>
+<dd><img class="tex" alt="\hat{\textbf{y}}_{k|k-1} =  \textbf{P}_{k|k-1}^{-1}\hat{\textbf{x}}_{k|k-1} " src="http://upload.wikimedia.org/math/2/5/5/255dfa865a73ce822149fa2e0f3ec89b.png" /></dd>
+</dl>
+<p>as have the measurement covariance and measurement vector, which are defined as:</p>
+<dl>
+<dd><img class="tex" alt="\textbf{I}_{k} = \textbf{H}_{k}^{\text{T}} \textbf{R}_{k}^{-1} \textbf{H}_{k} " src="http://upload.wikimedia.org/math/c/0/3/c030b028bed5216c8b7be1917e42d1f9.png" /></dd>
+<dd><img class="tex" alt="\textbf{i}_{k} = \textbf{H}_{k}^{\text{T}} \textbf{R}_{k}^{-1} \textbf{z}_{k} " src="http://upload.wikimedia.org/math/4/d/d/4dd828e7d6e4edc1377d7419e6068103.png" /></dd>
+</dl>
+<p>The information update now becomes a trivial sum.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{Y}_{k|k} = \textbf{Y}_{k|k-1} + \textbf{I}_{k}" src="http://upload.wikimedia.org/math/4/d/2/4d22f6e09f594184932763e3c6731784.png" /></dd>
+<dd><img class="tex" alt="\hat{\textbf{y}}_{k|k} = \hat{\textbf{y}}_{k|k-1} + \textbf{i}_{k}" src="http://upload.wikimedia.org/math/d/1/2/d12b2227f40d3a7f58112a0681bf4d4a.png" /></dd>
+</dl>
+<p>The main advantage of the information filter is that <i>N</i> measurements can be filtered at each timestep simply by summing their information matrices and vectors.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{Y}_{k|k} = \textbf{Y}_{k|k-1} + \sum_{j=1}^N \textbf{I}_{k,j}" src="http://upload.wikimedia.org/math/1/8/c/18cb70bf8ed96f40e99f25a67bdbcb21.png" /></dd>
+<dd><img class="tex" alt="\hat{\textbf{y}}_{k|k} = \hat{\textbf{y}}_{k|k-1} + \sum_{j=1}^N \textbf{i}_{k,j}" src="http://upload.wikimedia.org/math/7/e/f/7efd0553ee382073920e290a95da0dec.png" /></dd>
+</dl>
+<p>To predict the information filter the information matrix and vector can be converted back to their state space equivalents, or alternatively the information space prediction can be used.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{M}_{k} = 
+  [\textbf{F}_{k}^{-1}]^{\text{T}} \textbf{Y}_{k-1|k-1} \textbf{F}_{k}^{-1} " src="http://upload.wikimedia.org/math/2/6/2/26208bc8cd8a6061d4e26c0165797af5.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt="\textbf{C}_{k} = 
+  \textbf{M}_{k} [\textbf{M}_{k}+\textbf{Q}_{k}^{-1}]^{-1}" src="http://upload.wikimedia.org/math/b/a/b/baba972b698cfcfce00c6fdb6c3c52e9.png" /></dd>
+<dd><img class="tex" alt="\textbf{L}_{k} = 
+  I - \textbf{C}_{k} " src="http://upload.wikimedia.org/math/2/d/6/2d6cd5e39afabb2682fb1cb827342364.png" /></dd>
+<dd><img class="tex" alt="\textbf{Y}_{k|k-1} = 
+  \textbf{L}_{k} \textbf{M}_{k} \textbf{L}_{k}^{\text{T}} + 
+  \textbf{C}_{k} \textbf{Q}_{k}^{-1} \textbf{C}_{k}^{\text{T}}" src="http://upload.wikimedia.org/math/0/d/a/0da46bba4a0a3898d55c69207210dee7.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt="\hat{\textbf{y}}_{k|k-1} = 
+  \textbf{L}_{k} [\textbf{F}_{k}^{-1}]^{\text{T}}\hat{\textbf{y}}_{k-1|k-1} " src="http://upload.wikimedia.org/math/a/d/a/adaa6e7d41ff680f915be3e0d4d2e4ca.png" /></dd>
+</dl>
+<p>Note that if <i>F</i> and <i>Q</i> are time invariant these values can be cached. Note also that <i>F</i> and <i>Q</i> need to be invertible.</p>
+<p><a name="Fixed-lag_smoother" id="Fixed-lag_smoother"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=16" title="Edit section: Fixed-lag smoother">edit</a>]</span> <span class="mw-headline">Fixed-lag smoother</span></h2>
+<p>The optimal fixed-lag smoother provides the optimal estimate of <img class="tex" alt="\hat{\textbf{x}}_{k - N | k}" src="http://upload.wikimedia.org/math/c/c/5/cc554e4580e4eeb918ae2231f20801fc.png" /> for a given fixed-lag <span class="texhtml"><i>N</i></span> using the measurements from <img class="tex" alt="\textbf{z}_{1}" src="http://upload.wikimedia.org/math/1/e/f/1ef4a60b833a6584f289624eb3c3a033.png" /> to <img class="tex" alt="\textbf{z}_{k}" src="http://upload.wikimedia.org/math/2/2/e/22eeda9bb9b17ea20e75808f482db515.png" />. It can be derived using the previous theory via an augmented state, and the main equation of the filter is the following:</p>
+<p><img class="tex" alt="
+	\begin{bmatrix}
+		\hat{\textbf{x}}_{t|t} \\
+		\hat{\textbf{x}}_{t-1|t} \\
+		\vdots \\
+		\hat{\textbf{x}}_{t-N+1|t} \\
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		I \\
+		0 \\
+		\vdots \\
+		0 \\
+	\end{bmatrix}
+	\hat{\textbf{x}}_{t|t-1}
+	+
+	\begin{bmatrix}
+		0		&amp; \ldots	&amp; 0 \\
+		I		&amp; 0		&amp; \vdots \\
+		\vdots		&amp; \ddots	&amp; \vdots \\
+		0		&amp; \ldots	&amp; I \\
+	\end{bmatrix}
+	\begin{bmatrix}
+		\hat{\textbf{x}}_{t-1|t-1} \\
+		\hat{\textbf{x}}_{t-2|t-1} \\
+		\vdots \\
+		\hat{\textbf{x}}_{t-N|t-1} \\
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		K^{(1)} \\
+		K^{(2)} \\
+		\vdots \\
+		K^{(N)} \\
+	\end{bmatrix}
+	y_{t|t-1}
+" src="http://upload.wikimedia.org/math/9/6/5/9650be21a1cde119b680830c2987450a.png" /></p>
+<p>where:</p>
+<p>1) <img class="tex" alt=" \hat{\textbf{x}}_{t|t-1} " src="http://upload.wikimedia.org/math/d/4/8/d48fe14800b17b5c327a9177518f09e5.png" /> is estimated via a standard Kalman filter;</p>
+<p>2) <img class="tex" alt=" y_{t|t-1} = z(t) - \hat{\textbf{x}}_{t|t-1} " src="http://upload.wikimedia.org/math/a/f/d/afd13eb666f553e8b394965fccae7c5c.png" /> is the innovation produced considering the estimate of the standard Kalman filter;</p>
+<p>3) the various <img class="tex" alt=" \hat{\textbf{x}}_{t-i|t} " src="http://upload.wikimedia.org/math/6/3/2/63254268c961d90886e3f5bbf1b482a8.png" /> with <img class="tex" alt=" i = 0,\ldots,N " src="http://upload.wikimedia.org/math/8/2/4/824a75a94c7d5a539ec563ce6cbabec6.png" /> are new variables, i.e. they do not appear in the standard Kalman filter;</p>
+<p>4) the gains are computed via the following scheme:</p>
+<p><img class="tex" alt="
+K^{(i)} =
+P^{(i)} H^{T}
+\left[
+	H P H^{T} + R
+\right]^{-1}
+" src="http://upload.wikimedia.org/math/8/4/c/84c9732d7cc69960772a191e4d09eaed.png" /></p>
+<p>and</p>
+<p><img class="tex" alt="
+P^{(i)} =
+P
+\left[
+	\left[
+		F - K H
+	\right]^{T}
+\right]^{i}
+" src="http://upload.wikimedia.org/math/2/4/d/24d65d3a8c4f87b6d2902be6ae846da9.png" /></p>
+<p>where <span class="texhtml"><i>P</i></span> and <span class="texhtml"><i>K</i></span> are the prediction error covariance and the gains of the standard Kalman filter.</p>
+<p>Note that if we define the estimation error covariance</p>
+<p><img class="tex" alt="
+P_{i}&#160;:=
+E
+\left[
+	\left(
+		\textbf{x}_{t-i} - \hat{\textbf{x}}_{t-i|t}
+	\right)^{*}
+	\left(
+		\textbf{x}_{t-i} - \hat{\textbf{x}}_{t-i|t}
+	\right)
+	|
+	z_{1} \ldots z_{t}
+\right]
+" src="http://upload.wikimedia.org/math/d/a/8/da87142b1755f022e7615ea5bce2770a.png" /></p>
+<p>then we have that the improvement on the estimation of <img class="tex" alt=" \textbf{x}_{t-i} " src="http://upload.wikimedia.org/math/d/7/b/d7bc9da33a5826acc8034b6130d88b9a.png" /> is given by:</p>
+<p><img class="tex" alt="
+P - P_{i} =
+\sum_{j = 0}^{i}
+\left[
+	P^{(j)} H^{T}
+	\left[
+	H P H^{T} + R
+	\right]^{-1}
+	H \left( P^{(i)} \right)^{T}
+\right]
+" src="http://upload.wikimedia.org/math/1/6/0/1607f4f21976ef2cac996926f36aad95.png" /></p>
+<p><a name="Non-linear_filters" id="Non-linear_filters"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=17" title="Edit section: Non-linear filters">edit</a>]</span> <span class="mw-headline">Non-linear filters</span></h2>
+<p>The basic Kalman filter is limited to a linear assumption. However, most non-trivial systems are non-linear. The non-linearity can be associated either with the process model or with the observation model or with both.</p>
+<p><a name="Extended_Kalman_filter" id="Extended_Kalman_filter"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=18" title="Edit section: Extended Kalman filter">edit</a>]</span> <span class="mw-headline">Extended Kalman filter</span></h3>
+<div class="rellink noprint relarticle mainarticle">Main article: <a href="/wiki/Extended_Kalman_filter" title="Extended Kalman filter">Extended Kalman filter</a></div>
+<p>In the extended Kalman filter, (EKF) the state transition and observation models need not be linear functions of the state but may instead be (<a href="/wiki/Differentiable" title="Differentiable" class="mw-redirect">differentiable</a>) functions.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{x}_{k} = f(\textbf{x}_{k-1}, \textbf{u}_{k}) + \textbf{w}_{k}" src="http://upload.wikimedia.org/math/c/f/1/cf1b1c0da14c08e63efa790de7b1dde2.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt="\textbf{z}_{k} = h(\textbf{x}_{k}) + \textbf{v}_{k}" src="http://upload.wikimedia.org/math/e/6/7/e679f6581cbf3ce30c7e74a1a18790f8.png" /></dd>
+</dl>
+<p>The function <i>f</i> can be used to compute the predicted state from the previous estimate and similarly the function <i>h</i> can be used to compute the predicted measurement from the predicted state. However, <i>f</i> and <i>h</i> cannot be applied to the covariance directly. Instead a matrix of partial derivatives (the <a href="/wiki/Jacobian" title="Jacobian">Jacobian</a>) is computed.</p>
+<p>At each timestep the Jacobian is evaluated with current predicted states. These matrices can be used in the Kalman filter equations. This process essentially linearizes the non-linear function around the current estimate.</p>
+<p><a name="Unscented_Kalman_filter" id="Unscented_Kalman_filter"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=19" title="Edit section: Unscented Kalman filter">edit</a>]</span> <span class="mw-headline">Unscented Kalman filter</span></h3>
+<p>When the state transition and observation models – that is, the predict and update functions <span class="texhtml"><i>f</i></span> and <span class="texhtml"><i>h</i></span> (see above) – are highly non-linear, the extended Kalman filter can give particularly poor performance [JU97]. This is because only the mean is propagated through the non-linearity. The <b>unscented Kalman filter (UKF)</b> [JU97] uses a deterministic sampling technique known as the <a href="/w/index.php?title=Unscented_transform&amp;action=edit&amp;redlink=1" class="new" title="Unscented transform (page does not exist)">unscented transform</a> to pick a minimal set of sample points (called sigma points) around the mean. These sigma points are then propagated through the non-linear functions, and the covariance of the estimate is then recovered. The result is a filter which more accurately captures the true mean and covariance. (This can be verified using <a href="/wiki/Monte_Carlo_sampling" title="Monte Carlo sampling" class="mw-redirect">Monte Carlo sampling</a> or through a Taylor series expansion of the posterior statistics.) In addition, this technique removes the requirement to explicitly calculate Jacobians, which for complex functions can be a difficult task in itself (i.e., requiring complicated derivatives if done analytically or being computationally costly if done numerically).</p>
+<p><b>Predict</b></p>
+<p>As with the EKF, the UKF prediction can be used independently from the UKF update, in combination with a linear (or indeed EKF) update, or vice versa.</p>
+<p>The estimated state and covariance are augmented with the mean and covariance of the process noise.</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{x}_{k-1|k-1}^{a} = [ \hat{\textbf{x}}_{k-1|k-1}^{T} \quad E[\textbf{w}_{k}^{T}] \ ]^{T} " src="http://upload.wikimedia.org/math/7/c/0/7c0c53eef72ef92fff5265ffd5a5f68d.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt=" \textbf{P}_{k-1|k-1}^{a} = \begin{bmatrix} &amp; \textbf{P}_{k-1|k-1} &amp; &amp; 0 &amp; \\ &amp; 0 &amp; &amp;\textbf{Q}_{k} &amp; \end{bmatrix} " src="http://upload.wikimedia.org/math/3/0/7/3076593d9f31dc396b973da4a893bc45.png" /></dd>
+</dl>
+<p>A set of 2<i>L</i>+1 sigma points is derived from the augmented state and covariance where <i>L</i> is the dimension of the augmented state.</p>
+<dl>
+<dd>
+<table>
+<tr>
+<td><img class="tex" alt="\chi_{k-1|k-1}^{0} " src="http://upload.wikimedia.org/math/6/4/d/64d6008859b3c14b80a25cf61141b99a.png" /></td>
+<td><img class="tex" alt="= \textbf{x}_{k-1|k-1}^{a} " src="http://upload.wikimedia.org/math/c/8/a/c8ae6fc73818c61c4fb3d55878a53264.png" /></td>
+<td></td>
+</tr>
+<tr>
+<td><img class="tex" alt="\chi_{k-1|k-1}^{i} " src="http://upload.wikimedia.org/math/b/9/0/b90bf36da76e46f07198c0f38650b57d.png" /></td>
+<td><img class="tex" alt="=\textbf{x}_{k-1|k-1}^{a} + \left ( \sqrt{ (L + \lambda) \textbf{P}_{k-1|k-1}^{a} } \right )_{i}" src="http://upload.wikimedia.org/math/c/b/a/cba03633025cdcd8ed2c0d330069aaf9.png" /></td>
+<td><img class="tex" alt="i = 1..L \,\!" src="http://upload.wikimedia.org/math/c/2/f/c2f373e80ffb91ceaf0f063bbf12d59b.png" /></td>
+</tr>
+<tr>
+<td><img class="tex" alt="\chi_{k-1|k-1}^{i} " src="http://upload.wikimedia.org/math/b/9/0/b90bf36da76e46f07198c0f38650b57d.png" /></td>
+<td><img class="tex" alt="= \textbf{x}_{k-1|k-1}^{a} - \left ( \sqrt{ (L + \lambda) \textbf{P}_{k-1|k-1}^{a} } \right )_{i-L}" src="http://upload.wikimedia.org/math/f/d/4/fd4623dc53854502434ad6df3f3f6826.png" /></td>
+<td><img class="tex" alt="i = L+1,\dots{}2L \,\!" src="http://upload.wikimedia.org/math/d/c/5/dc57a077c167cdaaf175913823ac57e9.png" /></td>
+</tr>
+</table>
+</dd>
+</dl>
+<p>where</p>
+<dl>
+<dd>
+<table>
+<tr>
+<td><img class="tex" alt="\left ( \sqrt{ (L + \lambda) \textbf{P}_{k-1|k-1}^{a} } \right )_{i}" src="http://upload.wikimedia.org/math/e/8/f/e8fcaf6ca48a6ec4eb28f0c9fd013580.png" /></td>
+</tr>
+</table>
+</dd>
+</dl>
+<p>is the <i>i</i>th column of the matrix square root of</p>
+<dl>
+<dd>
+<table>
+<tr>
+<td><img class="tex" alt="(L + \lambda) \textbf{P}_{k-1|k-1}^{a}" src="http://upload.wikimedia.org/math/c/9/f/c9fe7609dcca7e120dba2d2f7a290051.png" /></td>
+</tr>
+</table>
+</dd>
+</dl>
+<p>using the definition: square root <i>A</i> of matrix <i>B</i> satisfies</p>
+<dl>
+<dd>
+<table>
+<tr>
+<td><img class="tex" alt="B \equiv A A^T" src="http://upload.wikimedia.org/math/8/e/4/8e429d1e1f04ab2ada23d4259b8a5939.png" />.</td>
+</tr>
+</table>
+</dd>
+</dl>
+<p>The matrix square root should be calculated using numerically efficient and stable methods such as the <a href="/wiki/Cholesky_decomposition" title="Cholesky decomposition">Cholesky decomposition</a>.</p>
+<p>The sigma points are propagated through the transition function <i>f</i>.</p>
+<dl>
+<dd><img class="tex" alt="\chi_{k|k-1}^{i} = f(\chi_{k-1|k-1}^{i}) \quad i = 0..2L " src="http://upload.wikimedia.org/math/9/2/9/929a2f2c5beb49f4bcb24cbc8ceb5df0.png" /></dd>
+</dl>
+<p>The weighted sigma points are recombined to produce the predicted state and covariance.</p>
+<dl>
+<dd><img class="tex" alt="\hat{\textbf{x}}_{k|k-1} = \sum_{i=0}^{2L} W_{s}^{i} \chi_{k|k-1}^{i} " src="http://upload.wikimedia.org/math/2/d/5/2d579eebccd20ee18c89efb37909df3f.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k-1} = \sum_{i=0}^{2L} W_{c}^{i}\ [\chi_{k|k-1}^{i} - \hat{\textbf{x}}_{k|k-1}] [\chi_{k|k-1}^{i} - \hat{\textbf{x}}_{k|k-1}]^{T} " src="http://upload.wikimedia.org/math/5/1/a/51a88054b452591833406b0018a83781.png" /></dd>
+</dl>
+<p>where the weights for the state and covariance are given by:</p>
+<dl>
+<dd><img class="tex" alt="W_{s}^{0} = \frac{\lambda}{L+\lambda}" src="http://upload.wikimedia.org/math/c/5/e/c5e529a7798f98db3fe4e35e862f471f.png" /></dd>
+<dd><img class="tex" alt="W_{c}^{0} = \frac{\lambda}{L+\lambda} + (1 - \alpha^2 + \beta)" src="http://upload.wikimedia.org/math/2/d/f/2df47c196e207ce225eca6b009b17ce9.png" /></dd>
+<dd><img class="tex" alt="W_{s}^{i} = W_{c}^{i} = \frac{1}{2(L+\lambda)}" src="http://upload.wikimedia.org/math/b/0/b/b0b1556d1dd94c47334bb86e96c4e7f1.png" /></dd>
+<dd><img class="tex" alt="\lambda = \alpha^2 (L+\kappa) - L \,\! " src="http://upload.wikimedia.org/math/1/b/9/1b9136301a2725368075ed06a46e0b8e.png" /></dd>
+</dl>
+<p>Typical values for <span class="texhtml">α</span>, <span class="texhtml">β</span>, and <span class="texhtml">κ</span> are <span class="texhtml">10 <sup>− 3</sup></span>, 2 and 0 respectively. (These values should suffice for most purposes.)</p>
+<p><b>Update</b></p>
+<p>The predicted state and covariance are augmented as before, except now with the mean and covariance of the measurement noise.</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{x}_{k|k-1}^{a} = [ \hat{\textbf{x}}_{k|k-1}^{T} \quad E[\textbf{v}_{k}^{T}] \ ]^{T} " src="http://upload.wikimedia.org/math/f/a/6/fa6d80e1bb88f3fe9739339130520c8d.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt=" \textbf{P}_{k|k-1}^{a} = \begin{bmatrix} &amp; \textbf{P}_{k|k-1} &amp; &amp; 0 &amp; \\ &amp; 0 &amp; &amp;\textbf{R}_{k} &amp; \end{bmatrix} " src="http://upload.wikimedia.org/math/1/2/0/120aee0fbdc4910ce88d784935d53802.png" /></dd>
+</dl>
+<p>As before, a set of 2<i>L</i>&#160;+&#160;1 sigma points is derived from the augmented state and covariance where <i>L</i> is the dimension of the augmented state.</p>
+<dl>
+<dd>
+<table>
+<tr>
+<td><img class="tex" alt="\chi_{k|k-1}^{0} " src="http://upload.wikimedia.org/math/9/7/c/97cea466b13cd0ebfcf45cbb7d24d53d.png" /></td>
+<td><img class="tex" alt="= \textbf{x}_{k|k-1}^{a} " src="http://upload.wikimedia.org/math/0/b/7/0b7ad32ac9287d3a32082aad8a213a37.png" /></td>
+<td></td>
+</tr>
+<tr>
+<td><img class="tex" alt="\chi_{k|k-1}^{i} " src="http://upload.wikimedia.org/math/7/d/5/7d5e8d4b611b053de6e21f2f42c8fa37.png" /></td>
+<td><img class="tex" alt="=\textbf{x}_{k|k-1}^{a} + \left ( \sqrt{ (L + \lambda) \textbf{P}_{k|k-1}^{a} } \right )_{i}" src="http://upload.wikimedia.org/math/6/d/2/6d25dfa2ebeb7ac1fc5afed9edcfc738.png" /></td>
+<td><img class="tex" alt="i = 1..L \,\!" src="http://upload.wikimedia.org/math/c/2/f/c2f373e80ffb91ceaf0f063bbf12d59b.png" /></td>
+</tr>
+<tr>
+<td><img class="tex" alt="\chi_{k|k-1}^{i} " src="http://upload.wikimedia.org/math/7/d/5/7d5e8d4b611b053de6e21f2f42c8fa37.png" /></td>
+<td><img class="tex" alt="= \textbf{x}_{k|k-1}^{a} - \left ( \sqrt{ (L + \lambda) \textbf{P}_{k|k-1}^{a} } \right )_{i-L}" src="http://upload.wikimedia.org/math/c/a/8/ca8841786f17b566ab08a0e1a479c2be.png" /></td>
+<td><img class="tex" alt="i = L+1,\dots{}2L \,\!" src="http://upload.wikimedia.org/math/d/c/5/dc57a077c167cdaaf175913823ac57e9.png" /></td>
+</tr>
+</table>
+</dd>
+</dl>
+<p>Alternatively if the UKF prediction has been used the sigma points themselves can be augmented along the following lines</p>
+<dl>
+<dd><img class="tex" alt=" \chi_{k|k-1}&#160;:= [ \chi_{k|k-1}^T \quad E[\textbf{v}_{k}^{T}] \ ]^{T} \pm \sqrt{ (L + \lambda) \textbf{R}_{k}^{a} }" src="http://upload.wikimedia.org/math/9/6/9/9696ba46d924b5cca5cc17de316051a4.png" /></dd>
+</dl>
+<p>where</p>
+<dl>
+<dd><img class="tex" alt=" \textbf{R}_{k}^{a} = \begin{bmatrix} &amp; 0 &amp; &amp; 0 &amp; \\ &amp; 0 &amp; &amp;\textbf{R}_{k} &amp; \end{bmatrix} " src="http://upload.wikimedia.org/math/0/8/d/08ddebf43f600ffc01dc8e10a412d2c8.png" /></dd>
+</dl>
+<p>The sigma points are projected through the observation function <i>h</i>.</p>
+<dl>
+<dd><img class="tex" alt="\gamma_{k}^{i} = h(\chi_{k|k-1}^{i}) \quad i = 0..2L " src="http://upload.wikimedia.org/math/a/d/1/ad1280c383829b56df0e8d4a22ed51dc.png" /></dd>
+</dl>
+<p>The weighted sigma points are recombined to produce the predicted measurement and predicted measurement covariance.</p>
+<dl>
+<dd><img class="tex" alt="\hat{\textbf{z}}_{k} = \sum_{i=0}^{2L} W_{s}^{i} \gamma_{k}^{i} " src="http://upload.wikimedia.org/math/5/2/c/52cb9b20d34a66688fa799530b70eef1.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{z_{k}z_{k}} = \sum_{i=0}^{2L} W_{c}^{i}\ [\gamma_{k}^{i} - \hat{\textbf{z}}_{k}] [\gamma_{k}^{i} - \hat{\textbf{z}}_{k}]^{T} " src="http://upload.wikimedia.org/math/e/9/0/e90ffca95f76247b8363aae1001dd8c2.png" /></dd>
+</dl>
+<p>The state-measurement cross-covariance matrix,</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{x_{k}z_{k}} = \sum_{i=0}^{2L} W_{c}^{i}\ [\chi_{k|k-1}^{i} - \hat{\textbf{x}}_{k|k-1}] [\gamma_{k}^{i} - \hat{\textbf{z}}_{k}]^{T} " src="http://upload.wikimedia.org/math/2/c/9/2c9c83f91f94b10ce37f1f62190784ac.png" /></dd>
+</dl>
+<p>is used to compute the UKF Kalman gain.</p>
+<dl>
+<dd><img class="tex" alt="K_{k} = \textbf{P}_{x_{k}z_{k}} \textbf{P}_{z_{k}z_{k}}^{-1}" src="http://upload.wikimedia.org/math/1/f/e/1fe1694fcda9bff6da6435fe66fa1905.png" /></dd>
+</dl>
+<p>As with the Kalman filter, the updated state is the predicted state plus the innovation weighted by the Kalman gain,</p>
+<dl>
+<dd><img class="tex" alt="\hat{\textbf{x}}_{k|k} = \hat{\textbf{x}}_{k|k-1} + K_{k}( \textbf{z}_{k} - \hat{\textbf{z}}_{k} )" src="http://upload.wikimedia.org/math/2/f/9/2f9d62322a16e84ff5403f911537b020.png" /></dd>
+</dl>
+<p>And the updated covariance is the predicted covariance, minus the predicted measurement covariance, weighted by the Kalman gain.</p>
+<dl>
+<dd><img class="tex" alt="\textbf{P}_{k|k} = \textbf{P}_{k|k-1} - K_{k} \textbf{P}_{z_{k}z_{k}} K_{k}^{T} " src="http://upload.wikimedia.org/math/6/8/a/68a8757e2c761ceffc1c40531421074a.png" /></dd>
+</dl>
+<p><a name="Kalman-Bucy_filter" id="Kalman-Bucy_filter"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=20" title="Edit section: Kalman-Bucy filter">edit</a>]</span> <span class="mw-headline">Kalman-Bucy filter</span></h2>
+<p>The Kalman-Bucy filter is a continuous time version of the Kalman filter.<sup id="cite_ref-4" class="reference"><a href="#cite_note-4" title=""><span>[</span>5<span>]</span></a></sup><sup id="cite_ref-5" class="reference"><a href="#cite_note-5" title=""><span>[</span>6<span>]</span></a></sup></p>
+<p>It is based on the state space model</p>
+<dl>
+<dd><img class="tex" alt="\frac{d}{dt}\mathbf{x}(t) = \mathbf{F}(t)\mathbf{x}(t) + \mathbf{w}(t)" src="http://upload.wikimedia.org/math/6/8/e/68e031aeec37862ebbee1501ed9054ec.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt="\mathbf{z}(t) = \mathbf{H}(t) \mathbf{x}(t) + \mathbf{v}(t)" src="http://upload.wikimedia.org/math/4/0/a/40a5bb59c43a75e914637cbc5f524a95.png" /></dd>
+</dl>
+<p>where the covariances of the noise terms <img class="tex" alt="\mathbf{w}(t)" src="http://upload.wikimedia.org/math/1/0/3/103dba85830f538057199a8706c58d28.png" /> and <img class="tex" alt="\mathbf{v}(t)" src="http://upload.wikimedia.org/math/2/9/b/29b407e4fffcf4d8a0d2531ca4457841.png" /> are given by <img class="tex" alt="\mathbf{Q}(t)" src="http://upload.wikimedia.org/math/2/9/7/29755117ba697f47dcae86babf0ec8dd.png" /> and <img class="tex" alt="\mathbf{R}(t)" src="http://upload.wikimedia.org/math/4/9/9/4996f59f916548d3bb76ba67217c5b2c.png" />, respectively.</p>
+<p>The filter consists of two differential equations, one for the state estimate and one for the covariance:</p>
+<dl>
+<dd><img class="tex" alt="\frac{d}{dt}\hat{\mathbf{x}}(t) = \mathbf{F}(t)\hat{\mathbf{x}}(t) + \mathbf{K}(t) (\mathbf{z}(t)-\mathbf{H}(t)\hat{\mathbf{x}}(t))" src="http://upload.wikimedia.org/math/5/8/c/58cd209757c577a42cca28a89fc57434.png" /></dd>
+</dl>
+<dl>
+<dd><img class="tex" alt="\frac{d}{dt}\mathbf{P}(t) = \mathbf{F}(t)\mathbf{P}(t) + \mathbf{P}(t)\mathbf{F}^{T}(t) + \mathbf{Q}(t) - \mathbf{K}(t)\mathbf{R}(t)\mathbf{K}^{T}(t)" src="http://upload.wikimedia.org/math/a/d/c/adcd10220071bee0ba76a2fd567a52fd.png" /></dd>
+</dl>
+<p>where the Kalman gain is given by</p>
+<dl>
+<dd><img class="tex" alt="\mathbf{K}(t)=\mathbf{P}(t)\mathbf{H}^{T}(t)\mathbf{R}^{-1}(t)" src="http://upload.wikimedia.org/math/1/f/d/1fd1b8765fc515a858b9c035e1beda3e.png" /></dd>
+</dl>
+<p>Note that in this expression for <img class="tex" alt="\mathbf{K}(t)" src="http://upload.wikimedia.org/math/d/d/f/ddf5828ca28cc0acbf64ae9e321b6935.png" /> the covariance of the observation noise <img class="tex" alt="\mathbf{R}(t)" src="http://upload.wikimedia.org/math/4/9/9/4996f59f916548d3bb76ba67217c5b2c.png" /> represents at the same time the covariance of the prediction error (or <i>innovation</i>) <img class="tex" alt="\tilde{\mathbf{y}}(t)=\mathbf{z}(t)-\mathbf{H}(t)\hat{\mathbf{x}}(t)" src="http://upload.wikimedia.org/math/0/d/7/0d765a842fc5a96d2a0c5a0aca835221.png" />; these covariances are equal only in the case of continuous time.<sup id="cite_ref-6" class="reference"><a href="#cite_note-6" title=""><span>[</span>7<span>]</span></a></sup></p>
+<p>The distinction between the prediction and update steps of discrete-time Kalman filtering does not exist in continuous time.</p>
+<p>The second differential equation, for the covariance, is an example of a <a href="/wiki/Riccati_equation" title="Riccati equation">Riccati equation</a>.</p>
+<p><a name="Applications" id="Applications"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=21" title="Edit section: Applications">edit</a>]</span> <span class="mw-headline">Applications</span></h2>
+<ul>
+<li>Batteries State of Charge(SoC) Estimation <a href="http://dx.doi.org/10.1016/j.jpowsour.2007.04.011" class="external autonumber" title="http://dx.doi.org/10.1016/j.jpowsour.2007.04.011" rel="nofollow">[1]</a><a href="http://dx.doi.org/10.1016/j.enconman.2007.05.017" class="external autonumber" title="http://dx.doi.org/10.1016/j.enconman.2007.05.017" rel="nofollow">[2]</a></li>
+<li><a href="/wiki/Autopilot" title="Autopilot">Autopilot</a></li>
+<li><a href="/wiki/Brain-computer_interface" title="Brain-computer interface">Brain-computer interface</a></li>
+<li><a href="/wiki/Dynamic_positioning" title="Dynamic positioning">Dynamic positioning</a></li>
+<li><a href="/wiki/Economics" title="Economics">Economics</a>, in particular <a href="/wiki/Macroeconomics" title="Macroeconomics">macroeconomics</a>, <a href="/wiki/Time_series" title="Time series">time series</a>, and <a href="/wiki/Econometrics" title="Econometrics">econometrics</a></li>
+<li><a href="/wiki/Inertial_guidance_system" title="Inertial guidance system" class="mw-redirect">Inertial guidance system</a></li>
+<li><a href="/wiki/Radar_tracker" title="Radar tracker">Radar tracker</a></li>
+<li><a href="/wiki/Satellite_navigation_system" title="Satellite navigation system" class="mw-redirect">Satellite navigation systems</a></li>
+<li><a href="/wiki/Simultaneous_localization_and_mapping" title="Simultaneous localization and mapping">Simultaneous localization and mapping</a></li>
+<li><a href="/w/index.php?title=Chaotic_signals&amp;action=edit&amp;redlink=1" class="new" title="Chaotic signals (page does not exist)">Chaotic signals</a></li>
+<li><a href="/wiki/Weather_forecasting" title="Weather forecasting">Weather forecasting</a></li>
+<li><a href="/w/index.php?title=Speech_enhancement&amp;action=edit&amp;redlink=1" class="new" title="Speech enhancement (page does not exist)">Speech enhancement</a></li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=22" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Ensemble_Kalman_filter" title="Ensemble Kalman filter">Ensemble Kalman filter</a></li>
+<li><a href="/wiki/Fast_Kalman_filter" title="Fast Kalman filter">Fast Kalman filter</a></li>
+<li>Compare with: <a href="/wiki/Wiener_filter" title="Wiener filter">Wiener filter</a>, and the multimodal <a href="/wiki/Particle_filter" title="Particle filter">Particle filter</a> estimator.</li>
+<li><a href="/wiki/Non-linear_filter" title="Non-linear filter" class="mw-redirect">Non-linear filter</a></li>
+<li><a href="/wiki/Predictor_corrector" title="Predictor corrector" class="mw-redirect">Predictor corrector</a></li>
+<li><a href="/wiki/Separation_principle" title="Separation principle">Separation principle</a></li>
+<li><a href="/wiki/Zakai_equation" title="Zakai equation">Zakai equation</a></li>
+<li><a href="/wiki/Recursive_least_squares" title="Recursive least squares" class="mw-redirect">Recursive least squares</a></li>
+<li><a href="/wiki/Data_assimilation" title="Data assimilation">Data assimilation</a></li>
+<li><a href="/wiki/Stochastic_differential_equation" title="Stochastic differential equation">Stochastic differential equations</a></li>
+<li><a href="/wiki/Filtering_problem_(stochastic_processes)" title="Filtering problem (stochastic processes)">Filtering problem (stochastic processes)</a></li>
+<li><a href="/wiki/Volterra_series" title="Volterra series">Volterra series</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=23" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <a href="/w/index.php?title=Steffen_L._Lauritzen&amp;action=edit&amp;redlink=1" class="new" title="Steffen L. Lauritzen (page does not exist)">Steffen L. Lauritzen</a>, <i><a href="http://www.oup.com/uk/catalogue/?ci=9780198509721" class="external text" title="http://www.oup.com/uk/catalogue/?ci=9780198509721" rel="nofollow">Thiele: Pioneer in Statistics</a></i>, <a href="/wiki/Oxford_University_Press" title="Oxford University Press">Oxford University Press</a>, 2002. <a href="/wiki/Special:BookSources/0198509723" class="internal">ISBN 0-19-850972-3</a>.</li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <a href="/wiki/Ruslan_L._Stratonovich" title="Ruslan L. Stratonovich">Stratonovich, R.L.</a> (1959). <i>Optimum nonlinear systems which bring about a separation of a signal with constant parameters from noise</i>. Radiofizika, 2:6, pp. 892-901.</li>
+<li id="cite_note-2"><b><a href="#cite_ref-2" title="">^</a></b> <a href="/wiki/Ruslan_L._Stratonovich" title="Ruslan L. Stratonovich">Stratonovich, R.L.</a> (1960) <i>Application of the Markov processes theory to optimal filtering</i>. Radio Engineering and Electronic Physics, 5:11, pp.1-19.</li>
+<li id="cite_note-3"><b><a href="#cite_ref-3" title="">^</a></b> Roweis, S. and Ghahramani, Z., <i><a href="http://www.mitpressjournals.org/doi/abs/10.1162/089976699300016674" class="external text" title="http://www.mitpressjournals.org/doi/abs/10.1162/089976699300016674" rel="nofollow">A unifying review of linear Gaussian models</a></i>, Neural Comput. Vol. 11, No. 2, (February 1999), pp. 305-345.</li>
+<li id="cite_note-4"><b><a href="#cite_ref-4" title="">^</a></b> Bucy, R.S. and Joseph, P.D., <i>Filtering for Stochastic Processes with Applications to Guidance,</i> John Wiley &amp; Sons, 1968; 2nd Edition, AMS Chelsea Publ., 2005. <a href="/wiki/Special:BookSources/0821837826" class="internal">ISBN 0821837826</a></li>
+<li id="cite_note-5"><b><a href="#cite_ref-5" title="">^</a></b> Jazwinski, Andrew H., <i>Stochastic processes and filtering theory,</i> Academic Press, New York, 1970. <a href="/wiki/Special:BookSources/0123815509" class="internal">ISBN 0123815509</a></li>
+<li id="cite_note-6"><b><a href="#cite_ref-6" title="">^</a></b> Kailath, Thomas, "An innovation approach to least-squares estimation Part I: Linear filtering in additive white noise", <i>IEEE Transactions on Automatic Control</i>, 13(6), 646-655, 1968</li>
+</ol>
+</div>
+<p><a name="Further_reading" id="Further_reading"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=24" title="Edit section: Further reading">edit</a>]</span> <span class="mw-headline">Further reading</span></h2>
+<div class="references-small" style="margin-left:1.5em;">
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFGelb.2C_A.1974">Gelb, A. (1974). <i>Applied Optimal Estimation</i>. MIT Press.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Applied+Optimal+Estimation&amp;rft.aulast=Gelb%2C+A.&amp;rft.au=Gelb%2C+A.&amp;rft.date=1974&amp;rft.pub=MIT+Press&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFKalman.2C_R.E.1960">Kalman, R.E. (1960). "<a href="http://www.elo.utfsm.cl/~ipd481/Papers%20varios/kalman1960.pdf" class="external text" title="http://www.elo.utfsm.cl/~ipd481/Papers%20varios/kalman1960.pdf" rel="nofollow">A new approach to linear filtering and prediction problems</a>". <i>Journal of Basic Engineering</i> <b>82</b> (1): 35–45<span class="printonly">. <a href="http://www.elo.utfsm.cl/~ipd481/Papers%20varios/kalman1960.pdf" class="external free" title="http://www.elo.utfsm.cl/~ipd481/Papers%20varios/kalman1960.pdf" rel="nofollow">http://www.elo.utfsm.cl/~ipd481/Papers%20varios/kalman1960.pdf</a></span><span class="reference-accessdate">. Retrieved on 2008-05-03</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+new+approach+to+linear+filtering+and+prediction+problems&amp;rft.jtitle=Journal+of+Basic+Engineering&amp;rft.aulast=Kalman%2C+R.E.&amp;rft.au=Kalman%2C+R.E.&amp;rft.date=1960&amp;rft.volume=82&amp;rft.issue=1&amp;rft.pages=35%E2%80%9345&amp;rft_id=http%3A%2F%2Fwww.elo.utfsm.cl%2F%7Eipd481%2FPapers%2520varios%2Fkalman1960.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFKalman.2C_R.E.Bucy.2C_R.S.1961">Kalman, R.E.; Bucy, R.S. (1961). <i><a href="http://stinet.dtic.mil/oai/oai?verb=getRecord&amp;metadataPrefix=html&amp;identifier=ADD518892" class="external text" title="http://stinet.dtic.mil/oai/oai?verb=getRecord&amp;metadataPrefix=html&amp;identifier=ADD518892" rel="nofollow">New Results in Linear Filtering and Prediction Theory.</a></i><span class="printonly">. <a href="http://stinet.dtic.mil/oai/oai?verb=getRecord&amp;metadataPrefix=html&amp;identifier=ADD518892" class="external free" title="http://stinet.dtic.mil/oai/oai?verb=getRecord&amp;metadataPrefix=html&amp;identifier=ADD518892" rel="nofollow">http://stinet.dtic.mil/oai/oai?verb=getRecord&amp;metadataPrefix=html&amp;identifier=ADD518892</a></span><span class="reference-accessdate">. Retrieved on 2008-05-03</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=New+Results+in+Linear+Filtering+and+Prediction+Theory.&amp;rft.aulast=Kalman%2C+R.E.&amp;rft.au=Kalman%2C+R.E.&amp;rft.au=Bucy%2C+R.S.&amp;rft.date=1961&amp;rft_id=http%3A%2F%2Fstinet.dtic.mil%2Foai%2Foai%3Fverb%3DgetRecord%26metadataPrefix%3Dhtml%26identifier%3DADD518892&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFJulier.2C_S.J.Uhlmann.2C_J.K.1997">Julier, S.J.; Uhlmann, J.K. (1997). "<a href="http://www.cs.unc.edu/~welch/kalman/media/pdf/Julier1997_SPIE_KF.pdf" class="external text" title="http://www.cs.unc.edu/~welch/kalman/media/pdf/Julier1997_SPIE_KF.pdf" rel="nofollow">A new extension of the Kalman filter to nonlinear systems</a>". <i>Int. Symp. Aerospace/Defense Sensing, Simul. and Controls</i> <b>3</b><span class="printonly">. <a href="http://www.cs.unc.edu/~welch/kalman/media/pdf/Julier1997_SPIE_KF.pdf" class="external free" title="http://www.cs.unc.edu/~welch/kalman/media/pdf/Julier1997_SPIE_KF.pdf" rel="nofollow">http://www.cs.unc.edu/~welch/kalman/media/pdf/Julier1997_SPIE_KF.pdf</a></span><span class="reference-accessdate">. Retrieved on 2008-05-03</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+new+extension+of+the+Kalman+filter+to+nonlinear+systems&amp;rft.jtitle=Int.+Symp.+Aerospace%2FDefense+Sensing%2C+Simul.+and+Controls&amp;rft.aulast=Julier%2C+S.J.&amp;rft.au=Julier%2C+S.J.&amp;rft.au=Uhlmann%2C+J.K.&amp;rft.date=1997&amp;rft.volume=3&amp;rft_id=http%3A%2F%2Fwww.cs.unc.edu%2F%7Ewelch%2Fkalman%2Fmedia%2Fpdf%2FJulier1997_SPIE_KF.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFHarvey.2C_A.C.1990">Harvey, A.C. (1990). <i>Forecasting, Structural Time Series Models and the Kalman Filter</i>. Cambridge University Press.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Forecasting%2C+Structural+Time+Series+Models+and+the+Kalman+Filter&amp;rft.aulast=Harvey%2C+A.C.&amp;rft.au=Harvey%2C+A.C.&amp;rft.date=1990&amp;rft.pub=Cambridge+University+Press&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFRoweis.2C_S.Ghahramani.2C_Z.1999">Roweis, S.; Ghahramani, Z. (1999). "A Unifying Review of Linear Gaussian Models". <i>Neural Computation</i> <b>11</b> (2): 305–345. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1162%2F089976699300016674" class="external text" title="http://dx.doi.org/10.1162%2F089976699300016674" rel="nofollow">10.1162/089976699300016674</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+Unifying+Review+of+Linear+Gaussian+Models&amp;rft.jtitle=Neural+Computation&amp;rft.aulast=Roweis%2C+S.&amp;rft.au=Roweis%2C+S.&amp;rft.au=Ghahramani%2C+Z.&amp;rft.date=1999&amp;rft.volume=11&amp;rft.issue=2&amp;rft.pages=305%E2%80%93345&amp;rft_id=info:doi/10.1162%2F089976699300016674&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFSimon.2C_D.2006">Simon, D. (2006). <i><a href="http://academic.csuohio.edu/simond/estimation/" class="external text" title="http://academic.csuohio.edu/simond/estimation/" rel="nofollow">Optimal State Estimation: Kalman, H Infinity, and Nonlinear Approaches</a></i>. Wiley-Interscience<span class="printonly">. <a href="http://academic.csuohio.edu/simond/estimation/" class="external free" title="http://academic.csuohio.edu/simond/estimation/" rel="nofollow">http://academic.csuohio.edu/simond/estimation/</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Optimal+State+Estimation%3A+Kalman%2C+H+Infinity%2C+and+Nonlinear+Approaches&amp;rft.aulast=Simon%2C+D.&amp;rft.au=Simon%2C+D.&amp;rft.date=2006&amp;rft.pub=Wiley-Interscience&amp;rft_id=http%3A%2F%2Facademic.csuohio.edu%2Fsimond%2Festimation%2F&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFStengel.2C_R.F.1994">Stengel, R.F. (1994). <i>Optimal Control and Estimation</i>. Courier Dover Publications.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Optimal+Control+and+Estimation&amp;rft.aulast=Stengel%2C+R.F.&amp;rft.au=Stengel%2C+R.F.&amp;rft.date=1994&amp;rft.pub=Courier+Dover+Publications&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREF.5B.5BKevin_Warwick.7CWarwick.2C_K.5D.5D.1987"><a href="/wiki/Kevin_Warwick" title="Kevin Warwick">Warwick, K</a>. (1987). "<a href="http://www.informaworld.com/index/779885789.pdf" class="external text" title="http://www.informaworld.com/index/779885789.pdf" rel="nofollow">Optimal observers for ARMA models</a>". <i>International Journal of Control</i> <b>46</b> (5): 1493–1503. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1080%2F00207178708933989" class="external text" title="http://dx.doi.org/10.1080%2F00207178708933989" rel="nofollow">10.1080/00207178708933989</a></span><span class="printonly">. <a href="http://www.informaworld.com/index/779885789.pdf" class="external free" title="http://www.informaworld.com/index/779885789.pdf" rel="nofollow">http://www.informaworld.com/index/779885789.pdf</a></span><span class="reference-accessdate">. Retrieved on 2008-05-03</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Optimal+observers+for+ARMA+models&amp;rft.jtitle=International+Journal+of+Control&amp;rft.aulast=%5B%5BKevin+Warwick%7CWarwick%2C+K%5D%5D.&amp;rft.au=%5B%5BKevin+Warwick%7CWarwick%2C+K%5D%5D.&amp;rft.date=1987&amp;rft.volume=46&amp;rft.issue=5&amp;rft.pages=1493%E2%80%931503&amp;rft_id=info:doi/10.1080%2F00207178708933989&amp;rft_id=http%3A%2F%2Fwww.informaworld.com%2Findex%2F779885789.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFBierman.2C_G.J.1977">Bierman, G.J. (1977). "Factorization Methods for Discrete Sequential Estimation". <i>Mathematics in Science and Engineering</i> <b>128</b>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Factorization+Methods+for+Discrete+Sequential+Estimation&amp;rft.jtitle=Mathematics+in+Science+and+Engineering&amp;rft.aulast=Bierman%2C+G.J.&amp;rft.au=Bierman%2C+G.J.&amp;rft.date=1977&amp;rft.volume=128&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFBozic.2C_S.M.1994">Bozic, S.M. (1994). <i>Digital and Kalman filtering</i>. Butterworth-Heinemann.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Digital+and+Kalman+filtering&amp;rft.aulast=Bozic%2C+S.M.&amp;rft.au=Bozic%2C+S.M.&amp;rft.date=1994&amp;rft.pub=Butterworth-Heinemann&amp;rfr_id=info:sid/en.wikipedia.org:Kalman_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+</div>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kalman_filter&amp;action=edit&amp;section=25" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://noodle.med.yale.edu/~gliu/research/jc2002/kalman1960.pdf" class="external text" title="http://noodle.med.yale.edu/~gliu/research/jc2002/kalman1960.pdf" rel="nofollow">A New Approach to Linear Filtering and Prediction Problems</a>, by R. E. Kalman, 1960</li>
+<li><a href="http://www.eng.tau.ac.il/~liptser/lectures1/lect6.pdf" class="external text" title="http://www.eng.tau.ac.il/~liptser/lectures1/lect6.pdf" rel="nofollow"><i>Kalman-Bucy Filter</i></a>, a good derivation of the Kalman-Bucy Filter</li>
+<li><a href="http://www.cs.unc.edu/~tracker/media/pdf/SIGGRAPH2001_CoursePack_08.pdf" class="external text" title="http://www.cs.unc.edu/~tracker/media/pdf/SIGGRAPH2001_CoursePack_08.pdf" rel="nofollow">An Introduction to the Kalman Filter</a>, SIGGRAPH 2001 Course, Greg Welch and Gary Bishop</li>
+<li><a href="http://www.cs.unc.edu/~welch/media/pdf/maybeck_ch1.pdf" class="external text" title="http://www.cs.unc.edu/~welch/media/pdf/maybeck_ch1.pdf" rel="nofollow">Kalman filtering chapter</a> from <i>Stochastic Models, Estimation, and Control, vol. 1</i>, by Peter S. Maybeck</li>
+<li><a href="http://www.cs.unc.edu/~welch/kalman/" class="external text" title="http://www.cs.unc.edu/~welch/kalman/" rel="nofollow">Kalman Filter</a> webpage, with lots of links</li>
+<li><a href="http://www.innovatia.com/software/papers/kalman.htm" class="external text" title="http://www.innovatia.com/software/papers/kalman.htm" rel="nofollow">Kalman Filtering</a></li>
+<li><a href="http://www.negenborn.net/kal_loc/" class="external text" title="http://www.negenborn.net/kal_loc/" rel="nofollow"><i>Kalman Filters</i>, thorough introduction to several types, together with applications to <i>Robot Localization</i></a></li>
+<li><a href="http://www.siam.org/pdf/news/362.pdf" class="external text" title="http://www.siam.org/pdf/news/362.pdf" rel="nofollow">Kalman filters used in Weather models</a>, SIAM News, Volume 36, Number 8, October 2003.</li>
+<li><a href="http://pubs.acs.org/cgi-bin/abstract.cgi/iecred/2005/44/i08/abs/ie034308l.html" class="external text" title="http://pubs.acs.org/cgi-bin/abstract.cgi/iecred/2005/44/i08/abs/ie034308l.html" rel="nofollow">Critical Evaluation of Extended Kalman Filtering and Moving-Horizon Estimation</a>, Ind. Eng. Chem. Res., 44 (8), 2451 -2460, 2005.</li>
+<li><a href="http://obex.parallax.com/objects/239/" class="external text" title="http://obex.parallax.com/objects/239/" rel="nofollow">Source code for the propeller microprocessor</a>: Well documented source code written for the Parallax propeller processor.</li>
+<li><a href="http://netlib.org/a/esl.tgz" class="external text" title="http://netlib.org/a/esl.tgz" rel="nofollow">Gerald J. Bierman's Estimation Subroutine Library</a>: Corresponds to the code in the research monograph "Factorization Methods for Discrete Sequential Estimation" originally published by Academic Press in 1977. Republished by Dover</li>
+<li><a href="http://eia.udg.es/~qsalvi/Slam.zip" class="external text" title="http://eia.udg.es/~qsalvi/Slam.zip" rel="nofollow">Matlab Toolbox of Kalman Filtering applied to Simultaneous Localization and Mapping</a>: Vehicle moving in 1D, 2D and 3D</li>
+<li><a href="http://babel.isa.uma.es/mrpt/index.php/6D-SLAM" class="external text" title="http://babel.isa.uma.es/mrpt/index.php/6D-SLAM" rel="nofollow">Derivation of a 6D EKF solution to Simultaneous Localization and Mapping</a> (In <a href="http://babel.isa.uma.es/mrpt/papers/RangeBearingSLAM6D.php" class="external text" title="http://babel.isa.uma.es/mrpt/papers/RangeBearingSLAM6D.php" rel="nofollow">PDF</a>). See also the tutorial on <a href="http://babel.isa.uma.es/mrpt/index.php/Kalman_Filters" class="external text" title="http://babel.isa.uma.es/mrpt/index.php/Kalman_Filters" rel="nofollow">implementing a Kalman Filter</a> with the <a href="/wiki/Mobile_Robot_Programming_Toolkit" title="Mobile Robot Programming Toolkit">MRPT C++ libraries</a>.</li>
+<li><a href="http://apmonitor.com/Estimation.aspx" class="external text" title="http://apmonitor.com/Estimation.aspx" rel="nofollow">Beyond Kalman Filters:</a> State estimation with nonlinear models</li>
+<li><a href="http://www.opentradingsystem.com/quantNotes/Kalman_filter_II_.html" class="external text" title="http://www.opentradingsystem.com/quantNotes/Kalman_filter_II_.html" rel="nofollow">Kalman filter</a> Detailed mathematical derivations.</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 5998/1000000
+Post-expand include size: 34053/2048000 bytes
+Template argument size: 10859/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:180855-0!1!0!default!!en!2 and timestamp 20090403211509 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Kalman_filter">http://en.wikipedia.org/wiki/Kalman_filter</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Control_theory" title="Category:Control theory">Control theory</a></span> | <span dir='ltr'><a href="/wiki/Category:Non-linear_filters" title="Category:Non-linear filters">Non-linear filters</a></span> | <span dir='ltr'><a href="/wiki/Category:Linear_filters" title="Category:Linear filters">Linear filters</a></span> | <span dir='ltr'><a href="/wiki/Category:Signal_processing" title="Category:Signal processing">Signal processing</a></span> | <span dir='ltr'><a href="/wiki/Category:Estimation_theory" title="Category:Estimation theory">Estimation theory</a></span> | <span dir='ltr'><a href="/wiki/Category:Stochastic_differential_equations" title="Category:Stochastic differential equations">Stochastic differential equations</a></span> | <span dir='ltr'><a href="/wiki/Category:Stochastic_processes" title="Category:Stochastic processes">Stochastic processes</a></span> | <span dir='ltr'><a href="/wiki/Category:Robotics" title="Category:Robotics">Robotics</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Kalman_filter" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Kalman_filter" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Kalman_filter&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Kalman_filter&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Kalman_filter" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Kalman_filter" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Kalman_filter" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Kalman_filter&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Kalman_filter&amp;oldid=280466683" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Kalman_filter&amp;id=280466683">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-ar"><a href="http://ar.wikipedia.org/wiki/%D9%85%D8%B5%D9%81%D8%A7%D8%AA_%D9%83%D8%A7%D9%84%D9%85%D8%A7%D9%86">العربية</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Kalman-Filter">Deutsch</a></li>
+				<li class="interwiki-et"><a href="http://et.wikipedia.org/wiki/Kalmani_filter">Eesti</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Filtro_de_Kalman">Español</a></li>
+				<li class="interwiki-eo"><a href="http://eo.wikipedia.org/wiki/Filtrilo_de_Kalman">Esperanto</a></li>
+				<li class="interwiki-fa"><a href="http://fa.wikipedia.org/wiki/%D9%81%DB%8C%D9%84%D8%AA%D8%B1_%DA%A9%D8%A7%D9%84%D9%85%D9%86">فارسی</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Filtre_de_Kalman">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%EC%B9%BC%EB%A7%8C_%ED%95%84%ED%84%B0">한국어</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Filtro_di_Kalman">Italiano</a></li>
+				<li class="interwiki-nl"><a href="http://nl.wikipedia.org/wiki/Kalman-filter">Nederlands</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AB%E3%83%9E%E3%83%B3%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%83%BC">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Filtr_Kalmana">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Filtro_de_Kalman">Português</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%A4%D0%B8%D0%BB%D1%8C%D1%82%D1%80_%D0%9A%D0%B0%D0%BB%D0%BC%D0%B0%D0%BD%D0%B0">Русский</a></li>
+				<li class="interwiki-fi"><a href="http://fi.wikipedia.org/wiki/Kalman-suodin">Suomi</a></li>
+				<li class="interwiki-sv"><a href="http://sv.wikipedia.org/wiki/Kalmanfilter">Svenska</a></li>
+				<li class="interwiki-tr"><a href="http://tr.wikipedia.org/wiki/Kalman_Filtresi">Türkçe</a></li>
+				<li class="interwiki-uk"><a href="http://uk.wikipedia.org/wiki/%D0%A4%D1%96%D0%BB%D1%8C%D1%82%D1%80_%D0%9A%D0%B0%D0%BB%D1%8C%D0%BC%D0%B0%D0%BD%D0%B0">Українська</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 29 March 2009, at 18:34.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv207 in 0.042 secs. --></body></html>

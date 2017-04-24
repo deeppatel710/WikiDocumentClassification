@@ -1,0 +1,487 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Particle filter,Particle filter example.png,Auxiliary particle filter,Bayesian,Condensation algorithm,Diesel particulate filter,Digital object identifier,Ensemble Kalman filter,Estimation,Gaussian,Importance sampling" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Particle_filter&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Particle_filter&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Particle filter - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Particle_filter";
+		var wgTitle = "Particle filter";
+		var wgAction = "view";
+		var wgArticleId = "1396948";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284201886;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Particle_filter skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Particle filter</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<div class="dablink">This article is about the statistical method. For the pollution control device, see <a href="/wiki/Diesel_particulate_filter" title="Diesel particulate filter">diesel particulate filter</a>.</div>
+<div class="thumb tright">
+<div class="thumbinner" style="width:252px;"><a href="/wiki/File:Particle_filter_example_small.png" class="image" title="Result of particle filtering (red line) based on observed data generated from the blue line (Much larger image)"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Particle_filter_example_small.png/250px-Particle_filter_example_small.png" width="250" height="199" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Particle_filter_example_small.png" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+Result of particle filtering (red line) based on observed data generated from the blue line (<a href="/wiki/File:Particle_filter_example.png" title="File:Particle filter example.png">Much larger image</a>)</div>
+</div>
+</div>
+<p><b>Particle filters</b>, also known as <b>sequential <a href="/wiki/Monte_Carlo_method" title="Monte Carlo method">Monte Carlo methods</a></b> (SMC), are sophisticated model <a href="/wiki/Estimation" title="Estimation">estimation</a> techniques based on <a href="/wiki/Simulation" title="Simulation">simulation</a>.</p>
+<p>They are usually used to estimate <a href="/wiki/Bayesian" title="Bayesian">Bayesian</a> models and are the <a href="/wiki/Sequential_estimation" title="Sequential estimation">sequential</a> ('on-line') analogue of <a href="/wiki/Markov_chain_Monte_Carlo" title="Markov chain Monte Carlo">Markov chain Monte Carlo</a> (MCMC) batch methods and are often similar to <a href="/wiki/Importance_sampling" title="Importance sampling">importance sampling</a> methods. If well-designed, particle filters can be much faster than MCMC. They are often an alternative to the <a href="/wiki/Kalman_filter#Extended_Kalman_filter" title="Kalman filter">Extended Kalman filter</a> (EKF) or <a href="/wiki/Kalman_filter#Unscented_Kalman_filter" title="Kalman filter">Unscented Kalman filter</a> (UKF) with the advantage that, with sufficient samples, they approach the Bayesian optimal estimate, so they can be made more accurate than either the EKF or UKF. The approaches can also be combined by using a version of the <a href="/wiki/Kalman_filter" title="Kalman filter">Kalman filter</a> as a proposal distribution for the particle filter.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Goal"><span class="tocnumber">1</span> <span class="toctext">Goal</span></a></li>
+<li class="toclevel-1"><a href="#Model"><span class="tocnumber">2</span> <span class="toctext">Model</span></a></li>
+<li class="toclevel-1"><a href="#Monte_Carlo_approximation"><span class="tocnumber">3</span> <span class="toctext">Monte Carlo approximation</span></a></li>
+<li class="toclevel-1"><a href="#Sampling_Importance_Resampling_.28SIR.29"><span class="tocnumber">4</span> <span class="toctext">Sampling Importance Resampling (SIR)</span></a></li>
+<li class="toclevel-1"><a href="#Sequential_Importance_Sampling_.28SIS.29"><span class="tocnumber">5</span> <span class="toctext">Sequential Importance Sampling (SIS)</span></a></li>
+<li class="toclevel-1"><a href="#.22Direct_version.22_algorithm"><span class="tocnumber">6</span> <span class="toctext">"Direct version" algorithm</span></a></li>
+<li class="toclevel-1"><a href="#Other_Particle_Filters"><span class="tocnumber">7</span> <span class="toctext">Other Particle Filters</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">8</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">9</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">10</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Goal" id="Goal"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=1" title="Edit section: Goal">edit</a>]</span> <span class="mw-headline">Goal</span></h2>
+<p>The particle filter aims to estimate the sequence of hidden parameters, <span class="texhtml"><i>x</i><sub><i>k</i></sub></span> for <img class="tex" alt="k=0,1,2,3, \ldots" src="http://upload.wikimedia.org/math/6/1/0/61030579cd17b4843dfd9570a42a50a4.png" />, based only on the observed data <span class="texhtml"><i>y</i><sub><i>k</i></sub></span> for <img class="tex" alt="k=0,1,2,3, \ldots" src="http://upload.wikimedia.org/math/6/1/0/61030579cd17b4843dfd9570a42a50a4.png" />. All Bayesian estimates of <span class="texhtml"><i>x</i><sub><i>k</i></sub></span> follow from the <a href="/wiki/Posterior_distribution" title="Posterior distribution" class="mw-redirect">posterior distribution</a> <img class="tex" alt="p(x_k|y_0,y_1,\ldots,y_k)" src="http://upload.wikimedia.org/math/5/e/9/5e9614997cb446df894cfa2b30d8ca41.png" />. In contrast, the MCMC or importance sampling approach would model the full posterior <img class="tex" alt="p(x_0,x_1,\ldots,x_k|y_0,y_1,\ldots,y_k)" src="http://upload.wikimedia.org/math/1/0/f/10f1fc1bfc199312756eab29a23f4ca0.png" />.</p>
+<p><a name="Model" id="Model"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=2" title="Edit section: Model">edit</a>]</span> <span class="mw-headline">Model</span></h2>
+<p>Particle methods assume <span class="texhtml"><i>x</i><sub><i>k</i></sub></span> and the observations <span class="texhtml"><i>y</i><sub><i>k</i></sub></span> can be modeled in this form:</p>
+<ul>
+<li><img class="tex" alt="x_0, x_1, \ldots" src="http://upload.wikimedia.org/math/5/f/0/5f0234b3d84d082460ff83c7b565e3e6.png" /> is a first order <a href="/wiki/Markov_process" title="Markov process">Markov process</a> such that
+<dl>
+<dd><img class="tex" alt="x_k|x_{k-1} \sim p_{x_k|x_{k-1}}(x|x_{k-1})" src="http://upload.wikimedia.org/math/c/7/0/c70417aa02be764b98c2d9495f35800e.png" /></dd>
+</dl>
+</li>
+</ul>
+<p>and with an initial distribution <span class="texhtml"><i>p</i>(<i>x</i><sub>0</sub>)</span>.</p>
+<ul>
+<li>The observations <img class="tex" alt="y_0, y_1, \ldots" src="http://upload.wikimedia.org/math/8/1/3/813be3d93d4659c931009552a3c5a9cd.png" /> are conditionally independent provided that <img class="tex" alt="x_0, x_1, \ldots" src="http://upload.wikimedia.org/math/5/f/0/5f0234b3d84d082460ff83c7b565e3e6.png" /> are known</li>
+</ul>
+<dl>
+<dd>In other words, each <span class="texhtml"><i>y</i><sub><i>k</i></sub></span> only depends on <span class="texhtml"><i>x</i><sub><i>k</i></sub></span>
+<dl>
+<dd><img class="tex" alt="y_k|x_k \sim p_{y|x}(y|x_k)" src="http://upload.wikimedia.org/math/0/8/7/0873082a7ac01c2031e77bda4b8ce641.png" /></dd>
+</dl>
+</dd>
+</dl>
+<p>One example form of this scenario is</p>
+<dl>
+<dd><img class="tex" alt="x_k = f(x_{k-1}) + w_k \," src="http://upload.wikimedia.org/math/5/9/6/596e7424b2d8afe764d5f4381647d5bc.png" /></dd>
+<dd><img class="tex" alt="y_k = h(x_k) + v_k \," src="http://upload.wikimedia.org/math/8/2/5/825e457149bf02bc6f838da74952cc1d.png" /></dd>
+</dl>
+<p>where both <span class="texhtml"><i>w</i><sub><i>k</i></sub></span> and <span class="texhtml"><i>v</i><sub><i>k</i></sub></span> are mutually independent and identically distributed sequences with known <a href="/wiki/Probability_density_function" title="Probability density function">probability density functions</a> and <img class="tex" alt="f(\cdot)" src="http://upload.wikimedia.org/math/a/1/0/a1044326f95cfbf46f9859c97cf280be.png" /> and <img class="tex" alt="h(\cdot)" src="http://upload.wikimedia.org/math/c/3/b/c3b1ebf3bd65a4484a29f3cf6143d12d.png" /> are known functions. These two equations can be viewed as <a href="/wiki/State_space_(controls)" title="State space (controls)">state space</a> equations and look similar to the state space equations for the <a href="/wiki/Kalman_filter" title="Kalman filter">Kalman filter</a>. If the functions <img class="tex" alt="f(\cdot)" src="http://upload.wikimedia.org/math/a/1/0/a1044326f95cfbf46f9859c97cf280be.png" /> and <img class="tex" alt="h(\cdot)" src="http://upload.wikimedia.org/math/c/3/b/c3b1ebf3bd65a4484a29f3cf6143d12d.png" /> are linear, and if both <span class="texhtml"><i>w</i><sub><i>k</i></sub></span> and <span class="texhtml"><i>v</i><sub><i>k</i></sub></span> are <a href="/wiki/Gaussian" title="Gaussian" class="mw-redirect">Gaussian</a>, the Kalman filter finds the exact Bayesian filtering distribution. If not, Kalman filter based methods are a first-order approximation. Particle filters are also an approximation, but with enough particles they can be much more accurate.</p>
+<p><a name="Monte_Carlo_approximation" id="Monte_Carlo_approximation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=3" title="Edit section: Monte Carlo approximation">edit</a>]</span> <span class="mw-headline">Monte Carlo approximation</span></h2>
+<p>Particle methods, like all sampling-based approaches (e.g., MCMC), generate a set of samples that approximate the filtering distribution <img class="tex" alt="p(x_k|y_0,\dots,y_k)" src="http://upload.wikimedia.org/math/8/1/0/8105bbcbded9022da3878b8a3c5c20cc.png" />. So, with <span class="texhtml"><i>P</i></span> samples, expectations with respect to the filtering distribution are approximated by</p>
+<dl>
+<dd><img class="tex" alt="\int f(x_k)p(x_k|y_0,\dots,y_k)dx_k\approx\frac1P\sum_{L=1}^Pf(x_k^{(L)})" src="http://upload.wikimedia.org/math/4/1/a/41a624657d05811606536e8da21f18e4.png" /></dd>
+</dl>
+<p>and <img class="tex" alt="f(\cdot)" src="http://upload.wikimedia.org/math/a/1/0/a1044326f95cfbf46f9859c97cf280be.png" />, in the usual way for Monte Carlo, can give all the <a href="/wiki/Moment_(mathematics)" title="Moment (mathematics)">moments</a> etc. of the distribution up to some degree of approximation.</p>
+<p><a name="Sampling_Importance_Resampling_.28SIR.29" id="Sampling_Importance_Resampling_.28SIR.29"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=4" title="Edit section: Sampling Importance Resampling (SIR)">edit</a>]</span> <span class="mw-headline">Sampling Importance Resampling (SIR)</span></h2>
+<p><i>Sampling importance <a href="/wiki/Resampling_(statistics)" title="Resampling (statistics)">resampling</a> (SIR)</i> is a very commonly used particle filtering algorithm, which approximates the filtering distribution <img class="tex" alt="p(x_k|y_0,\ldots,y_k)" src="http://upload.wikimedia.org/math/7/6/a/76a75af65873d7516991a60a4fbd522b.png" /> by a weighted set of P particles</p>
+<dl>
+<dd><img class="tex" alt="\{(w^{(L)}_k,x^{(L)}_k)~:~L=1,\ldots,P\}" src="http://upload.wikimedia.org/math/3/f/2/3f2a0c571cd61cb0148d2302e4856d12.png" />.</dd>
+</dl>
+<p>The <i>importance weights</i> <img class="tex" alt="w^{(L)}_k" src="http://upload.wikimedia.org/math/6/0/b/60b97a82fe713066a3c80f908599cc80.png" /> are approximations to the relative posterior probabilities (or densities) of the particles such that <img class="tex" alt="\sum_{L=1}^P w^{(L)}_k = 1" src="http://upload.wikimedia.org/math/e/e/5/ee57e5e77160d53d45595b91dee9ec3c.png" />.</p>
+<p>SIR is a sequential (i.e., recursive) version of <a href="/wiki/Importance_sampling" title="Importance sampling">importance sampling</a>. As in importance sampling, the expectation of a function <img class="tex" alt="f(\cdot)" src="http://upload.wikimedia.org/math/a/1/0/a1044326f95cfbf46f9859c97cf280be.png" /> can be approximated as a weighted average</p>
+<dl>
+<dd><img class="tex" alt="
+\int f(x_k) p(x_k|y_0,\dots,y_k) dx_k \approx
+\sum_{L=1}^P w^{(L)} f(x_k^{(L)}).
+" src="http://upload.wikimedia.org/math/4/4/2/442a4eaf83b1454f37969ab87acfb90c.png" /></dd>
+</dl>
+<p>For a finite set of particles, the algorithm performance is dependent on the choice of the <i>proposal distribution</i></p>
+<dl>
+<dd><img class="tex" alt="\pi(x_k|x_{0:k-1},y_{0:k})\, " src="http://upload.wikimedia.org/math/6/6/b/66b9238ab22ac220a952637096fa4087.png" />.</dd>
+</dl>
+<p>The <i>optimal proposal distribution</i> is given as the <i>target distribution</i></p>
+<dl>
+<dd><img class="tex" alt="
+\pi(x_k|x_{0:k-1},y_{0:k}) = p(x_k|x_{k-1},y_{k}). \,
+" src="http://upload.wikimedia.org/math/d/4/4/d44a6e371992882e8a075395277ee523.png" /></dd>
+</dl>
+<p>However, the transition prior is often used as importance function, since it is easier to draw particles (or samples) and perform subsequent importance weight calculations:</p>
+<dl>
+<dd><img class="tex" alt="
+\pi(x_k|x_{0:k-1},y_{0:k}) = p(x_k|x_{k-1}). \,
+" src="http://upload.wikimedia.org/math/f/c/f/fcf8b26c79a0ef5b505e8c34d7063e7b.png" /></dd>
+</dl>
+<p><i>Sampling Importance Resampling</i> (SIR) filters with transition prior as importance function are commonly known as <a href="/wiki/Resampling_(statistics)#Bootstrap" title="Resampling (statistics)">bootstrap filter</a> and <a href="/wiki/Condensation_algorithm" title="Condensation algorithm">condensation algorithm</a>.</p>
+<p><i>Resampling</i> is used to avoid the problem of degeneracy of the algorithm, that is, avoiding the situation that all but one of the importance weights are close to zero. The performance of the algorithm can be also affected by proper choice of resampling method. The <i><a href="/w/index.php?title=Stratified_resampling&amp;action=edit&amp;redlink=1" class="new" title="Stratified resampling (page does not exist)">stratified resampling</a></i> proposed by Kitagawa (1996) is optimal in terms of variance.</p>
+<p>A single step of sequential importance resampling is as follows:</p>
+<dl>
+<dd>1) For <img class="tex" alt="L=1,\ldots,P" src="http://upload.wikimedia.org/math/6/a/0/6a03d0e6de727836962b60ddd2816911.png" /> draw samples from the <i>proposal distribution</i></dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><img class="tex" alt="
+x^{(L)}_k \sim \pi(x_k|x^{(L)}_{0:k-1},y_{0:k})
+" src="http://upload.wikimedia.org/math/8/a/0/8a064cfbe7f01b162424752ee08432b8.png" /></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>2) For <img class="tex" alt="L=1,\ldots,P" src="http://upload.wikimedia.org/math/6/a/0/6a03d0e6de727836962b60ddd2816911.png" /> update the importance weights up to a normalizing constant:</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><img class="tex" alt="
+\hat{w}^{(L)}_k = w^{(L)}_{k-1}
+\frac{p(y_k|x^{(L)}_k) p(x^{(L)}_k|x^{(L)}_{k-1})}
+{\pi(x_k^{(L)}|x^{(L)}_{0:k-1},y_{0:k})}.
+" src="http://upload.wikimedia.org/math/9/c/0/9c062e2b4b35f1edf93d867bb831a2ce.png" /></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>3) For <img class="tex" alt="L=1,\ldots,P" src="http://upload.wikimedia.org/math/6/a/0/6a03d0e6de727836962b60ddd2816911.png" /> compute the normalized importance weights:</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><img class="tex" alt="
+w^{(L)}_k = \frac{\hat{w}^{(L)}_k}{\sum_{J=1}^P \hat{w}^{(J)}_k}
+" src="http://upload.wikimedia.org/math/4/0/5/405ee70feca266596510b8ab09fa6891.png" /></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>4) Compute an estimate of the effective number of particles as</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><img class="tex" alt="
+\hat{N}_\mathit{eff} = \frac{1}{\sum_{L=1}^P\left(w^{(L)}_k\right)^2}
+" src="http://upload.wikimedia.org/math/a/5/5/a55a887efb848fd380ef0102bfb879d6.png" /></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>5) If the effective number of particles is less than a given threshold <img class="tex" alt="\hat{N}_\mathit{eff} &lt; N_{thr}" src="http://upload.wikimedia.org/math/9/0/a/90abf1ed51273996e1c6959224a31a7b.png" />, then perform resampling:</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd>a) Draw <span class="texhtml"><i>P</i></span> particles from the current particle set with probabilities proportional to their weights. Replace the current particle set with this new one.</dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd>b) For <img class="tex" alt="L=1,\ldots,P" src="http://upload.wikimedia.org/math/6/a/0/6a03d0e6de727836962b60ddd2816911.png" /> set <img class="tex" alt="w^{(L)}_k = 1/P." src="http://upload.wikimedia.org/math/f/f/5/ff5065debd70845f860465056688dba0.png" /></dd>
+</dl>
+</dd>
+</dl>
+<p>The term <i><b>Sequential</b> Importance Resampling</i> is also sometimes used when referring to SIR filters.</p>
+<p><a name="Sequential_Importance_Sampling_.28SIS.29" id="Sequential_Importance_Sampling_.28SIS.29"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=5" title="Edit section: Sequential Importance Sampling (SIS)">edit</a>]</span> <span class="mw-headline">Sequential Importance Sampling (SIS)</span></h2>
+<ul>
+<li>Is the same as Sampling Importance Resampling, but without the resampling stage.</li>
+</ul>
+<p><a name=".22Direct_version.22_algorithm" id=".22Direct_version.22_algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=6" title="Edit section: &quot;Direct version&quot; algorithm">edit</a>]</span> <span class="mw-headline">"Direct version" algorithm</span></h2>
+<p>The "direct version" algorithm is rather simple (compared to other particle filtering algorithms) and it uses composition and rejection. To generate a single sample <span class="texhtml"><i>x</i></span> at <span class="texhtml"><i>k</i></span> from <img class="tex" alt="p_{x_k|y_{1:k}}(x|y_{1:k})" src="http://upload.wikimedia.org/math/e/2/9/e292e1baf5da355962bc8efd143ad4c5.png" />:</p>
+<dl>
+<dd>1) Set p=1</dd>
+</dl>
+<dl>
+<dd>2) <a href="/wiki/Uniform_distribution_(discrete)" title="Uniform distribution (discrete)">Uniformly</a> generate L from <span class="texhtml">{1,...,<i>P</i>}</span></dd>
+</dl>
+<dl>
+<dd>3) Generate a test <img class="tex" alt="\hat{x}" src="http://upload.wikimedia.org/math/8/b/a/8baf9dc7043aae61e37e171dc9f537e9.png" /> from its distribution <img class="tex" alt="p_{x_k|x_{k-1}}(x|x_{k-1|k-1}^{(L)})" src="http://upload.wikimedia.org/math/1/5/2/152efb273c4cdb7d33f49c1187b10866.png" /></dd>
+</dl>
+<dl>
+<dd>4) Generate the probability of <img class="tex" alt="\hat{y}" src="http://upload.wikimedia.org/math/7/b/5/7b5fdad25716879ce0706bf95efd82c0.png" /> using <img class="tex" alt="\hat{x}" src="http://upload.wikimedia.org/math/8/b/a/8baf9dc7043aae61e37e171dc9f537e9.png" /> from <img class="tex" alt="p_{y|x}(y_k|\hat{x})" src="http://upload.wikimedia.org/math/9/1/e/91e097fb080a616428736169bcddb6af.png" /> where <span class="texhtml"><i>y</i><sub><i>k</i></sub></span> is the measured value</dd>
+</dl>
+<dl>
+<dd>5) Generate another <a href="/wiki/Uniform_distribution_(continuous)" title="Uniform distribution (continuous)">uniform</a> u from <span class="texhtml">[0,<i>m</i><sub><i>k</i></sub>]</span></dd>
+</dl>
+<dl>
+<dd>6) Compare u and <img class="tex" alt="p\left(\hat{y}\right)" src="http://upload.wikimedia.org/math/3/1/b/31b0b061ba38b4c29bd22c24fef340dd.png" /></dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd>6a) If u is larger then repeat from step 2</dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd>6b) If u is smaller then save <img class="tex" alt="\hat{x}" src="http://upload.wikimedia.org/math/8/b/a/8baf9dc7043aae61e37e171dc9f537e9.png" /> as <img class="tex" alt="x_{k|k}^{(p)}" src="http://upload.wikimedia.org/math/7/4/d/74d8524043fafe3c0f9bf4461fe4c3ce.png" /> and increment p</dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>7) If p &gt; P then quit</dd>
+</dl>
+<p>The goal is to generate P "particles" at <span class="texhtml"><i>k</i></span> using only the particles from <span class="texhtml"><i>k</i> − 1</span>. This requires that a Markov equation can be written (and computed) to generate a <span class="texhtml"><i>x</i><sub><i>k</i></sub></span> based only upon <span class="texhtml"><i>x</i><sub><i>k</i> − 1</sub></span>. This algorithm uses composition of the P particles from <span class="texhtml"><i>k</i> − 1</span> to generate a particle at <span class="texhtml"><i>k</i></span> and repeats (steps 2-6) until P particles are generated at <span class="texhtml"><i>k</i></span>.</p>
+<p>This can be more easily visualized if <span class="texhtml"><i>x</i></span> is viewed as a two-dimensional array. One dimension is <span class="texhtml"><i>k</i></span> and the other dimensions is the particle number. For example, <span class="texhtml"><i>x</i>(<i>k</i>,<i>L</i>)</span> would be the L<sup><small>th</small></sup> particle at <span class="texhtml"><i>k</i></span> and can also be written <img class="tex" alt="x_k^{(L)}" src="http://upload.wikimedia.org/math/5/a/f/5affdc5494ce84a860cee052badbf94f.png" /> (as done above in the algorithm). Step 3 generates a <i>potential</i> <span class="texhtml"><i>x</i><sub><i>k</i></sub></span> based on a randomly chosen particle (<img class="tex" alt="x_{k-1}^{(L)}" src="http://upload.wikimedia.org/math/9/f/9/9f9ffe1d8e90a4680984d4801cd0c022.png" />) at time <span class="texhtml"><i>k</i> − 1</span> and rejects or accepts it in step 6. In other words, the <span class="texhtml"><i>x</i><sub><i>k</i></sub></span> values are generated using the previously generated <span class="texhtml"><i>x</i><sub><i>k</i> − 1</sub></span>.</p>
+<p><a name="Other_Particle_Filters" id="Other_Particle_Filters"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=7" title="Edit section: Other Particle Filters">edit</a>]</span> <span class="mw-headline">Other Particle Filters</span></h2>
+<ul>
+<li><a href="/wiki/Auxiliary_particle_filter" title="Auxiliary particle filter">Auxiliary particle filter</a></li>
+<li><a href="/w/index.php?title=Gaussian_particle_filter&amp;action=edit&amp;redlink=1" class="new" title="Gaussian particle filter (page does not exist)">Gaussian particle filter</a></li>
+<li><a href="/w/index.php?title=Unscented_particle_filter&amp;action=edit&amp;redlink=1" class="new" title="Unscented particle filter (page does not exist)">Unscented particle filter</a></li>
+<li><a href="/w/index.php?title=Monte_Carlo_particle_filter&amp;action=edit&amp;redlink=1" class="new" title="Monte Carlo particle filter (page does not exist)">Monte Carlo particle filter</a></li>
+<li><a href="/w/index.php?title=Gauss-Hermite_particle_filter&amp;action=edit&amp;redlink=1" class="new" title="Gauss-Hermite particle filter (page does not exist)">Gauss-Hermite particle filter</a></li>
+<li><a href="/w/index.php?title=Cost_Reference_particle_filter&amp;action=edit&amp;redlink=1" class="new" title="Cost Reference particle filter (page does not exist)">Cost Reference particle filter</a></li>
+<li><a href="/w/index.php?title=Rao-Blackwellized_particle_filter&amp;action=edit&amp;redlink=1" class="new" title="Rao-Blackwellized particle filter (page does not exist)">Rao-Blackwellized particle filter</a></li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=8" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Ensemble_Kalman_filter" title="Ensemble Kalman filter">Ensemble Kalman filter</a></li>
+<li><a href="/wiki/Recursive_Bayesian_estimation" title="Recursive Bayesian estimation">Recursive Bayesian estimation</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=9" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFDoucet.2C_A.De_Freitas.2C_N..3B_Gordon.2C_N.J.2001">Doucet, A.; De Freitas, N.; Gordon, N.J. (2001). <i>Sequential Monte Carlo Methods in Practice</i>. Springer.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Sequential+Monte+Carlo+Methods+in+Practice&amp;rft.aulast=Doucet%2C+A.&amp;rft.au=Doucet%2C+A.&amp;rft.au=De+Freitas%2C+N.%3B+Gordon%2C+N.J.&amp;rft.date=2001&amp;rft.pub=Springer&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFCappe.2C_O.Moulines.2C_E..3B_Ryden.2C_T.2005">Cappe, O.; Moulines, E.; Ryden, T. (2005). <i>Inference in Hidden Markov Models</i>. Springer.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Inference+in+Hidden+Markov+Models&amp;rft.aulast=Cappe%2C+O.&amp;rft.au=Cappe%2C+O.&amp;rft.au=Moulines%2C+E.%3B+Ryden%2C+T.&amp;rft.date=2005&amp;rft.pub=Springer&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFLiu.2C_J.2001">Liu, J. (2001). <i>Monte Carlo strategies in Scientific Computing</i>. Springer.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Monte+Carlo+strategies+in+Scientific+Computing&amp;rft.aulast=Liu%2C+J.&amp;rft.au=Liu%2C+J.&amp;rft.date=2001&amp;rft.pub=Springer&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="book" id="CITEREFRistic.2C_B.Arulampalam.2C_S..3B_Gordon.2C_N.2004">Ristic, B.; Arulampalam, S.; Gordon, N. (2004). <i>Beyond the Kalman Filter: Particle Filters for Tracking Applications</i>. Artech House.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Beyond+the+Kalman+Filter%3A+Particle+Filters+for+Tracking+Applications&amp;rft.aulast=Ristic%2C+B.&amp;rft.au=Ristic%2C+B.&amp;rft.au=Arulampalam%2C+S.%3B+Gordon%2C+N.&amp;rft.date=2004&amp;rft.pub=Artech+House&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFDoucet.2C_A.Johansen.2C_A.M..3BDecember_2008">Doucet, A.; Johansen, A.M.; (December 2008). "<a href="http://www.cs.ubc.ca/%7Earnaud/doucet_johansen_tutorialPF.pdf" class="external text" title="http://www.cs.ubc.ca/%7Earnaud/doucet_johansen_tutorialPF.pdf" rel="nofollow">A tutorial on particle filtering and smoothing: fifteen years later</a>". <i>Technical report, Department of Statistics, University of British Columbia</i><span class="printonly">. <a href="http://www.cs.ubc.ca/%7Earnaud/doucet_johansen_tutorialPF.pdf" class="external free" title="http://www.cs.ubc.ca/%7Earnaud/doucet_johansen_tutorialPF.pdf" rel="nofollow">http://www.cs.ubc.ca/%7Earnaud/doucet_johansen_tutorialPF.pdf</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+tutorial+on+particle+filtering+and+smoothing%3A+fifteen+years+later&amp;rft.jtitle=Technical+report%2C+Department+of+Statistics%2C+University+of+British+Columbia&amp;rft.aulast=Doucet%2C+A.&amp;rft.au=Doucet%2C+A.&amp;rft.au=Johansen%2C+A.M.%3B&amp;rft.date=December+2008&amp;rft_id=http%3A%2F%2Fwww.cs.ubc.ca%2F%257Earnaud%2Fdoucet_johansen_tutorialPF.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFDoucet.2C_A.Godsill.2C_S..3B_Andrieu.2C_C..3B2000">Doucet, A.; Godsill, S.; Andrieu, C.; (2000). "<a href="http://www.springerlink.com/content/q6452k2x37357l3r/" class="external text" title="http://www.springerlink.com/content/q6452k2x37357l3r/" rel="nofollow">On Sequential Monte Carlo Methods for Bayesian Filtering</a>". <i>Statistics and Computing</i> <b>10</b> (3): 197-208<span class="printonly">. <a href="http://www.springerlink.com/content/q6452k2x37357l3r/" class="external free" title="http://www.springerlink.com/content/q6452k2x37357l3r/" rel="nofollow">http://www.springerlink.com/content/q6452k2x37357l3r/</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=On+Sequential+Monte+Carlo+Methods+for+Bayesian+Filtering&amp;rft.jtitle=Statistics+and+Computing&amp;rft.aulast=Doucet%2C+A.&amp;rft.au=Doucet%2C+A.&amp;rft.au=Godsill%2C+S.%3B+Andrieu%2C+C.%3B&amp;rft.date=2000&amp;rft.volume=10&amp;rft.issue=3&amp;rft.pages=197-208&amp;rft_id=http%3A%2F%2Fwww.springerlink.com%2Fcontent%2Fq6452k2x37357l3r%2F&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFArulampalam.2C_M.S.Maskell.2C_S..3B_Gordon.2C_N..3B_Clapp.2C_T..3B2002">Arulampalam, M.S.; Maskell, S.; Gordon, N.; Clapp, T.; (2002). "<a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=978374" class="external text" title="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=978374" rel="nofollow">A tutorial on particle filters for online nonlinear/non-Gaussian Bayesian tracking</a>". <i>IEEE Transactions on Signal Processing</i> <b>50</b> (2): 174–188. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1109%2F78.978374" class="external text" title="http://dx.doi.org/10.1109%2F78.978374" rel="nofollow">10.1109/78.978374</a></span><span class="printonly">. <a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=978374" class="external free" title="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=978374" rel="nofollow">http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=978374</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+tutorial+on+particle+filters+for+online+nonlinear%2Fnon-Gaussian+Bayesian+tracking&amp;rft.jtitle=IEEE+Transactions+on+Signal+Processing&amp;rft.aulast=Arulampalam%2C+M.S.&amp;rft.au=Arulampalam%2C+M.S.&amp;rft.au=Maskell%2C+S.%3B+Gordon%2C+N.%3B+Clapp%2C+T.%3B&amp;rft.date=2002&amp;rft.volume=50&amp;rft.issue=2&amp;rft.pages=174%E2%80%93188&amp;rft_id=info:doi/10.1109%2F78.978374&amp;rft_id=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D978374&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFCappe.2C_O.Godsill.2C_S..3B_Moulines.2C_E..3B2007">Cappe, O.; Godsill, S.; Moulines, E.; (2007). "An overview of existing methods and recent advances in sequential Monte Carlo". <i>Proceedings of IEEE</i> <b>95</b> (5): 899. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1109%2FJPROC.2007.893250" class="external text" title="http://dx.doi.org/10.1109%2FJPROC.2007.893250" rel="nofollow">10.1109/JPROC.2007.893250</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=An+overview+of+existing+methods+and+recent+advances+in+sequential+Monte+Carlo&amp;rft.jtitle=Proceedings+of+IEEE&amp;rft.aulast=Cappe%2C+O.&amp;rft.au=Cappe%2C+O.&amp;rft.au=Godsill%2C+S.%3B+Moulines%2C+E.%3B&amp;rft.date=2007&amp;rft.volume=95&amp;rft.issue=5&amp;rft.pages=899&amp;rft_id=info:doi/10.1109%2FJPROC.2007.893250&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFKItagawa.2C_G.1996">KItagawa, G. (1996). "Monte carlo filter and smoother for non-Gaussian nonlinear state space models". <i>Journal of Computational and Graphical Statistics</i> <b>5</b> (1): 1-25.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Monte+carlo+filter+and+smoother+for+non-Gaussian+nonlinear+state+space+models&amp;rft.jtitle=Journal+of+Computational+and+Graphical+Statistics&amp;rft.aulast=KItagawa%2C+G.&amp;rft.au=KItagawa%2C+G.&amp;rft.date=1996&amp;rft.volume=5&amp;rft.issue=1&amp;rft.pages=1-25&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFKotecha.2C_J.H.Djuric.2C_P..3B2003">Kotecha, J.H.; Djuric, P.; (2003). "Gaussian Particle filtering". <i>IEEE Transactions Signal Processing</i> <b>51</b> (10).</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Gaussian+Particle+filtering&amp;rft.jtitle=IEEE+Transactions+Signal+Processing&amp;rft.aulast=Kotecha%2C+J.H.&amp;rft.au=Kotecha%2C+J.H.&amp;rft.au=Djuric%2C+P.%3B&amp;rft.date=2003&amp;rft.volume=51&amp;rft.issue=10&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFHaug.2C_A.J.2005">Haug, A.J. (2005). "<a href="http://www.mitre-corporation.net/work/tech_papers/tech_papers_05/05_0211/05_0211.pdf" class="external text" title="http://www.mitre-corporation.net/work/tech_papers/tech_papers_05/05_0211/05_0211.pdf" rel="nofollow">A Tutorial on Bayesian Estimation and Tracking Techniques Applicable to Nonlinear and Non-Gaussian Processes</a>". <i>The MITRE Corporation, USA, Tech. Rep., Feb</i><span class="printonly">. <a href="http://www.mitre-corporation.net/work/tech_papers/tech_papers_05/05_0211/05_0211.pdf" class="external free" title="http://www.mitre-corporation.net/work/tech_papers/tech_papers_05/05_0211/05_0211.pdf" rel="nofollow">http://www.mitre-corporation.net/work/tech_papers/tech_papers_05/05_0211/05_0211.pdf</a></span><span class="reference-accessdate">. Retrieved on 2008-05-06</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+Tutorial+on+Bayesian+Estimation+and+Tracking+Techniques+Applicable+to+Nonlinear+and+Non-Gaussian+Processes&amp;rft.jtitle=The+MITRE+Corporation%2C+USA%2C+Tech.+Rep.%2C+Feb&amp;rft.aulast=Haug%2C+A.J.&amp;rft.au=Haug%2C+A.J.&amp;rft.date=2005&amp;rft_id=http%3A%2F%2Fwww.mitre-corporation.net%2Fwork%2Ftech_papers%2Ftech_papers_05%2F05_0211%2F05_0211.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFPitt.2C_M.K.Shephard.2C_N.1999">Pitt, M.K.; Shephard, N. (1999). "<a href="http://www.questia.com/PM.qst?a=o&amp;se=gglsc&amp;d=5002321997" class="external text" title="http://www.questia.com/PM.qst?a=o&amp;se=gglsc&amp;d=5002321997" rel="nofollow">Filtering Via Simulation: Auxiliary Particle Filters</a>". <i>Journal of the American Statistical Association</i> <b>94</b> (446): 590–591. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.2307%2F2670179" class="external text" title="http://dx.doi.org/10.2307%2F2670179" rel="nofollow">10.2307/2670179</a></span><span class="printonly">. <a href="http://www.questia.com/PM.qst?a=o&amp;se=gglsc&amp;d=5002321997" class="external free" title="http://www.questia.com/PM.qst?a=o&amp;se=gglsc&amp;d=5002321997" rel="nofollow">http://www.questia.com/PM.qst?a=o&amp;se=gglsc&amp;d=5002321997</a></span><span class="reference-accessdate">. Retrieved on 2008-05-06</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Filtering+Via+Simulation%3A+Auxiliary+Particle+Filters&amp;rft.jtitle=Journal+of+the+American+Statistical+Association&amp;rft.aulast=Pitt%2C+M.K.&amp;rft.au=Pitt%2C+M.K.&amp;rft.au=Shephard%2C+N.&amp;rft.date=1999&amp;rft.volume=94&amp;rft.issue=446&amp;rft.pages=590%E2%80%93591&amp;rft_id=info:doi/10.2307%2F2670179&amp;rft_id=http%3A%2F%2Fwww.questia.com%2FPM.qst%3Fa%3Do%26se%3Dgglsc%26d%3D5002321997&amp;rfr_id=info:sid/en.wikipedia.org:Particle_filter"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Particle_filter&amp;action=edit&amp;section=10" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www-sigproc.eng.cam.ac.uk/smc/" class="external text" title="http://www-sigproc.eng.cam.ac.uk/smc/" rel="nofollow">Sequential Monte Carlo Methods (Particle Filtering)</a> homepage on University of Cambridge</li>
+<li><a href="http://www.cs.washington.edu/ai/Mobile_Robotics/mcl/" class="external text" title="http://www.cs.washington.edu/ai/Mobile_Robotics/mcl/" rel="nofollow">Dieter Fox's MCL Animations</a></li>
+<li><a href="http://web.engr.oregonstate.edu/~hess/" class="external text" title="http://web.engr.oregonstate.edu/~hess/" rel="nofollow">Rob Hess' free software</a></li>
+<li><a href="http://babel.isa.uma.es/mrpt/index.php/Particle_Filters" class="external text" title="http://babel.isa.uma.es/mrpt/index.php/Particle_Filters" rel="nofollow">Tutorial on particle filtering</a> with the <a href="/wiki/Mobile_Robot_Programming_Toolkit" title="Mobile Robot Programming Toolkit">MRPT C++ library</a>, and a <a href="http://babel.isa.uma.es/mrpt/index.php/Paper:An_Optimal_Filtering_Algorithm_for_Non-Parametric_Observation_Models_in_Robot_Localization_(ICRA_2008)#Video" class="external text" title="http://babel.isa.uma.es/mrpt/index.php/Paper:An_Optimal_Filtering_Algorithm_for_Non-Parametric_Observation_Models_in_Robot_Localization_(ICRA_2008)#Video" rel="nofollow">mobile robot localization video</a>.</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 6273/1000000
+Post-expand include size: 42841/2048000 bytes
+Template argument size: 14271/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1396948-0!1!0!default!!en!2 and timestamp 20090416130129 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Particle_filter">http://en.wikipedia.org/wiki/Particle_filter</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Estimation_theory" title="Category:Estimation theory">Estimation theory</a></span> | <span dir='ltr'><a href="/wiki/Category:Monte_Carlo_methods" title="Category:Monte Carlo methods">Monte Carlo methods</a></span> | <span dir='ltr'><a href="/wiki/Category:Computational_statistics" title="Category:Computational statistics">Computational statistics</a></span> | <span dir='ltr'><a href="/wiki/Category:Control_theory" title="Category:Control theory">Control theory</a></span> | <span dir='ltr'><a href="/wiki/Category:Non-linear_filters" title="Category:Non-linear filters">Non-linear filters</a></span> | <span dir='ltr'><a href="/wiki/Category:Robotics" title="Category:Robotics">Robotics</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Particle_filter" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Particle_filter" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Particle_filter&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Particle_filter&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Particle_filter" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Particle_filter" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Particle_filter" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Particle_filter&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Particle_filter&amp;oldid=284201886" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Particle_filter&amp;id=284201886">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Sequenzielle_Monte-Carlo-Methode">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Filtro_de_part%C3%ADculas">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Filtre_particulaire_(statistique)">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%ED%8C%8C%ED%8B%B0%ED%81%B4_%ED%95%84%ED%84%B0">한국어</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E7%B2%92%E5%AD%90%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF">日本語</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 16 April 2009, at 12:53 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv184 in 3.948 secs. --></body></html>

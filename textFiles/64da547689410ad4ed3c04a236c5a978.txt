@@ -1,0 +1,324 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rsync - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Rsync";
+		var wgTitle = "Rsync";
+		var wgAction = "view";
+		var wgArticleId = "146428";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281250332;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); rsync
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+rsync
+
+
+
+
+Design by
+Andrew Tridgell, Paul Mackerras
+
+
+Developed by
+Wayne Davison
+
+
+Latest release
+3.0.5 / 2008-12-28; 99 days ago
+
+
+Platform
+Unix
+
+
+Type
+Data transfer/ differential backup
+
+
+License
+GNU General Public License
+
+
+Website
+http://rsync.samba.org/
+
+
+rsync is a software application for Unix systems which synchronizes files and directories from one location to another while minimizing data transfer using delta encoding when appropriate. An important feature of rsync not found in most similar programs/protocols is that the mirroring takes place with only one transmission in each direction. rsync can copy or display directory contents and copy files, optionally using compression and recursion.
+In daemon mode, rsync listens to the default TCP port of 873, serving files in the native rsync protocol or via a remote shell such as RSH or SSH. In the latter case, the rsync client executable must be installed on both the local and the remote host.
+Released under the GNU General Public License, rsync is free software.
+
+
+
+
+Contents
+
+
+1 Algorithm
+2 Uses
+3 Variations
+4 History
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Algorithm
+The rsync utility uses an algorithm (invented by the Australian computer programmer Andrew Tridgell) for efficiently transmitting a structure (such as a file) across a communications link when the receiving computer already has a different version of the same structure.
+The recipient splits its copy of the file into fixed-size non-overlapping chunks, of size S, and computes two checksums for each chunk: the MD4 hash, and a weaker 'rolling checksum'. It sends these checksums to the sender. Version 30 of the protocol (released with rsync version 3.0.0) now uses MD5 hashes rather than MD4.[1]
+The sender computes the rolling checksum for every chunk of size S in its own version of the file, even overlapping chunks. This can be calculated efficiently because of a special property of the rolling checksum: if the rolling checksum of bytes n through n + S − 1 is R, the rolling checksum of bytes n + 1 through n + S can be computed from R, byte n, and byte n + S without having to examine the intervening bytes. Thus, if one had already calculated the rolling checksum of bytes 1–25, one could calculate the rolling checksum of bytes 2–26 solely from the previous checksum, and from bytes 1 and 26.
+The rolling checksum used in rsync is based on Mark Adler's adler-32 checksum, which is used in zlib, and which itself is based on Fletcher's checksum.
+The sender then compares its rolling checksums with the set sent by the recipient to determine if any matches exist. If they do, it verifies the match by computing the MD4 checksum for the matching block and by comparing it with the MD4 checksum sent by the recipient.
+The sender then sends the recipient those parts of its file that did not match any of the recipient's blocks, along with assembly instructions on how to merge these blocks into the recipient's version. In practice, this creates a file identical to the sender's copy. However, it is in principle possible that the recipient's copy differs at this point from the sender's: this can happen when the two files have different chunks that nonetheless possess the same MD4 hash and rolling checksum; the chances for this to happen are in practice extremely remote.
+If the sender's and recipient's versions of the file have many sections in common, the utility needs to transfer relatively little data to synchronize the files.
+While the rsync algorithm forms the heart of the rsync application that essentially optimizes transfers between two computers over TCP/IP, the rsync application supports other key features that aid significantly in data transfers or backup. They include compression and decompression of data block by block using zlib at sending and receiving ends, respectively, and support for protocols such as ssh that enables encrypted transmission of compressed and efficient differential data using rsync algorithm. Instead of ssh, stunnel can also be used to create an encrypted tunnel to secure the data transmitted.
+Finally, rsync is capable of limiting the bandwidth consumed during a transfer, a useful feature that few other standard file transfer protocol offer.
+
+[edit] Uses
+rsync is written as a replacement for rcp and scp[2]. One of the earliest applications of rsync was to implement mirroring or backup for multiple Unix clients onto a central Unix server using rsync/ssh and standard Unix accounts. With a scheduling utility such as cron, one can even schedule automated encrypted rsync-based mirroring between multiple host computers and a central server.
+
+[edit] Variations
+A utility called rdiff uses the rsync algorithm to generate delta files with the difference from file A to file B (like the utility diff, but in a different delta format). The delta file can then be applied to file A, turning it into file B (similar to the patch utility).
+Unlike diff, the process of creating a delta file has two steps: first a signature file is created from file A, and then this (relatively small) signature and file B is used to create the delta file. Also unlike diff, rdiff works well with binary files.
+Using rdiff, a utility called rdiff-backup has been created, capable of maintaining a backup mirror of a file or directory either locally or remotely over the network, on another server. rdiff-backup stores incremental rdiff deltas with the backup, with which it is possible to recreate any backup point.
+duplicity is a variation on rdiff-backup that allows for backups without cooperation from the storage server, as with simple storage services like Amazon S3. It works by generating the hashes for each block in advance, encrypting them, and storing them on the server, then retrieving them when doing an incremental backup. The rest of the data is also stored encrypted for security purposes.
+rsyncrypto is a utility to encrypt files in an rsync-friendly fashion. The rsyncrypto algorithm ensures that two almost identical files, such as the same file before and after a change, when encrypted using rsyncrypto and the same key, will produce almost identical encrypted files. This allows for the low-overhead data transfer achieved by rsync while providing encryption for secure transfer and storage of sensitive data in a remote location.
+
+[edit] History
+The original authors were Andrew Tridgell and Paul Mackerras. Tridgell used rsync as the subject of the thesis for his PhD degree at The Australian National University[3].
+rsync was first announced on 19 June 1996.[4]
+Rsync 3.0 was released on 1 March 2008.[5]
+
+[edit] See also
+
+
+
+
+Free software portal
+
+
+
+
+CVSup
+Unison (file synchronizer)
+PowerFolder
+Jigdo
+Grsync, Graphical User Interface (GUI) for rsync
+cwRsync
+
+
+[edit] References
+
+
+^ http://rsync.samba.org/ftp/rsync/src/rsync-3.0.0-NEWS
+^ As indicated in the README file
+^ http://samba.org/~tridge/phd_thesis.pdf
+^  (19 June 1996). "<cola-liw-835153950-21793-0@liw.clinet.fi>#1/1 First release of rsync - rcp replacement". comp.os.linux.announce. (Web link). Retrieved on 2007-07-19.
+^ Davison, Wayne (1 March 2008). "Rsync 3.0.0 released". rsync-announce mailing list. http://lists.samba.org/archive/rsync-announce/2008/000057.html. 
+
+
+
+[edit] External links
+
+rsync homepage
+rsync algorithm
+rsync tutorial
+A short practical example
+Easy to follow rsync tutorial
+Using rsync on windows
+Official rsync examples
+Official rdiff-backup site
+rsyncrypto home page
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Rsync"
+Categories: 1996 software | Data synchronization | Free backup software | Free network-related software | Networking algorithms | Network file transfer protocols | Unix software | Free file transfer software 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Dansk
+Deutsch
+Español
+Français
+Italiano
+日本語
+Nederlands
+Polski
+Português
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 2 April 2009, at 07:51.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

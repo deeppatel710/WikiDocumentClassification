@@ -1,0 +1,325 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Portable Executable - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Portable_Executable";
+		var wgTitle = "Portable Executable";
+		var wgAction = "view";
+		var wgArticleId = "65063";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281445980;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Portable Executable
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Not to be confused with Portable application.
+
+Portable Executable
+
+Filename extension
+.cpl, .exe, .dll, .ocx, .sys, .scr, .drv
+
+
+Developed by
+Microsoft
+
+
+Type of format
+Binary, executable, object, shared libraries
+
+
+Extended from
+COFF
+
+
+The Portable Executable (PE) format is a file format for executables, object code, and DLLs, used in 32-bit and 64-bit versions of Windows operating systems. The term "portable" refers to the format's versatility in numerous environments of operating system software architecture. The PE format is basically a data structure that encapsulates the information necessary for the Windows OS loader to manage the wrapped executable code. This includes dynamic library references for linking, API export and import tables, resource management data and thread-local storage (TLS) data. On NT operating systems, the PE format is used for EXE, DLL, OBJ, SYS (device driver), and other file types. The Extensible Firmware Interface (EFI) specification states that PE is the standard executable format in EFI environments.
+PE is a modified version of the Unix COFF file format. PE/COFF is an alternative term in Windows development.
+On Windows NT operating systems, PE currently supports the IA-32, IA-64, and x86-64 (AMD64/Intel64) instruction set architectures. Prior to Windows 2000, Windows NT (and thus PE) supported the MIPS, DEC Alpha, and PowerPC instruction set architectures. Because PE is used on Windows CE, it continues to support several variants of the MIPS architecture, ARM (including Thumb), and SuperH instruction set architectures.
+
+
+
+
+Contents
+
+
+1 Brief history
+2 Technical details
+
+2.1 Layout
+2.2 Import Table
+2.3 Relocations
+
+
+3 .NET, metadata, and the PE format
+4 Use on other operating systems
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Brief history
+Microsoft migrated to the PE format with the introduction of the Windows NT 3.1 operating system. All later versions of Windows, including Windows 95/98/ME, support the file structure. The format has retained limited legacy support to bridge the gap between DOS-based and NT systems. For example, PE/COFF headers still include an MS-DOS executable program, which is by default a stub that displays the simple message "This program cannot be run in DOS mode" (or similar). PE also continues to serve the changing Windows platform. Some extensions include the .NET PE format (see below), a 64-bit version called PE32+ (sometimes PE+), and a specification for Windows CE.
+
+[edit] Technical details
+
+[edit] Layout
+A PE file consists of a number of headers and sections that tell the dynamic linker how to map the file into memory. An executable image consists of several different regions, each of which require different memory protection; so the start of each section must be aligned to a page boundary. For instance, typically the .text section (which holds program code) is mapped as execute/readonly, and the .data section (holding global variables) is mapped as no-execute/readwrite. However, to avoid wasting space, the different sections are not page aligned on disk. Part of the job of the dynamic linker is to map each section to memory individually and assign the correct permissions to the resulting regions, according to the instructions found in the headers.
+
+[edit] Import Table
+One section of note is the import address table (IAT), which is used as a lookup table when the application is calling a Windows API function. Because a compiled program cannot know the memory location of the libraries it depends upon, an indirect jump is required whenever an API call is made. As the dynamic linker loads modules and joins them together, it writes jump instructions into the IAT slots, so that they point to the memory locations of the corresponding library functions. Though this adds an extra jump over the cost of an intra-module call, the performance hit is mostly negligible and easily worth the flexibility of dynamic libraries (source?). If the compiler knows ahead of time that a call will be inter-module (via a dllimport attribute) it can produce more optimised code that simply results in an indirect call opcode.
+
+[edit] Relocations
+PE files do not contain position-independent code. Instead they are compiled to a preferred base address, and all addresses emitted by the compiler/linker are fixed ahead of time. If a PE file cannot be loaded at its preferred address (because it's already taken by something else), the operating system will rebase it. This involves recalculating every absolute address and modifying the code to use the new values. The loader does this by comparing the preferred and actual load addresses, and calculating a delta value. This is then added to the preferred address to come up with the new address of the memory location. Base relocations are stored in a list and added, as needed, to an existing memory location. The resulting code is now private to the process and no longer shareable, so many of the memory saving benefits of DLLs are lost in this scenario. It also slows down loading of the module significantly. For this reason rebasing is to be avoided wherever possible, and the DLLs shipped by Microsoft have base addresses pre-computed so as not to overlap. In the no rebase case PE therefore has the advantage of very efficient code, but in the presence of rebasing the memory usage hit can be expensive. Contrast this with ELF which uses fully position independent code and a global offset table, which trades off execution time against memory usage in favour of the latter.
+
+[edit] .NET, metadata, and the PE format
+Microsoft's .NET Framework has extended the PE format with features which support the Common Language Runtime. Among the additions are a CLR Header and CLR Data section. Upon loading a binary, the OS loader yields execution to the CLR via a reference in the PE/COFF IMPORT table. The CLR then loads the CLR Header and Data sections.
+The CLR Data section contains two important segments: Metadata and Intermediate Language (IL) code:
+
+Metadata contains information relevant to the assembly, including the assembly manifest. A manifest describes the assembly in detail including unique identification (via a hash, version number, etc.), data on exported components, extensive type information (supported by the Common Type System (CTS)), external references, and a list of files within the assembly. The CLR environment makes extensive use of metadata.
+Intermediate Language (IL) code is abstracted, language independent code that satisfies the .NET CLR's Common Intermediate Language (CIL) requirement. The term "Intermediate" refers to the nature of IL code being cross-language and cross-platform compatible. This intermediate language, similar to bytecode in Java, allows platforms and languages to support the common .NET CLR. IL supports object-oriented programming (polymorphism, inheritance, abstract types, etc.), exceptions, events, and various data structures. IL code is assembled into a .NET PE for execution by the CLR.
+
+
+[edit] Use on other operating systems
+The PE format is also used by ReactOS, as ReactOS is intended to be binary-compatible with Windows. It has also historically been used by a number of other operating systems, including SkyOS and BeOS R3. However, both SkyOS and BeOS eventually moved to ELF.
+As the Mono development platform intends to be binary compatible with Microsoft .NET, it uses the same PE format as the Microsoft implementation.
+On x86, Unix-like operating systems, Windows binaries (in PE format) can be executed with Wine. The HX DOS Extender also uses the PE format for native DOS 32-bit binaries, plus it can to some degree execute existing Windows binaries in DOS, thus acting like a Wine for DOS.
+Mac OS X 10.5 has the ability to load and parse PE files, but is not binary compatible with Windows. [1]
+
+[edit] See also
+
+EXE
+a.out
+Executable compression
+Application virtualization
+
+
+[edit] References
+
+
+^ Chartier, David (2007-11-30). "Uncovered: Evidence that Mac OS X could run Windows apps soon". Ars Technica. http://arstechnica.com/journals/apple.ars/2007/11/30/uncovered-evidence-that-mac-os-x-could-run-windows-apps-soon. Retrieved on 2007-12-03.  "... Steven Edwards describes the discovery that Leopard apparently contains an undocumented loader for Portable Executables, a type of file used in 32-bit and 64-bit versions of Windows. More poking around revealed that Leopard's own loader tries to find Windows DLL files when attempting to load a Windows binary." 
+
+
+
+[edit] External links
+
+Microsoft Portable Executable and Common Object File Format Specification (latest edition, OOXML format)
+Microsoft Portable Executable and Common Object File Format Specification (1999 edition, .doc format)
+The original Portable Executable article by Matt Pietrek (MSDN Magazine, March 1994)
+Part I. An In-Depth Look into the Win32 Portable Executable File Format by Matt Pietrek (MSDN Magazine, February 2002)
+Part II. An In-Depth Look into the Win32 Portable Executable File Format by Matt Pietrek (MSDN Magazine, March 2002)
+The .NET File Format by Daniel Pistelli
+Creating the smallest possible PE executable (97 bytes)
+Detailed description of the PE format by Johannes Plachy
+Windows Authenticode Portable Executable Signature Format
+TypeLib Data Format Specification (unofficial) with open source dumper utility.
+
+
+
+
+
+
+
+
+v • d • e
+
+Executable file formats
+
+
+
+
+
+
+a.out  · COFF  · COM  · ECOFF  · ELF  · Hunk  · Mach-O  · MZ  · NE  · PE  · PEF  · XCOFF
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Portable_Executable"
+Categories: Executable file formats | Windows administration 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Italiano
+Česky
+Deutsch
+Français
+한국어
+עברית
+日本語
+Português
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 April 2009, at 05:30 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

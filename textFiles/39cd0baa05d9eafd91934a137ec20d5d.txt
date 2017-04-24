@@ -1,0 +1,322 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Precision Time Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Precision_Time_Protocol";
+		var wgTitle = "Precision Time Protocol";
+		var wgAction = "view";
+		var wgArticleId = "2142269";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276037537;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Precision Time Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Precision Time Protocol (PTP) is a time-transfer protocol defined in the IEEE 1588-2002 standard that allows precise synchronization of networks (e.g., Ethernet). Accuracy within the nanosecond range can be achieved with this protocol when using hardware generated timestamps.
+The Institute of Embedded Systems (InES) of the University of Winterthur is addressing the practical implementation and application of PTP.
+IEEE 1588 is a key technology in the LXI Standard for Test and Measurement communication and control.
+"IEEE 1588 is designed to fill a niche not well served by either of the two dominant protocols, NTP and GPS. IEEE 1588 is designed for local systems requiring very high accuracies beyond those attainable using NTP. It is also designed for applications that cannot bear the cost of a GPS receiver at each node, or for which GPS signals are inaccessible."[1]
+
+
+The Internet Protocol Suite
+
+
+Application Layer
+
+
+BGP · DHCP · DNS · FTP · GTP · HTTP · IMAP · IRC · Megaco · MGCP · NNTP · NTP · POP · RIP · RPC · RTP · RTSP · SDP · SIP · SMTP · SNMP · SOAP · SSH · Telnet · TLS/SSL · XMPP · (more)
+
+
+Transport Layer
+
+
+TCP · UDP · DCCP · SCTP · RSVP · ECN · (more)
+
+
+Internet Layer
+
+
+IP (IPv4, IPv6) · ICMP · ICMPv6 · IGMP · IPsec · (more)
+
+
+Link Layer
+
+
+ARP · RARP · PPP · NDP · OSPF · Tunnels (L2TP) · Media Access Control (Ethernet, MPLS, DSL, ISDN, FDDI) · Device Drivers · (more)
+
+
+
+This box: view • talk • edit
+
+
+
+
+
+
+
+Contents
+
+
+1 IEEE 1588-2008
+2 Details
+3 See also
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] IEEE 1588-2008
+Also known as IEEE 1588 Version 2, an updated version of the standard was approved in March 2008. The new version adds the following enhancements:[1]
+
+Transparent clocks through 1588-aware network equipment for improved accuracy
+Reduced size sync messages
+Protocol support for improved precision
+Layer 2 transport option
+Unicast transport option
+Fault tolerance support
+Rapid reconfiguration in response to network changes
+Varied (faster) update rates
+
+This new version of the standard is not directly interoperable with the previous version.
+
+[edit] Details
+The goal of this protocol is to have a set of slave devices determine the offset between time measurements on their clocks and time measurements on a master device. [2] Let the variable t represent physical time. For a given slave device, the offset o(t) at time t is defined by:
+
+
+
+where s(t) represents the time measured on the slave device's clock at physical time t, and m(t) represents the time measured on the master device's clock at physical time t.
+In the protocol, the master device periodically launches an exchange of messages with slave devices to help each slave clock recompute the offset between its clock and the master's clock. This offset will drift with time, and so these periodic exchanges mitigate the impact of this drift on clock synchronization. One assumption is that this exchange of messages happens over a period of time so small that this offset can safely be considered constant. Another assumption is that the transit time of a message going from the master to a slave is equal to the transit time of a message going from the slave to the master. Finally, it is assumed that both the master and slave can measure the time they send or receive a message. The degree to which these assumptions are enforced in an application regulate the accuracy of the offset measured at a slave device.
+Each message exchange begins with a multicast SYNC message sent by the master clock to all the slaves listening on the PTP multicast group. A slave receiving this message takes note of the time T2 measured on its clock when it receives this message.
+The master next sends a multicast TIME T1 message to notify the slaves of time T1 when it sent the SYNC message. Each slave now knows T1 and T2.
+If d is the transit time of this message, and  is the constant offset during this transaction, then
+
+
+
+Each slave now sends a RESPONSE message back to the master. For implementation reasons, this message is implemented as a multicast message, but it is a directed multicast message in that the packet containing this message includes information about the master it is being sent to. The slave measures the time T3 that it sends this message, and the master measures the time T4 that it receives this message. The master then sends a directed multicast TIME T4 message back to the slave to notify the slave what time it received the RESPONSE message. Note that
+
+
+
+The slave now knows times T1, T2, T3, and T4. Combining the above two equations, we find that
+
+The slave now knows the offset  during this transaction. While this offset will drift with time, it will be corrected the next time this exchange of transactions is launched.
+
+
+
+
+
+IEEE 1588 Synchronisation Mechanism, Delay Calculation
+
+
+
+
+
+
+
+
+IEEE 1588 Synchronisation Mechanism, Drift Calculation
+
+
+
+
+[edit] See also
+
+Clock synchronization
+Synchronization
+Network_Time_Protocol
+
+
+[edit] References
+
+
+^ Eidson, John C. (April 2006). Measurement, Control and Communication Using IEEE 1588. Springer. ISBN 1-8462-8250-0. 
+^ International standard IEC 61588: Precision clock synchronization protocol for networked measurement and control systems. 2004.
+
+
+
+[edit] External links
+
+PTP documentation at InES
+Meanings of common terms used in IEEE 1588 from NIST IEEE1588 page
+PTPd is a complete implementation of the IEEE 1588 specification for a standard (non-boundary) clock An open source implementation of PTP.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Precision_Time_Protocol"
+Categories: Synchronization | IEC standards | IEEE standards 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+한국어
+Italiano
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 March 2009, at 14:23 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

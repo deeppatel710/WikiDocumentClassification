@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Priority inversion,Batch job,Busy-wait,Butler W. Lampson,Communications of the ACM,Earliest deadline first scheduling,Embedded system,Mars Pathfinder,Mutual exclusion,Nice (Unix),Non-blocking synchronization" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Priority_inversion&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Priority_inversion&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Priority inversion - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Priority_inversion";
+		var wgTitle = "Priority inversion";
+		var wgAction = "view";
+		var wgArticleId = "521507";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278735392;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Priority_inversion skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Priority inversion</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>In <a href="/wiki/Scheduling_(computing)" title="Scheduling (computing)">scheduling</a>, <b>priority inversion</b> is the scenario where a low priority <a href="/wiki/Task" title="Task">task</a> holds a shared <a href="/wiki/Resource_(computer_science)" title="Resource (computer science)">resource</a> that is required by a high priority task. This causes the execution of the high priority task to be blocked until the low priority task has released the resource, effectively "inverting" the relative priorities of the two tasks. If some other medium priority task, one that does not depend on the shared resource, attempts to run in the interim, it will take precedence over both the low priority task <i>and</i> the high priority task.</p>
+<p>In some cases, priority inversion can occur without causing immediate harm—the delayed execution of the high priority task goes unnoticed, and eventually the low priority task releases the shared resource. However, there are also many situations in which priority inversion can cause serious problems. If the high priority task is left <a href="/wiki/Resource_starvation" title="Resource starvation">starved</a> of the resources, it might lead to a system malfunction or the triggering of pre-defined corrective measures, such as a <a href="/wiki/Watchdog_timer" title="Watchdog timer">watch dog timer</a> resetting the entire system. The trouble experienced by the Mars lander "<a href="/wiki/Mars_Pathfinder" title="Mars Pathfinder">Mars Pathfinder</a>"<sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup><sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup> is a classic example of problems caused by priority inversion in <a href="/wiki/Realtime" title="Realtime" class="mw-redirect">realtime</a> systems.</p>
+<p>Priority inversion can also reduce the <a href="/wiki/Perceived_performance" title="Perceived performance">perceived performance</a> of the system. Low priority tasks usually have a low priority because it is not important for them to finish promptly (for example, they might be a <a href="/wiki/Batch_job" title="Batch job" class="mw-redirect">batch job</a> or another non-interactive activity). Similarly, a high priority task has a high priority because it is more likely to be subject to strict time constraints—it may be providing data to an interactive user, or acting subject to realtime response guarantees. Because priority inversion results in the execution of the low priority task blocking the high priority task, it can lead to reduced system responsiveness, or even the violation of response time guarantees.</p>
+<p>A similar problem called <a href="/wiki/Earliest_deadline_first_scheduling#Deadline_interchange" title="Earliest deadline first scheduling">deadline interchange</a> can occur within <a href="/wiki/Earliest_deadline_first_scheduling" title="Earliest deadline first scheduling">Earliest Deadline First Scheduling</a> (EDF).</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Solutions"><span class="tocnumber">1</span> <span class="toctext">Solutions</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">2</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#Notes"><span class="tocnumber">3</span> <span class="toctext">Notes</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">4</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">5</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Solutions" id="Solutions"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Priority_inversion&amp;action=edit&amp;section=1" title="Edit section: Solutions">edit</a>]</span> <span class="mw-headline">Solutions</span></h2>
+<p>The existence of this problem has been known since the 1970s, but there is no fool-proof method to predict the situation. There are however many existing solutions, of which the most common ones are:</p>
+<dl>
+<dt>Disabling all interrupts to protect critical sections</dt>
+<dd>When disabled interrupts are used to prevent priority inversion, there are only two priorities: <i>preemptible</i>, and <i>interrupts disabled.</i> With no third priority, inversion is impossible. Since there's only one piece of lock data (the interrupt-enable bit), misordering locking is impossible, and so deadlocks cannot occur. Since the critical regions always run to completion, hangs do not occur. Note that this only works if all interrupts are disabled. If only a particular hardware device's interrupt is disabled, priority inversion is reintroduced by the hardware's prioritization of interrupts. A simple variation, "single shared-flag locking" is used on some systems with multiple CPUs. This scheme provides a single flag in shared memory that is used by all CPUs to lock all inter-processor critical sections with a <a href="/wiki/Busy-wait" title="Busy-wait" class="mw-redirect">busy-wait</a>. Interprocessor communications are expensive and slow on most multiple CPU systems. Therefore, most such systems are designed to minimize shared resources. As a result, this scheme actually works well on many practical systems. These methods are widely used in simple <a href="/wiki/Embedded_system" title="Embedded system">embedded systems</a>, where they are prized for their reliability, simplicity and low resource use. These schemes also require clever programming to keep the critical sections very brief, under 100 microseconds in practical systems. Many software engineers consider them impractical in general-purpose computers.</dd>
+<dd>Arguably, these methods are similar to priority ceilings.</dd>
+</dl>
+<dl>
+<dt>A <a href="/wiki/Priority_ceiling" title="Priority ceiling" class="mw-redirect">priority ceiling</a></dt>
+<dd>With priority ceilings, the shared <a href="/wiki/Mutual_exclusion" title="Mutual exclusion">mutex</a> process (that runs the operating system code) has a characteristic (high) priority of its own, which is assigned to the task locking the <a href="/wiki/Mutual_exclusion" title="Mutual exclusion">mutex</a>. This works well, provided the other high priority task(s) that try to access the mutex does not have a priority higher than the ceiling priority.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Priority_inheritance" title="Priority inheritance">Priority inheritance</a></dt>
+<dd>Under the policy of priority inheritance, whenever a high priority task has to wait for some resource shared with an executing low priority task, the low priority task is assigned the priority of the highest waiting priority task for the duration of its own use of the shared resource, thus keeping medium priority tasks from pre-empting the (originally) low priority task, and thereby effectively the waiting high priority task as well.</dd>
+</dl>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Priority_inversion&amp;action=edit&amp;section=2" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Resource_starvation" title="Resource starvation">Starvation</a></li>
+<li><a href="/wiki/Pre-emptive_multitasking" title="Pre-emptive multitasking" class="mw-redirect">Pre-emptive multitasking</a></li>
+<li><a href="/wiki/Non-blocking_synchronization" title="Non-blocking synchronization">Non-blocking synchronization</a></li>
+<li><a href="/wiki/Read-copy-update" title="Read-copy-update">Read-copy-update</a></li>
+<li><a href="/wiki/Priority_inheritance" title="Priority inheritance">Priority inheritance</a></li>
+<li><a href="/wiki/Priority_ceiling" title="Priority ceiling" class="mw-redirect">Priority ceiling</a></li>
+<li><a href="/wiki/Nice_(Unix)" title="Nice (Unix)">Nice (Unix)</a></li>
+</ul>
+<p><a name="Notes" id="Notes"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Priority_inversion&amp;action=edit&amp;section=3" title="Edit section: Notes">edit</a>]</span> <span class="mw-headline">Notes</span></h2>
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <a href="http://research.microsoft.com/~mbj/Mars_Pathfinder/Authoritative_Account.html" class="external text" title="http://research.microsoft.com/~mbj/Mars_Pathfinder/Authoritative_Account.html" rel="nofollow">What Really Happened on Mars</a> by Glenn Reeves of the JPL Pathfinder team</li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <a href="http://research.microsoft.com/~mbj/Mars_Pathfinder/" class="external text" title="http://research.microsoft.com/~mbj/Mars_Pathfinder/" rel="nofollow">Explanation of priority inversion problem experienced by Mars Pathfinder</a></li>
+</ol>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Priority_inversion&amp;action=edit&amp;section=4" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><a href="http://portal.acm.org/citation.cfm?id=358824" class="external text" title="http://portal.acm.org/citation.cfm?id=358824" rel="nofollow">"Experience with Processes and Monitors in Mesa"</a> by <a href="/wiki/Butler_W._Lampson" title="Butler W. Lampson" class="mw-redirect">Butler W. Lampson</a> and <a href="/w/index.php?title=David_D._Redell&amp;action=edit&amp;redlink=1" class="new" title="David D. Redell (page does not exist)">David D. Redell</a>, <i><a href="/wiki/Communications_of_the_ACM" title="Communications of the ACM">CACM</a></i> 23(2):105-117 (Feb 1980) - One of the first (if not the) first papers to point out the priority inversion problem. Also suggested disabling interrupts and the priority ceiling protocol as solutions, noting that the former of these two cannot not tolerate page faults while in use.</li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Priority_inversion&amp;action=edit&amp;section=5" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://wombat.doc.ic.ac.uk/foldoc/foldoc.cgi?priority+inversion" class="external text" title="http://wombat.doc.ic.ac.uk/foldoc/foldoc.cgi?priority+inversion" rel="nofollow">Description from FOLDOC</a></li>
+<li><a href="http://citeseer.org/cs?q=priority+inversion" class="external text" title="http://citeseer.org/cs?q=priority+inversion" rel="nofollow">Citations from CiteSeer</a></li>
+<li><a href="http://portal.acm.org/citation.cfm?coll=GUIDE&amp;dl=GUIDE&amp;id=626613" class="external text" title="http://portal.acm.org/citation.cfm?coll=GUIDE&amp;dl=GUIDE&amp;id=626613" rel="nofollow">IEEE Priority Inheritance Paper by Sha, Rajkumar, Lehoczky</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 34/1000000
+Post-expand include size: 0/2048000 bytes
+Template argument size: 0/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:521507-0!1!0!default!!en!2 and timestamp 20090405085908 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Priority_inversion">http://en.wikipedia.org/wiki/Priority_inversion</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Concurrency_control" title="Category:Concurrency control">Concurrency control</a></span> | <span dir='ltr'><a href="/wiki/Category:Programming_bugs" title="Category:Programming bugs">Programming bugs</a></span> | <span dir='ltr'><a href="/wiki/Category:Embedded_systems" title="Category:Embedded systems">Embedded systems</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Priority_inversion" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Priority_inversion" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Priority_inversion&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Priority_inversion&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Priority_inversion" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Priority_inversion" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Priority_inversion" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Priority_inversion&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Priority_inversion&amp;oldid=278735392" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Priority_inversion&amp;id=278735392">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-uk"><a href="http://uk.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0_%D0%BF%D1%80%D1%96%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D1%82%D1%96%D0%B2">Українська</a></li>
+				<li class="interwiki-ca"><a href="http://ca.wikipedia.org/wiki/Inversi%C3%B3_de_prioritat">Català</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Priorit%C3%A4tsinversion">Deutsch</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E5%84%AA%E5%85%88%E9%A0%86%E4%BD%8D%E3%81%AE%E9%80%86%E8%BB%A2">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Inwersja_priorytet%C3%B3w">Polski</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/%E4%BC%98%E5%85%88%E8%BD%AC%E7%BD%AE">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 21 March 2009, at 13:56.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv48 in 0.067 secs. --></body></html>

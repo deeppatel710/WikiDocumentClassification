@@ -1,0 +1,311 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Scene graph - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Scene_graph";
+		var wgTitle = "Scene graph";
+		var wgAction = "view";
+		var wgArticleId = "161944";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281431504;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Scene graph
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A scene graph is a general data structure commonly used by vector-based graphics editing applications and modern computer games. Examples of such programs include AutoCAD, Adobe Illustrator, Acrobat 3D, OpenSceneGraph and CorelDRAW.
+The scene graph is a structure that arranges the logical and often (but not necessarily) spatial representation of a graphical scene. The definition of a scene graph is fuzzy because programmers who implement scene graphs in applications and in particular the games industry take the basic principles and adapt these to suit particular applications. This means there is no hard-and-fast rule as to what a scene graph should be.
+A scene graph is a collection of nodes in a graph or tree structure. A node may have many children but often only a single parent, with the effect of a parent apparent to all its child nodes; an operation applied to a group automatically propagates its effect to all of its members. In many programs, associating a geometrical transformation matrix (see also transformation and matrix) at each group level and concatenating such matrices together is an efficient and natural way to process such operations. A common feature, for instance, is the ability to group related shapes/objects into a compound object which can then be moved, transformed, selected, etc. as easily as a single object.
+It also happens that in some scene graphs, a node can have a relation to any node including itself, or at least an extension that refers to another node (for instance Pixar's PhotoRealistic RenderMan because of its usage of Reyes rendering algorithm, or Adobe Systems's Acrobat 3D for advanced interactive manipulation).
+
+
+
+
+Contents
+
+
+1 Scene graphs in graphics editing tools
+2 Scene graphs in games and 3D applications
+3 Scene graph implementation
+
+3.1 Scene graph operations and dispatch
+
+3.1.1 Traversals
+
+
+
+
+4 Scene graph and bounding volume hierarchies (BVHs)
+5 Scene graphs and spatial partitioning
+
+5.1 When it is useful to combine them
+
+
+6 PHIGS
+7 See also
+8 References
+
+8.1 Books
+8.2 Web sites and articles
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Scene graphs in graphics editing tools
+In vector-based graphics editing, each node in a scene graph represents some atomic unit of the document, usually a shape such as an ellipse or Bezier path. Although shapes themselves (particularly paths) can be decomposed further into nodes such as spline nodes, it is practical to think of the scene graph as composed of shapes rather than going to a lower level of representation.
+Another useful and user-driven node concept is the layer. A layer acts like a transparent sheet upon which any number of shapes and shape groups can be placed. The document then becomes a set of layers, any of which can be conveniently made invisible, dimmed, and/or locked (made read-only). Some applications place all layers in a linear list while others support sublayers (i.e., layers within layers, to any desired depth).
+Internally, there may be no real structural difference between layers and groups at all, since they are both just nested scene graphs. If differences are needed, a common type declaration in C++ would be to make a generic scene graph class, and then derive layers and groups as subclasses. A visibility member, for example, would be a feature of a layer but not necessarily of a group.
+
+[edit] Scene graphs in games and 3D applications
+Scene graphs are useful for modern games using 3D graphics and increasingly large worlds or levels. In such applications, nodes in a scene graph (generally) represent entities or objects in the scene.
+For instance, a game might define a logical relationship between a knight and a horse so that the knight is considered an extension to the horse. The scene graph would have a 'horse' node with a 'knight' node attached to it.
+As well as describing the logical relationship, the scene graph may also describe the spatial relationship of the various entities: the knight moves through 3D space as the horse moves.
+In these large applications, memory requirements are major considerations when designing a scene graph. For this reason many large scene graph systems use instancing to reduce memory costs and increase speed. In our example above, each knight is a separate scene node, but the graphical representation of the knight (made up of a 3D mesh, textures, materials and shaders) is instanced. This means that only a single copy of the data is kept, which is then referenced by any 'knight' nodes in the scene graph. This allows a reduced memory budget and increased speed, since when a new knight node is created, the appearance data does not need to be duplicated.
+
+[edit] Scene graph implementation
+The simplest form of scene graph uses an array or linked list data structure, and displaying its shapes is simply a matter of linearly iterating the nodes one by one. Other common operations, such as checking to see which shape intersects the mouse pointer (e.g., in a GUI-based applications) are also done via linear searches. For small scene graphs, this tends to suffice.
+Larger scene graphs cause linear operations to become noticeably slow and thus more complex underlying data structures are used, the most popular being a tree. This is the most common form of scene graph. In these scene graphs the composite design pattern is often employed to create the hierarchical representation of group-nodes and leaf-nodes.
+Group Nodes - Can have any number of child nodes attached to it. Group nodes include transformations and switch nodes.
+Leaf Nodes - Are nodes that are actually rendered or see the effect of an operation. These include objects, sprites, sounds, lights and anything that could be considered 'rendered' in some abstract sense.
+
+[edit] Scene graph operations and dispatch
+In order to apply an operation on a scene graph, some way of dispatching an operation is needed based upon what node is currently being considered. For example in a render operation a transformation group-node would do nothing more than accumulate its transformation (generally this is matrix multiplication but could involve operations with vector displacement and quaternions or Euler angles instead). Whereas an object leaf-node would send the object off for rendering to the renderer (some implementations might render the object directly but this can integrate the underlying rendering API - e.g. OpenGL or DirectX too tightly and rigidly - it is better to separate the scene graph and renderer systems as this promotes portability.)
+In order to dispatch differently for different node types several different approaches can be taken, each have pros and cons and are widely disputed among programmers arguing which is best.
+In Object-Oriented languages such as C++ this can easily be achieved by virtual functions, the node base class has virtual functions for every operation that can be performed on the nodes. This is simple to do but prevents the addition of new operations by other programmers that don't have access to the source. Alternatively the visitor pattern can be used. This has a similar disadvantage in that it is similarly difficult to add new node types.
+Other techniques involve the use of RTTI (Run-Time Type Information). The operation can be realised as a class which is passed the current node, it then queries the nodes type (RTTI) and looks up the correct operation in an array of callbacks or functors. This requires that at initialisation the user/system registers functors/callbacks with the different operations so they can be looked up in the array. This system offers massive flexibility, speed and extensibility of new nodes and operations.
+Variations on these techniques exist and new methods can offer added benefits - one alternative is scene graph rebuilding where the scene graph is rebuilt for each of the operations performed, this however can be very slow but produces a highly optimised scene graph. This demonstrates that a good scene graph implementation depends heavily on the application in which it is used.
+
+[edit] Traversals
+Traversals are the key to the power of applying operations to scene graphs. A traversal generally consists of starting at some arbitrary node (often the root of the scene graph), applying the operation(s) (often the updating and rendering operations are applied one after the other), and recursively moving down the scene graph(tree) to the child nodes, until a leaf node is reached. At this point many scene graphs then traverse back up the tree, possibly applying a similar operation. Rendering is an example: While recursively traversing down the scene graph hierarchy the operation(s) applies a PreRender operation. Once reaching a leaf node, it begins traversing back up the tree, applying a PostRender operation. This nicely allows certain nodes to push a state for child nodes, and to pop the state afterwards.
+Some scene graph operations are actually more efficient when nodes are traversed in a different order - this is where some systems implement scene graph rebuilding to reorder the scene graph into an easier to parse format or tree.
+For example:
+In 2D cases, scene graphs typically render themselves by starting at the tree's root node and then recursively drawing the child nodes. The tree's leaves represent the most foreground objects. Since drawing proceeds from back to front with closer objects simply overwriting farther ones, the process is known as employing the Painter's algorithm. In 3D systems, which often employ depth buffers, it is more efficient to draw the closest objects first, since farther objects often need only be depth-tested instead of actually rendered, because they are occluded by nearer objects.
+
+[edit] Scene graph and bounding volume hierarchies (BVHs)
+Bounding Volume Hierarchies (BVHs) are useful for numerous tasks - including efficient culling and speeding up collision detection between objects. A BVH is a spatial structure but doesn't have to partition the geometry (see spatial partitioning, below).
+A BVH is a tree of bounding volumes (often spheres, axis-aligned bounding boxes or/and oriented bounding boxes). At the bottom of the hierarchy the size of the volume is just large enough to encompass a single object tightly (or possibly even some smaller fraction of an object in high resolution BVHs). As one ascends the hierarchy each node has its own volume which tightly encompasses all the volumes beneath it. At the root of the tree is a volume that encompasses all the volumes in the tree (the whole scene).
+BVHs are useful for speeding up collision detection between objects. If an object's bounding volume does not intersect a volume higher in the tree then it cannot intersect any object below that node (so they are all rejected very quickly).
+Obviously there are some similarities between BVHs and scene graphs. A scene graph can easily be adapted to include/become a BVH - if each node has a volume associated or there is a purpose built 'bound node' added in at convenient location in the hierarchy. This may not be the typical view of scene graph but there are benefits to including a BVH in a scene graph.
+
+[edit] Scene graphs and spatial partitioning
+An effective way of combining spatial partitioning and scene graphs is by creating a scene leaf node that contains the spatial partitioning data. This data is usually static and generally contains non-moving level data in some partitioned form. Some systems may have the systems separate and render them separately, this is fine and there are no real advantages to either method. In particular it is bad to have the scene graph contained within the spatial partitioning system, this is because the scene graph is better thought of as the grander system to the spatial partitioning.
+
+[edit] When it is useful to combine them
+In short: Spatial partitioning will/should considerably speed up the processing and rendering time of the scene graph.
+Very large drawings, or scene graphs that are generated solely at runtime (as happens in ray tracing rendering programs), require defining of group nodes in a more automated fashion. A raytracer, for example, will take a scene description of a 3D model and build an internal representation that breaks up its individual parts into bounding boxes (also called bounding slabs). These boxes are grouped hierarchically so that ray intersection tests (as part of visibility determination) can be efficiently computed. A group box that does not intersect an eye ray, for example, can entirely skip having to test any of its members.
+A similar efficiency holds in 2D applications as well. If the user has magnified a document so that only part of it is visible on his computer screen, and then scrolls said document, it is useful to use a bounding box (or in this case, a bounding rectangle scheme) to quickly determine which scene graph elements are visible and thus actually need to be drawn.
+Depending on the particulars of the application's drawing performance, a large part of the scene graph's design can be impacted by rendering efficiency considerations. In 3D video games such as Quake, for example, binary space partitioning (BSP) trees are heavily favored to minimize visibility tests. BSP trees, however, take a very long time to compute from design scene graphs, and must be recomputed if the design scene graph changes so the levels tend to remain static and dynamic characters aren't generally considered in the spatial partitioning scheme.
+Scene graphs for dense regular objects such as heightfields and polygon meshes tend to employ quadtrees and octrees, which are specialized variants of a 3D bounding box hierarchy. Since a heightfield occupies a box volume itself, recursively subdividing this box into eight subboxes (hence the 'oct' in octree) until individual heightfield elements are reached is efficient and natural. A quadtree is simply a 2D octree.
+
+[edit] PHIGS
+PHIGS was the first commercial scene graph specification, and became an ANSI standard in 1988. Disparate implementations were provided by Unix hardware vendors. The "HOOPS 3D Graphics System" appears to have been the first commercial scene graph library provided by a single software vendor. It was designed to run on disparate lower-level 2D and 3D interfaces, with the first major production version (v3.0) completed in 1991. Shortly thereafter, Silicon Graphics released IRIS Inventor 1.0 (1992), which was a scene graph built on top of the IRIS GL 3D API. It was followed up with Open Inventor in 1994, a portable scene graph built on top of OpenGL. More 3D scene graph libraries can be found in Category:3D Scenegraph APIs.
+
+[edit] See also
+
+Graph theory
+Graph (data structure)
+Tree (data structure)
+Space partitioning
+
+
+[edit] References
+
+[edit] Books
+
+Leler, Wm and Merry, Jim (1996) 3D with HOOPS, Addison-Wesley
+Wernecke, Josie (1994) The Inventor Mentor: Programming Object-Oriented 3D Graphics with Open Inventor, Addison-Wesley, ISBN 0-201-62495-8 (Release 2)
+
+
+[edit] Web sites and articles
+
+Strauss, Paul (1993). "IRIS Inventor, a 3D Graphics Toolkit"
+Helman, Jim; Rohlf, John (1994). "IRIS Performer: A High Performance Multiprocessing Toolkit for Real-Time 3D Graphics"
+Carey, Rikk and Bell, Gavin (1997). "The Annotated VRML 97 Reference Manual"
+PEXTimes [1]
+Bar-Zeev, Avi. "Scenegraphs: Past, Present, and Future"
+OpenSceneGraph
+OpenSG
+Java3D: Aviatrix3D, LG3D ...
+jReality
+"Scenegraphs for 3D Software Development"
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Scene_graph"
+Categories: Graph data structures | Computer graphics data structures 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 April 2009, at 03:23 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

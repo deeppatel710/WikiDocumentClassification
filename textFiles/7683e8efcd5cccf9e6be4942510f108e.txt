@@ -1,0 +1,350 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Longest common substring problem - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Longest_common_substring_problem";
+		var wgTitle = "Longest common substring problem";
+		var wgAction = "view";
+		var wgArticleId = "2167401";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279601565;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Longest common substring problem
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Not to be confused with longest common subsequence problem.
+The longest common substring problem is to find the longest string (or strings) that is a substring (or are substrings) of two or more strings. It should not be confused with the longest common subsequence problem. (For an explanation of the difference between a substring and a subsequence, see Substring vs. subsequence).
+
+
+
+
+Contents
+
+
+1 Example
+2 Problem definition
+3 Algorithms
+
+3.1 Suffix tree
+3.2 Dynamic programming
+
+
+4 Pseudocode
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Example
+The longest common substrings of the strings "ABAB", "BABA" and "ABBA" are the strings "AB" and "BA" of length 2. Other common substrings are "A", "B" and the empty string "".
+
+ ABAB
+  |||
+  BABA
+  ||
+ABBA
+
+
+[edit] Problem definition
+Given two strings, S of length m and T of length n, find the longest strings which are a substrings of both S and T.
+A generalisation is the k-common substring problem. Given the set of strings S = {S1,...,SK}, where | Si | = ni and Σni = N. Find for each 2 ≤ k ≤ K, the longest strings which occur as substrings of at least k strings.
+
+[edit] Algorithms
+You can find the lengths and starting positions of the longest common substrings of S and T in Θ(n + m) with the help of a generalised suffix tree. Finding them by dynamic programming costs Θ(nm). The solutions to the generalised problem take Θ(n1 + ... + nK) and Θ(n1·...·nK) time.
+
+[edit] Suffix tree
+
+
+
+
+Generalised suffix tree for the strings "ABAB", "BABA" and "ABBA", numbered 0, 1 and 2.
+
+
+You can find the longest common substrings of a set of strings by building a generalised suffix tree for the strings, and then finding the deepest internal nodes which has leaf nodes from all the strings in the subtree below it. In the figure on the right you see the suffix tree for the strings "ABAB", "BABA" and "ABBA", padded with unique string terminators, to become "ABAB$0", "BABA$1" and "ABBA$2". The nodes representing "A", "B", "AB" and "BA" all have descendant leaves from all of the strings, numbered 0, 1 and 2.
+Building the suffix tree takes Θ(n) time (if the size of the alphabet is constant). If you traverse the tree bottom up, and maintain a bit vector telling which strings are seen below each node, you can solve the k-common substring problem in Θ(NK) time. If you prepare your suffix tree for constant time lowest common ancestor retrieval, you can solve it in Θ(N) time.[1]
+
+[edit] Dynamic programming
+You first find the longest common suffix for all pairs of prefixes of the strings. The longest common suffix is
+
+For the example strings "ABAB" and "BABA":
+
+
+
+
+A
+B
+A
+B
+
+
+
+0
+0
+0
+0
+0
+
+
+B
+0
+0
+1
+0
+1
+
+
+A
+0
+1
+0
+2
+0
+
+
+B
+0
+0
+2
+0
+3
+
+
+A
+0
+1
+0
+3
+0
+
+
+
+The maximal of these longest common suffixes of possible prefixes must be the longest common substrings of S and T. These are shown on diagonals, in red, in the table.
+
+This can be extended to more than two strings by adding more dimensions to the table.
+
+[edit] Pseudocode
+
+
+
+The Wikibook Algorithm implementation has a page on the topic of
+Longest common substring
+
+
+
+The following pseudocode finds the set of longest common substrings between two strings with dynamic programming:
+
+function LCSubstr(S[1..m], T[1..n])
+    L := array(0..m, 0..n)
+    z := 0
+    ret := {}
+    for i := 1..m
+        for j := 1..n
+            if S[i] = T[j]
+                if i = 1 or j = 1
+                    L[i,j] := 1
+                else
+                    L[i,j] := L[i-1,j-1] + 1
+                if L[i,j] > z
+                    z := L[i,j]
+                    ret := {}
+                if L[i,j] = z
+                    ret := ret ∪ {S[i-z+1..i]}
+    return ret
+
+This algorithm runs in O(mn) time. The variable z is used to hold the length of the longest common substring found so far. The set ret is used to hold the set of strings which are of length z. The set ret can be saved efficiently by just storing the index i, which is the last character of the longest common substring (of size z) instead of S[i-z+1..i]. Thus all the longest common substrings would be, for each i in ret, S[(ret[i]-z)..(ret[i])].
+The following tricks can be used to reduce the memory usage of an implementation:
+
+Keep only the last and current row of the DP table to save memory (O(min(m,n)) instead of O(mn))
+Store only non-zero values in the rows. You can do this by using hash tables instead of arrays. This is useful for large alphabets.
+
+
+[edit] References
+
+^ Gusfield, Dan (1999) [1997]. Algorithms on Strings, Trees and Sequences: Computer Science and Computational Biology. USA: Cambridge University Press. ISBN 0-521-58519-8. 
+
+
+[edit] External links
+
+Dictionary of Algorithms and Data Structures: longest common substring
+Perl/XS implementation of the dynamic programming algorithm
+Perl/XS implementation of the suffix tree algorithm
+Dynamic programming implementations in various languages on wikibooks
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Longest_common_substring_problem"
+Categories: Algorithms on strings 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 March 2009, at 15:47 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

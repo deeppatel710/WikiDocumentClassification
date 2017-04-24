@@ -1,0 +1,363 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Secret sharing - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Secret_sharing";
+		var wgTitle = "Secret sharing";
+		var wgAction = "view";
+		var wgArticleId = "458253";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276409081;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Secret sharing
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For when the whole secret is known by all participants, see shared secret.
+
+
+
+
+Each secret share is a plane, and the secret is the point at which three shares intersect. Two shares yield only a line intersection.
+
+
+Secret sharing refers to any method for distributing a secret amongst a group of participants, each of which is allocated a share of the secret. The secret can only be reconstructed when the shares are combined together; individual shares are of no use on their own.
+More formally, in a secret sharing scheme there is one dealer and n players. The dealer gives a secret to the players, but only when specific conditions are fulfilled. The dealer accomplishes this by giving each player a share in such a way that any group of t (for threshold) or more players can together reconstruct the secret but no group of fewer than t players can. Such a system is called a (t, n)-threshold scheme (sometimes it is written as an (n, t)-threshold scheme).
+Secret sharing was invented by both Adi Shamir and George Blakley independently in 1979.
+
+
+
+
+Contents
+
+
+1 Motivation - A flawed secret sharing scheme
+2 Limitations of secret sharing schemes
+3 Trivial secret sharing
+4 A t ≠ n example
+5 Shamir's scheme
+6 Blakley's scheme
+7 Secret Sharing using the Chinese Remainder Theorem
+8 Proactive secret sharing
+9 Verifiable secret sharing
+10 Other uses and applications
+11 See also
+12 References
+13 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Motivation - A flawed secret sharing scheme
+A secure secret sharing scheme distributes shares so that anyone with fewer than t shares has no extra information about the secret than someone with 0 shares. Consider the naive secret sharing scheme in which the secret phrase "password" is divided into the shares "pa------," "--ss----," "----wo--," and "------rd,". A person with 0 shares knows only that the password consists of eight letters. He would have to guess the password from 268 = 208 billion possible combinations. A person with one share, however, would have to guess only the six letters, from 266 = 308 million combinations, and so on as more persons collude. This system is not a secure secret sharing scheme, because a player with fewer than t shares gains significant information about the content of the secret. In a secure scheme, even a player missing only one share should still face 268 = 208 billion combinations.
+
+[edit] Limitations of secret sharing schemes
+Several secret sharing schemes are said to be information theoretically secure and can be proved to be so, while others give up this unconditional security for improved efficiency while maintaining enough security to be considered as secure as other common cryptographic primitives. For example, they might allow arbitrarily large secrets to be protected by 128-bit shares, since the 2128 possible shares are generally considered enough to stymie any conceivable present-day adversary.
+Common to all unconditionally secure secret sharing schemes, there are limitations:
+
+Each share of the secret must be at least as large as the secret itself. This result is based in information theory, but can be understood intuitively. Given t-1 shares, no information whatsoever can be determined about the secret. Thus, the final share must contain as much information as the secret itself.
+All secret sharing schemes use random bits. To distribute a one-bit secret among threshold t people, t-1 random bits are necessary. To distribute a secret of arbitrary length entropy of (t-1)*length is necessary.
+
+
+[edit] Trivial secret sharing
+There are several (t, n) secret sharing schemes for t = n, when all shares are necessary to recover the secret:
+
+Encode the secret as an integer s. Give to each player i (except one) a random integer ri. Give to the last player the number (s − r1 − r2 − ... − rn − 1). The secret is the sum of the players' shares.
+Encode the secret as an arbitrary length binary number s. Give to each player i (except one) a random number the same length as the key pi. Give to the last player the result of (s XOR p1 XOR p2 XOR ... XOR pi) where XOR is bitwise XOR. The secret is the bitwise XOR of all the players' numbers (p).
+
+When space efficiency is not a concern, these schemes can be used to reveal a secret to any desired subsets of the players simply by applying the scheme for each subset. For example, to reveal a secret s to any two of the three players Alice, Bob and Carol, create three different (2,2) secret shares for s, giving the three sets of two shares to Alice and Bob, Alice and Carol, and Bob and Carol. This approach quickly becomes impractical as the number of subsets increases, for example when revealing a secret to any 50 of 100 players, whereas the schemes described below allow secrets to efficiently be shared with a threshold of players.
+
+[edit] A t ≠ n example
+The difficulty lies in creating schemes that are still secure, but do not require all n shares. For example, imagine that the Board of Directors of Coca-Cola would like to protect Coke's secret formula. The president of the company should be able to access the formula when needed, but in an emergency any 3 of the 12 board members would be able to unlock the secret formula together. This can be accomplished by a secret sharing scheme with t = 3 and n = 15, where 3 shares are given to the president, and 1 is given to each board member.
+
+[edit] Shamir's scheme
+Main article: Shamir's Secret Sharing
+In this scheme, any t out of n shares may be used to recover the secret. The system relies on the idea that you can fit a unique polynomial of degree (t-1) to any set of t points that lie on the polynomial. It takes two points to define a straight line, three points to fully define a quadratic, four points to define a cubic, and so on. The method is to create a polynomial of degree t-1 with the secret as the first coefficent and the remaining coefficients picked at random. Next find n points on the curve and give one to each of the players. When at least t out of the n players reveal their points, there is sufficient information to fit an (t-1)th degree polynomial to them, the first coefficient of the polynomial is the secret.
+
+[edit] Blakley's scheme
+Two nonparallel lines in the same plane intersect at exactly one point. Three "nonparallel" planes in space intersect at exactly one point. More generally, any n n-dimensional hyperplanes intersect at a specific point. The secret may be encoded as any single coordinate of the point of intersection. If the secret is encoded using all the coordinates, even if they are random, then an insider (someone in possession of one or more of the n-dimensional hyperplanes) gains information about the secret since he knows it must lie on his plane. If an insider can gain any more knowledge about the secret than an outsider can, then the system no longer has information theoretic security. If only one of the n coordinates is used, then the insider knows no more than an outsider (ie, that the secret must lie on the x-axis for a 2-dimensional system). Each player is given enough information to define a hyperplane; the secret is recovered by calculating the planes' point of intersection and then taking a specified coordinate of that intersection.
+
+
+
+
+
+
+
+
+Blakley's scheme in three dimensions: each share is a plane, and the secret is the point at which three shares intersect. Two shares are insufficient to determine the secret, although they do provide enough information to narrow it down to the line where both planes intersect.
+
+
+
+Blakley's scheme is less space-efficient than Shamir's; while Shamir's shares are each only as large as the original secret, Blakley's shares are t times larger, where t is the threshold number of players. Blakley's scheme can be tightened by adding restrictions on which planes are usable as shares. The resulting scheme is equivalent to Shamir's polynomial system.
+
+[edit] Secret Sharing using the Chinese Remainder Theorem
+Main article: Secret Sharing using the Chinese Remainder Theorem
+The Chinese Remainder Theorem can also be used in Secret Sharing, for it provides us with a method to uniquely determine a number S modulo k many relatively prime integers m1,m2,...,mk, given that . There are two secret sharing schemes that make use of the Chinese Remainder Theorem, Mignotte's and Asmuth-Bloom's Schemes. They are threshold secret sharing schemes, in which the shares are generated by reduction modulo the integers mi, and the secret is recovered by essentially solving the system of congruences using the Chinese Remainder Theorem.
+
+
+[edit] Proactive secret sharing
+If the players store their shares on insecure computer servers, an attacker could crack in and steal the shares. If it is not practical to change the secret, the uncompromised (Shamir-style) shares can be renewed. The dealer generates a new random polynomial with constant term zero and calculates for each remaining player a new ordered pair, where the x-coordinates of the old and new pairs are the same. Each player then adds the old and new y-coordinates to each other and keeps the result as the new y-coordinate of the secret.
+All of the non-updated shares the attacker accumulated become useless. An attacker can only recover the secret if he can find enough other non-updated shares to reach the threshold. This situation should not happen because the players deleted their old shares. Additionally, an attacker cannot recover any information about the original secret from the update files because they contain only random information.
+The dealer can change the threshold number while distributing updates, but must always remain vigilant of players keeping expired shares.
+
+[edit] Verifiable secret sharing
+Main article: Verifiable secret sharing
+A player might lie about his own share to gain access to other shares. A verifiable secret sharing (VSS) scheme allows players to be certain that no other players are lying about the contents of their shares, up to a reasonable probability of error. Such schemes cannot be computed conventionally; the players must collectively add and multiply numbers without any individual's knowing what exactly is being added and multiplied. Tal Rabin and Michael Ben-Or devised a multiparty computing (MPC) system that allows players to detect dishonesty on the part of the dealer or on part of up to one third of the threshold number of players, even if those players are coordinated by an "adaptive" attacker who can change strategies in realtime depending on what information has been revealed.
+
+[edit] Other uses and applications
+A secret sharing scheme can secure a secret over multiple servers and remain recoverable despite multiple server failures. The dealer may treat himself as several distinct participants, distributing the shares between himself. Each share may be stored on a different server, but the dealer can recover the secret even if several servers break down as long as he can recover at least t shares; however, crackers that break into one server would still not know the secret as long as less than t shares are stored on each server.
+A dealer could send t shares, all of which are necessary to recover the original secret, to a single recipient. An attacker would have to intercept all t shares to recover the secret, a task which is more difficult than intercepting a single file, especially if the shares are sent using different media (e.g. some over the Internet, some mailed on CD's).
+For large secrets, it may be more efficient to encrypt the secret and then distribute the key using secret sharing.
+Secret sharing is an important primitive in several protocols for secure multiparty computation.
+
+[edit] See also
+
+Shamir's Secret Sharing
+Homomorphic secret sharing - A simplistic decentralized voting protocol.
+Byzantine fault tolerance
+Access structure
+Secure multiparty computation
+Visual cryptography
+Tontine
+Shared secret - Similar name but not the same thing as secret sharing.
+Secret Sharing using the Chinese Remainder Theorem
+
+
+[edit] References
+
+Blakley, G. R. (1979). "Safeguarding cryptographic keys". Proceedings of the National Computer Conference 48: 313–317. 
+Shamir, Adi (1979). "How to share a secret". Communications of the ACM 22 (11): 612–613. doi:10.1145/359168.359176. http://www.cs.tau.ac.il/~bchor/Shamir.html. 
+Knuth, Donald (1997), Seminumerical Algorithms, The Art of Computer Programming, 2 (3 ed.), Addison-Wesley, p. 505, ISBN 0-201-89684-2, OCLC 174593116 
+
+
+[edit] External links
+
+ssss: A free (GPL) implementation of Shamir's Scheme with online demo.
+Description of Shamir's and Blakley's schemes
+Patent for use of secret sharing for recovering PGP (and other?) pass phrases U.S. Patent 6,662,299 
+A bibliography on secret-sharing schemes
+Code signing systems using Shared Secret
+Christophe David's web based implementation of Shamir's scheme 'How to share a Secret'
+Software products from IBM, Sun, and Netscape, and hardware products from Safenet use secret sharing. There are libraries for secret sharing in several programming languages.
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+ 
+Cryptography
+
+
+
+
+
+
+History of cryptography · Cryptanalysis · Cryptography portal · Topics in cryptography
+
+
+
+
+
+
+
+Symmetric-key algorithm · Block cipher · Stream cipher · Public-key cryptography · Cryptographic hash function · Message authentication code · Random numbers · Steganography
+
+
+
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Secret_sharing"
+Categories: Cryptographic protocols | Key management 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Dansk
+Deutsch
+Français
+עברית
+Nederlands
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 11 March 2009, at 00:46.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

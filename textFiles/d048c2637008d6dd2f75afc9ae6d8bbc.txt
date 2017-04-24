@@ -1,0 +1,334 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kademlia - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Kademlia";
+		var wgTitle = "Kademlia";
+		var wgAction = "view";
+		var wgArticleId = "532895";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 275150853;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Kademlia
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Kademlia is a distributed hash table for decentralized peer to peer computer networks designed by Petar Maymounkov and David Mazières [1]. It specifies the structure of the network and the exchange of information through node lookups. Kademlia nodes communicate among themselves using UDP. A virtual or overlay network is formed by the participant nodes. Each node is identified by a number or node ID. The node ID serves not only as identification, but the Kademlia algorithm uses the node ID to locate values (usually file hashes or keywords). In fact, the node ID provides a direct map to file hashes and that node stores information on where to obtain the file or resource.
+When searching for some value, the algorithm needs to know the associated key and explores the network in several steps. Each step will find nodes that are closer to the key until the contacted node returns the value or no more closer nodes are found. This is very efficient: Like many other DHTs, Kademlia contacts only O(log(n)) (see Big O notation) nodes during the search out of a total of n nodes in the system.
+Further advantages are found particularly in the decentralized structure, which clearly increases the resistance against a denial of service attack. Even if a whole set of nodes is flooded, this will have limited effect on network availability, which will recover itself by knitting the network around these "holes".
+
+
+
+
+Contents
+
+
+1 System details
+
+1.1 Routing tables
+1.2 Protocol messages
+1.3 Locating nodes
+1.4 Locating resources
+1.5 Joining the network
+1.6 Accelerated lookups
+
+
+2 Academic significance
+3 Use in file sharing networks
+4 Implementations
+5 See also
+6 External links
+7 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] System details
+First generation peer-to-peer file sharing networks, such as Napster, relied on a central database to co-ordinate look ups on the network. Second generation peer-to-peer networks, such as Gnutella, used flooding to locate files, searching every node on the network. Third generation peer-to-peer networks use Distributed hash tables to look up files in the network. Distributed hash tables store resource locations throughout the network. A major criterion for these protocols is locating the desired nodes quickly.
+The Kademlia algorithm is based on the calculation of the "distance" between two nodes. This distance is computed as the exclusive or of the two node IDs, taking the result as an integer number. Keys and Node ID's have the same format and length, so distance can be calculated among them in exactly the same way.
+This "distance" does not have anything to do with geographical conditions, but designates the distance within the ID range. Thus it can and does happen that, for example, a node from Germany and one from Australia are "neighbours".
+Each Kademlia search iteration comes one bit closer to the target. A basic Kademlia network with 2n nodes will only take n steps (in the worst case) to find that node.
+
+[edit] Routing tables
+Kademlia routing tables consist of a list for each bit of the node id. (e.g. if a node ID consists of 128 bits, a node will keep 128 such lists.) A list has many entries. Every entry in a list holds the necessary data to locate another node. The data in each list entry is typically the ip address, port, and node id of another node. Every list corresponds to a specific distance from the node. Nodes that can go in the nth list must have a differing nth bit from the node's id; the first n-1 bits of the candidate id must match those of the node's id. This means that it is very easy to fill the first list as 1/2 of the nodes in the network are far away candidates. The next list can use only 1/4 of the nodes in the network (one bit closer than the first), etc.
+With an ID of 128 bits, every node in the network will classify other nodes in one of 128 different distances, one specific distance per bit.
+As nodes are encountered on the network, they are added to the lists. This includes store and retrieval operations and even when helping other nodes to find a key. Every node encountered will be considered for inclusion in the lists. Therefore the knowledge that a node has of the network is very dynamic. This keeps the network constantly updated and adds resilience to failures or attacks.
+In the Kademlia literature, the lists are referred to as k-buckets. k is a system wide number, like 20. Every k-bucket is a list having up to k entries inside. i.e. all nodes on the network will have lists containing up to 20 nodes for a particular bit (a particular distance from himself).
+Since the possible nodes for each k-bucket decreases quickly (because there will be very few nodes that are that close), the lower bit k-buckets will fully map all nodes in that section of the network. Since the quantity of possible ID's is much larger than any node population can ever be, some of the k-buckets corresponding to very short distances will remain empty.
+
+
+
+
+An example network partition
+
+
+Consider the simple network to the right. There are seven nodes; the small circles at the bottom. The node under consideration is node six (binary 110) in black. There are three k-buckets in this network. Nodes zero, one and two (binary 000, 001, and 010) are candidates for the first k-bucket. Node three (binary 011) is not participating in the network. In the second k-bucket, nodes four and five (binary 100 and 101) are placed. Finally, the third k-bucket can only contain node seven (binary 111). Each of the three k-buckets is enclosed in a gray circle. If the size of the k-bucket was two, then the first 2-bucket could only contain two of the three nodes.
+It is known that nodes that have been connected for a long time in a network will probably remain connected for a long time in the future. Because of this statistical distribution, Kademlia selects long connected nodes to remain stored in the k-buckets. This increases the number of known valid nodes at some time in the future and provides for a more stable network.
+When a k-bucket is full and a new node is discovered for that k-bucket, the least recently seen node in the k-bucket is PINGed. If the node is found to be still alive, the new node is place in a secondary list; a replacement cache. The replacement cache is used only if a node in the k-bucket stops responding. In other words: new nodes are used only when older nodes disappear.
+
+[edit] Protocol messages
+Kademlia has four messages.
+
+PING - used to verify that a node is still alive.
+STORE - Stores a (key, value) pair in one node.
+FIND_NODE - The recipient of the request will return the k nodes in his own buckets that are the closest ones to the requested key.
+FIND_VALUE - as FIND_NODE, but if the recipient of the request has the requested key in its store, it will return the corresponding value.
+
+Each RPC message includes a random value from the initiator. This ensures that when the response is received it corresponds to the request previously sent.
+
+[edit] Locating nodes
+Node lookups can proceed asynchronously. The quantity of simultaneous lookups is denoted by α and is typically three. A node initiates a FIND_NODE request by querying to the k nodes in its own k-buckets that are the closest ones to the desired key. When these recipient nodes receive the request, they will look in their k-buckets and return the k closest nodes to the desired key that they know. The requestor will update a results list with the results (node ID's) he receives, keeping the k best ones (the k nodes that are closer to the searched key) that respond to queries. Then the requestor will select these k best results and issue the request to them, and iterate this process again and again. Because every node has a better knowledge of his own surroundings than any other node has, the received results will be other nodes that are every time closer and closer to the searched key. The iterations continue until no nodes are returned that are closer than the best previous results. When the iterations stop, the best k nodes in the results list are the ones in the whole network that are the closest to the desired key.
+The node information can be augmented with round trip times, or RTT. This information will be used to choose a time-out specific for every consulted node. When a query times out, another query can be initiated, never surpassing α queries at the same time.
+
+[edit] Locating resources
+Information is located by mapping it to a key. A hash is typically used for the map. The storer nodes will have information due to a previous STORE message. Locating a value follows the same procedure as locating the closest nodes to a key, except the search terminates when a node has the requested value in his store and returns this value.
+The values are stored at several nodes (k of them) to allow for nodes to come and go and still have the value available in some node. i.e. to provide redundancy. Every certain time, a node that stores a value will explore the network to find the k nodes that are close to the key value and replicate the value onto them. This compensates for disappeared nodes. Also, for popular values that might have many requests, the load in the storer nodes is diminished by having a retriever store this value in some node near, but outside of, the k closest ones. This new storing is called a cache. In this way the value is stored farther and farther away from the key, depending on the quantity of requests. This allows popular searches to find a storer quicker. Because the value is returned from nodes farther away from the key, this alleviates possible "hot spots". Caching nodes will drop the value after a certain time depending on their distance from the key. Some implementations (eg. Kad) do not have replication nor caching. The purpose of this is to remove old information quickly from the system. The node that is providing the file will periodically refresh the information onto the network (perform NODE-LOOKUP and STORE messages). When all of the nodes having the file go offline, nobody will be refreshing its values (sources and keywords) and the information will eventually disappear from the network.
+
+[edit] Joining the network
+A node that would like to join the net must first go through a bootstrap process. In this phase, the node needs to know the IP address and port of another node (obtained from the user, or from a stored list) that is already participating in the Kademlia network. If the bootstrapping node has not yet participated in the network, it computes a random ID number that is supposed not to be already assigned to any other node. It uses this ID until leaving the network.
+The joining node inserts the bootstrap node into one of its k-buckets. The new node then does a NODE_LOOKUP of his own ID against the only other node he knows. The "self-lookup" will populate other nodes' k-buckets with the new node id, and will populate the new node k-buckets with the nodes in the path between him and the bootstrap node. After this, the new node refreshes all k-buckets further away than the k-bucket where the bootstrap node falls in. This refresh is just a lookup of a random key that is within that k-bucket range.
+Initially, nodes have one k-bucket. When the k-bucket becomes full, it can be split. The split occurs if the range of nodes in the k-bucket spans the nodes own id (values to the left and right in a binary tree). Kademlia relaxes even this rule for the one "closest nodes" k-bucket, because typically one single bucket will correspond to the distance where all the nodes that are the closest to this node are, they may be more than k, and we want it to know them all. It may turn out that a highly unbalanced binary sub-tree exists near the node. If k is 20, and there are 21+ nodes with a prefix "xxx0011....." and the new node is "xxx000011001", the new node can contain multiple k-buckets for the other 21+ nodes. This is to guarantee that the network knows about all nodes in the closest region.
+
+[edit] Accelerated lookups
+Kademlia uses a XOR metric to define distance. Two node ID's or a node ID and a key are XORed and the result is the distance between them. For each bit, the XOR function returns zero if the two bits are equal and one if the two bits are different. XOR metric distances hold the triangle inequality: The distance from "A" to "B" is shorter than (or equal to) the distance from "A" to "C" plus the distance from "C" to "B".
+The XOR metric allows Kademlia to extend routing tables beyond single bits. Groups of bits can be placed in k-buckets. The group of bits are termed a prefix. For an m-bit prefix, there will be 2m-1 k-buckets. The missing k-bucket is a further extension of the routing tree that contains the node ID. An m-bit prefix reduces the maximum number of lookups from log2 n to log2b n. These are maximum values and the average value will be far less, increasing the chance of finding a node in an own k-bucket that share more bits than just the prefix with the target key.
+Nodes can use mixtures of prefixes in their routing table, such as the Kad Network used by eMule. The Kademlia network could even be heterogeneous in routing table implementations. This would just complicate the analysis of lookups.
+
+[edit] Academic significance
+While the XOR metric is not needed to understand Kademlia, it is critical in the analysis of the protocol. The XOR arithmetic forms a group and abstract algebra allows closed analysis. Other DHT protocols and algorithms required simulation or complicated formal analysis in order to predict network behavior and correctness. Using groups of bits as routing information also simplifies the algorithms.
+
+[edit] Use in file sharing networks
+Kademlia is used in file sharing networks. By making Kademlia keyword searches, one can find information in the file-sharing network so it can be downloaded. Since there is no central instance to store an index of existing files, this task is divided evenly among all clients: If a node wants to share a file, it processes the contents of the file, calculating from it a number (hash) that will identify this file within the file-sharing network. The hashes and the node IDs must be of the same length. It then searches for several nodes whose ID is close to the hash, and has his own IP address stored at those nodes. i.e. it publishes itself as a source for this file. A searching client will use Kademlia to search the network for the node whose ID has the smallest distance to the file hash, then will retrieve the sources list that is stored in that node.
+Since a key can correspond to many values, e.g. many sources of the same file, every storing node may have different information. Then, the sources are requested from all k nodes close to the key.
+The file hash is usually obtained from a specially formed Internet link found elsewhere, or included within an indexing file obtained from other sources.
+Filename searches are implemented using keywords. The filename is divided into its constituent words. Each of these keywords is hashed and stored in the network, together with the corresponding filename and file hash. A search involves choosing one of the keywords, contacting the node with an ID closest to that keyword hash, and retrieving the list of filenames that contain the keyword. Since every filename in the list has its hash attached, the chosen file can then be obtained in the normal way.
+
+[edit] Implementations
+Public clients using the Kademlia algorithm (these networks are incompatible with one another):
+
+Overnet network: Overnet (integrated in eDonkey (no longer available) and MLDonkey). With KadC a C library for handling its Kademlia is available.
+Kad Network: eMule v0.40+, MLDonkey v2.5-28+. Lphant v.3.50 beta 2+ and aMule v2.1.0+.
+RevConnect - v0.403+.
+BitTorrent Mainline DHT: BitTorrent v4.1.0+, µTorrent v1.2+, BitSpirit v3.0+, BitComet v0.59+, KTorrent, Azureus 3.0+ (via a Plugin) and many libtorrent-based: They all share a DHT based on an implementation of the Kademlia algorithm, for trackerless torrents.
+Azureus DHT v2.3.0.0+: used for decentralized BitTorrent tracking and various other features; differing from the BitTorrent Mainline DHT.
+Mojito - a Java Kademlia library written for the LimeWire project. Mojito is used in LimeWire to provide DHT support for BitTorrent as well as to augment the Gnutella protocol. See the Class interface documentation for more information. [2]
+Khashmir - Python implementation of Kademlia. Used in the mainline Bittorrent, with some modifications.
+Plan-x - Java implementation.
+SharkyPy - another python implementation of a Kademlia Distributed Hash Table. LGPL licenced.
+Entangled - Python implementation of Kademlia, also providing a distributed tuple space. LGPL licenced
+RetroShare - Kademlia implementation for secure Peer-to-Peer messaging and File Sharing
+
+
+[edit] See also
+
+Content addressable network
+Chord (DHT)
+Tapestry (DHT)
+Pastry (DHT)
+Koorde
+
+
+[edit] External links
+
+Petar Maymounkov's Academic Home Page
+Kademlia Specification : http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html
+Yi Qiao and Fabian E. Bustamante USENIX 2006 paper that characterizes Overnet and Gnutella
+
+
+Stutzbach, Daniel (2006). "Improving Lookup Performance over a Widely-Deployed DHT". University of Oregon. http://www.barsoom.org/~agthorr/papers/infocom-2006-kad.pdf. 
+Russian site about Kad Network
+Brunet
+
+
+[edit] References
+
+
+^ *Kademlia: A Peer to peer information system Based on the XOR Metric
+^ Mojito and LimeWire
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Kademlia"
+Categories: Distributed computing | Distributed data sharing 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+Français
+Italiano
+עברית
+Polski
+Русский
+Suomi
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 March 2009, at 12:14.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

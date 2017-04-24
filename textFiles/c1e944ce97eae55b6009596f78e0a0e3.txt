@@ -1,0 +1,890 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dynamic Host Configuration Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Dynamic_Host_Configuration_Protocol";
+		var wgTitle = "Dynamic Host Configuration Protocol";
+		var wgAction = "view";
+		var wgArticleId = "8622";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281815475;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Dynamic Host Configuration Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+"DHCP" redirects here. For other uses, see DHCP (disambiguation).
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (December 2008)
+
+
+
+
+
+
+
+This article's introduction section may not adequately summarize its contents. To comply with Wikipedia's lead section guidelines, please consider expanding the lead to provide an accessible overview of the article's key points. (March 2009)
+
+
+Dynamic Host Configuration Protocol (DHCP) is a network application protocol used by devices (DHCP clients) to obtain configuration information for operation in an Internet Protocol network. This protocol reduces system administration workload, allowing devices to be added to the network with little or no manual intervention.
+DHCP was initially defined in RFC 1531 as a standard-track protocol in October 1993, succeeding the BOOTP. The next update, RFC 2131 released in 1997 is the current DHCP definition for IPv4 networks. The extensions of DHCP for IPv6 (DHCPv6) were published as RFC 3315.
+
+
+The Internet Protocol Suite
+
+
+Application Layer
+
+
+BGP · DHCP · DNS · FTP · GTP · HTTP · IMAP · IRC · Megaco · MGCP · NNTP · NTP · POP · RIP · RPC · RTP · RTSP · SDP · SIP · SMTP · SNMP · SOAP · SSH · Telnet · TLS/SSL · XMPP · (more)
+
+
+Transport Layer
+
+
+TCP · UDP · DCCP · SCTP · RSVP · ECN · (more)
+
+
+Internet Layer
+
+
+IP (IPv4, IPv6) · ICMP · ICMPv6 · IGMP · IPsec · (more)
+
+
+Link Layer
+
+
+ARP · RARP · NDP · OSPF · Tunnels (L2TP) · Media Access Control (Ethernet, MPLS, DSL, ISDN, FDDI) · Device Drivers · (more)
+
+
+
+This box: view • talk • edit
+
+
+
+
+
+
+
+Contents
+
+
+1 Applicability
+2 Technical overview
+3 IP address allocation
+
+3.1 Other methods
+
+
+4 DHCP and firewalls
+
+4.1 Example in ipfw firewall
+4.2 Example in Cisco IOS Extended ACL
+
+
+5 Technical details
+
+5.1 DHCP discovery
+5.2 DHCP offers
+5.3 DHCP requests
+5.4 DHCP acknowledgement
+5.5 DHCP information
+5.6 DHCP releasing
+5.7 Client configuration parameters
+5.8 Options
+
+
+6 Security
+7 See also
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Applicability
+Dynamic Host Configuration Protocol automates network parameter assignment to network devices from one or multiple, fault-tolerant DHCP servers. Even in small networks, DHCP is useful because it can make it easy to add new machines to the network.
+DHCP is also recommended for servers whose addresses rarely change, so that if a server needs to be readdressed (RFC 2071), changes need be made in as few places as possible. For devices such as routers and firewalls that should not use DHCP, it can be useful to put Trivial File Transfer Protocol (TFTP) or SSH servers on the same host that runs DHCP, which serves to centralize administration.
+
+[edit] Technical overview
+When a DHCP-configured client (be it a computer or any other network-aware device) connects to a network, the DHCP client sends a broadcast query requesting necessary information from a DHCP server. The DHCP server manages a pool of IP addresses and information about client configuration parameters such as the default gateway, the domain name, the DNS servers, other servers such as time servers, and so forth. Upon receipt of a valid request the server will assign the computer an IP address, a lease (the length of time for which the allocation is valid), and other IP configuration parameters, such as the subnet mask and the default gateway. The query is typically initiated immediately after booting and must be completed before the client can initiate IP-based communication with other hosts.
+
+[edit] IP address allocation
+Depending on implementation, the DHCP server may have three methods of allocating IP-addresses.
+
+dynamic allocation: A network administrator assigns a range of IP addresses to DHCP, and each client computer on the LAN has its IP software configured to request an IP address from the DHCP server during network initialization. The request-and-grant process uses a lease concept with a controllable time periods, allowing the DHCP server to reclaim (and then reallocate) IP addresses that are not renewed (dynamic re-use of IP addresses).
+automatic allocation: The DHCP server permanently assigns a free IP address to a requesting client from the range defined by the administrator. This is like dynamic allocation, but the DHCP server keeps a table of past IP address assignments, so that it can preferentially assign to a client the same IP address that the client previously had.
+static allocation: The DHCP server allocates an IP address based on a table with MAC address/IP address pairs, which are manually filled in (perhaps by a network administrator). Only requesting clients with a MAC address listed in this table will be allocated an IP address. This feature (which is not supported by all routers) is variously called Static DHCP Assignment (by DD-WRT), fixed-address (by the dhcpd documentation), DHCP reservation or Static DHCP (by Cisco/Linksys), and IP reservation or MAC/IP binding (by various other router manufacturers).
+
+Many DHCP servers can manage hosts by more than one of the above methods. For example, the known hosts on the network can be assigned an IP address based on their MAC address (static allocation) whereas "guest" computers (such as laptops via WiFi) are allocated a temporary IP address out of a pool compatible with the network to which they're attached (dynamic allocation).
+
+[edit] Other methods
+
+manual allocation: The DHCP server does not assign the IP address; instead, the client is configured with a user-specified static IP address.
+autoconfiguration: If a host cannot obtain an IP address by any other method, it may use address autoconfiguration of a link-local IP address.
+
+
+[edit] DHCP and firewalls
+
+
+
+
+
+This section only describes one highly specialized aspect of its associated subject.
+Please help improve this article by adding more general information.
+
+
+Firewalls usually have to permit DHCP traffic explicitly. Specification of the DHCP client-server protocol describes several cases when packets must have the source address of 0x00000000 or the destination address of 0xffffffff. Anti-spoofing policy rules and tight inclusive firewalls often stop such packets. Multi-homed DHCP servers require special consideration and further complicated configuration.
+To enable proper DHCP operation, network administrators need to allow several types of packets through the server-side firewall. All DHCP packets travel as UDP datagrams; all client-sent packets have source port 68 and destination port 67; all server-sent packets have source port 67 and destination port 68. For example, a server-side firewall should allow the following types of packets:
+
+Incoming packets from 0.0.0.0 or dhcp-pool to dhcp-ip
+Incoming packets from any address to 255.255.255.255
+Outgoing packets from dhcp-ip to dhcp-pool or 255.255.255.255
+
+where dhcp-ip represents any address configured on a DHCP server host and dhcp-pool stands for the pool from which a DHCP server assigns addresses to clients
+
+[edit] Example in ipfw firewall
+To give an idea of how a configuration would look in production, the following rules for a server-side ipfirewall to allow DHCP traffic through. Dhcpd operates on interface rl0 and assigns addresses from 192.168.0.0/24 :
+
+pass udp from 0.0.0.0,192.168.0.0/24 68 to me 67 in recv rl0
+pass udp from any 68 to 255.255.255.255 67 in recv rl0
+pass udp from me 67 to 192.168.0.0/24,255.255.255.255 68 out xmit rl0
+
+
+[edit] Example in Cisco IOS Extended ACL
+The following entries are valid on a Cisco 3560 switch with enabled DHCP service. The ACL is applied to a routed interface, 10.32.73.129, on input. The subnet is 10.32.73.128/26.
+
+10 permit udp host 0.0.0.0 eq bootpc host 10.32.73.129 eq bootps
+20 permit udp 10.32.73.128 0.0.0.63 eq bootpc host 10.32.73.129 eq bootps
+30 permit udp any eq bootpc host 255.255.255.255 eq bootps
+
+
+[edit] Technical details
+
+
+
+
+
+This section only describes one highly specialized aspect of its associated subject.
+Please help improve this article by adding more general information.
+
+
+
+
+
+
+Schema of a typical DHCP session
+
+
+DHCP uses the same two IANA assigned ports as BOOTP: 67/udp for the server side, and 68/udp for the client side.
+DHCP operations fall into four basic phases. These phases are IP discovery, IP lease offer, IP request, and IP lease acknowledgement.
+After the client obtained an IP address, the client may start an address resolution (ARP) query to prevent IP conflicts caused by address pool overlapping of DHCP servers.
+
+[edit] DHCP discovery
+The client broadcasts on the physical subnet to find available servers. Network administrators can configure a local router to forward DHCP packets to a DHCP server on a different subnet. This client-implementation creates a UDP packet with the broadcast destination of 255.255.255.255 or subnet broadcast address.
+A client can also request its last-known IP address (in the example below, 192.168.1.100). If the client is still in a network where this IP is valid, the server might grant the request. Otherwise, it depends whether the server is set up as authoritative or not. An authoritative server will deny the request, making the client ask for a new IP immediately. A non-authoritative server simply ignores the request, leading to an implementation-dependent timeout for the client to give up on the request and ask for a new IP address.
+
+[edit] DHCP offers
+When a DHCP server receives an IP lease request from a client, it reserves an IP address for the client and extends an IP lease offer by sending a DHCPOFFER message to the client. This message contains the client's MAC address, the IP address that the server is offering, the subnet mask, the lease duration, and the IP address of the DHCP server making the offer.
+The server determines the configuration, based on the client's hardware address as specified in the CHADDR field. Here the server, 192.168.1.1, specifies the IP address in the YIADDR field.
+
+[edit] DHCP requests
+A client can receive DHCP offers from multiple servers, but it will accept only one DHCP offer and broadcast a DHCP request message. Based on Transaction ID field in the request, servers are informed whose offer the client has accepted. When other DHCP servers receive this message, they withdraw any offers that they might have made to the client and return the offered address to the pool of available addresses.
+
+[edit] DHCP acknowledgement
+When the DHCP server receives the DHCPREQUEST message from the client, the configuration processes enters its final phase. The acknowledgement phase involves sending a DHCPACK packet to the client. This packet includes the lease duration and any other configuration information that the client might have requested. At this point, the IP configuration process is complete.
+The client is expected to configure its network interface with the negotiated parameters.
+
+
+
+
+DHCPDISCOVER
+
+UDP Src=0.0.0.0 sPort=68
+Dest=255.255.255.255 dPort=67
+
+
+OP
+HTYPE
+HLEN
+HOPS
+
+
+0x01
+0x01
+0x06
+0x00
+
+
+XID
+
+
+0x3903F326
+
+
+SECS
+FLAGS
+
+
+0x0000
+0x0000
+
+
+CIADDR
+
+
+0x00000000
+
+
+YIADDR
+
+
+0x00000000
+
+
+SIADDR
+
+
+0x00000000
+
+
+GIADDR
+
+
+0x00000000
+
+
+CHADDR
+
+
+0x00053C04
+
+
+0x8D590000
+
+
+0x00000000
+
+
+0x00000000
+
+
+192 octets of 0's. BOOTP legacy
+
+
+Magic Cookie
+
+
+0x63825363
+
+
+DHCP Options
+
+
+DHCP option 53: DHCP Discover
+
+
+DHCP option 50: 192.168.1.100 requested
+
+
+DHCP option 55: Parameter Request List. Request Subnet Mask (1), Router (3), Domain Name (15) and Domain Name Server (6)
+
+
+
+
+
+DHCPOFFER
+
+UDP Src=192.168.1.1 sPort=67
+Dest=255.255.255.255 dPort=68
+
+
+OP
+HTYPE
+HLEN
+HOPS
+
+
+0x02
+0x01
+0x06
+0x00
+
+
+XID
+
+
+0x3903F326
+
+
+SECS
+FLAGS
+
+
+0x0000
+0x0000
+
+
+CIADDR
+
+
+0x00000000
+
+
+YIADDR
+
+
+0xC0A80164
+
+
+SIADDR
+
+
+0x00000000
+
+
+GIADDR
+
+
+0x00000000
+
+
+CHADDR
+
+
+0x00053C04
+
+
+0x8D590000
+
+
+0x00000000
+
+
+0x00000000
+
+
+192 octets of 0's. BOOTP legacy
+
+
+Magic Cookie
+
+
+0x63825363
+
+
+DHCP Options
+
+
+DHCP option 53: DHCP Offer
+
+
+DHCP option 1: 255.255.255.0 subnet mask
+
+
+DHCP option 3: 192.168.1.1 router
+
+
+DHCP option 51: 1 day IP lease time
+
+
+DHCP option 54: 192.168.1.1 DHCP server
+
+
+DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
+
+
+
+
+
+DHCPREQUEST
+
+UDP Src=0.0.0.0 sPort=68
+Dest=255.255.255.255 dPort=67
+
+
+OP
+HTYPE
+HLEN
+HOPS
+
+
+0x01
+0x01
+0x06
+0x00
+
+
+XID
+
+
+0x3903F326
+
+
+SECS
+FLAGS
+
+
+0x0000
+0x0000
+
+
+CIADDR
+
+
+0x00000000
+
+
+YIADDR
+
+
+0x00000000
+
+
+SIADDR
+
+
+0x00000000
+
+
+GIADDR
+
+
+0x00000000
+
+
+CHADDR
+
+
+0x00053C04
+
+
+0x8D590000
+
+
+0x00000000
+
+
+0x00000000
+
+
+192 octets of 0's. BOOTP legacy
+
+
+Magic Cookie
+
+
+0x63825363
+
+
+DHCP Options
+
+
+DHCP option 53: DHCP Request
+
+
+DHCP option 50: 192.168.1.100 requested
+
+
+DHCP option 54: 192.168.1.1 DHCP server.
+
+
+
+
+
+DHCPACK
+
+UDP Src=192.168.1.1 sPort=67
+Dest=255.255.255.255 dPort=68
+
+
+OP
+HTYPE
+HLEN
+HOPS
+
+
+0x02
+0x01
+0x06
+0x00
+
+
+XID
+
+
+0x3903F326
+
+
+SECS
+FLAGS
+
+
+0x0000
+0x0000
+
+
+CIADDR (Client IP Address)
+
+
+0x00000000
+
+
+YIADDR (Your IP Address)
+
+
+0xC0A80164
+
+
+SIADDR (Server IP Address)
+
+
+0x00000000
+
+
+GIADDR (Gateway IP Address switched by relay)
+
+
+0x00000000
+
+
+CHADDR (Client Hardware Address)
+
+
+0x00053C04
+
+
+0x8D590000
+
+
+0x00000000
+
+
+0x00000000
+
+
+192 octets of 0's. BOOTP legacy
+
+
+Magic Cookie
+
+
+0x63825363
+
+
+DHCP Options
+
+
+DHCP option 53: DHCP ACK
+
+
+DHCP option 1: 255.255.255.0 subnet mask
+
+
+DHCP option 3: 192.168.1.1 router
+
+
+DHCP option 51: 1 day IP lease time
+
+
+DHCP option 54: 192.168.1.1 DHCP server
+
+
+DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
+
+
+
+
+
+
+[edit] DHCP information
+The client to the DHCP server: either to request more information than the server sent with the original DHCPOFFER; or to repeat data for a particular application - for example, browsers use DHCP Inform to obtain web proxy settings via WPAD. Such queries do not cause DHCP server to refresh the IP expiry time in its database.
+
+[edit] DHCP releasing
+The client sends a request to the DHCP server to release the DHCP information and the client deactivates its IP address. As clients usually do not know when users may unplug them from the network, the protocol does not mandate the sending of DHCP Release.
+
+[edit] Client configuration parameters
+A DHCP server can provide optional configuration parameters to the client. RFC 2132 describes the available DHCP options defined by Internet Assigned Numbers Authority (IANA) - DHCP and BOOTP PARAMETERS.
+
+[edit] Options
+To identify the vendor and functionality of a DHCP client. The information is a variable-length string of characters or octets which has a meaning specified by the vendor of the DHCP client. One method that a DHCP client can utilize to communicate to the server that it is using a certain type of hardware or firmware is to set a value in its DHCP requests called the Vendor Class Identifier (VCI) (Option 60). This method allows a DHCP server to differentiate between the two kinds of client machines and process the requests from the two types of modems appropriately. Some types of set-top boxes also set the VCI (Option 60) to inform the DHCP server about the hardware type and functionality of the device. The value that this option is set to give the DHCP server a hint about any required extra information that this client needs in a DHCP response.
+Ordinary option looks like: |id|len|v1|v2|...|
+between || is exactly one byte
+len=size in bytes of option value
+v1 v2 ... = value in bytes.
+Special options are:
+id=0x00 has no meaning. It is just byte alignment and has NO LENGTH followed by.
+id=0xFF means end of DHCP options and has no length
+
+[edit] Security
+
+
+
+
+
+This section contains close paraphrasing of a non-free copyrighted source. Ideas in this article should be expressed in an original manner. See the talk page for details. (March 2009)
+
+
+Having been standardized before network security became a significant issue, the basic DHCP protocol includes no security features, and is potentially vulnerable to two types of attacks:[1]
+
+Unauthorized DHCP Servers: as you cannot specify the server you want, an unauthorized server can respond to client requests, sending client network configuration values that are beneficial to the attacker. As an example, a hacker can hijack the DHCP process to configure clients to use a malicious DNS server or router (see also DNS cache poisoning).
+Unauthorized DHCP Clients: By masquerading as a legitimate client, an unauthorized client can gain access to network configuration and an IP address on a network it should otherwise not be allowed to use. Also, by flooding the DHCP server with requests for IP addresses, it is possible for an attacker to exhaust the pool of available IP addresses, disrupting normal network activity (a denial of service attack).
+
+To combat these threats RFC 3118 ("Authentication for DHCP Messages") introduced authentication information into DHCP messages allowing clients and servers to reject information from invalid sources. Although support for this protocol is widespread, a large number of clients and servers still do not fully support authentication, thus forcing servers to support clients that do not support this feature. As a result, other security measures are usually implemented around the DHCP server (such as IPsec) to ensure that only authenticated clients and servers are granted access to the network.
+Addresses should be dynamically linked to a secure DNS server, to allow troubleshooting by name rather than by a potentially unknown address. Effective DHCP-DNS linkage requires having a file of either MAC addresses or local names that will be sent to DNS that uniquely identifies physical hosts, IP addresses, and other parameters such as the default gateway, subnet mask, and IP addresses of DNS servers from a DHCP server. The DHCP server ensures that all IP addresses are unique, i.e., no IP address is assigned to a second client while the first client's assignment is valid (its lease has not expired). Thus IP address pool management is done by the server and not by a network administrator.
+
+[edit] See also
+
+Bootstrap Protocol (BOOTP)
+DHCP snooping
+IP address, especially Static and dynamic IP addresses
+Peg DHCP RFC 2322
+Preboot Execution Environment (PXE)
+Reverse Address Resolution Protocol (RARP)
+Rogue DHCP
+udhcpc - light version for embedded systems
+Web Proxy Autodiscovery Protocol (WPAD)
+Zeroconf, Zero Configuration Networking
+
+
+[edit] References
+
+
+^ The TCP/IP Guide - Security Issues
+
+
+
+[edit] External links
+
+An Introduction to Dynamic Host Configuration Protocol
+RFC 2131 - Dynamic Host Configuration Protocol
+RFC 2132 - DHCP Options and BOOTP Vendor Extensions
+DHCP RFC - Dynamic Host Configuration Protocol RFC's (IETF)
+DHCP Server Security - This article looks at the different types of threats faced by DHCP servers and counter-measures for mitigating these threats.
+RFC 4242 - Information Refresh Time Option for Dynamic Host Configuration Protocol for IPv6
+DHCP Sequence Diagram - This sequence diagram covers several scenarios of DHCP operation.
+RFC 3046, Recommended Operation for Switches Running Relay Agent and Option 82 describes how DHCP option 82 works
+RFC 3942 - Reclassifying Dynamic Host Configuration Protocol Version Four (DHCPv4) Options
+RFC 4361 - Node-specific Client Identifiers for Dynamic Host Configuration Protocol Version Four (DHCPv4)
+DHCP Protocol Messages - A good description of the individual DHCP protocol messages.
+ISC DHCP - Internet Services Consortium's open source DHCP implementation.
+Tiny DHCP Freeware service for Windows systems.
+inetdxtra DHCP inetd based lightweight DHCP server for unix-like systems.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol"
+Categories: Articles with close paraphrasing from March 2009 | Internet protocols | Internet standards | Application layer protocolsHidden categories: Articles lacking in-text citations | Cleanup from March 2009 | All pages needing cleanup | Wikipedia articles needing context 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Afrikaans
+العربية
+Bosanski
+Български
+Català
+Česky
+Dansk
+Deutsch
+Eesti
+Ελληνικά
+Español
+Euskara
+فارسی
+Français
+Hrvatski
+한국어
+Bahasa Indonesia
+Italiano
+עברית
+Latviešu
+Magyar
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Simple English
+Slovenčina
+Slovenščina
+Српски / Srpski
+Suomi
+Svenska
+ไทย
+Tiếng Việt
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 April 2009, at 01:47.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

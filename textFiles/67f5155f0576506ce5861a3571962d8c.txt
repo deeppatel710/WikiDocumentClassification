@@ -1,0 +1,530 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Standard ML - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Standard_ML";
+		var wgTitle = "Standard ML";
+		var wgAction = "view";
+		var wgArticleId = "100337";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274704775;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Standard ML
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+Standard ML
+
+Paradigm
+multi-paradigm: functional, imperative
+
+
+Typing discipline
+strong, static, inferred
+
+
+Major implementations
+MLton, MLWorks, Moscow ML, Poly/ML, SML/NJ, SML.NET
+
+
+Dialects
+Alice, Dependent ML
+
+
+Influenced by
+ML
+
+
+Standard ML (SML) is a general-purpose, modular, functional programming language with compile-time type checking and type inference. It is popular among compiler writers and programming language researchers, as well as in the development of theorem provers.
+SML is a modern descendant of the ML programming language used in the Logic for Computable Functions (LCF) theorem-proving project. It is distinctive among widely used languages in that it has a formal specification, given as typing rules and operational semantics in The Definition of Standard ML (1990, revised and simplified as The Definition of Standard ML (Revised) in 1997).[1]
+
+
+
+
+Contents
+
+
+1 Language
+
+1.1 Module System
+
+
+2 Code examples
+
+2.1 Hello world
+2.2 Merge Sort
+2.3 Arbitrary-precision factorial function (libraries)
+2.4 Numerical derivative (higher-order functions)
+2.5 Discrete Wavelet Transform (pattern matching)
+
+
+3 Implementations
+4 See also
+5 External links
+6 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Language
+Standard ML is a mostly functional programming language. Programs written in Standard ML mostly consist of expressions whose values are to be calculated.
+Like all functional programming languages, a key feature of Standard ML is the function, which is used for abstraction. For instance, the factorial function can be expressed as:
+
+   fun factorial n = 
+       if n = 0 then 1 else n * factorial (n-1) 
+
+A Standard ML compiler is required to infer the static type int -> int of this function without user-supplied type annotations. I.e., it has to deduce that n is only used with integer expressions, and must therefore itself be an integer, and that all value-producing expressions within the function return integers.
+The same function can be expressed with clausal function definitions where the if-then-else conditional is replaced by a sequence of templates of the factorial function evaluated for specific values, separated by '|', which are tried one by one in the order written until a match is found:
+
+   fun factorial 0 = 1
+     | factorial n = n * factorial (n - 1)  
+
+This can be rewritten using a case statement like this:
+
+   val rec factorial =
+       fn n => case n of 0 => 1
+                       | n => n * factorial (n - 1)
+
+Here, the keyword val introduces a binding of an identifier to a value, fn introduces the definition of an anonymous function, and case introduces a sequence of patterns and corresponding expressions.
+Using a local function, this function can be rewritten to use tail recursion:
+
+   fun factorial n =
+       let
+           fun tail_fact p 0 = p
+             | tail_fact p m = tail_fact (p * m) (m - 1)
+       in
+           tail_fact 1 n
+       end
+
+The value of a let-expression is that of the expression between in and end.
+
+[edit] Module System
+Standard ML has an advanced module system, allowing programs to be decomposed into hierarchically organized structures of logically related type and value declarations. SML modules provide not only namespace control but also abstraction, in the sense that they allow programmers to define abstract data types.
+Three main syntactic constructs comprise the SML module system: signatures, structures and functors. A structure is a module; it consists of a collection of types, exceptions, values and structures (called substructures) packaged together into a logical unit. A signature is an interface, usually thought of as a type for a structure: it specifies the names of all the entities provided by the structure as well as the arities of type components, the types of value components, and signatures for substructures. The definitions of type components may or may not be exported; type components whose definitions are hidden are abstract types. Finally, a functor is a function from structures to structures; that is, a functor accepts one or more arguments, which are usually structures of a given signature, and produces a structure as its result. Functors are used to implement generic data structures and algorithms.
+For example, the signature for a queue data structure might be:
+
+signature QUEUE = 
+sig
+   type 'a queue
+   exception Queue
+   val empty : 'a queue
+   val insert : 'a * 'a queue -> 'a queue
+   val isEmpty : 'a queue -> bool
+   val peek : 'a queue -> 'a 
+   val remove : 'a queue -> 'a * 'a queue
+end
+
+This signature describes a module that provides a parameterized type queue of queues, an exception called Queue, and five values (four of which are functions) providing the basic operations on queues. One can now implement the queue data structure by writing a structure with this signature:
+
+structure TwoListQueue :> QUEUE = 
+struct
+   type 'a queue = 'a list * 'a list
+   exception Queue
+   val empty = ([],[])
+   fun insert (a,(ins,outs)) = (a::ins,outs)
+   fun isEmpty ([],[]) = true
+     | isEmpty _ = false
+   fun peek ([],[]) = raise Queue
+     | peek (ins,[]) = hd (rev ins)
+     | peek (ins,a::outs) = a
+   fun remove ([],[]) = raise Queue
+     | remove (ins,[]) = 
+       let val newouts = rev ins
+       in (hd newouts,([],tl newouts))
+       end
+     | remove (ins,a::outs) = (a,(ins,outs))
+ end
+
+This definition declares that TwoListQueue is an implementation of the QUEUE signature. Furthermore, the opaque ascription (denoted by :>) states that any type components whose definitions are not provided in the signature (i.e., queue) should be treated as abstract, meaning that the definition of a queue as a pair of lists is not visible outside the module. The body of the structure provides bindings for all of the components listed in the signature.
+To use a structure, one can access its type and value members using "dot notation". For instance, a queue of strings would have type string TwoListQueue.queue, the empty queue is TwoListQueue.empty, and to remove the first element from a queue called q one would write TwoListQueue.remove q.
+
+[edit] Code examples
+Snippets of SML code are most easily studied by entering them into a "top-level", also known as a read-eval-print loop. This is an interactive session that prints the inferred types of resulting or defined expressions. Many SML implementations provide an interactive top-level, including SML/NJ:
+
+  $ sml
+  Standard ML of New Jersey v110.52 [built: Fri Jan 21 16:42:10 2005]
+  -
+
+Code can then be entered at the "-" prompt. For example, to calculate 1+2*3:
+
+  - 1 + 2 * 3;
+  val it = 7 : int
+
+The top-level infers the type of the expression to be "int" and gives the result "7".
+
+[edit] Hello world
+The following program "hello.sml":
+
+  print "Hello world!\n";
+
+can be compiled with MLton:
+
+  $ mlton hello.sml
+
+and executed:
+
+  $ ./hello
+  Hello world!
+  $
+
+
+[edit] Merge Sort
+Main article: Merge sort
+Here, Merge Sort is implemented in three functions: split, merge and MergeSort.
+The split function is implemented with a local function named split_iter, which has an additional parameter. One uses such a function because it is tail recursive. This function makes use of SML's pattern matching syntax, being defined for both the non-empty ('x::xs') and empty ('[]') list cases.
+
+(* Given a list of elements, split it into two elements of
+ * about the same size.
+ * O(n)
+ *)
+local
+ fun split_iter (x1::x2::xs, left, right) = split_iter(xs, x2::right, x1::left)
+ |   split_iter ([x], left, right) = (left, x::right)
+ |   split_iter ([], left, right) = (left, right)
+in
+ fun split(x) = split_iter(x,[],[])
+end;
+
+The local-in-end syntax could be replaced with a let-in-end syntax, yielding the equivalent definition:
+
+fun split(x) =
+ let
+  fun split_iter (x1::x2::xs, left, right) = split_iter(xs, x2::right, x1::left)
+  |   split_iter ([x], left, right) = (left, x::right)
+  |   split_iter ([], left, right) = (left, right)
+ in
+  split_iter(x,[],[])
+ end;
+
+As with split, merge also uses a local function merge_iter for efficiency. Merge_iter is defined in terms of cases: when two non-empty lists are passed, when one non-empty list is passed, and when two empty lists are passed. Note the use of '_' as a wildcard pattern.
+This function merges two 'ascending lists into one descending because of how lists are constructed in SML. Because SML lists are implemented as imbalanced binary trees, it is efficient to prepend an element to a list, but very inefficient to append an element to a list.
+
+(* Given two lists in ascending order, merge them into
+ * a single list in descending order.
+ * The function lt(a,b) iff a < b
+ * O(n)
+ *)
+local
+ fun merge_iter (out, left as (x::xs), right as (y::ys), lt) =
+     if lt(x, y)
+      then merge_iter(x::out, xs, right, lt)
+      else merge_iter(y::out, left, ys, lt)
+ |   merge_iter (out, x::xs, [], lt) = merge_iter( x::out, xs, [], lt)
+ |   merge_iter (out, [], y::ys, lt) = merge_iter( y::out, [], ys, lt)
+ |   merge_iter (out, [], [], _) = out
+in
+ fun merge(x,y,lt) = merge_iter([],x,y,lt)
+end;
+
+
+Finally, the MergeSort function.
+
+(* Sort a list in ascending order according to lt(a,b) <==> a < b
+ * O(n log n)
+ *)
+fun MergeSort(empty as [], _) = empty
+|   MergeSort(single as _::[], _) = single
+|   MergeSort(x, lt) =
+    let
+     val (left, right) = split(x)
+     val sl = MergeSort(left, lt)
+     val sr = MergeSort(right, lt)
+     val s = merge(sl,sr,lt)
+    in
+     rev s
+    end;
+
+
+Also note that the code makes no mention of variable types, with the exception of the :: and [] syntax which signify lists. This code will sort lists of any type, so long as a consistent ordering function lt can be defined. Using Hindley-Milner type inference, the compiler is capable of inferring the types of all variables, even complicated types such as that of the lt function.
+
+[edit] Arbitrary-precision factorial function (libraries)
+In SML, the IntInf module provides arbitrary-precision integer arithmetic. Moreover, integer literals may be used as arbitrary-precision integers without the programmer having to do anything.
+The following program "fact.sml" implements an arbitrary-precision factorial function and prints the factorial of 120:
+
+  fun fact n : IntInf.int =
+      if n=0 then 1 else n * fact(n - 1)
+  
+  val () =
+      print (IntInf.toString (fact 120)^"\n")
+
+and can be compiled and run with:
+
+  $ mlton fact.sml
+  $ ./fact
+  66895029134491270575881180540903725867527463331380298102956713523016335
+  57244962989366874165271984981308157637893214090552534408589408121859898
+  481114389650005964960521256960000000000000000000000000000
+
+
+[edit] Numerical derivative (higher-order functions)
+Since SML is a functional programming language, it is easy to create and pass around functions in SML programs. This capability has an enormous number of applications. Calculating the numerical derivative of a function is one such application. The following SML function "d" computes the numerical derivative of a given function "f" at a given point "x":
+
+  - fun d delta f x =
+      (f (x + delta) - f (x - delta)) / (2.0 * delta);
+  val d = fn : real -> (real -> real) -> real -> real
+
+This function requires a small value "delta". A good choice for delta when using this algorithm is the cube root of the machine epsilon.[citation needed]
+The type of the function "d" indicates that it maps a "float" onto another function with the type "(real -> real) -> real -> real". This allows us to partially apply arguments. This functional style is known as currying. In this case, it is useful to partially apply the first argument "delta" to "d", to obtain a more specialised function:
+
+  - val d = d 1E~8;
+  val d = fn : (real -> real) -> real -> real
+
+Note that the inferred type indicates that the replacement "d" is expecting a function with the type "real -> real" as its first argument. We can compute a numerical approximation to the derivative of x^3-x-1 at x=3 with:
+
+  - d (fn x => x * x * x - x - 1.0) 3.0;
+  val it = 25.9999996644 : real
+
+The correct answer is f'(x) = 3x^2-1 => f'(3) = 27-1 = 26.
+The function "d" is called a "higher-order function" because it accepts another function ("f") as an argument.
+Curried and higher-order functions can be used to eliminate redundant code. For example, a library may require functions of type a -> b, but it is more convenient to write functions of type a * c -> b where there is a fixed relationship between the objects of type a and c. A higher order function of type (a * c -> b) -> (a -> b) can factor out this commonality. This is an example of the adapter pattern.
+
+[edit] Discrete Wavelet Transform (pattern matching)
+The 1D Haar wavelet transform of an integer-power-of-two-length list of numbers can be implemented very succinctly in SML and is an excellent example of the use of pattern matching over lists, taking pairs of elements ("h1" and "h2") off the front and storing their sums and differences on the lists "s" and "d", respectively:
+
+  - fun haar l =
+      let fun aux [s] [] d = s :: d
+            | aux [] s d = aux s [] d
+            | aux (h1::h2::t) s d =
+              aux t (h1 + h2 :: s) (h1 - h2 :: d)
+            | aux _ _ _ = raise Empty
+      in  aux l [] []
+      end;
+  val haar = fn : int list -> int list
+
+For example:
+
+  - haar [1, 2, 3, 4, ~4, ~3, ~2, ~1];
+  val it = [0,20,4,4,~1,~1,~1,~1] : int list
+
+Pattern matching is a useful construct that allows complicated transformations to be represented clearly and succinctly. Moreover, SML compilers turn pattern matches into efficient code, resulting in programs that are not only shorter but also faster.
+
+[edit] Implementations
+Many SML implementations exist, including:
+
+MLton is a whole-program optimizing compiler that produces very fast code compared to other ML implementations. [1]
+Standard ML of New Jersey (abbreviated SML/NJ) is a full compiler, with associated libraries, tools, an interactive shell, and documentation. [2]
+Moscow ML is a light-weight implementation, based on the CAML Light runtime engine. It implements the full SML language, including SML Modules, and much of the SML Basis Library. [3]
+Poly/ML is a full implementation of Standard ML.
+TILT is a full certifying compiler for SML. It uses typed intermediate languages to optimize code and ensure correctness, and can compile to typed Assembly language.
+HaMLet is an SML interpreter that aims to be an accurate and accessible reference implementation of the standard.
+The ML Kit integrates a garbage collector (which can be disabled) and region-based memory management with automatic inference of regions, aiming realtime applications. Its implementation is based very closely on the Definition.
+SML.NET allows compiling to the Microsoft CLR and has extensions for linking with other .NET code.
+SML2c is a batch compiler and compiles only module-level declarations (i.e. signatures, structures, functors) into C. It is based on SML/NJ version 0.67 and shares the front end, and most of its run-time system, but does not support SML/NJ style debugging and profiling. Module-level programs that run on SML/NJ can be compiled by sml2c with no changes.
+The Poplog system implements a version of SML, with POP-11, and optionally Common Lisp, and Prolog, allowing mixed language programming. For all, the implementation language is POP-11, which is compiled incrementally. It also has an integrated Emacs-like editor that communicates with the compiler.
+SML# is a conservative extension of SML providing record polymorphism and C interoperability.
+
+All of these implementations are open-source and freely available. Most are implemented themselves in SML. There are no longer any commercial SML implementations. Harlequin once produced a commercial IDE and compiler for SML called MLWorks. The company is now defunct. MLWorks is believed to have been passed on to Xanalys.
+
+[edit] See also
+
+Alice
+ML
+Concurrent ML
+Dependent ML
+EML
+Extended ML
+F#
+Objective Caml
+
+
+[edit] External links
+
+What is SML?
+What is SML '97?
+successor ML (sML) is intended to provide a vehicle for the continued evolution of ML, using Standard ML as a starting point.
+Standard ML language at Scholarpedia, curated by Mads Tofte.
+
+
+[edit] References
+
+
+^ Milner, R.; M. Tofte, R. Harper and D. MacQueen. (1997). The Definition of Standard ML (Revised). MIT Press. ISBN 0-262-63181-4. 
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Standard_ML"
+Categories: Procedural programming languages | ML programming language family | Functional languages | Programming languages created in 1990Hidden categories: All articles with unsourced statements | Articles with unsourced statements since August 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Dansk
+Deutsch
+Español
+Italiano
+Magyar
+日本語
+Polski
+Русский
+Türkçe
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 March 2009, at 15:52 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

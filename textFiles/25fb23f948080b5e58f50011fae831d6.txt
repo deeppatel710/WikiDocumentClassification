@@ -1,0 +1,619 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PID controller - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "PID_controller";
+		var wgTitle = "PID controller";
+		var wgAction = "view";
+		var wgArticleId = "66256";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281899958;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); PID controller
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A proportional–integral–derivative controller (PID controller) is a generic control loop feedback mechanism (controller) widely used in industrial control systems. A PID controller attempts to correct the error between a measured process variable and a desired setpoint by calculating and then outputting a corrective action that can adjust the process accordingly and rapidly, to keep the error minimal.
+
+
+
+
+Contents
+
+
+1 General
+2 Control loop basics
+3 PID controller theory
+
+3.1 Proportional term
+3.2 Integral term
+3.3 Derivative term
+3.4 Summary
+
+
+4 Loop tuning
+
+4.1 Manual tuning
+4.2 Ziegler–Nichols method
+4.3 PID tuning software
+
+
+5 Modifications to the PID algorithm
+6 Limitations of PID control
+7 Cascade control
+8 Physical implementation of PID control
+9 Alternative nomenclature and PID forms
+
+9.1 Pseudocode
+9.2 Ideal versus standard PID form
+9.3 Laplace form of the PID controller
+9.4 Series/interacting form
+
+
+10 See also
+11 External links
+
+11.1 PID tutorials
+11.2 Simulations
+11.3 Special topics and PID control applications
+
+
+12 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] General
+
+
+
+
+A block diagram of a PID controller
+
+
+The PID controller calculation (algorithm) involves three separate parameters; the proportional, the integral and derivative values. The proportional value determines the reaction to the current error, the integral value determines the reaction based on the sum of recent errors, and the derivative value determines the reaction based on the rate at which the error has been changing. The weighted sum of these three actions is used to adjust the process via a control element such as the position of a control valve or the power supply of a heating element.
+By tuning the three constants in the PID controller algorithm, the controller can provide control action designed for specific process requirements. The response of the controller can be described in terms of the responsiveness of the controller to an error, the degree to which the controller overshoots the setpoint and the degree of system oscillation. Note that the use of the PID algorithm for control does not guarantee optimal control of the system or system stability.
+Some applications may require using only one or two modes to provide the appropriate system control. This is achieved by setting the gain of undesired control outputs to zero. A PID controller will be called a PI, PD, P or I controller in the absence of the respective control actions. PI controllers are particularly common, since derivative action is very sensitive to measurement noise, and the absence of an integral value may prevent the system from reaching its target value due to the control action.
+Note: Due to the diversity of the field of control theory and application, many naming conventions for the relevant variables are in common use.
+
+[edit] Control loop basics
+A familiar example of a control loop is the action taken to keep one's shower water at the ideal temperature, which typically involves the mixing of two process streams, cold and hot water. The person feels the water to estimate its temperature. Based on this measurement they perform a control action: use the cold water tap to adjust the process. The person would repeat this input-output control loop, adjusting the hot water flow until the process temperature stabilized at the desired value.
+Feeling the water temperature is taking a measurement of the process value or process variable (PV). The desired temperature is called the setpoint (SP). The output from the controller and input to the process (the tap position) is called the manipulated variable (MV). The difference between the measurement and the setpoint is the error (e), too hot or too cold and by how much.
+As a controller, one decides roughly how much to change the tap position (MV) after one determines the temperature (PV), and therefore the error. This first estimate is the equivalent of the proportional action of a PID controller. The integral action of a PID controller can be thought of as gradually adjusting the temperature when it is almost right. Derivative action can be thought of as noticing the water temperature is getting hotter or colder, and how fast, anticipating further change and tempering adjustments for a soft landing at the desired temperature (SP).
+Making a change that is too large when the error is small is equivalent to a high gain controller and will lead to overshoot. If the controller were to repeatedly make changes that were too large and repeatedly overshoot the target, this control loop would be termed unstable and the output would oscillate around the setpoint in either a constant, growing, or decaying sinusoid. A human would not do this because we are adaptive controllers, learning from the process history, but PID controllers do not have the ability to learn and must be set up correctly. Selecting the correct gains for effective control is known as tuning the controller.
+If a controller starts from a stable state at zero error (PV = SP), then further changes by the controller will be in response to changes in other measured or unmeasured inputs to the process that impact on the process, and hence on the PV. Variables that impact on the process other than the MV are known as disturbances. Generally controllers are used to reject disturbances and/or implement setpoint changes. Changes in feed water temperature constitute a disturbance to the shower process.
+In theory, a controller can be used to control any process which has a measurable output (PV), a known ideal value for that output (SP) and an input to the process (MV) that will affect the relevant PV. Controllers are used in industry to regulate temperature, pressure, flow rate, chemical composition, speed and practically every other variable for which a measurement exists. Automobile cruise control is an example of a process which utilizes automated control.
+Due to their long history, simplicity, well grounded theory and simple setup and maintenance requirements, PID controllers are the controllers of choice for many of these applications.
+
+[edit] PID controller theory
+This section describes the parallel or non-interacting form of the PID controller. For other forms please see the Section "Alternative notation and PID forms".
+The PID control scheme is named after its three correcting terms, whose sum constitutes the Controller Output (CO). Hence:
+
+
+
+where Pout, Iout, and Dout are the contributions to the output from the PID controller from each of the three terms, as defined below.
+
+[edit] Proportional term
+
+
+
+
+Plot of PV vs time, for three values of Kp (Ki and Kd held constant)
+
+
+The proportional term (sometimes called gain) makes a change to the output that is proportional to the current error value. The proportional response can be adjusted by multiplying the error by a constant Kp, called the proportional gain.
+The proportional term is given by:
+
+
+
+Where
+
+Pout: Proportional term of output
+Kp: Proportional gain, a tuning parameter
+e: Error = SP − PV
+t: Time or instantaneous time (the present)
+
+A high proportional gain results in a large change in the output for a given change in the error. If the proportional gain is too high, the system can become unstable (See the section on loop tuning). In contrast, a small gain results in a small output response to a large input error, and a less responsive (or sensitive) controller. If the proportional gain is too low, the control action may be too small when responding to system disturbances.
+In the absence of disturbances, pure proportional control will not settle at its target value, but will retain a steady state error that is a function of the proportional gain and the process gain. Despite the steady-state offset, both tuning theory and industrial practice indicate that it is the proportional term that should contribute the bulk of the output change.
+
+[edit] Integral term
+
+
+
+
+Plot of PV vs time, for three values of Ki (Kp and Kd held constant)
+
+
+The contribution from the integral term (sometimes called reset) is proportional to both the magnitude of the error and the duration of the error. Summing the instantaneous error over time (integrating the error) gives the accumulated offset that should have been corrected previously. The accumulated error is then multiplied by the integral gain and added to the controller output. The magnitude of the contribution of the integral term to the overall control action is determined by the integral gain, Ki.
+The integral term is given by:
+
+Where
+
+Iout: Integral term of output
+Ki: Integral gain, a tuning parameter
+e: Error = SP − PV
+t: Time or instantaneous time (the present)
+τ: A dummy integration variable
+
+The integral term (when added to the proportional term) accelerates the movement of the process towards setpoint and eliminates the residual steady-state error that occurs with a proportional only controller. However, since the integral term is responding to accumulated errors from the past, it can cause the present value to overshoot the setpoint value (cross over the setpoint and then create a deviation in the other direction). For further notes regarding integral gain tuning and controller stability, see the section on loop tuning.
+
+[edit] Derivative term
+
+
+
+
+Plot of PV vs time, for three values of Kd (Kp and Ki held constant)
+
+
+The rate of change of the process error is calculated by determining the slope of the error over time (i.e., its first derivative with respect to time) and multiplying this rate of change by the derivative gain Kd. The magnitude of the contribution of the derivative term (sometimes called rate) to the overall control action is termed the derivative gain, Kd.
+The derivative term is given by:
+
+
+
+Where
+
+Dout: Derivative term of output
+Kd: Derivative gain, a tuning parameter
+e: Error = SP − PV
+t: Time or instantaneous time (the present)
+
+The derivative term slows the rate of change of the controller output and this effect is most noticeable close to the controller setpoint. Hence, derivative control is used to reduce the magnitude of the overshoot produced by the integral component and improve the combined controller-process stability. However, differentiation of a signal amplifies noise and thus this term in the controller is highly sensitive to noise in the error term, and can cause a process to become unstable if the noise and the derivative gain are sufficiently large.
+
+[edit] Summary
+The proportional, integral, and derivative terms are summed to calculate the output of the PID controller. Defining u(t) as the controller output, the final form of the PID algorithm is:
+
+
+
+
+
+
+
+and the tuning parameters are:
+
+Proportional gain, Kp
+larger values typically mean faster response since the larger the error, the larger the Proportional term compensation. An excessively large proportional gain will lead to process instability and oscillation.
+Integral gain, Ki
+larger values imply steady state errors are eliminated more quickly. The trade-off is larger overshoot: any negative error integrated during transient response must be integrated away by positive error before we reach steady state.
+Derivative gain, Kd
+larger values decrease overshoot, but slows down transient response and may lead to instability due to signal noise amplification in the differentiation of the error.
+
+
+[edit] Loop tuning
+If the PID controller parameters (the gains of the proportional, integral and derivative terms) are chosen incorrectly, the controlled process input can be unstable, i.e. its output diverges, with or without oscillation, and is limited only by saturation or mechanical breakage. Tuning a control loop is the adjustment of its control parameters (gain/proportional band, integral gain/reset, derivative gain/rate) to the optimum values for the desired control response.
+The optimum behavior on a process change or setpoint change varies depending on the application. Some processes must not allow an overshoot of the process variable beyond the setpoint if, for example, this would be unsafe. Other processes must minimize the energy expended in reaching a new setpoint. Generally, stability of response (the reverse of instability) is required and the process must not oscillate for any combination of process conditions and setpoints. Some processes have a degree of non-linearity and so parameters that work well at full-load conditions don't work when the process is starting up from no-load. This section describes some traditional manual methods for loop tuning.
+
+There are several methods for tuning a PID loop. The most effective methods generally involve the development of some form of process model, then choosing P, I, and D based on the dynamic model parameters. Manual tuning methods can be relatively inefficient.
+The choice of method will depend largely on whether or not the loop can be taken "offline" for tuning, and the response time of the system. If the system can be taken offline, the best tuning method often involves subjecting the system to a step change in input, measuring the output as a function of time, and using this response to determine the control parameters.
+
+
+Choosing a Tuning Method
+
+
+Method
+Advantages
+Disadvantages
+
+
+Manual Tuning
+No math required. Online method.
+Requires experienced personnel.
+
+
+Ziegler–Nichols
+Proven Method. Online method.
+Process upset, some trial-and-error, very aggressive tuning.
+
+
+Software Tools
+Consistent tuning. Online or offline method. May include valve and sensor analysis. Allow simulation before downloading.
+Some cost and training involved.
+
+
+Cohen-Coon
+Good process models.
+Some math. Offline method. Only good for first-order processes.
+
+
+
+[edit] Manual tuning
+If the system must remain online, one tuning method is to first set Ki and Kd values to zero. Increase the Kp until the output of the loop oscillates, then the Kp should be left set to be approximately half of that value for a "quarter amplitude decay" type response. Then increase Ki until any offset is correct in sufficient time for the process. However, too much Ki will cause instability. Finally, increase Kd, if required, until the loop is acceptably quick to reach its reference after a load disturbance. However, too much Kd will cause excessive response and overshoot. A fast PID loop tuning usually overshoots slightly to reach the setpoint more quickly; however, some systems cannot accept overshoot, in which case an "over-damped" closed-loop system is required, which will require a Kp setting significantly less than half that of the Kp setting causing oscillation.
+
+
+Effects of increasing parameters
+
+
+Parameter
+Rise time
+Overshoot
+Settling time
+Error at equilibrium
+
+
+Kp
+Decrease
+Increase
+Small change
+Decrease
+
+
+Ki
+Decrease
+Increase
+Increase
+Eliminate
+
+
+Kd
+Indefinite (small decrease or increase)[1]
+Decrease
+Decrease
+None
+
+
+
+[edit] Ziegler–Nichols method
+Another tuning method is formally known as the Ziegler–Nichols method, introduced by John G. Ziegler and Nathaniel B. Nichols. As in the method above, the Ki and Kd gains are first set to zero. The P gain is increased until it reaches the critical gain, Kc, at which the output of the loop starts to oscillate. Kc and the oscillation period Pc are used to set the gains as shown:
+
+
+Ziegler–Nichols method
+
+
+Control Type
+Kp
+Ki
+Kd
+
+
+P
+0.50Kc
+-
+-
+
+
+PI
+0.45Kc
+1.2Kp / Pc
+-
+
+
+PID
+0.60Kc
+2Kp / Pc
+KpPc / 8
+
+
+
+[edit] PID tuning software
+Most modern industrial facilities no longer tune loops using the manual calculation methods shown above. Instead, PID tuning and loop optimization software are used to ensure consistent results. These software packages will gather the data, develop process models, and suggest optimal tuning. Some software packages can even develop tuning by gathering data from reference changes.
+Mathematical PID loop tuning induces an impulse in the system, and then uses the controlled system's frequency response to design the PID loop values. In loops with response times of several minutes, mathematical loop tuning is recommended, because trial and error can literally take days just to find a stable set of loop values. Optimal values are harder to find. Some digital loop controllers offer a self-tuning feature in which very small setpoint changes are sent to the process, allowing the controller itself to calculate optimal tuning values.
+Other formulas are available to tune the loop according to different performance criteria.
+
+[edit] Modifications to the PID algorithm
+The basic PID algorithm presents some challenges in control applications that have been addressed by minor modifications to the PID form.
+One common problem resulting from the ideal PID implementations is integral windup. This problem can be addressed by:
+
+Initializing the controller integral to a desired value
+Increasing the setpoint in a suitable ramp
+Disabling the integral function until the PV has entered the controllable region
+Limiting the time period over which the integral error is calculated
+Preventing the integral term from accumulating above or below pre-determined bounds
+
+Many PID loops control a mechanical device (for example, a valve). Mechanical maintenance can be a major cost and wear leads to control degradation in the form of either stiction or a deadband in the mechanical response to an input signal. The rate of mechanical wear is mainly a function of how often a device is activated to make a change. Where wear is a significant concern, the PID loop may have an output deadband to reduce the frequency of activation of the output (valve). This is accomplished by modifying the controller to hold its output steady if the change would be small (within the defined deadband range). The calculated output must leave the deadband before the actual output will change.
+The proportional and derivative terms can produce excessive movement in the output when a system is subjected to an instantaneous step increase in the error, such as a large setpoint change. In the case of the derivative term, this is due to taking the derivative of the error, which is very large in the case of an instantaneous step change. As a result, some PID algorithms incorporate the following modifications:
+
+Derivative of output
+In this case the PID controller measures the derivative of the output quantity, rather than the derivative of the error. The output is always continuous (i.e., never has a step change). For this to be effective, the derivative of the output must have the same sign as the derivative of the error.
+Setpoint ramping
+In this modification, the setpoint is gradually moved from its old value to a newly specified value using a linear or first order differential ramp function. This avoids the discontinuity present in a simple step change.
+Setpoint weighting
+Setpoint weighting uses different multipliers for the error depending on which element of the controller it is used in. The error in the integral term must be the true control error to avoid steady-state control errors. This affects the controller's setpoint response. These parameters do not affect the response to load disturbances and measurement noise.
+
+
+[edit] Limitations of PID control
+While PID controllers are applicable to many control problems, they can perform poorly in some applications.
+PID controllers, when used alone, can give poor performance when the PID loop gains must be reduced so that the control system does not overshoot, oscillate or hunt about the control setpoint value. The control system performance can be improved by combining the feedback (or closed-loop) control of a PID controller with feed-forward (or open-loop) control. Knowledge about the system (such as the desired acceleration and inertia) can be fed forward and combined with the PID output to improve the overall system performance. The feed-forward value alone can often provide the major portion of the controller output. The PID controller can then be used primarily to respond to whatever difference or error remains between the setpoint (SP) and the actual value of the process variable (PV). Since the feed-forward output is not affected by the process feedback, it can never cause the control system to oscillate, thus improving the system response and stability.
+For example, in most motion control systems, in order to accelerate a mechanical load under control, more force or torque is required from the prime mover, motor, or actuator. If a velocity loop PID controller is being used to control the speed of the load and command the force or torque being applied by the prime mover, then it is beneficial to take the instantaneous acceleration desired for the load, scale that value appropriately and add it to the output of the PID velocity loop controller. This means that whenever the load is being accelerated or decelerated, a proportional amount of force is commanded from the prime mover regardless of the feedback value. The PID loop in this situation uses the feedback information to effect any increase or decrease of the combined output in order to reduce the remaining difference between the process setpoint and the feedback value. Working together, the combined open-loop feed-forward controller and closed-loop PID controller can provide a more responsive, stable and reliable control system.
+Another problem faced with PID controllers is that they are linear. Thus, performance of PID controllers in non-linear systems (such as HVAC systems) is variable. Often PID controllers are enhanced through methods such as PID gain scheduling or fuzzy logic. Further practical application issues can arise from instrumentation connected to the controller. A high enough sampling rate, measurement precision, and measurement accuracy are required to achieve adequate control performance.
+A problem with the Derivative term is that small amounts of measurement or process noise can cause large amounts of change in the output. It is often helpful to filter the measurements with a low-pass filter in order to remove higher-frequency noise components. However, low-pass filtering and derivative control can cancel each other out, so reducing noise by instrumentation means is a much better choice. Alternatively, the differential band can be turned off in many systems with little loss of control. This is equivalent to using the PID controller as a PI controller.
+
+[edit] Cascade control
+One distinctive advantage of PID controllers is that two PID controllers can be used together to yield better dynamic performance. This is called cascaded PID control. In cascade control there are two PIDs arranged with one PID controlling the set point of another. A PID controller acts as outer loop controller, which controls the primary physical parameter, such as fluid level or velocity. The other controller acts as inner loop controller, which reads the output of outer loop controller as set point, usually controlling a more rapid changing parameter, flowrate or acceleration. It can be mathematically proven[citation needed] that the working frequency of the controller is increased and the time constant of the object is reduced by using cascaded PID controller.[vague]
+
+[edit] Physical implementation of PID control
+In the early history of automatic process control the PID controller was implemented as a mechanical device. These mechanical controllers used a lever, spring and a mass and were often energized by compressed air. These pneumatic controllers were once the industry standard.
+Electronic analog controllers can be made from a solid-state or tube amplifier, a capacitor and a resistance. Electronic analog PID control loops were often found within more complex electronic systems, for example, the head positioning of a disk drive, the power conditioning of a power supply, or even the movement-detection circuit of a modern seismometer. Nowadays, electronic controllers have largely been replaced by digital controllers implemented with microcontrollers or FPGAs.
+Most modern PID controllers in industry are implemented in programmable logic controllers (PLCs) or as a panel-mounted digital controller. Software implementations have the advantages that they are relatively cheap and are flexible with respect to the implementation of the PID algorithm.
+
+[edit] Alternative nomenclature and PID forms
+
+[edit] Pseudocode
+Here is a simple software loop that implements the PID algorithm:
+
+previous_error = 0
+integral = 0 
+start:
+  error = setpoint - actual_position
+  integral = integral + error*dt
+  derivative = (error - previous_error)/dt
+  output = Kp*error + Ki*integral + Kd*derivative
+  previous_error = error
+  wait(dt)
+  goto start
+
+
+[edit] Ideal versus standard PID form
+The form of the PID controller most often encountered in industry, and the one most relevant to tuning algorithms is the standard form. In this form the Kp gain is applied to the Iout, and Dout terms, yielding:
+
+
+
+where
+
+Ti is the integral time
+Td is the derivative time
+
+In the ideal parallel form, shown in the controller theory section
+
+
+
+the gain parameters are related to the parameters of the standard form through  and . This parallel form, where the parameters are treated as simple gains, is the most general and flexible form. However, it is also the form where the parameters have the least physical interpretation and is generally reserved for theoretical treatment of the PID controller. The standard form, despite being slightly more complex mathematically, is more common in industry.
+
+[edit] Laplace form of the PID controller
+Sometimes it is useful to write the PID regulator in Laplace transform form:
+
+
+
+Having the PID controller written in Laplace form and having the transfer function of the controlled system, makes it easy to determine the closed-loop transfer function of the system.
+
+[edit] Series/interacting form
+Another representation of the PID controller is the series, or interacting form
+
+
+
+where the parameters are related to the parameters of the standard form through , , and  with .
+This form essentially consists of a PD and PI controller in series, and it made early (analog) controllers easier to build. When the controllers later became digital, many kept using the interacting form.
+
+[edit] See also
+
+Control Theory
+Feedback
+Instability
+Oscillation
+Oscillation (mathematics)
+
+
+[edit] External links
+
+[edit] PID tutorials
+
+PID Tutorial
+P.I.D. Without a PhD: a beginner's guide to PID loop theory with sample programming code
+What's All This P-I-D Stuff, Anyhow? Article in Electronic Design
+Shows how to build a PID controller with basic electronic components (pg. 22)
+PID Control Design - Beyond the Recipe A guide to better PID implementation.
+
+
+[edit] Simulations
+
+Free, real-time PID simulator for Windows
+PID controller using MatLab and Simulink
+PID controller laboratory, Java applets for PID tuning
+PID control analysis and design with SimApp
+
+
+[edit] Special topics and PID control applications
+
+Proven Methods and Best Practices for PID Control
+PID Control Primer Article in Embedded Systems Programming
+
+
+[edit] References
+
+
+^ http://saba.kntu.ac.ir/eecd/pcl/download/PIDtutorial.pdf
+
+
+
+Liptak, Bela (1995). Instrument Engineers' Handbook: Process Control. Radnor, Pennsylvania: Chilton Book Company. pp. 20–29. ISBN 0-8019-8242-1. 
+Tan, Kok Kiong; Wang Qing-Guo, Hang Chang Chieh (1999). Advances in PID Control. London, UK: Springer-Verlag. ISBN 1-85233-138-0. 
+
+
+Van, Doren, Vance J. (July 1, 2003). "Loop Tuning Fundamentals". Control Engineering (Red Business Information). http://www.controleng.com/article/CA307745.html. 
+Sellers, David. "An Overview of Proportional plus Integral plus Derivative Control and Suggestions for Its Successful Application and Implementation" (PDF). http://www.peci.org/library/PECI_ControlOverview1_1002.pdf. Retrieved on 2007-05-05. 
+
+
+Graham, Ron (10/03/2005). "FAQ on PID controller tuning". http://web.archive.org/web/20050206113949/www.tcnj.edu/~rgraham/PID-tuning.html. Retrieved on 2009-01-05. 
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/PID_controller"
+Categories: Control theory | Control engineering | Control devices | Classical controlHidden categories: All articles with unsourced statements | Articles with unsourced statements since January 2009 | All pages needing cleanup | Wikipedia articles needing clarification from February 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Български
+Català
+Deutsch
+Español
+Français
+한국어
+Bahasa Indonesia
+Italiano
+Lietuvių
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Русский
+Slovenčina
+Suomi
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 April 2009, at 14:35.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

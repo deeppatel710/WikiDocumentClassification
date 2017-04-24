@@ -1,0 +1,374 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+X display manager - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "X_display_manager";
+		var wgTitle = "X display manager";
+		var wgAction = "view";
+		var wgArticleId = "1435171";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274957316;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); X display manager
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In the X Window System, an X display manager runs as a program, that allows the starting of a session on an X server from the same or another computer.
+
+
+
+
+A login screen shown by the KDM display manager.
+
+
+A display manager presents the user with a login screen which prompts for a username and password. A session starts when the user successfully enters a valid combination of username and password.
+When the display manager runs on the user's computer, it starts the X server before presenting the user the login screen, optionally repeating when the user logs out. In this condition, the display manager realizes in the X Window System the functionality of init, getty and login on character-mode terminals. When the display manager runs on a remote computer, it acts like a telnet server, requesting username and password and starting a remote session.
+X11 Release 3 introduced display managers in October 1988 with the aim of supporting the standalone X terminals then just coming onto the market. Various display managers continue in routine use to provide a graphical login prompt on standalone computer workstations running X. X11R4 introduced the X Display Manager Control Protocol (XDMCP) in December 1989 to fix problems in the X11R3 implementation.
+
+
+
+
+Contents
+
+
+1 Local and remote display management
+2 X Display Manager Control Protocol
+3 History
+4 Some available display managers
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Local and remote display management
+A display manager can run on the same computer where the user sits or on a remote one. In the first case, the display manager starts one or more X servers, displaying the login screen at the beginning and (optionally) every time the user logs out. In the second case, the display manager works according to the XDMCP protocol.
+
+
+
+
+In the X Window System, the X server runs on the computer in front of the user. The X server may connect to a display manager running on another computer, starting a session which may comprise a variety of programs running on that other computer.
+
+
+The XDMCP protocol mandates that the X server starts autonomously and connects to the display manager. In the X Window System paradigm, the server runs on the computer providing the display and input devices. A server can connect, using the XDMCP protocol, to a display manager running on another computer, requesting it to start the session. In this case, the X server acts as a graphical telnet client while the display manager acts like a telnet server: users start programs from the computer running the display manager, while their input and output take place on the computer where the server (and the user) sits.
+An administrator can configure an X server running on the computer or terminal of the user either to connect to a specific display manager, or to display a list of suitable hosts running potential X display managers. An XDMCP Chooser program allows the user to select a host from among those the terminal can connect to:
+
+a predefined list of hosts and their respective network addresses;
+a list of hosts (on the local TCP/IP subnet) that the XDMCP server in turn obtains by a network broadcast
+
+The XDMCP server will often present itself in this list. When the user selects a host from the list, the X server running on the local machine will connect to the selected remote computer's X display manager.
+
+[edit] X Display Manager Control Protocol
+The X Display Manager Control Protocol uses UDP port 177. An X server requests that a display manager start a session by sending a Query packet. If the display manager allows access for that X server, it responds by sending a Willing packet back to the X server. (The X server can also send BroadcastQuery or IndirectQuery packets to start a session.)
+The display manager must authenticate itself to the server. To do this the X server sends a Request packet to the display manager, which returns an Accept packet. If the Accept packet contains the response the X server expects, the display manager is authenticated. Producing the correct response might require the display manager to have access to a secret key, for example. If the authentication succeeds, the X server sends a Manage packet to inform the display manager. Then, the display manager shows the login screen by connecting to the X server as a regular X client.
+During the session, the server can send KeepAlive packets to the display manager at intervals. If the display manager fails to respond with an Alive packet within a certain time, the X server presumes that the display manager has ceased running, and can terminate the connection.
+One problem with XDMCP is that, similarly to telnet, the authentication takes place unencrypted and if snooping is possible, leaves the system vulnerable to attack. It is more secure to use an ssh tunnel for X traffic.[1]
+
+[edit] History
+XDM (the X Window Display Manager) originated in X11R3. This version suffered from several problems, most notably when users switched X terminals off and on. In X11R3, XDM only knew about an X terminal from its entry in the Xservers file, but XDM only consulted this file when it started. Thus every time a user switched a terminal off and on, the system administrator had to send a SIGHUP signal to XDM to instruct it to rescan Xservers.
+XDMCP arrived with the introduction of X11R4 (December 1989). With XDMCP, the X server must actively request a display manager connection from the host. An X server using XDMCP therefore no longer requires an entry in Xservers.
+
+[edit] Some available display managers
+The X Window System supplies XDM as its standard display manager.
+Programmers have developed other X display managers, both commercial and free, offering additional functionality over the basic display management:
+
+scologin (provided by SCO Open Desktop) also checks for expired passwords and performs some administrative tasks
+GDM (GNOME)
+KDM (provided by KDE) allows the user to graphically select a window manager or desktop environment in the login screen
+XDM, the default X Window System Display Manager
+dtlogin (shipped with CDE)
+WINGs Display Manager (using the WINGs widget-set used in Window Maker)
+entrance (employs the architecture used in Enlightenment v.17)
+SLiM, an independent login manager.
+xlogin X Window login with separate XDMCP server
+Enter Lightweight graphical login manager
+Orthos Another lightweight solution with very configurable themes
+
+On most Linux distributions, the default display manager is selected in file /etc/X11/default-display-manager
+
+[edit] See also
+
+X Window System protocols and architecture
+
+
+[edit] References
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (August 2008)
+
+
+
+
+
+
+
+This article needs references that appear in reliable third-party publications. Primary sources or sources affiliated with the subject are generally not sufficient for a Wikipedia article. Please add more appropriate citations from reliable sources. (August 2008)
+
+
+
+XDMCP specification (compressed PostScript), from the X.Org git repository at freedesktop.org
+XDM manual page (XFree86.org)
+Linda Mui and Eric Pearce, X Window System Volume 8: X Window System Administrator's Guide for X11 Release 4 and Release 5, 3rd edition (O'Reilly and Associates, July 1993; softcover ISBN 0-937175-83-8)
+
+
+[edit] External links
+
+Linux XDMCP HOWTO
+Taming The X Display Manager
+The X Display Manager, from the *FreeBSD Handbook
+Linux login with a Windows box and XDMCP A guide to login to linux using windows.
+GNU/Linux XDMCP video tutorial
+
+
+
+
+
+
+
+
+v • d • e
+
+X Window System
+
+
+
+
+
+Architecture
+
+Core Protocol · Xlib · X Window selection · X window manager · X session manager · X display manager · X Toolkit · X Window authorization · Intrinsics · X11 color names
+
+
+
+
+
+
+Window managers
+
+Re-parenting · Compositing · Stacking · Tiling
+
+
+
+
+
+
+Extensions
+
+X Image Extension · X keyboard extension · X video extension · Shape extension · Shared memory extension · AIGLX · GLX · XRender · MPX · DPS
+
+
+
+
+
+
+Notable Implementations
+
+Cygwin/X · X11.app · X.Org Server · X-Win32 · XFree86 · XDarwin · Xming · Xsun · Xgl
+
+
+
+
+
+
+Standards
+
+ICCCM · EWMH · XDS · Freedesktop
+
+
+
+
+
+
+Applications
+
+xclock · xedit · xload · xterm · xeyes · Desktop environments
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/X_display_manager"
+Categories: X Window System | X display managersHidden categories: Articles lacking in-text citations from August 2008 | Articles lacking reliable references from August 2008 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Français
+日本語
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 March 2009, at 16:57 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

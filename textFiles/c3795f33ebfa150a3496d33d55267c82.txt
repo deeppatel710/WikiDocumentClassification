@@ -1,0 +1,336 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Geocoding - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Geocoding";
+		var wgTitle = "Geocoding";
+		var wgAction = "view";
+		var wgArticleId = "1876018";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279884358;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Geocoding
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For other uses, see Geocoding (disambiguation).
+Geocoding is the process of finding associated geographic coordinates (often expressed as latitude and longitude) from other geographic data, such as street addresses, or zip codes (postal codes). With geographic coordinates the features can be mapped and entered into Geographic Information Systems, or the coordinates can be embedded into media such as digital photographs via geotagging.
+Reverse Geocoding is the opposite: finding an associated textual location such as a street address, from geographic coordinates.
+A geocoder is a piece of software or a (web) service that helps in this process.
+
+
+
+
+Contents
+
+
+1 Address interpolation
+
+1.1 Example
+1.2 Complicating factors
+
+
+2 Other techniques
+3 Uses
+4 Privacy concerns
+5 List of some geocoding systems
+6 List of Geocoding Web Services
+7 See also
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Address interpolation
+A simple method of geocoding is address interpolation. This method makes use of data from a street geographic information system where the street network is already mapped within the geographic coordinate space. Each street segment is attributed with address ranges (e.g. house numbers from one segment to the next). Geocoding takes an address, matches it to a street and specific segment (such as a block, in towns that use the "block" convention). Geocoding then interpolates the position of the address, within the range along the segment.
+
+[edit] Example
+Take for example: 742 Evergreen Terrace
+Let's say that this segment (for instance, a block) of Evergreen Terrace runs from 700 to 799. Even-numbered addresses would fall on one side (e.g. west side) of Evergreen Terrace, with odd-numbered addresses on the other side (e.g. east side). 742 Evergreen Terrace would (probably) be located slightly less than halfway up the block, on the west side of the street. A point would be mapped at that location along the street, perhaps offset some distance to the west of the street centerline.
+
+[edit] Complicating factors
+However, this process is not always as straightforward as in this example.
+Difficulties arise when
+
+distinguishing between ambiguous addresses such as 742 Evergreen Terrace and 742 W Evergreen Terrace.
+attempting to geocode new addresses for a street that is not yet added to the geographic information system database.
+
+While there might be 742 Evergreen Terrace in Springfield, there might also be a 742 Evergreen Terrace in Shelbyville. Asking for the city name (and state, province, country, etc. as needed) can solve this problem. Some situations require use of postal codes or district name for disambiguation. For example, there are multiple 100 Washington Streets in Boston, Massachusetts[1] because several cities have been annexed without changing street names.
+Finally, several caveats on using interpolation:
+
+The typical attribution of a street segment assumes that all "even" numbered parcels are on one side of the segment, and all "odd" numbered parcels are on the other. This is often not true in real life.
+Interpolation assumes that the given parcels are evenly distributed along the length of the segment. This is almost never true in real life; it is not uncommon for a geocoded address to be off by several thousand feet.
+Segment Information (esp. from sources such as TIGER) includes a maximum upper bound for addresses and is interpolated as though the full address range is used. For example, a segment (block) might have a listed range of 100-199, but the last address at the end of the block is 110. In this case, address 110 would be geocoded to 10% of the distance down the segment rather than near the end.
+Most interpolation implementations will produce a point as their resulting "address" location. In reality, the physical address is distributed along the length of the segment, i.e. consider geocoding the address of a shopping mall - the physical lot may run quite some distance along the street segment (or could be thought of as a two-dimensional space-filling polygon which may front on several different streets - or worse, for cities with multi-level streets, a three-dimensional shape that meets different streets at several different levels) but the interpolation treats it as a singularity.
+
+A very common error is to believe the accuracy ratings of a given map's geocodable attributes. Such "accuracy" currently touted by most vendors has no bearing on an address being attributed to the correct segment, being attributed to the correct "side" of the segment, nor resulting in an accurate position along that correct segment. With the geocoding process used for U.S. Census TIGER datasets, 5-7.5% of the addresses may be allocated to a different census tract, while 50% of the geocoded points might be located to a different property parcel. [2]
+Because of this, it is quite important to avoid using interpolated results except for non-critical applications, such as pizza delivery. Interpolated geocoding is usually not appropriate for making authoritative decisions, for example if life safety will be impacted by that decision. Emergency services, for example, do not make an authoritative decision based on their interpolations; an ambulance or fire truck will always be dispatched regardless of what the map says.
+
+[edit] Other techniques
+Other means of geocoding might include locating a point at the centroid (center) of a land parcel, if parcel (property) data is available in the geographic information system database. In rural areas or other places lacking high quality street network data and addressing, GPS is useful for mapping a location. For traffic accidents, geocoding to a street intersection or midpoint along a street centerline is a suitable technique. Most highways in developed countries have mile markers to aid in emergency response, maintenance, and navigation. It is also possible to use a combination of these geocoding techniques - using a particular technique for certain cases and situations and other techniques for other cases.
+
+[edit] Uses
+Geocoded locations are useful in many GIS analysis and cartography tasks.
+Geocoding is common on the web, for services like finding driving directions to or from some address, or finding a list of the geographically nearest store or service locations.
+Geocoding is one of several methods of obtaining geographic coordinates for geotagging media, such as photographs or RSS items.
+
+[edit] Privacy concerns
+The proliferation and ease of access to geocoding (and reverse-geocoding) services raises privacy concerns. For example, in mapping crime incidents, law enforcement agencies aim to balance the privacy rights of victims and offenders, with the public's right to know. Law enforcement agencies have experimented with alternative geocoding techniques that allow them to mask some of the locational detail (e.g., address specifics that would lead to identifying a victim or offender). As well, in providing online crime mapping to the public, they also place disclaimers regarding the locational accuracy of points on the map, acknowledging these location masking techniques, and impose terms of use for the information.
+
+[edit] List of some geocoding systems
+Some of these code systems are free for use, others have different licences.
+
+ISO 6709 Standard Representation for Geographic Point Location by Coordinates
+C-squares - compact encoding of geographic coordinate bounds (latitude-longitude)
+FIPS country codes (FIPS 10-4), area code, administrative, free
+FIPS place codes (FIPS 55) U.S. only, free
+FIPS county codes (FIPS 6-4) US only, free
+FIPS state codes (FIPS 5-2) US only, free
+Geohash, compact string encoding of a geographic coordinate with arbitrary precision, in public domain
+Georef, a military / air naviation coordinate system for point and area identification
+IATA airport codes, area /point codes, airports
+ICAO airport codes, area /point codes, airports
+IANA country codes similar to ISO 3166-1 alpha-2
+IOC country codes, area, worldwide
+ISO 3166 country and subdivision codes
+ITU-R country codes
+ITU-T country calling codes
+ITU-T mobile calling codes
+Maidenhead Locator System
+MapDot Protocol: world locations coded into a zone sequence[1], free
+MARC country codes
+Marsden Squares
+NAC, area codes (area can be indefinitely small)
+NUTS area code, partially administrative, worldwide: countries, Europe : country to community
+ONS code, UK only, administrative
+Postal codes, area, worldwide, country-codes by UPU, free
+Quarter Degree Grid Cells
+UN M.49 region codes, area code, continents, countries (like ISO 3166-1 numeric)
+SALB (Second Administrative Level Boundaries), by UN [2]
+SGC codes, Canada only, statistical
+UN/LOCODE, area, administrative, cities
+UTM
+WMO squares
+
+
+[edit] List of Geocoding Web Services
+
+Yahoo! GeoPlanet API
+
+
+[edit] See also
+
+Geotagging
+Geolocation
+Geocoded photo, which includes methods of geocoding images
+C-squares and QDGC, geocoding methods for statistical mapping (marine life, avian populations, humans, etc)
+Georeference
+
+
+[edit] References
+
+^ Google Maps
+^ Ratcliffe, Jerry H. (2001). "On the accuracy of TIGER-type geocoded address data in relation to cadastral and census areal units". International Journal of Geographic Information Sciences 15 (5). http://jratcliffe.net/papers/Ratcliffe%20(2001)%20On%20the%20accuracy%20of%20TIGER-type%20geocoding.pdf. 
+
+
+[edit] External links
+
+A Geocoding Best Practices Guide - Technical document describing the geocoding process and offering recommendations from the North American Association of Central Cancer Registries (NAACCR)
+Free Global Geocoder for Latitude and Longitude values Free Global Geocoder
+GEOnet Names Server - Freely available GIS information for areas outside of the U.S.A. and Antarctica, updated monthly by the National Geospatial-Intelligence Agency (NGA) and the U.S. Board on Geographic Names (US BGN)
+Geographic Names Information System (GNIS) - Freely available database containing information on almost 2 million physical features, places, and landmarks in the U.S.A.
+Geobase - Free geospatial data for Canada, including administrative boundaries, digital elevation data, geodetic network, data alignment layer, geographical names, and national road network
+Three Standard Geocoding Methods (in North America) - article
+The Evolution of Geocoding: Moving Away from Conflation Confliction to Best Match - article
+A Flexible Addressing System for Approximate Geocoding - paper presented at Geoinfo 2003
+Geocoder.com.ar (in Argentina) - Free geographical information about Argentina, like latitude and longitude of an address, a place or feature, using XML in response to HTTP GET invocation.
+USC Gecoder Free US geocoding with multiple reference data sources. Processes uploaded databases (access, csv, text delimited) and single addresses.
+Animaonline Weather API (.NET Library) Contains a basic support for GeoCoding , Reverse GeoCoding using Google APIs
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Geocoding"
+Categories: Geocodes | Geographic information systems 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+Nederlands
+日本語
+Polski
+Русский
+Suomi
+ไทย
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 21:55.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

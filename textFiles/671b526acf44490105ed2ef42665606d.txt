@@ -1,0 +1,327 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Discrete event simulation - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Discrete_event_simulation";
+		var wgTitle = "Discrete event simulation";
+		var wgAction = "view";
+		var wgArticleId = "5920634";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280853709;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Discrete event simulation
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In discrete-event simulation, the operation of a system is represented as a chronological sequence of events. Each event occurs at an instant in time and marks a change of state in the system [1]. For example, if an elevator is simulated, an event could be "level 6 button pressed", with the resulting system state of "lift moving" and eventually (unless one chooses to simulate the failure of the lift) "lift at level 6".
+A common exercise in learning how to build discrete-event simulations is to model a queue, such as customers arriving at a bank to be served by a teller. In this example, the system entities are CUSTOMER-QUEUE and TELLERS. The system events are CUSTOMER-ARRIVAL and CUSTOMER-DEPARTURE. (The event of TELLER-BEGINS-SERVICE can be part of the logic of the arrival and departure events.) The system states, which are changed by these events, are NUMBER-OF-CUSTOMERS-IN-THE-QUEUE (an integer from 0 to n) and TELLER-STATUS (busy or idle). The random variables that need to be characterized to model this system stochastically are CUSTOMER-INTERARRIVAL-TIME and TELLER-SERVICE-TIME.
+A number of mechanisms have been proposed for carrying out discrete-event simulation, among them are the event-based, activity-based, process-based and three-phase approaches (Pidd, 1998). The three-phase approach is used by a number of commercial simulation software packages, but from the user's point of view, the specifics of the underlying simulation method are generally hidden.
+
+
+
+
+Contents
+
+
+1 Components of a Discrete-Event Simulation
+
+1.1 Clock
+1.2 Events List
+1.3 Random-Number Generators
+1.4 Statistics
+1.5 Ending Condition
+
+
+2 Simulation Engine Logic
+
+2.1 Start
+2.2 “Do loop” or “While loop”
+2.3 End
+
+
+3 See also
+4 References
+5 Further reading
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Components of a Discrete-Event Simulation
+In addition to the representation of system state variables and the logic of what happens when system events occur, discrete event simulations include the following:
+
+[edit] Clock
+The simulation must keep track of the current simulation time, in whatever measurement units are suitable for the system being modeled. In discrete-event simulations, as opposed to real time simulations, time ‘hops’ because events are instantaneous – the clock skips to the next event start time as the simulation proceeds.
+
+[edit] Events List
+The simulation maintains at least one list of simulation events. This is sometimes called the pending event set because it lists events that are pending as a result of previously simulated event but have yet to be simulated themselves. An event is described by the time at which it occurs and a type, indicating the code that will be used to simulate that event. It is common for the event code to be parameterised, in which case, the event description also contains parameters to the event code.
+When events are instantaneous, activities that extend over time are modeled as sequences of events. Some simulation frameworks allow the time of an event to be specified as an interval, giving the start time and the end time of each event.
+Single-threaded simulation engines based on instantaneous events have just one current event. In contrast, multi-threaded simulation engines and simulation engines supporting an interval-based event model may have multiple current events. In both cases, there are significant problems with synchronization between current events.
+The pending event set is typically organized as a priority queue, sorted by event time.[2] That is, regardless of the order in which events are added to the event set, they are removed in strictly chronological order. Several general-purpose priority queue algorithms have proven effective for discrete-event simulation,[3] most notably, the splay tree. More recent alternatives include skip lists and calendar queues.[4]
+Typically, events are scheduled dynamically as the simulation proceeds. For example, in the bank example noted above, the event CUSTOMER-ARRIVAL at time t would, if the CUSTOMER_QUEUE was empty and TELLER was idle, include the creation of the subsequent event CUSTOMER-DEPARTURE to occur at time t+s, where s is a number generated from the SERVICE-TIME distribution.
+
+[edit] Random-Number Generators
+The simulation needs to generate random variables of various kinds, depending on the system model. This is accomplished by one or more Pseudorandom number generators. The use of pseudorandom numbers as opposed to true random numbers is a benefit should a simulation need a rerun with exactly the same behaviour.
+One of the problems with the random number distributions used in discrete-event simulation is that the steady-state distributions of event times may not be known in advance. As a result, the initial set of events placed into the pending event set will not have arrival times representative of the steady-state distribution. This problem is typically solved by bootstrapping the simulation model. Only a limited effort is made to assign realistic times to the initial set of pending events. These events, however, schedule additional events, and with time, the distribution of event times approaches its steady state. This is called bootstrapping the simulation model. In gathering statistics from the running model, it is important to either disregard events that occur before the steady state is reached or to run the simulation for long enough that the bootstrapping behavior is overwhelmed by steady-state behavior. (This use of the term bootstrapping can be contrasted with its use in both statistics and computing.)
+
+[edit] Statistics
+The simulation typically keeps track of the system's statistics, which quantify the aspects of interest. In the bank example, it is of interest to track the mean service times.
+
+[edit] Ending Condition
+Because events are bootstrapped, theoretically a discrete-event simulation could run forever. So the simulation designer must decide when the simulation will end. Typical choices are “at time t” or “after processing n number of events” or, more generally, “when statistical measure X reaches the value x”.
+
+[edit] Simulation Engine Logic
+The main loop of a discrete-event simulation is something like this:
+
+[edit] Start
+
+Initialize Ending Condition to FALSE.
+Initialize system state variables.
+Initialize Clock (usually starts at simulation time zero).
+Schedule an initial event (i.e., put some initial event into the Events List).
+
+
+[edit] “Do loop” or “While loop”
+While (Ending Condition is FALSE) then do the following:
+
+Set clock to next event time.
+Do next event and remove from the Events List.
+Update statistics.
+
+
+[edit] End
+
+Generate statistical report.
+
+
+[edit] See also
+System Modeling approaches:
+
+Finite-state machine and a special case, Markov chain
+Stochastic process and a special case, Markov process
+Queueing theory and in particular Birth-death process
+Petri net
+Discrete Event System Specification
+
+Architectural and Deployment Techniques
+
+Web based Simulation [5]
+
+Computational techniques:
+
+Computer simulation
+Monte Carlo method
+Variance reduction
+Pseudo random number generator
+
+Software:
+
+List of computer simulation software
+List of discrete event simulation software
+
+
+[edit] References
+
+
+^ Stewart Robinson (2004). 'Simulation - The practice of model development and use'. Wiley. 
+^ Douglas W. Jones, ed. Implementations of Time, Proceedings of the 18th Winter Simulation Conference, 1986.
+^ Douglas W. Jones, Empirical Comparison of Priority Queue and Event Set Implementations, Communications of the ACM, 29, April 1986, pages 300-311.
+^ Kah Leong Tan and Li-Jin Thng, SNOOPy Calendar Queue, Proceedings of the 32nd Winter Simulation Conference, 2000
+^ Byrne, James; Heavey, Cathal; Byrne, P.J. (2006). "SIMCT: An Application of Web Based Simulation.". Proceedings of the 2006 Operational Research Society (UK) 3rd Simulation Workshop (SW06), 28-29th March, Royal Leamington Spa, UK.. 
+
+
+
+[edit] Further reading
+
+Michael Pidd (1998). Computer simulation in management science - fourth edition. Wiley. 
+Jerry Banks, John Carson, Barry Nelson and David Nicol (2005). Discrete-event system simulation - fourth edition. Pearson. 
+Averill M. Law and W. David Kelton (2000). Simulation modeling and analysis - third edition. McGraw-Hill. 
+Bernard P. Zeigler, Herbert Praehofer and Tag Gon Kim (2000). Theory of modeling and simulation: Integrating discrete event and continuous complex dynamic systems - second edition. Academic Press. 
+Roger W. McHaney (1991). Computer Simulation: A Practical Perspective. Academic Press. 
+William Delaney, Erminia Vaccari (1988). Dynamic Models and Discrete Event Simulation. Dekker INC. 
+
+
+[edit] External links
+
+Simulation tools list of simulation tools
+Simulation software list of simulation software
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Discrete_event_simulation"
+Categories: Simulation | Scientific modeling | Events (computing) 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Русский
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 31 March 2009, at 13:07.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,320 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Page table - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Page_table";
+		var wgTitle = "Page table";
+		var wgAction = "view";
+		var wgArticleId = "674962";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274640852;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Page table
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A page table is the data structure used by a virtual memory system in a computer operating system to store the mapping between virtual addresses and physical addresses. Virtual addresses are those unique to the accessing process. Physical addresses are those unique to the CPU, i.e., RAM.
+
+
+
+
+Contents
+
+
+1 Role of the page table
+2 The translation process
+3 Translation failures
+4 Page table data
+5 Page table types
+
+5.1 Inverted page table
+5.2 Multilevel page table
+5.3 Virtualized page table
+
+
+6 References
+7 See also
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Role of the page table
+
+
+
+
+Relationship between pages addressed by virtual addresses and the frames in physical memory, within a simple address space scheme. Physical memory can contain pages belonging to many processes. Pages can be swapped to disk if used infrequently, or if physical memory is full. Not all pages are in physical memory in the above diagram.
+
+
+In operating systems that use virtual memory, every process is given the impression that it is working with large, contiguous sections of memory. In reality, each process' memory may be dispersed across different areas of physical memory, or may have been paged out to a backup storage (typically the hard disk). When a process requests access to its memory, it is the responsibility of the operating system to map the virtual address provided by the process to the physical address where that memory is stored. The page table is where the operating system stores its mappings of virtual addresses to physical addresses.
+
+[edit] The translation process
+
+
+
+
+Actions taken upon a virtual to physical address translation. Each translation is restarted if a TLB miss occurs, so that the lookup can occur correctly through hardware.
+
+
+The CPU's memory management unit (MMU) stores a cache of recently used mappings from the operating system's page table. This is called the Translation Lookaside Buffer (TLB). When a virtual address needs to be translated into a physical address, the TLB is searched first. If a match is found (a TLB hit), the physical address is returned and memory access can continue. However, if there is no match (called a TLB miss), the CPU will generate a processor interrupt called a page fault. The operating system will have an interrupt handler to deal with such page faults. The handler will typically look up the address mapping in the page table to see whether a mapping exists. If one exists, it is written back to the TLB (this must be done, as the hardware accesses memory through the TLB in a virtual memory system), and the faulting instruction is restarted. This subsequent translation will find a TLB hit, and the memory access will continue.
+
+[edit] Translation failures
+The page table lookup may fail for two reasons. The first is if there is no translation available for that address, meaning the memory access to that virtual address is invalid. This will typically occur because of a programming error, and the operating system must take some action to deal with the problem. On modern operating systems, it will send a segmentation fault to the offending program.
+The page table lookup may also fail if the page is not resident in physical memory. This will occur if the requested page has been swapped out of physical memory to make room for another page. In this case the page is swapped to a secondary store such as a hard disk drive (this backup store is often called the swap file). When this happens the page needs to be taken from disk and put back into physical memory.
+When physical memory is not full this is a simple operation; the page is written back into physical memory, the page table and TLB are updated and the instruction is restarted. However, when physical memory is full, one or more pages in physical memory will need to be swapped out to make room for the requested page. The page table needs to be updated to mark that the pages that were previously in physical memory are no longer there, and to mark that the page that was on disk is now in physical memory. The TLB also needs to be updated, including removal of the swapped-out page from it, and the instruction restarted. Which page to swap out is the subject of page replacement algorithms.
+
+[edit] Page table data
+The simplest page table systems often maintain a frame table and a page table.
+The frame table holds information about which frames are mapped. In more advanced systems, the frame table can also hold information about which address space a page belongs to, statistics information, or other background information.
+The page table holds the mapping between a virtual address of a page and the address of a physical frame. There is also auxiliary information about the page such as a present bit, a dirty or modified bit, address space or process ID information, amongst others.
+Secondary storage, such as a hard disk, can be used to augment physical memory. Pages can be swapped in and out of physical memory and the disk. The present bit can indicate what pages are currently present in physical memory or are on disk, and can indicate how to treat these different pages, ie. whether to load a page from disk and swap another page in physical memory out.
+The dirty bit allows for a performance optimization. A page on disk that is swapped in to physical memory, then read from, and subsequently paged out again does not need to be written back to disk, since the page hasn't changed. (However, if the page was written to, its dirty bit would need to be set as additional work). This strategy requires that the swap file retain a copy of the page after it is swapped in to memory; therefore, in strictly literal terms, the operation isn't actually a "swap". When a dirty bit is not used, the swap file need only be as large as the instantaneous total size of all swapped-out pages at any moment. When a dirty bit is used, at all times some pages will exist in both physical memory and the swap file, and the simplest strategy is to make the swap file as large as the total virtual memory size, i.e. making room for every page regardless of whether it is in virtual memory. With large hard disks being relatively inexpensive today, it can be expected that most modern operating systems will do this and will make the swap file permanent in order to ensure that it is always available and contiguous (for optimal speed of access).
+Address space or process ID information is necessary so the virtual memory management system knows what pages to associate to what process. Two processes may use two identical virtual addresses for different purposes. The page table must supply different virtual memory mappings for the two processes. This can be done by assigning the two processes distinct address map identifiers, or by using process IDs. Associating process IDs with virtual memory pages can also aid in selection of pages to swap out, as pages associated with inactive processes, particularly processes whose main code page have been swapped out, are less likely to be needed immediately than pages belonging to active processes.
+As an alternative to tagging page table entries with process-unique identifiers, the page table itself may occupy a different virtual-memory page for each process so that the page table becomes a part of the process context. In such an implementation, the process's page table can be swapped out whenever the the process is no longer resident in memory.
+
+[edit] Page table types
+There are several different types of page tables, that are best suited for different requirements. Essentially, a bare-bones page table must store the virtual address, the physical address that is "under" this virtual address, and possibly some address space information.
+
+[edit] Inverted page table
+The inverted page table (IPT) combines a page table and a frame table into one data structure. At its core is a fixed-size table with the number of rows associating to each frame in memory. If there were 4000 frames, the inverted page table has 4000 rows. For each row there is an entry for the virtual page number (VPN), the physical page number (not the physical address), some other data and a means for creating a collision chain, as we will see later.
+To search through all entries of the core IPT structure is tedious, so we use a hash table mapping virtual addresses (and address space/PID information if need be) to an index in the IPT - this is where the collision chain is used. This hash table is known as a hash anchor table. The hashing function is not generally optimized for coverage - raw speed is more desirable. Of course, hash tables experience collisions. Due to this chosen hashing function, we may experience a lot of collisions in usage, so for each entry in the table the VPN is provided to check if it is the searched entry or a collision.
+In searching for a mapping, the hash anchor table is used, and if no entry exists, a page fault occurs, otherwise, the entry is found and, depending on the architecture, is placed in the TLB again and the memory reference is restarted, or the collision chain is followed until it has been exhausted and a page fault occurs.
+A virtual address in this schema could be split into two, the first half being a virtual page number and the second half being the offset in that page..
+
+[edit] Multilevel page table
+
+
+
+
+Two-level page table structure in x86 architecture (without PAE or PSE).
+
+
+
+
+
+
+Three-level page table structure in x86 architecture (with PAE, without PSE).
+
+
+The inverted page table keeps a listing of mappings installed for all frames in physical memory. However, this could be quite wasteful. Instead of doing so, we could create a page table structure that contains mappings for virtual pages. It is done by keeping several page tables that cover a certain block of virtual memory. For example, we can create smaller 1024-entry 4K pages that cover 4M of virtual memory.
+This is useful since often the top-most parts and bottom-most parts of virtual memory are used in running a process - the top is often used for text and data segments whilst the bottom for stack, with free memory in between . The multilevel page table may keep a few of the smaller page tables to cover just the top and bottom parts of memory and create new ones only when strictly necessary.
+Now, each of these smaller page tables are linked together by a master page table, effectively creating a tree data structure. There need not only be two levels, but possibly multiple ones.
+A virtual address in this schema could be split into three, the index in the root page table, the index in the sub-page table, and the offset in that page.
+Multilevel page tables are also referred to as hierarchical page tables.
+
+[edit] Virtualized page table
+It was mentioned that creating a page table structure that contained mappings for every virtual page in the virtual address space could end up being wasteful. But, we can get around the excessive space concerns by putting the page table in virtual memory, and letting the virtual memory system manage the memory for the page table.
+However, part of this linear page table structure must always stay resident in physical memory, in order to prevent against circular page faults, that look for a key part of the page table that is not present in the page table, which is not present in the page table, etc.
+
+
+[edit] References
+
+Andrew S. Tanenbaum, Modern Operating Systems, ISBN 0-13-031358-0
+A. Silberschatz, P. B. Galvin, G. Gagne, Operating System Concepts, ISBN 0-471-69466-5
+CNE Virtual Memory Tutorial, Center for the New Engineer George Mason University, Page Tables, http://cs.gmu.edu/cne/modules/vm/purple/ptable.html
+Art of Assembler, 6.6 Virtual Memory, Protection, and Paging, http://webster.cs.ucr.edu/AoA/Windows/HTML/MemoryArchitecturea3.html
+Intel 64 and IA-32 Architectures Software Developer's Manuals, http://www.intel.com/products/processor/manuals/index.htm
+AMD64 Architecture Software Developer's Manual, http://www.amd.com/us-en/Processors/DevelopWithAMD/0,,30_2252_875_7044,00.html
+
+
+[edit] See also
+
+Virtual memory
+Paging
+Page fault
+Translation lookaside buffer
+Page replacement algorithm
+Memory management
+Pointer (computing)
+Memory management unit
+PaX
+W^X
+
+
+[edit] External links
+
+The Memory Management Reference
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Page_table"
+Categories: Virtual memory 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+한국어
+日本語
+Polski
+Türkçe
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 March 2009, at 07:55 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

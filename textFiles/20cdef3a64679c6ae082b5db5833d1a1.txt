@@ -1,0 +1,365 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+iptables - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Iptables";
+		var wgTitle = "Iptables";
+		var wgAction = "view";
+		var wgArticleId = "971682";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281861680;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); iptables
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+iptables
+
+Design by
+Rusty Russell
+
+
+Developed by
+Netfilter Core Team
+
+
+Initial release
+1998
+
+
+Latest release
+1.4.3 / March 23, 2009
+
+
+Written in
+C
+
+
+Operating system
+Linux
+
+
+Type
+Packet filtering
+
+
+License
+GNU General Public License
+
+
+Website
+www.netfilter.org
+
+
+iptables is a user space application program that allows a system administrator to configure the tables provided by Xtables (which in turn uses Netfilter) and the chains and rules it stores. Because iptables requires elevated privileges to operate, it must be executed by user root, otherwise it fails to function. On most Linux systems, iptables is installed as /usr/sbin/iptables and documented in its man page [1], which can be opened using "man iptables" when installed. iptables is also commonly used to inclusively refer to the kernel-level component Xtables that does the actual table traversal and provides an API for kernel-level extensions.
+iptables works with Linux kernels 2.4 and 2.6. Older Linux kernels use ipchains (Linux 2.2) and ipfwadm (Linux 2.0).
+
+
+
+
+Contents
+
+
+1 Operational summary
+2 Example
+
+2.1 Redirection example
+2.2 Front-ends and scripts
+
+
+3 See also
+4 External links
+
+4.1 Front-end examples
+4.2 Other IPTables tools
+4.3 Diagrams
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Operational summary
+The Xtables framework, used by ip_tables, ip6_tables and arp_tables, allows the system administrator to define tables containing chains of rules for the treatment of packets. Each table is associated with a different kind of packet processing. Packets are processed by traversing the chains. A rule in a chain can send a packet to another chain, and this can be repeated to whatever level of nesting is desired. Every network packet arriving at or leaving from the computer traverses at least one chain.
+The source of the packet determines which chain it traverses initially. There are three predefined chains (INPUT, OUTPUT, and FORWARD) in the "filter" table. Predefined chains have a policy, for example DROP, which is applied to the packet if it reaches the end of the chain. The system administrator can create as many other chains as desired. These chains have no policy; if a packet reaches the end of the chain it is returned to the chain which called it. A chain may be empty.
+Each rule in a chain contains the specification of which packets it matches. It may also contain a target. As a packet traverses a chain, each rule in turn examines it. If a rule does not match the packet, the packet is passed to the next rule. If a rule does match the packet, the rule takes the action indicated by the target, which may result in the packet being allowed to continue along the chain or it may not.
+The packet continues to traverse the chain until either (1) a rule matches the packet and decides the ultimate fate of the packet (for example by calling one of the ACCEPT or DROP targets); or (2) a rule calls the RETURN target, in which case processing returns to the calling chain; or (3) the end of the chain is reached.
+
+[edit] Example
+This example shows an already-configured workstation firewall. The command "iptables -L" is executed by user root to display an abridged view of the firewall configuration. (The complete state can be obtained with iptables-save -c, and should be used when reporting problems.)
+
+# iptables -L
+Chain INPUT (policy DROP)
+target     prot opt source               destination         
+ACCEPT     all  --  localhost.localdomain  localhost.localdomain 
+ACCEPT     all  --  anywhere             anywhere            state RELATED,ESTABLISHED 
+REJECT     all  --  anywhere             anywhere            
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination         
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+RELATED, ESTABLISHED rule uses statefullness so that most client programs (web browser, ssh...) work.
+
+$ w3m http://en.wikipedia.org/wiki/Main_Page
+
+(The main Wikipedia web page opens)
+Computer does not respond to ping and no services are offered. Connections are rejected (REJECT) or timeout (with DROP) when ports are being scanned.
+
+$  ping -c 1 10.0.0.1
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+--- 62.78.243.6 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+
+Trying to connect to HTTP port (TCP 80)
+
+$ telnet 10.0.0.1 80
+Trying 10.0.0.1...
+telnet: connect to address 10.0.0.1: Connection refused
+
+
+[edit] Redirection example
+This simple example of its use illustrates how to redirect all traffic on the default HTTP port, port 80, to port 8080, allowing the HTTP daemon to run as a non-privileged user, unable to listen on port numbers below 1024.
+
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+Note: if you launch this command on your computer it will only work for external IP addresses connecting to your machine. Connections from localhost do not traverse the PREROUTING chain in the "nat" table. If you also want this feature to work, use the following rule:
+
+iptables -t nat -A OUTPUT -o lo -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+which reroutes packets on the loopback (lo) interface from port 80 to port 8080.
+
+[edit] Front-ends and scripts
+There are numerous third-party software for iptables that tries to facilitate setting up rules. Front-ends in textual or graphical fashion allow users to click-generate simple rulesets; scripts usually refer to shell scripts (but other scripting languages are possible too) that call iptables or (the faster) iptables-restore with a set of predefined rules, or rules expanded from a template with the help of a simple configuration file. Linux distributions commonly employ the latter scheme of using templates. Such a template-based approach is practically a limited form of a rule generator, and such generators also exist in standalone fashion, for example, as PHP web pages.
+Such front-ends, generators and scripts are often limited by their built-in template systems and where the templates offer substitution spots for user-defined rules. Also, the generated rules are generally not optimized for the particular firewalling effect the user wishes, as doing so will likely increase the maintenance cost for the developer. Users who reasonably understand iptables and want their ruleset optimized are advised to construct their own ruleset.
+
+[edit] See also
+
+
+
+
+Free software portal
+
+
+
+
+Netfilter, the underlying framework for iptables and Xtables
+NuFW, an authenticating firewall extension to Netfilter
+
+
+[edit] External links
+
+The netfilter/iptables project Web page
+Freshmeat project page for the iptables package
+The netfilter/iptables documentation page (outdated)
+
+
+[edit] Front-end examples
+
+Firewall Builder — graphical frontend with rule/script generator and automated ruleset loading
+Shorewall, textual template-based rule generator
+Vyatta, open-source router, firewall, VPN distro that incorporates iptables
+
+
+[edit] Other IPTables tools
+
+FWSnort, Translates a Snort IDS ruleset into an IPTables ruleset.
+psad, Automated iptables log analysis to detect suspicious activity (port scans and probes for backdoors), and passively fingerprint remote TCP stacks.
+
+
+[edit] Diagrams
+To better understand how a packet traverses the kernel Xtables tables/chains you may find the following diagrams useful:
+
+http://jengelh.medozas.de/images/nf-packet-flow.png (.svg)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Iptables"
+Categories: Firewall software | Linux software 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+Français
+Italiano
+Latviešu
+Македонски
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Suomi
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 April 2009, at 08:29.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

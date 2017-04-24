@@ -1,0 +1,479 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Recursive descent parser - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Recursive_descent_parser";
+		var wgTitle = "Recursive descent parser";
+		var wgAction = "view";
+		var wgArticleId = "70089";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279230473;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-c {line-height: normal;}
+.source-c li, .source-c pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for c
+ * CSS class: source-c, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-c .de1, .source-c .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-c  {}
+.source-c .head {}
+.source-c .foot {}
+.source-c .imp {font-weight: bold; color: red;}
+.source-c .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-c li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-c li.li2 {font-weight: bold;}
+.source-c .kw1 {color: #b1b100;}
+.source-c .kw2 {color: #000000; font-weight: bold;}
+.source-c .kw3 {color: #000066;}
+.source-c .kw4 {color: #993333;}
+.source-c .co1 {color: #808080; font-style: italic;}
+.source-c .co2 {color: #339933;}
+.source-c .coMULTI {color: #808080; font-style: italic;}
+.source-c .es0 {color: #000099; font-weight: bold;}
+.source-c .br0 {color: #66cc66;}
+.source-c .st0 {color: #ff0000;}
+.source-c .nu0 {color: #cc66cc;}
+.source-c .me1 {color: #202020;}
+.source-c .me2 {color: #202020;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Recursive descent parser
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A recursive descent parser is a top-down parser built from a set of mutually-recursive procedures (or a non-recursive equivalent) where each such procedure usually implements one of the production rules of the grammar. Thus the structure of the resulting program closely mirrors that of the grammar it recognizes.
+A predictive parser is a recursive descent parser that does not require backtracking. Predictive parsing is possible only for the class of LL(k) grammars, which are the context-free grammars for which there exists some positive integer k that allows a recursive descent parser to decide which production to use by examining only the next k tokens of input. (The LL(k) grammars therefore exclude all ambiguous grammars, as well as all grammars that contain left recursion. Any context-free grammar can be transformed into an equivalent grammar that has no left recursion, but removal of left recursion does not always yield an LL(k) grammar.) A predictive parser runs in linear time.
+Recursive descent with backup is a technique that determines which production to use by trying each production in turn. Recursive descent with backup is not limited to LL(k) grammars, but is not guaranteed to terminate unless the grammar is LL(k). Even when they terminate, parsers that use recursive descent with backup may require exponential time.
+Although predictive parsers are widely used, programmers often prefer to create LR or LALR parsers via parser generators without transforming the grammar into LL(k) form.
+Some authors define recursive descent parsers as the predictive parsers. Other authors use the term more broadly, to include backed-up recursive descent.[citation needed]
+
+
+
+
+Contents
+
+
+1 Example parser
+
+1.1 C implementation
+
+
+2 Implementation in functional languages
+3 See also
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Example parser
+The following EBNF-like grammar (for Niklaus Wirth's PL/0 programming language, from Algorithms + Data Structures = Programs) is in LL(1) form (for simplicity, ident and number are assumed to be terminals):
+
+ program = block "." .
+ 
+ block =
+     ["const" ident "=" number {"," ident "=" number} ";"]
+     ["var" ident {"," ident} ";"]
+     {"procedure" ident ";" block ";"} statement .
+ 
+ statement =
+     [ident ":=" expression
+     | "call" ident
+     | "begin" statement {";" statement} "end"
+     | "if" condition "then" statement
+     | "while" condition "do" statement
+     ] .
+ 
+ condition =
+     "odd" expression
+     | expression ("="|"#"|"<"|"<="|">"|">=") expression .
+ 
+ expression = ["+"|"-"] term {("+"|"-") term} .
+ 
+ term = factor {("*"|"/") factor} .
+ 
+ factor =
+     ident
+     | number
+     | "(" expression ")" .
+
+Terminals are expressed in quotes (except for ident and number). Each nonterminal is defined by a rule in the grammar.
+
+[edit] C implementation
+What follows is an implementation of a recursive descent parser for the above language in C. The parser reads in source code, and exits with an error message if the code fails to parse, exiting silently if the code parses correctly.
+Notice how closely the predictive parser below mirrors the grammar above. There is a procedure for each nonterminal in the grammar. Parsing descends in a top-down manner, until the final nonterminal has been processed. The program fragment depends on a global variable, sym, which contains the next symbol from the input, and the function getsym, which updates sym when called.
+The implementations of the functions getsym and error are omitted for simplicity.
+
+
+typedef enum {ident, number, lparen, rparen, times, slash, plus,
+    minus, eql, neq, lss, leq, gtr, geq, callsym, beginsym, semicolon,
+    endsym, ifsym, whilesym, becomes, thensym, dosym, constsym, comma,
+    varsym, procsym, period, oddsym} Symbol;
+ 
+Symbol sym;
+void getsym(void);
+void error(const char msg[]);
+void expression(void);
+ 
+int accept(Symbol s) {
+    if (sym == s) {
+        getsym();
+        return 1;
+    }
+    return 0;
+}
+ 
+int expect(Symbol s) {
+    if (accept(s))
+        return 1;
+    error("expect: unexpected symbol");
+    return 0;
+}
+ 
+void factor(void) {
+    if (accept(ident)) {
+        ;
+    } else if (accept(number)) {
+        ;
+    } else if (accept(lparen)) {
+        expression();
+        expect(rparen);
+    } else {
+        error("factor: syntax error");
+        getsym();
+    }
+}
+ 
+void term(void) {
+    factor();
+    while (sym == times || sym == slash) {
+        getsym();
+        factor();
+    }
+}
+ 
+void expression(void) {
+    if (sym == plus || sym == minus)
+        getsym();
+    term();
+    while (sym == plus || sym == minus) {
+        getsym();
+        term();
+    }
+}
+ 
+void condition(void) {
+    if (accept(oddsym)) {
+        expression();
+    } else {
+        expression();
+        if (sym == eql || sym == neq || sym == lss ||
+            sym == leq || sym == gtr || sym == geq) {
+            getsym();
+            expression();
+        } else {
+            error("condition: invalid operator");
+            getsym();
+        }
+    }
+}
+ 
+void statement(void) {
+    if (accept(ident)) {
+        expect(becomes);
+        expression();
+    } else if (accept(callsym)) {
+        expect(ident);
+    } else if (accept(beginsym)) {
+        do {
+            statement();
+        } while (accept(semicolon));
+        expect(endsym);
+    } else if (accept(ifsym)) {
+        condition();
+        expect(thensym);
+        statement();
+    } else if (accept(whilesym)) {
+        condition();
+        expect(dosym);
+        statement();
+    }
+}
+ 
+void block(void) {
+    if (accept(constsym)) {
+        do {
+            expect(ident);
+            expect(eql);
+            expect(number);
+        } while (accept(comma));
+        expect(semicolon);
+    }
+    if (accept(varsym)) {
+        do {
+            expect(ident);
+        } while (accept(comma));
+        expect(semicolon);
+    }
+    while (accept(procsym)) {
+        expect(ident);
+        expect(semicolon);
+        block();
+        expect(semicolon);
+    }
+    statement();
+}
+ 
+void program(void) {
+    getsym();
+    block();
+    expect(period);
+}
+
+
+[edit] Implementation in functional languages
+Recursive descent parsers are particularly easy to implement in functional languages such as Haskell or ML.[citation needed]
+See Functional Pearls: Monadic Parsing in Haskell
+
+[edit] See also
+
+
+
+
+Computer Science portal
+
+
+
+
+JavaCC - a recursive descent parser generator
+Coco/R - a recursive descent parser generator
+ANTLR - a recursive descent parser generator
+Parsing expression grammar - another form representing recursive descent grammar
+Spirit Parser Framework - a C++ recursive descent parser generator framework requiring no pre-compile step
+Tail recursive parser - a variant of the recursive descent parser
+
+
+[edit] References
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (February 2009)
+
+
+
+Compilers: Principles, Techniques, and Tools, first edition, Alfred V Aho, Ravi Sethi, and Jeffrey D Ullman, in particular Section 4.4.
+Modern Compiler Implementation in Java, Second Edition, Andrew Appel, 2002, ISBN 0-521-82060-X.
+Recursive Programming Techniques, W.H. Burge, 1975, ISBN 0-201-14450-6
+Crafting a Compiler with C, Charles N Fischer and Richard J LeBlanc, Jr, 1991, ISBN 0-8053-2166-7.
+Parse::RecDescent: A versatile recursive descent Perl module.
+pyparsing: A versatile recursive descent Python module.
+Jparsec a Java port of Haskell's Parsec module.
+Compiling with C# and Java, Pat Terry, 2005, ISBN 0-321-26360-X, 624
+Algorithms + Data Structures = Programs, Niklaus Wirth, 1975, ISBN 0-13-022418-9
+Compiler Construction, Jonatan Rugarn, 1996, ISBN 0-201-40353-6
+
+This article was originally based on material from the Free On-line Dictionary of Computing, which is licensed under the GFDL.
+
+[edit] External links
+
+Introduction to Parsing - an easy to read introduction to parsing, with a comphrensive section on recursive descent parsing
+How to turn a Grammar into C code - a brief tutorial on implementing recursive descent parser
+A parsing module written in Java - The tool that allows parsing and evaluating mathematical expressions from within Java program
+Simple mathematical expressions parser in Ruby
+Jack W. Crenshaw: Let's Build A Compiler (1988-1995), in Pascal, with assembler output, using a "keep it simple" approach
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Recursive_descent_parser"
+Categories: Parsing algorithms | Articles with example C codeHidden categories: All articles with unsourced statements | Articles with unsourced statements since February 2007 | Articles with unsourced statements since December 2008 | Articles lacking in-text citations from February 2009 | Wikipedia articles incorporating text from FOLDOC 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+한국어
+日本語
+Português
+Русский
+Српски / Srpski
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 23 March 2009, at 21:09 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

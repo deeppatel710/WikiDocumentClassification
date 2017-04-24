@@ -1,0 +1,397 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chain-of-responsibility pattern - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Chain-of-responsibility_pattern";
+		var wgTitle = "Chain-of-responsibility pattern";
+		var wgAction = "view";
+		var wgArticleId = "164875";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282660523;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-java {line-height: normal;}
+.source-java li, .source-java pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for java
+ * CSS class: source-java, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-java .de1, .source-java .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-java  {}
+.source-java .head {}
+.source-java .foot {}
+.source-java .imp {font-weight: bold; color: red;}
+.source-java .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-java li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-java li.li2 {font-weight: bold;}
+.source-java .kw1 {color: #b1b100;}
+.source-java .kw2 {color: #000000; font-weight: bold;}
+.source-java .kw3 {color: #aaaadd; font-weight: bold;}
+.source-java .kw4 {color: #993333;}
+.source-java .co1 {color: #808080; font-style: italic;}
+.source-java .co2 {color: #a1a100;}
+.source-java .coMULTI {color: #808080; font-style: italic;}
+.source-java .es0 {color: #000099; font-weight: bold;}
+.source-java .br0 {color: #66cc66;}
+.source-java .st0 {color: #ff0000;}
+.source-java .nu0 {color: #cc66cc;}
+.source-java .me1 {color: #006600;}
+.source-java .me2 {color: #006600;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Chain-of-responsibility pattern
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In Object Oriented Design, the chain-of-responsibility pattern is a design pattern consisting of a source of command objects and a series of processing objects. Each processing object contains a set of logic that describes the types of command objects that it can handle, and how to pass off those that it cannot to the next processing object in the chain. A mechanism also exists for adding new processing objects to the end of this chain.
+In a variation of the standard chain-of-responsibility model, some handlers may act as dispatchers, capable of sending commands out in a variety of directions, forming a tree of responsibility. In some cases, this can occur recursively, with processing objects calling higher-up processing objects with commands that attempt to solve some smaller part of the problem; in this case recursion continues until the command is processed, or the entire tree has been explored. An XML interpreter (parsed, but not yet executed) might be a fitting example.
+This pattern promotes the idea of loose coupling, which is considered a programming best practice.
+
+[edit] Examples
+The following Java code illustrates the pattern with the example of a logging class. Each logging handler decides if any action is to be taken at this log level and then passes the message on to the next logging handler. The output is:
+
+  Writing to stdout:   Entering function y.
+  Writing to stdout:   Step1 completed.
+  Sending via e-mail:  Step1 completed.
+  Writing to stdout:   An error has occurred.
+  Sending via e-mail:  An error has occurred.
+  Writing to stderr:   An error has occurred.
+
+Note that this example should not be seen as a recommendation to write logging classes this way.
+Also, note that in a 'pure' implementation of the chain of responsibility pattern, a logger would not pass responsibility further down the chain after handling a message. In this example, a message will be passed down the chain whether it is handled or not.
+
+
+import java.util.*;
+ 
+abstract class Logger 
+{
+    public static int ERR = 3;
+    public static int NOTICE = 5;
+    public static int DEBUG = 7;
+    protected int mask;
+ 
+    // The next element in the chain of responsibility
+    protected Logger next;
+    public Logger setNext( Logger l)
+    {
+        next = l;
+        return l;
+    }
+ 
+    public void message( String msg, int priority )
+    {
+        if ( priority <= mask ) 
+        {
+            writeMessage( msg );
+        }
+        if ( next != null )
+        {
+            next.message( msg, priority );
+        }
+    }
+ 
+    abstract protected void writeMessage( String msg );
+ 
+}
+ 
+class StdoutLogger extends Logger 
+{
+ 
+    public StdoutLogger( int mask ) { this.mask = mask; }
+ 
+    protected void writeMessage( String msg )
+    {
+        System.out.println( "Writing to stdout: " + msg );
+    }
+}
+ 
+ 
+class EmailLogger extends Logger 
+{
+ 
+    public EmailLogger( int mask ) { this.mask = mask; }
+ 
+    protected void writeMessage( String msg )
+    {
+        System.out.println( "Sending via email: " + msg );
+    }
+}
+ 
+class StderrLogger extends Logger 
+{
+ 
+    public StderrLogger( int mask ) { this.mask = mask; }
+ 
+    protected void writeMessage( String msg )
+    {
+        System.err.println( "Sending to stderr: " + msg );
+    }
+}
+ 
+public class ChainOfResponsibilityExample
+{
+    public static void main( String[] args )
+    {
+        // Build the chain of responsibility
+        Logger l,l1;
+        l1 = l = new StdoutLogger( Logger.DEBUG );
+        l1 = l1.setNext(new EmailLogger( Logger.NOTICE ));
+        l1 = l1.setNext(new StderrLogger( Logger.ERR ));
+ 
+        // Handled by StdoutLogger
+        l.message( "Entering function y.", Logger.DEBUG );
+ 
+        // Handled by StdoutLogger and EmailLogger
+        l.message( "Step1 completed.", Logger.NOTICE );
+ 
+        // Handled by all three loggers
+        l.message( "An error has occurred.", Logger.ERR );
+    }
+}
+
+
+[edit] See also
+
+Single responsibility principle
+
+
+[edit] External links
+
+Article "The Chain of Responsibility pattern's pitfalls and improvements" by Michael Xinsheng Huang
+Article "Follow the Chain of Responsibility" by David Geary
+Article "Pattern Summaries: Chain of Responsibility" by Mark Grand
+CoR overview
+Behavioral Patterns - Chain of Responsibility Pattern
+Descriptions from Portland Pattern Repository
+Apache Jakarta Commons Chain
+PerfectJPattern Open Source Project, Provides a context-free and type-safe implementation of the Chain of Responsibility Pattern in Java
+Chain.NET(NChain) - Ready-to-use, generic and lightweight implementation of the Chain of Responsibility pattern for .NET and Mono
+
+
+
+
+
+
+
+
+v • d • e
+
+Design patterns in the book Design Patterns
+
+
+
+
+
+Creational
+
+Abstract factory · Builder · Factory · Prototype · Singleton
+
+
+
+
+
+
+Structural
+
+Adapter · Bridge · Composite · Decorator · Facade · Flyweight · Proxy
+
+
+
+
+
+
+Behavioral
+
+Chain of responsibility · Command · Interpreter · Iterator · Mediator · Memento · Observer · State · Strategy · Template method · Visitor
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern"
+Categories: Software design patterns | Articles with example Java code 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+한국어
+日本語
+Русский
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 April 2009, at 23:55 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

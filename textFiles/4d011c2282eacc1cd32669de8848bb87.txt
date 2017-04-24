@@ -1,0 +1,379 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.NET assembly - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = ".NET_assembly";
+		var wgTitle = ".NET assembly";
+		var wgAction = "view";
+		var wgArticleId = "2016154";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 285022259;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); .NET assembly
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For the counterpart to assembly language in the Microsoft .NET framework, see Common Intermediate Language.
+In the Microsoft .NET framework, an assembly is a partially compiled code library for use in deployment, versioning and security. In the Microsoft Windows implementation of .NET, an assembly is a PE (portable executable) file for Windows GUI on Intel x86. There are two types: process assemblies (EXE) and library assemblies (DLL). A process assembly represents a process which will use classes defined in library assemblies. .NET assemblies contain code in CIL, which is usually generated from .NET languages, and then compiled into machine language at runtime by the CLR just-in-time compiler.
+An assembly can consist of one or more files. Code files are called modules. An assembly can contain more than one code module and since it is possible to use different languages to create code modules it is technically possible to use several different languages to create an assembly. Visual Studio however does not support using different languages in one assembly.
+
+
+
+
+Contents
+
+
+1 Assembly names
+2 Assemblies versions
+3 Assemblies and .NET security
+4 Satellite assemblies
+5 Referencing assemblies
+6 Delay-signing of an assembly
+7 Language of an assembly
+8 See also
+9 References
+10 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Assembly names
+The name of an assembly consists of four parts:
+
+The short name. On Windows this is the name of the PE file without the extension.
+The culture. This is an RFC 1766 identifier of the locale for the assembly. In general, library and process assemblies should be culture neutral; the culture should only be used for satellite assemblies.
+The version. This is a dotted number made up of 4 values — major, minor, build and revision.
+A public key token. This is a 64-bit hash of the public key which corresponds to the private key used to sign[1] the assembly. A signed assembly is said to have a strong name.
+
+The public key token is used to make the assembly name unique. Thus, two strong named assemblies can have the same PE file name and yet .NET will recognize them as different assemblies. The Windows file system (FAT32 and NTFS) only recognizes the PE file name, so two assemblies with the same PE file name (but different culture, version or public key token) cannot exist in the same Windows folder. To solve this issue .NET introduces something called the GAC (Global Assembly Cache) which is treated as a single folder by the .NET CLR, but is actually implemented using nested NTFS (or FAT32) folders.
+To prevent spoofing attacks, where a cracker would try to pass off an assembly appearing as something else, the assembly is signed with a private key. The developer of the intended assembly keeps the private key secret, so a cracker cannot have access to it nor simply guess it. Thus the cracker cannot make his assembly impersonate something else, lacking the possibility to correctly sign it after the change. Signing the assembly involves taking a hash of important parts of the assembly and then encrypting the hash with the private key. The signed hash is stored in the assembly along with the public key. The public key will decrypt the signed hash. When the CLR loads a strongly named assembly it will generate a hash from the assembly and then compare this with the decrypted hash. If the comparison succeeds then it means that the public key in the file (and hence the public key token) is associated with the private key used to sign the assembly. This will mean that the public key in the assembly is the public key of the assembly publisher and hence a spoofing attack is thwarted.
+
+[edit] Assemblies versions
+.NET assemblies can have version information, allowing them to eliminate most conflicts between applications caused by shared assemblies[2]. However, this does not eliminate all possible versioning conflicts between assemblies[3].
+
+[edit] Assemblies and .NET security
+.NET Code Access Security is based on assemblies and evidence. Evidence can be anything deduced from the assembly, but typically it is created from the source of the assembly — whether the assembly was downloaded from the Internet, an intranet, or installed on the local machine (if the assembly is downloaded from another machine it will be stored in a sandboxed location within the GAC and hence is not treated as being installed locally). Permissions are applied to entire assemblies, and an assembly can specify the minimum permissions it requires through custom attributes (see .NET metadata). When the assembly is loaded the CLR will use the evidence for the assembly to create a permission set of one or more code access permissions. The CLR will then check to make sure that this permission set contains the required permissions specified by the assembly.
+.NET code can perform a code access security demand. This means that the code will perform some privileged action only if all of the assemblies of all of the methods in the call stack have the specified permission. If one assembly does not have the permission a security exception is thrown.
+The .NET code can also perform Linked Demand for getting the permission from the call stack. In this case the CLR will look for only one method in the call stack in the TOP position has the specified permission. Here the stack walk-through is bound to one method in the call stack by which the CLR assumes that all the other methods in the CALL STACK have the specified permission.
+
+[edit] Satellite assemblies
+In general, assemblies should contain culture-neutral resources. If you want to localize your assembly (for example use different strings for different locales) you should use satellite assemblies — special, resource-only assemblies. Satellites are not loaded by Fusion and so they should not contain code. As the name suggests, a satellite is associated with an assembly called the main assembly. That assembly (say, lib.dll) will contain the neutral resources (which Microsoft says is International English, but implies to be US English). Each satellite has the name of the associated library appended with .resources (for example lib.resources.dll). The satellite is given a non-neutral culture name, but since this is ignored by existing Windows file systems (FAT32 and NTFS) this would mean that there could be several files with the same PE name in one folder. Since this is not possible, satellites must be stored in subfolders under the application folder. For example, a satellite with the UK English resources will have a .NET name of "lib.resources Version=0.0.0.0 Culture=en-GB PublicKeyToken=null", a PE file name of lib.resources.dll, and will be stored in a subfolder called en-GB.
+Satellites are loaded by a .NET class called System.Resources.ResourceManager. The developer has to provide the name of the resource and information about the main assembly (with the neutral resources). The ResourceManager class will read the locale of the machine and use this information and the name of the main assembly to get the name of the satellite and the name of the subfolder that contains it. ResourceManager can then load the satellite and obtain the localized resource.
+
+[edit] Referencing assemblies
+One can reference an executable code library by using the /reference flag of the C# compiler .
+
+[edit] Delay-signing of an assembly
+The shared assemblies need to give a strong name for uniquely identifying the assembly which might be shared among the applications. The strong naming consists of the public key token, culture, version and PE file name. If an assembly is likely to be used for the development purpose which is a shared assembly, the strong naming procedure contains only public key generation. The private key is not generated at that time. It is generated only when the assembly is deployed.
+
+[edit] Language of an assembly
+Main article: Common Intermediate Language
+The assembly is built up with the CIL code, which is an intermediate language. The framework internally converts the CIL [bytecode] into native assembly code. If we have a program that prints "Hello world", the equivalent CIL code for the method is:
+
+.method private hidebysig static void  Main(string[] args) cil managed {
+ .entrypoint
+ .custom instance void [mscorlib]System.STAThreadAttribute::.ctor() = ( 01 00 00 00 ) 
+ // Code size       11 (0xb)
+ .maxstack  1
+ IL_0000:  ldstr      "Hello World"
+ IL_0005:  call       void [mscorlib]System.Console::WriteLine(string)
+ IL_000a:  ret } // end of method Class1::Main
+
+So the CIL code loads the String onto the stack. Then it calls the Writeline function and returns.
+
+[edit] See also
+
+[edit] References
+
+
+^ Giving a .NET Assembly a Strong Name
+^ Truche, Philippe (2008-08-12). ".NET Assembly Versioning Lifecycle". http://philippetruche.wordpress.com/2008/08/12/net-assembly-versioning-lifecycle/. Retrieved on 2008-09-21. 
+^ Pierson, Harry (2008-09-17). "DLR Namespace Change Fire Drill". http://devhawk.net/2008/09/17/DLR+Namespace+Change+Fire+Drill.aspx. Retrieved on 2008-09-21. 
+
+
+
+[edit] External links
+
+
+
+
+
+
+
+v • d • e
+
+.NET Framework
+
+
+
+
+
+Architecture
+
+Base Class Library · Common Language Runtime · Code Access Security · Assembly · Metadata · COM Interop
+
+
+
+
+
+
+Common Language
+Infrastructure (CLI)
+
+Common Language Infrastructure · Common Type System · Common Intermediate Language · Virtual Execution System
+
+
+
+
+
+
+CLI Languages
+
+
+
+
+
+Common1
+
+
+C# · Visual Basic .NET · C++/CLI (Managed) · F#  · J#  · JScript .NET · Windows PowerShell
+
+
+
+
+
+
+
+Other2
+
+
+Axum · A# · Boo · M · Oxygene  · IronLisp · IronPython · IronRuby · IronScheme · Nemerle · Phalanger · P#
+
+
+
+
+
+
+
+
+
+Components
+
+ADO.NET (Entity Framework · Data Services) · ASP.NET (AJAX · MVC · Dynamic Data) · Language Integrated Query · CardSpace · ClickOnce · Communication Foundation · Dynamic Language Runtime · Forms · Presentation Foundation · Remoting · Workflow Foundation  · XAML
+
+
+
+
+
+
+Other implementations
+
+Mono · Compact Framework · XNA Framework · Micro Framework · Portable.NET · Silverlight · SSCLI
+
+
+
+
+
+
+Comparisons
+
+Java and C# · C# and Visual Basic .NET · Java and .NET platforms
+
+
+
+
+
+
+Upcoming
+
+"Acropolis" · "Jasper" · Parallel Extensions · Managed Extensibility Framework
+
+
+
+
+
+
+1 Languages that are, will be, or have been included with Visual Studio or Microsoft Windows.
+2 Non-academic or research languages with relatively large user-bases.
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/.NET_assembly"
+Categories: .NET framework 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 20 April 2009, at 14:46 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

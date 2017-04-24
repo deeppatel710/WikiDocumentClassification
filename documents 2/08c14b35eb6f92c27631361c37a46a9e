@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="TCP congestion avoidance algorithm,TCP congestion avoidance algorithm,Accuracy disputes from March 2008,Articles with unsourced statements since April 2009,AIMD,BIC TCP,BSD,CUBIC TCP,Compound TCP,Computer Consoles Inc.,Congestion avoidance" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>TCP congestion avoidance algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "TCP_congestion_avoidance_algorithm";
+		var wgTitle = "TCP congestion avoidance algorithm";
+		var wgAction = "view";
+		var wgArticleId = "1723471";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 288067932;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-TCP_congestion_avoidance_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">TCP congestion avoidance algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table class="metadata plainlinks ambox ambox-content" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Ambox_warning_orange.svg" class="image" title="Ambox warning orange.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Ambox_warning_orange.svg/42px-Ambox_warning_orange.svg.png" width="42" height="42" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article's <b>factual accuracy is <a href="/wiki/Wikipedia:Accuracy_dispute" title="Wikipedia:Accuracy dispute">disputed</a></b>. Please see the relevant discussion on the <a href="/wiki/Talk:TCP_congestion_avoidance_algorithm#Disputed" title="Talk:TCP congestion avoidance algorithm">talk page</a>. <small><i>(March 2008)</i></small></td>
+</tr>
+</table>
+<p>The <a href="/wiki/Transmission_Control_Protocol" title="Transmission Control Protocol">TCP</a> uses a <a href="/wiki/Network_congestion_avoidance" title="Network congestion avoidance">network congestion avoidance</a> algorithm that includes various aspects of an <a href="/wiki/AIMD" title="AIMD" class="mw-redirect">additive-increase-multiplicative-decrease (AIMD)</a> scheme, with other schemes such as <a href="/wiki/Slow-start" title="Slow-start">slow-start</a> in order to achieve <b>congestion avoidance</b>.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#TCP_Tahoe_and_Reno"><span class="tocnumber">1</span> <span class="toctext">TCP Tahoe and Reno</span></a></li>
+<li class="toclevel-1"><a href="#TCP_Vegas"><span class="tocnumber">2</span> <span class="toctext">TCP Vegas</span></a></li>
+<li class="toclevel-1"><a href="#TCP_New_Reno"><span class="tocnumber">3</span> <span class="toctext">TCP New Reno</span></a></li>
+<li class="toclevel-1"><a href="#TCP_Hybla"><span class="tocnumber">4</span> <span class="toctext">TCP Hybla</span></a></li>
+<li class="toclevel-1"><a href="#TCP_BIC"><span class="tocnumber">5</span> <span class="toctext">TCP BIC</span></a></li>
+<li class="toclevel-1"><a href="#TCP_CUBIC"><span class="tocnumber">6</span> <span class="toctext">TCP CUBIC</span></a></li>
+<li class="toclevel-1"><a href="#Compound_TCP"><span class="tocnumber">7</span> <span class="toctext">Compound TCP</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">8</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#Other_TCP_congestion_avoidance_algorithms"><span class="tocnumber">9</span> <span class="toctext">Other TCP congestion avoidance algorithms</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">10</span> <span class="toctext">See also</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="TCP_Tahoe_and_Reno" id="TCP_Tahoe_and_Reno"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=1" title="Edit section: TCP Tahoe and Reno">edit</a>]</span> <span class="mw-headline">TCP Tahoe and Reno</span></h2>
+<p>Two such variations are those offered by TCP Tahoe and Reno. The two algorithms were retrospectively named after the <a href="/wiki/BSD" title="BSD" class="mw-redirect">4.3BSD</a> <a href="/wiki/Unix" title="Unix">Unix</a> operating system in which each first appeared. The “Tahoe” algorithm first appeared in 4.3BSD-Tahoe (which was made to support the <a href="/wiki/Computer_Consoles_Inc.#Power_5_and_Power_6_computers" title="Computer Consoles Inc.">CCI Power 6/32 “Tahoe”</a> minicomputer), and was made available to non-AT&amp;T licensees as part of the “4.3BSD Networking Release 1”; this ensured its wide distribution and implementation. Improvements, described below, were made in 4.3BSD-Reno and subsequently released to the public as “Networking Release 2” and later 4.4BSD-Lite. The “TCP Foo” names for the algorithms appear to have originated in a 1996 paper by Kevin Fall and Sally Floyd.<sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup></p>
+<p>To avoid <a href="/wiki/Congestive_collapse" title="Congestive collapse">congestion collapse</a>, TCP uses a multi-faceted congestion control strategy. For each connection, TCP maintains a <i><a href="/wiki/Congestion_window" title="Congestion window">congestion window</a></i>, limiting the total number of unacknowledged packets that may be in transit end-to-end. This is somewhat analogous to TCP's <a href="/wiki/Sliding_Window_Protocol" title="Sliding Window Protocol">sliding window</a> used for <a href="/wiki/Transmission_Control_Protocol#Flow_control" title="Transmission Control Protocol">flow control</a>. TCP uses a mechanism called <i><a href="/wiki/Slow-start" title="Slow-start">slow start</a></i><sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup> to increase the congestion window after a connection is initialised and after a timeout. It starts with a window of two times the <a href="/wiki/Maximum_segment_size" title="Maximum segment size">maximum segment size</a> (MSS). Although the initial rate is low, the rate of increase is very rapid: <b>for every packet</b> acknowledged, the congestion window increases by 1 MSS so that for every <a href="/wiki/Round-trip_delay_time" title="Round-trip delay time">round trip time</a> (RTT), the congestion window has doubled. When the congestion window exceeds a threshold <i>ssthresh</i> the algorithm enters a new state, called <a href="/wiki/Congestion_avoidance" title="Congestion avoidance" class="mw-redirect">congestion avoidance</a>. In some implementations (<i>e.g.</i>, Linux), the initial ssthresh is large, and so the first slow start usually ends after a loss. However, ssthresh is updated at the end of each slow start, and will often affect subsequent slow starts triggered by <a href="/wiki/Timeout" title="Timeout" class="mw-redirect">timeouts</a>.</p>
+<p><a href="/wiki/Congestion_avoidance" title="Congestion avoidance" class="mw-redirect">Congestion avoidance</a>: As long as non-duplicate ACKs are received, the congestion window is additively increased by one MSS every round trip time. When a packet is lost, the likelyhood of duplicate ACKs being received is very high (it's possible though unlikely that the stream just underwent extreme packet reordering, which would also prompt duplicate ACKs). The behaviour of Tahoe and Reno differ in how they detect and react to packet loss:</p>
+<ul>
+<li>Tahoe: Loss is detected when a timeout expires before an ACK is received. Tahoe will then reduce congestion window to 1 MSS, and reset to slow-start state.<sup class="noprint Template-Fact" title="This claim needs references to reliable sources&#160;since April 2009" style="white-space:nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</sup></li>
+<li>Reno: If three duplicate ACKs are received (i.e., three ACKs acknowledging the same packet, which are not piggybacked on data, and do not change the receiver's advertised window), Reno will halve the congestion window, perform a "fast retransmit", and enter a phase called <a href="/wiki/Slow-start#fast-recovery" title="Slow-start">Fast Recovery</a>. If an ACK times out, slow start is used as it is with Tahoe.<sup class="noprint Template-Fact" title="This claim needs references to reliable sources&#160;since April 2009" style="white-space:nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</sup></li>
+</ul>
+<p><a href="/wiki/Slow-start#fast-recovery" title="Slow-start">Fast Recovery</a>. (Reno Only) In this state, TCP retransmits the missing packet that was signaled by 3 duplicate ACKs, and waits for an acknowledgment of the entire transmit window before returning to congestion avoidance. If there is no acknowledgment, TCP Reno experiences a timeout and enters the slow-start state.</p>
+<p>Both algorithms reduce congestion window to 1 MSS on a timeout event.</p>
+<p><a name="TCP_Vegas" id="TCP_Vegas"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=2" title="Edit section: TCP Vegas">edit</a>]</span> <span class="mw-headline">TCP Vegas</span></h2>
+<div class="rellink noprint relarticle mainarticle">Main article: <a href="/wiki/TCP_Vegas" title="TCP Vegas">TCP Vegas</a></div>
+<p>Until the mid 1990s, all TCPs set timeouts and measured round-trip delays were based upon only the last transmitted packet in the transmit buffer. <a href="/wiki/University_of_Arizona" title="University of Arizona">University of Arizona</a> researchers Larry Peterson and <a href="/wiki/Lawrence_Brakmo" title="Lawrence Brakmo">Lawrence Brakmo</a> introduced TCP Vegas, in which timeouts were set and round-trip delays were measured for every packet in the transmit buffer. In addition, TCP Vegas uses additive increases and additive decreases in the congestion window. This variant was not widely deployed outside Peterson's laboratory.</p>
+<p><a name="TCP_New_Reno" id="TCP_New_Reno"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=3" title="Edit section: TCP New Reno">edit</a>]</span> <span class="mw-headline">TCP New Reno</span></h2>
+<p><a href="http://www.faqs.org/rfcs/rfc3782.html" class="external text" title="http://www.faqs.org/rfcs/rfc3782.html" rel="nofollow">TCP New Reno</a> improves retransmission during the fast recovery phase of TCP Reno. During fast recovery, for every duplicate ACK that is returned to TCP New Reno, a new unsent packet from the end of the congestion window is sent, to keep the transmit window full. For every ACK that makes partial progress in the sequence space, the sender assumes that the ACK points to a new hole, and the next packet beyond the ACKed sequence number is sent.</p>
+<p>Because the timeout timer is reset whenever there is progress in the transmit buffer, this allows New Reno to fill large holes, or multiple holes, in the sequence space - much like TCP SACK. Because New Reno can send new packets at the end of the congestion window during fast recovery, high throughput is maintained during the hole-filling process, even when there are multiple holes, of multiple packets each. When TCP enters fast recovery it records the highest outstanding unacknowledged packet sequence number. When this sequence number is acknowledged, TCP returns to the congestion avoidance state.</p>
+<p>A problem occurs with New Reno when there are no packet losses but instead, packets are reordered by more than 3 packet sequence numbers. When this happens, New Reno mistakenly enters fast recovery, but when the reordered packet is delivered, ACK sequence-number progress occurs and from there until the end of fast recovery, every bit of sequence-number progress produces a duplicate and needless retransmission that is immediately ACKed.</p>
+<p>New Reno performs as well as SACK at low packet error rates, and substantially outperforms Reno at high error rates.</p>
+<p><a name="TCP_Hybla" id="TCP_Hybla"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=4" title="Edit section: TCP Hybla">edit</a>]</span> <span class="mw-headline">TCP Hybla</span></h2>
+<p><a href="http://hybla.deis.unibo.it/" class="external text" title="http://hybla.deis.unibo.it/" rel="nofollow">TCP Hybla</a> aims to eliminate penalization of TCP connections that incorporate a high-latency terrestrial or satellite radio link, due to their longer round trip times. It stems from an analytical evaluation of the congestion window dynamics, which suggests the necessary modifications to remove the performance dependence on RTT.</p>
+<p><a name="TCP_BIC" id="TCP_BIC"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=5" title="Edit section: TCP BIC">edit</a>]</span> <span class="mw-headline">TCP BIC</span></h2>
+<p><a href="/wiki/BIC_TCP" title="BIC TCP">Binary Increase Congestion control</a> is an implementation of <a href="/wiki/Transmission_Control_Protocol" title="Transmission Control Protocol">TCP</a> with an optimized congestion control algorithm for high speed networks with high latency (called <b>LFN</b>, long fat networks, in <a href="http://tools.ietf.org/html/rfc1072" class="external text" title="http://tools.ietf.org/html/rfc1072" rel="nofollow">RFC 1072</a>). BIC is used by default in <a href="/wiki/Linux" title="Linux">Linux</a> kernels 2.6.8 through 2.6.18.</p>
+<p><a name="TCP_CUBIC" id="TCP_CUBIC"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=6" title="Edit section: TCP CUBIC">edit</a>]</span> <span class="mw-headline">TCP CUBIC</span></h2>
+<p><a href="/wiki/CUBIC_TCP" title="CUBIC TCP">CUBIC</a> is a less aggressive and more systematic derivative of BIC, in which the window is a cubic function of time since the last congestion event, with the inflection point set to the window prior to the event. CUBIC is used by default in <a href="/wiki/Linux" title="Linux">Linux</a> kernels since version 2.6.19.</p>
+<p><a name="Compound_TCP" id="Compound_TCP"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=7" title="Edit section: Compound TCP">edit</a>]</span> <span class="mw-headline">Compound TCP</span></h2>
+<div class="rellink noprint relarticle mainarticle">Main article: <a href="/wiki/Compound_TCP" title="Compound TCP">Compound TCP</a></div>
+<p>Compound TCP is a <a href="/wiki/Microsoft" title="Microsoft">Microsoft</a> implementation of TCP which maintains two different congestion windows simultaneously, with the goal of achieving good performance on LFNs while not impairing <a href="/wiki/Fairness_measure" title="Fairness measure">fairness</a>. It has been widely deployed with Microsoft <a href="/wiki/Windows_Vista" title="Windows Vista">Windows Vista</a> and <a href="/wiki/Windows_Server_2008" title="Windows Server 2008">Windows Server 2008</a> and has been ported to older Microsoft Windows versions as well as <a href="/wiki/Linux" title="Linux">Linux</a>.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=8" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFFallSally_Floyd1996">Fall, Kevin; Sally Floyd (July 1996). "<a href="ftp://ftp.ee.lbl.gov/papers/sacks.ps.Z" class="external text" title="ftp://ftp.ee.lbl.gov/papers/sacks.ps.Z" rel="nofollow">Simulation-based Comparisons of Tahoe, Reno and SACK TCP</a>" (<a href="/wiki/PostScript" title="PostScript">PostScript</a>). <i>Computer Communications Review</i><span class="printonly">. <a href="ftp://ftp.ee.lbl.gov/papers/sacks.ps.Z" class="external free" title="ftp://ftp.ee.lbl.gov/papers/sacks.ps.Z" rel="nofollow">ftp://ftp.ee.lbl.gov/papers/sacks.ps.Z</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Simulation-based+Comparisons+of+Tahoe%2C+Reno+and+SACK+TCP&amp;rft.jtitle=Computer+Communications+Review&amp;rft.aulast=Fall&amp;rft.aufirst=Kevin&amp;rft.au=Fall%2C+Kevin&amp;rft.au=Sally+Floyd&amp;rft.date=July+1996&amp;rft_id=ftp%3A%2F%2Fftp.ee.lbl.gov%2Fpapers%2Fsacks.ps.Z&amp;rfr_id=info:sid/en.wikipedia.org:TCP_congestion_avoidance_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFJacobson1995">Jacobson, Van (1995). "<a href="http://ee.lbl.gov/papers/congavoid.pdf" class="external text" title="http://ee.lbl.gov/papers/congavoid.pdf" rel="nofollow">Congestion Avoidance and Control</a>". <i>ACM SIGCOMM Computer Communication Review</i> <b>25</b> (1): 157–187. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F205447.205462" class="external text" title="http://dx.doi.org/10.1145%2F205447.205462" rel="nofollow">10.1145/205447.205462</a></span><span class="printonly">. <a href="http://ee.lbl.gov/papers/congavoid.pdf" class="external free" title="http://ee.lbl.gov/papers/congavoid.pdf" rel="nofollow">http://ee.lbl.gov/papers/congavoid.pdf</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Congestion+Avoidance+and+Control&amp;rft.jtitle=ACM+SIGCOMM+Computer+Communication+Review&amp;rft.aulast=Jacobson&amp;rft.aufirst=Van&amp;rft.au=Jacobson%2C+Van&amp;rft.date=1995&amp;rft.volume=25&amp;rft.issue=1&amp;rft.pages=157%26ndash%3B187&amp;rft_id=info:doi/10.1145%2F205447.205462&amp;rft_id=http%3A%2F%2Fee.lbl.gov%2Fpapers%2Fcongavoid.pdf&amp;rfr_id=info:sid/en.wikipedia.org:TCP_congestion_avoidance_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+</div>
+<p><a name="Other_TCP_congestion_avoidance_algorithms" id="Other_TCP_congestion_avoidance_algorithms"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=9" title="Edit section: Other TCP congestion avoidance algorithms">edit</a>]</span> <span class="mw-headline">Other TCP congestion avoidance algorithms</span></h2>
+<ul>
+<li><a href="/wiki/FAST_TCP" title="FAST TCP">FAST TCP</a></li>
+<li><a href="/wiki/H-TCP" title="H-TCP">H-TCP</a></li>
+<li><a href="/wiki/High_Speed_TCP" title="High Speed TCP" class="mw-redirect">High Speed TCP</a></li>
+<li><a href="http://www.ece.rice.edu/networks/TCP-LP/" class="external text" title="http://www.ece.rice.edu/networks/TCP-LP/" rel="nofollow">HSTCP-LP</a></li>
+<li><a href="/wiki/TCP-Illinois" title="TCP-Illinois">TCP-Illinois</a></li>
+<li><a href="http://www.ece.rice.edu/networks/TCP-LP/" class="external text" title="http://www.ece.rice.edu/networks/TCP-LP/" rel="nofollow">TCP-LP</a></li>
+<li><a href="/wiki/Retransmission_(data_networks)#SACK" title="Retransmission (data networks)">TCP SACK</a></li>
+<li><a href="http://www.deneholme.net/tom/scalable/" class="external text" title="http://www.deneholme.net/tom/scalable/" rel="nofollow">Scalable TCP</a></li>
+<li><a href="http://www.ntu.edu.sg/home/ascpfu/veno/" class="external text" title="http://www.ntu.edu.sg/home/ascpfu/veno/" rel="nofollow">TCP Veno</a></li>
+<li><a href="/wiki/TCP_Westwood" title="TCP Westwood">Westwood</a></li>
+<li><a href="/wiki/TCP_Westwood_plus" title="TCP Westwood plus">Westwood+</a></li>
+<li><a href="http://www.isi.edu/isi-xcp/" class="external text" title="http://www.isi.edu/isi-xcp/" rel="nofollow">XCP</a></li>
+<li><a href="http://wil.cs.caltech.edu/pfldnet2007/paper/YeAH_TCP.pdf" class="external text" title="http://wil.cs.caltech.edu/pfldnet2007/paper/YeAH_TCP.pdf" rel="nofollow">YeAH-TCP</a></li>
+</ul>
+<p><a href="#TCP_New_Reno" title="">TCP New Reno</a> is the most commonly implemented algorithm, SACK support is very common and is an extension to Reno/New Reno. Most others are competing proposals which still need evaluation. Starting with 2.6.8 the Linux kernel switched the default implementation from reno to <a href="/wiki/BIC_TCP" title="BIC TCP">BIC</a>. The default implementation was again changed to CUBIC in the 2.6.19 version.</p>
+<p>When the per-flow product of bandwidth and latency increases, regardless of the queuing scheme, TCP becomes inefficient and prone to instability. This becomes increasingly important as the Internet evolves to incorporate very high-bandwidth optical links.</p>
+<p><a href="http://www.medianet.kent.edu/itcp/main.html" class="external text" title="http://www.medianet.kent.edu/itcp/main.html" rel="nofollow">TCP Interactive (iTCP)</a> allows applications to subscribe to TCP events and respond accordingly enabling various functional extensions to TCP from outside TCP layer. Most TCP congestion schemes work internally. iTCP additionally enables advanced applications to directly participate in congestion control such as to control the source generation rate.</p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit&amp;section=10" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Transmission_Control_Protocol#Development_of_TCP" title="Transmission Control Protocol">Transmission Control Protocol#Development of TCP</a></li>
+<li><a href="/wiki/Congestion_avoidance" title="Congestion avoidance" class="mw-redirect">Congestion avoidance</a></li>
+<li><a href="/w/index.php?title=TCP_CANIT&amp;action=edit&amp;redlink=1" class="new" title="TCP CANIT (page does not exist)">TCP CANIT</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 1435/1000000
+Post-expand include size: 12874/2048000 bytes
+Template argument size: 4205/2048000 bytes
+Expensive parser function count: 4/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1723471-0!1!0!default!!en!2 and timestamp 20090506232759 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/TCP_congestion_avoidance_algorithm">http://en.wikipedia.org/wiki/TCP_congestion_avoidance_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:TCP/IP" title="Category:TCP/IP">TCP/IP</a></span> | <span dir='ltr'><a href="/wiki/Category:Flow_control" title="Category:Flow control">Flow control</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Accuracy_disputes_from_March_2008" title="Category:Accuracy disputes from March 2008">Accuracy disputes from March 2008</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_with_unsourced_statements" title="Category:All articles with unsourced statements">All articles with unsourced statements</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_unsourced_statements_since_April_2009" title="Category:Articles with unsourced statements since April 2009">Articles with unsourced statements since April 2009</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/TCP_congestion_avoidance_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:TCP_congestion_avoidance_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=TCP_congestion_avoidance_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate/Now/en?utm_source=donate&amp;utm_medium=sidebar&amp;utm_campaign=spontaneous_donation" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/TCP_congestion_avoidance_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/TCP_congestion_avoidance_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=TCP_congestion_avoidance_algorithm&amp;oldid=288067932" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=TCP_congestion_avoidance_algorithm&amp;id=288067932">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_TCP">Français</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 5 May 2009, at 15:30 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv198 in 0.049 secs. --></body></html>

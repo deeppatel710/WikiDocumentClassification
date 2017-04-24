@@ -1,0 +1,406 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bellman-Ford algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Bellman-Ford_algorithm";
+		var wgTitle = "Bellman-Ford algorithm";
+		var wgAction = "view";
+		var wgArticleId = "221244";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279317238;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Bellman-Ford algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+Graph search algorithms
+
+
+Search
+
+A*
+B*
+Bellman-Ford algorithm
+Best-first search
+Bidirectional search
+Breadth-first search
+D*
+Depth-first search
+Depth-limited search
+Dijkstra's algorithm
+Floyd–Warshall algorithm
+Hill climbing
+Iterative deepening depth-first search
+Johnson's algorithm
+Uniform-cost search
+
+
+
+
+The Bellman–Ford algorithm, a label correcting algorithm[1], computes single-source shortest paths in a weighted digraph (where some of the edge weights may be negative). Dijkstra's algorithm solves the same problem with a lower running time, but requires edge weights to be non-negative. Thus, Bellman–Ford is usually used only when there are negative edge weights. The algorithm was developed by Richard Bellman and Lester Ford, Jr..
+According to Robert Sedgewick, "Negative weights are not merely a mathematical curiosity; [...] [they] arise in a natural way when we reduce other problems to shortest-paths problems"[2], and he gives the specific example of a reduction from the NP-complete Hamilton path problem to the shortest paths problem with general weights. If a graph contains a cycle of total negative weight then arbitrarily low weights are achievable and so there's no solution; Bellman-Ford detects this case.
+If the graph does contain a cycle of negative weights, Bellman-Ford can only detect this; Bellman-Ford cannot find the shortest path that does not repeat any vertex in such a graph. This problem is at least as hard as the NP-complete longest path problem.
+
+
+
+
+Contents
+
+
+1 Algorithm
+2 Proof of correctness
+3 Applications in routing
+4 Implementation
+5 Yen's improvement
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Algorithm
+Bellman–Ford is in its basic structure very similar to Dijkstra's algorithm, but instead of greedily selecting the minimum-weight node not yet processed to relax, it simply relaxes all the edges, and does this |V| − 1 times, where |V| is the number of vertices in the graph. The repetitions allow minimum distances to accurately propagate throughout the graph, since, in the absence of negative cycles, the shortest path can only visit each node at most once. Unlike the greedy approach, which depends on certain structural assumptions derived from positive weights, this straightforward approach extends to the general case.
+Bellman–Ford runs in O(|V|·|E|) time, where |V| and |E| are the number of vertices and edges respectively.
+
+procedure BellmanFord(list vertices, list edges, vertex source)
+   // This implementation takes in a graph, represented as lists of vertices
+   // and edges, and modifies the vertices so that their distance and
+   // predecessor attributes store the shortest paths.
+
+   // Step 1: Initialize graph
+   for each vertex v in vertices:
+       if v is source then v.distance := 0
+       else v.distance := infinity
+       v.predecessor := null
+   
+   // Step 2: relax edges repeatedly
+   for i from 1 to size(vertices)-1:       
+       for each edge uv in edges: // uv is the edge from u to v
+           u := uv.source
+           v := uv.destination             
+           if v.distance > u.distance + uv.weight:
+               v.distance := u.distance + uv.weight
+               v.predecessor := u
+
+   // Step 3: check for negative-weight cycles
+   for each edge uv in edges:
+       u := uv.source
+       v := uv.destination
+       if v.distance > u.distance + uv.weight:
+           error "Graph contains a negative-weight cycle"
+
+
+[edit] Proof of correctness
+The correctness of the algorithm can be shown by induction. The precise statement shown by induction is:
+Lemma. After i repetitions of for cycle:
+
+If Distance(u) is not infinity, it is equal to the length of some path from s to u;
+If there is a path from s to u with at most i edges, then Distance(u) is at most the length of the shortest path from s to u with at most i edges.
+
+Proof. For the base case of induction, consider i=0 and the moment before for cycle is executed for the first time. Then, for the source vertex, source.distance = 0, which is correct. For other vertices u, u.distance = infinity, which is also correct because there is no path from source to u with 0 edges.
+For the inductive case, we first prove the first part. Consider a moment when a vertex's distance is updated by v.distance := u.distance + uv.weight. By inductive assumption, u.distance is the length of some path from source to u. Then u.distance + uv.weight is the length of the path from source to v that follows the path from source to u and then goes to v.
+For the second part, consider the shortest path from source to u with at most i edges. Let v be the last vertex before u on this path. Then, the part of the path from source to v is the shortest path from source to v with at most i-1 edges. By inductive assumption, v.distance after i-1 cycles is at most the length of this path. Therefore, uv.weight + v.distance is at most the length of the path from s to u. In the ith cycle, u.distance gets compared with uv.weight + v.distance, and is set equal to it if uv.weight + v.distance was smaller. Therefore, after i cycles, u.distance is at most the length of the shortest path from source to u that uses at most i edges.
+If there are no negative-weight cycles, then every shortest path visits each vertex at most once, so at step 3 no further improvements can be made. Conversely, suppose no improvement can be made. Then for any cycle with vertices v[0],..,v[k-1],
+v[i].distance <= v[i-1 (mod k)].distance + v[i-1 (mod k)]v[i].weight
+Summing around the cycle, the v[i].distance terms and the v[i-1 (mod k)] distance terms cancel, leaving
+0 <= sum from 1 to k of v[i-1 (mod k)]v[i].weight
+I.e., every cycle has nonnegative weight.
+
+[edit] Applications in routing
+A distributed variant of the Bellman–Ford algorithm is used in distance-vector routing protocols, for example the Routing Information Protocol (RIP). The algorithm is distributed because it involves a number of nodes (routers) within an Autonomous system, a collection of IP networks typically owned by an ISP. It consists of the following steps:
+
+Each node calculates the distances between itself and all other nodes within the AS and stores this information as a table.
+Each node sends its table to all neighboring nodes.
+When a node receives distance tables from its neighbors, it calculates the shortest routes to all other nodes and updates its own table to reflect any changes.
+
+The main disadvantages of the Bellman–Ford algorithm in this setting are
+
+Does not scale well
+Changes in network topology are not reflected quickly since updates are spread node-by-node.
+Counting to infinity (if link or node failures render a node unreachable from some set of other nodes, those nodes may spend forever gradually increasing their estimates of the distance to it, and in the meantime there may be routing loops)
+
+
+[edit] Implementation
+The following program implements the Bellman–Ford algorithm in C.
+
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+/* Let INFINITY be an integer value not likely to be
+   confused with a real weight, even a negative one. */
+#define INFINITY ((1 << 14)-1)
+
+typedef struct {
+    int source;
+    int dest;
+    int weight;
+} Edge;
+
+void BellmanFord(Edge edges[], int edgecount, int nodecount, int source)
+{
+    int *distance = malloc(nodecount * sizeof *distance);
+    int i, j;
+
+    for (i=0; i < nodecount; ++i)
+      distance[i] = INFINITY;
+    distance[source] = 0;
+
+    for (i=0; i < nodecount; ++i) {
+       int somethingchanged = 0; 
+       for (j=0; j < edgecount; ++j) {
+            if (distance[edges[j].source] != INFINITY) {
+                int new_distance = distance[edges[j].source] + edges[j].weight;
+                if (new_distance < distance[edges[j].dest]) {
+                  distance[edges[j].dest] = new_distance;
+                  somethingchanged = 1;
+                } 
+            }
+        }
+        /* if one iteration had no effect, further iterations will have no effect either */
+        if (!somethingchanged) break;
+    }
+
+    for (i=0; i < edgecount; ++i) {
+        if (distance[edges[i].dest] > distance[edges[i].source] + edges[i].weight) {
+            puts("Negative edge weight cycles detected!");
+            free(distance);
+            return;
+        }
+    }
+
+    for (i=0; i < nodecount; ++i) {
+        printf("The shortest distance between nodes %d and %d is %d\n",
+            source, i, distance[i]);
+    }
+
+    free(distance);
+    return;
+}
+
+int main(void)
+{
+    /* This test case should produce the distances 2, 4, 7, -2, and 0. */
+    Edge edges[10] = {{0,1, 5}, {0,2, 8}, {0,3, -4}, {1,0, -2},
+                      {2,1, -3}, {2,3, 9}, {3,1, 7}, {3,4, 2},
+                      {4,0, 6}, {4,2, 7}};
+    BellmanFord(edges, 10, 5, 4);
+    return 0;
+}
+
+
+
+[edit] Yen's improvement
+In a 1970 publication, Yen[3] described an improvement to the Bellman–Ford algorithm for a graph without negative-weight cycles. Yen's improvement first assigns some arbitrary linear order on all vertices and then partitions the set of all edges into one of two subsets. The first subset, Ef, contains all edges (vi, vj) such that i < j; the second, Eb, contains edges (vi, vj) such that i > j. Each vertex is visited in the order v1, v2,...,v|V|, relaxing each outgoing edge from that vertex in Ef. Each vertex is then visited in the order v|V|, v|V|-1,...,v1, relaxing each outgoing edge from that vertex in Eb. Yen's improvement effectively halves the number of "passes" required for the single-source-shortest-path solution.
+
+[edit] References
+
+
+^ Dimitri P. Bertsekas (March 1992). "A Simple and Fast Label Correcting Algorithm for Shortest Paths" (PDF). Networks, Vol. 23, pp. 703-709, 1993. http://www.mit.edu/people/dimitrib/SLF.pdf. Retrieved on 2008-10-01. 
+^ Robert Sedgewick. Algorithms in Java. Third Edition. ISBN 0-201-36121-3. Section 21.7: Negative Edge Weights. http://safari.oreilly.com/0201361213/ch21lev1sec7
+^ Jin Y. Yen. "An algorithm for Finding Shortest Routes from all Source Nodes to a Given Destination in General Network", Quart. Appl. Math., 27, 1970, 526–530.
+
+
+
+Richard Bellman: On a Routing Problem, in Quarterly of Applied Mathematics, 16(1), pp.87-90, 1958.
+L. R. Ford, Jr., D. R. Fulkerson: Flows in Networks, Princeton University Press, 1962.
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 24.1: The Bellman-Ford algorithm, pp.588–592. Problem 24-1, pp.614–615.
+
+
+[edit] External links
+
+Interactive Java-Applet demonstration
+C code example
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Bellman-Ford_algorithm"
+Categories: Graph algorithms | Polynomial-time problems | Articles with example C code | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+فارسی
+Français
+한국어
+Italiano
+עברית
+ქართული
+Latviešu
+Polski
+Português
+Русский
+Tiếng Việt
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 24 March 2009, at 06:37.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

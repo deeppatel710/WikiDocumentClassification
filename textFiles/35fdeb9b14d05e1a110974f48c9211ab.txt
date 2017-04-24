@@ -1,0 +1,1324 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Relational algebra - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Relational_algebra";
+		var wgTitle = "Relational algebra";
+		var wgAction = "view";
+		var wgArticleId = "175285";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 272656872;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Relational algebra
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Relational algebra, an offshoot of first-order logic (and of algebra of sets), deals with a set of relations closed under operators. Operators operate on one or more relations to yield a relation. Relational algebra is a part of computer science.
+Relation algebra in pure mathematics is an algebraic structure, relevant to mathematical logic and set theory.
+
+
+
+
+Contents
+
+
+1 Introduction
+2 Primitive operations
+
+2.1 Set operators
+2.2 Projection
+2.3 Selection
+2.4 Rename
+
+
+3 Joins and join-like operators
+
+3.1 Natural join
+3.2 θ-join and equijoin
+3.3 Semijoin
+3.4 Antijoin
+3.5 Division
+3.6 Outer joins
+
+3.6.1 Left outer join
+3.6.2 Right outer join
+3.6.3 Outer join
+
+
+
+
+4 Operations for domain computations
+
+4.1 The aggregation operation
+4.2 The extend operation
+
+
+5 Limitation of relational algebra
+6 Use of algebraic properties for query optimization
+
+6.1 Selection
+
+6.1.1 Basic selection properties
+6.1.2 Breaking up selections with complex conditions
+6.1.3 Selection and cross product
+6.1.4 Selection and set operators
+6.1.5 Selection and projection
+
+
+6.2 Projection
+
+6.2.1 Basic projection properties
+6.2.2 Projection and set operators
+
+
+6.3 Rename
+
+6.3.1 Basic rename properties
+6.3.2 Rename and set operators
+
+
+
+
+7 Implementations
+8 See also
+9 References
+10 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Introduction
+Relational algebras received little attention until the publication of E.F. Codd's relational model of data in 1970. Codd proposed such an algebra as a basis for database query languages. (See "Implementations" below.)
+Relational algebra is essentially equivalent in expressive power to relational calculus (and thus first-order logic); this result is known as Codd's theorem. Some care, however, has to be taken to avoid a mismatch that may arise between the two languages since negation, applied to a formula of the calculus, constructs a formula that may be true on an infinite set of possible tuples, while the difference operator of relational algebra always returns a finite result. To overcome these difficulties, Codd restricted the operands of relational algebra to finite relations only and also proposed restricted support for negation (NOT) and disjunction (OR). Analogous restrictions are found in many other logic-based computer languages. Codd defined the term relational completeness to refer to a language that is complete with respect to first-order predicate calculus apart from the restrictions he proposed. In practice the restrictions have no adverse effect on the applicability of his relational algebra for database purposes.
+
+[edit] Primitive operations
+As in any algebra, some operators are primitive and the others, being definable in terms of the primitive ones, are derived. It is useful if the choice of primitive operators parallels the usual choice of primitive logical operators. Although it is well known that the usual choice in logic of AND, OR and NOT is somewhat arbitrary, Codd made a similar arbitrary choice for his algebra.
+The six primitive operators of Codd's algebra are the selection, the projection, the Cartesian product (also called the cross product or cross join), the set union, the set difference, and the rename. (Actually, Codd omitted the rename, but the compelling case for its inclusion was shown by the inventors of ISBL.) These six operators are fundamental in the sense that none of them can be omitted without losing expressive power. Many other operators have been defined in terms of these six. Among the most important are set intersection, division, and the natural join. In fact ISBL made a compelling case for replacing the Cartesian product by the natural join, of which the Cartesian product is a degenerate case.
+Altogether, the operators of relational algebra have identical expressive power to that of domain relational calculus or tuple relational calculus. However, for the reasons given in the Introduction above, relational algebra has strictly less expressive power than that of first-order predicate calculus without function symbols. Relational algebra actually corresponds to a subset of first-order logic that is Horn clauses without recursion and negation.
+
+[edit] Set operators
+Although three of the six basic operators are taken from set theory, there are additional constraints that are present in their relational algebra counterparts: For set union and set difference, the two relations involved must be union-compatible—that is, the two relations must have the same set of attributes. As set intersection can be defined in terms of set difference, the two relations involved in set intersection must also be union-compatible.
+The Cartesian product is defined differently from the one defined in set theory in the sense that tuples are considered to be 'shallow' for the purposes of the operation. That is, unlike in set theory, where the Cartesian product of a n-tuple by an m-tuple is a set of 2-tuples, the Cartesian product in relational algebra has the 2-tuple "flattened" into an n+m-tuple. More formally, R × S is defined as follows:
+
+R  S = {r  s| r  R, s  S}
+
+In addition, for the Cartesian product to be defined, the two relations involved must have disjoint headers — that is, they must not have a common attribute name.
+
+[edit] Projection
+Main article: Projection (relational algebra)
+A projection is a unary operation written as  where a1,...,an is a set of attribute names. The result of such projection is defined as the set that is obtained when all tuples in R are restricted to the set {a1,...,an}.
+
+[edit] Selection
+Main article: Selection (relational algebra)
+A generalized selection is a unary operation written as  where  is a propositional formula that consists of atoms as allowed in the normal selection and the logical operators  (and),  (or) and  (negation). This selection selects all those tuples in R for which  holds.
+
+[edit] Rename
+Main article: Rename (relational algebra)
+A rename is a unary operation written as ρa / b(R) where the result is identical to R except that the b field in all tuples is renamed to an a field. This is simply used to rename the attribute of a relation or the relation itself.
+
+[edit] Joins and join-like operators
+
+[edit] Natural join
+Natural join is a binary operator that is written as (R  S) where R and S are relations.[1] The result of the natural join is the set of all combinations of tuples in R and S that are equal on their common attribute names. For an example consider the tables Employee and Dept and their natural join:
+
+
+
+
+Employee
+
+Name
+EmpId
+DeptName
+
+
+Harry
+3415
+Finance
+
+
+Sally
+2241
+Sales
+
+
+George
+3401
+Finance
+
+
+Harriet
+2202
+Sales
+
+
+
+
+
+Dept
+
+DeptName
+Manager
+
+
+Finance
+George
+
+
+Sales
+Harriet
+
+
+Production
+Charles
+
+
+
+
+
+Employee  Dept
+
+Name
+EmpId
+DeptName
+Manager
+
+
+Harry
+3415
+Finance
+George
+
+
+Sally
+2241
+Sales
+Harriet
+
+
+George
+3401
+Finance
+George
+
+
+Harriet
+2202
+Sales
+Harriet
+
+
+
+
+
+This can also be used to define composition of relations. In category theory, the join is precisely the fiber product.
+The natural join is arguably one of the most important operators since it is the relational counterpart of logical AND. Note carefully that if the same variable appears in each of two predicates that are connected by AND, then that variable stands for the same thing and both appearances must always be substituted by the same value. In particular, natural join allows the combination of relations that are associated by a foreign key. For example, in the above example a foreign key probably holds from Employee.DeptName to Dept.DeptName and then the natural join of Employee and Dept combines all employees with their departments. Note that this works because the foreign key holds between attributes with the same name. If this is not the case such as in the foreign key from Dept.manager to Emp.emp-number then we have to rename these columns before we take the natural join. Such a join is sometimes also referred to as an equijoin (see θ-join).
+More formally the semantics of the natural join is defined as follows:
+
+
+
+where p is a predicate that is true for a binary relation r iff r is a functional binary relation. It is usually required that R and S must have at least one common attribute, but if this constraint is omitted then the natural join becomes exactly the Cartesian product.
+The natural join can be simulated with Codd's primitives as follows. Assume that b1,...,bm are the attribute names common to R, S, a1,...,an are the attribute names unique to R and c1,...,ck are the attribute unique to S. Furthermore assume that the attribute names d1,...,dm are neither in R nor in S. In a first step we can now rename the common attribute names in S:
+
+
+
+Then we take the Cartesian product and select the tuples that are to be joined:
+
+
+
+Finally we take a projection to get rid of the renamed attributes:
+
+
+
+
+[edit] θ-join and equijoin
+Consider tables Car and Boat which list models of cars and boats and their respective prices. Suppose a customer wants to buy a car and a boat, but she doesn't want to spend more money for the boat than for the car. The θ-join on the relation CarPrice ≥ BoatPrice produces a table with all the possible options.
+
+
+
+
+Car
+
+CarModel
+CarPrice
+
+
+CarA
+20'000
+
+
+CarB
+30'000
+
+
+CarC
+50'000
+
+
+
+
+
+Boat
+
+BoatModel
+BoatPrice
+
+
+Boat1
+10'000
+
+
+Boat2
+40'000
+
+
+Boat3
+60'000
+
+
+
+
+
+
+
+CarModel
+CarPrice
+BoatModel
+BoatPrice
+
+
+CarA
+20'000
+Boat1
+10'000
+
+
+CarB
+30'000
+Boat1
+10'000
+
+
+CarC
+50'000
+Boat1
+10'000
+
+
+CarC
+50'000
+Boat2
+40'000
+
+
+
+
+
+If we want to combine tuples from two relations where the combination condition is not simply the equality of shared attributes then it is convenient to have a more general form of join operator, which is the θ-join (or theta-join). The θ-join is a binary operator that is written as  or  where a and b are attribute names, θ is a binary relation in the set {<, ≤, =, >, ≥}, v is a value constant, and R and S are relations. The result of this operation consists of all combinations of tuples in R and S that satisfy the relation θ. The result of the θ-join is defined only if the headers of S and R are disjoint, that is, do not contain a common attribute.
+The simulation of this operation in the fundamental operations is therefore as follows:
+
+R φ S = σφ(R × S)
+
+In case the operator θ is the equality operator (=) then this join is also called an equijoin.
+Note, however, that a computer language that supports the natural join and rename operators does not need θ-join as well, as this can be achieved by selection from the result of a natural join (which degenerates to Cartesian product when there are no shared attributes).
+
+[edit] Semijoin
+The semijoin is joining similar to the natural join and written as R  S where R and S are relations. The result of the semijoin is only the set of all tuples in R for which there is a tuple in S that is equal on their common attribute names. For an example consider the tables Employee and Dept and their semi join:
+
+
+
+
+Employee
+
+Name
+EmpId
+DeptName
+
+
+Harry
+3415
+Finance
+
+
+Sally
+2241
+Sales
+
+
+George
+3401
+Finance
+
+
+Harriet
+2202
+Production
+
+
+
+
+
+Dept
+
+DeptName
+Manager
+
+
+Sales
+Harriet
+
+
+Production
+Charles
+
+
+
+
+
+Employee  Dept
+
+Name
+EmpId
+DeptName
+
+
+Sally
+2241
+Sales
+
+
+Harriet
+2202
+Production
+
+
+
+
+
+More formally the semantics of the semijoin is defined as follows:
+
+R  S = { t : t  R, s  S, fun (t  s) }
+
+where fun(r) is as in the definition of natural join.
+The semijoin can be simulated using the natural join as follows. If a1, ..., an are the attribute names of R, then
+
+R  S = Πa1,..,an(R  S).
+
+Since we can simulate the natural join with the basic operators it follows that this also holds for the semijoin.
+
+[edit] Antijoin
+The antijoin, written as R  S where R and S are relations, is similar to the natural join, but the result of an antijoin is only those tuples in R for which there is NOT a tuple in S that is equal on their common attribute names.
+For an example consider the tables Employee and Dept and their antijoin:
+
+
+
+
+Employee
+
+Name
+EmpId
+DeptName
+
+
+Harry
+3415
+Finance
+
+
+Sally
+2241
+Sales
+
+
+George
+3401
+Finance
+
+
+Harriet
+2202
+Production
+
+
+
+
+
+Dept
+
+DeptName
+Manager
+
+
+Sales
+Harriet
+
+
+Production
+Charles
+
+
+
+
+
+Employee  Dept
+
+Name
+EmpId
+DeptName
+
+
+Harry
+3415
+Finance
+
+
+George
+3401
+Finance
+
+
+
+
+
+The antijoin is formally defined as follows:
+
+R  S = { t : t  R  s  S : fun (t  s) }
+
+or
+
+R  S = { t : t  R, there is no tuple s of S that satisfies fun (t  s) }
+
+where fun(r) is as in the definition of natural join.
+The antijoin can also be defined as the complement of the semijoin, as follows:
+
+R  S = R - R  S
+
+Given this, the antijoin is sometimes called the anti-semijoin, and the antijoin operator is sometimes written as semijoin symbol with a bar above it, instead of .
+
+[edit] Division
+The division is a binary operation that is written as R ÷ S. The result consists of the restrictions of tuples in R to the attribute names unique to R, i.e., in the header of R but not in the header of S, for which it holds that all their combinations with tuples in S are present in R. For an example see the tables Completed, DBProject and their division:
+
+
+
+
+Completed
+
+Student
+Task
+
+
+Fred
+Database1
+
+
+Fred
+Database2
+
+
+Fred
+Compiler1
+
+
+Eugene
+Database1
+
+
+Eugene
+Compiler1
+
+
+Sara
+Database1
+
+
+Sara
+Database2
+
+
+
+
+
+DBProject
+
+Task
+
+
+Database1
+
+
+Database2
+
+
+
+
+
+Completed ÷ DBProject
+
+Student
+
+
+Fred
+
+
+Sara
+
+
+
+
+
+If DBProject contains all the tasks of the Database project then the result of the division above contains exactly all the students that have completed the Database project.
+More formally the semantics of the division is defined as follows:
+
+R ÷ S = { t[a1,...,an] : t  R  s  S ( (t[a1,...,an]  s)  R) }
+
+where {a1,...,an} is the set of attribute names unique to R and t[a1,...,an] is the restriction of t to this set. It is usually required that the attribute names in the header of S are a subset of those of R because otherwise the result of the operation will always be empty.
+The simulation of the division with the basic operations is as follows. We assume that a1,...,an are the attribute names unique to R and b1,...,bm are the attribute names of S. In the first step we project R on its unique attribute names and construct all combinations with tuples in S:
+
+T := πa1,...,an(R) × S
+
+In the prior example, T would represent a table such that every Student (because Student is the unique key / attribute of the Completed table) is combined with every given Task. So Eugene, for instance, would have two rows, Eugene -> Database1 and Eugene -> Database2 in T.
+In the next step we subtract R from this relation:
+
+U := T - R
+
+Note that in U we have the possible combinations that "could have" been in R, but weren't. So if we now take the projection on the attribute names unique to R then we have the restrictions of the tuples in R for which not all combinations with tuples in S were present in R:
+
+V := πa1,...,an(U)
+
+So what remains to be done is take the projection of R on its unique attribute names and subtract those in V:
+
+W := πa1,...,an(R) - V
+
+
+[edit] Outer joins
+
+
+
+
+
+It has been suggested that this section be split into a new article entitled outer join. (Discuss)
+
+
+Whereas the result of a join (or inner join) consists of tuples formed by combining matching tuples in the two operands, an outer join contains those tuples and additionally some tuples formed by extending an unmatched tuple in one of the operands by "fill" values for each of the attributes of the other operand.
+The operators defined in this section assume the existence of a null value, ω, which we do not define, to be used for the fill values. It should not be assumed that this is the NULL defined for the database language SQL, nor should it be assumed that ω is a mark rather than a value, nor should it be assumed that the controversial three-valued logic is introduced by it.
+Three outer join operators are defined: left outer join, right outer join, and full outer join. (The word "outer" is sometimes omitted.)
+
+[edit] Left outer join
+The left outer join is written as R =X S where R and S are relations. The result of the left outer join is the set of all combinations of tuples in R and S that are equal on their common attribute names, in addition (loosely speaking) to tuples in R that have no matching tuples in S.
+For an example consider the tables Employee and Dept and their left outer join:
+
+
+
+
+Employee
+
+Name
+EmpId
+DeptName
+
+
+Harry
+3415
+Finance
+
+
+Sally
+2241
+Sales
+
+
+George
+3401
+Finance
+
+
+Harriet
+2202
+Sales
+
+
+Tim
+1123
+Executive
+
+
+
+
+
+Dept
+
+DeptName
+Manager
+
+
+Sales
+Harriet
+
+
+Production
+Charles
+
+
+
+
+
+Employee =X Dept
+
+Name
+EmpId
+DeptName
+Manager
+
+
+Harry
+3415
+Finance
+ω
+
+
+Sally
+2241
+Sales
+Harriet
+
+
+George
+3401
+Finance
+ω
+
+
+Harriet
+2202
+Sales
+Harriet
+
+
+Tim
+1123
+Executive
+ω
+
+
+
+
+
+In the resulting relation, tuples in S which have no common values in common attribute names with tuples in R take a null value, ω.
+Since there are no tuples in Dept with a DeptName of Finance or Executive, ωs occur in the resulting relation where tuples in DeptName have tuples of Finance or Executive.
+Let r1, r2, ..., rn be the attributes of the relation R and let {(ω, ..., ω)} be the singleton relation on the attributes that are unique to the relation S (those that are not attributes of R). Then the left outer join can be described in terms of the natural join (and hence using basic operators) as follows:
+
+
+
+
+[edit] Right outer join
+The right outer join behaves almost identically to the left outer join, but the roles of the tables are switched.
+The right outer join of relations R and S is written as R X= S. The result of the right outer join is the set of all combinations of tuples in R and S that are equal on their common attribute names, in addition to tuples in S that have no matching tuples in R.
+For example consider the tables Employee and Dept and their right outer join:
+
+
+
+
+Employee
+
+Name
+EmpId
+DeptName
+
+
+Harry
+3415
+Finance
+
+
+Sally
+2241
+Sales
+
+
+George
+3401
+Finance
+
+
+Harriet
+2202
+Sales
+
+
+Tim
+1123
+Executive
+
+
+
+
+
+Dept
+
+DeptName
+Manager
+
+
+Sales
+Harriet
+
+
+Production
+Charles
+
+
+
+
+
+Employee X= Dept
+
+Name
+EmpId
+DeptName
+Manager
+
+
+Sally
+2241
+Sales
+Harriet
+
+
+Harriet
+2202
+Sales
+Harriet
+
+
+ω
+ω
+Production
+Charles
+
+
+
+
+
+In the resulting relation, tuples in R which have no common values in common attribute names with tuples in S take a null value, ω.
+Since there are no tuples in Employee with a DeptName of Production, ωs occur in the Name attribute of the resulting relation where tuples in DeptName had tuples of Production.
+Let s1, s2, ..., sn be the attributes of the relation S and let {(ω, ..., ω)} be the singleton relation on the attributes that are unique to the relation R (those that are not attributes of S). Then, as with the left outer join, the right outer join can be simulated using the natural join as follows:
+
+
+
+
+[edit] Outer join
+The outer join or full outer join in effect combines the results of the left and right outer joins.
+The full outer join is written as R =X= S where R and S are relations. The result of the full outer join is the set of all combinations of tuples in R and S that are equal on their common attribute names, in addition to tuples in S that have no matching tuples in R and tuples in R that have no matching tuples in S in their common attribute names.
+For an example consider the tables Employee and Dept and their full outer join:
+
+
+
+
+Employee
+
+Name
+EmpId
+DeptName
+
+
+Harry
+3415
+Finance
+
+
+Sally
+2241
+Sales
+
+
+George
+3401
+Finance
+
+
+Harriet
+2202
+Sales
+
+
+Tim
+1123
+Executive
+
+
+
+
+
+Dept
+
+DeptName
+Manager
+
+
+Sales
+Harriet
+
+
+Production
+Charles
+
+
+
+
+
+Employee =X= Dept
+
+Name
+EmpId
+DeptName
+Manager
+
+
+Harry
+3415
+Finance
+ω
+
+
+Sally
+2241
+Sales
+Harriet
+
+
+George
+3401
+Finance
+ω
+
+
+Harriet
+2202
+Sales
+Harriet
+
+
+Tim
+1123
+Executive
+ω
+
+
+ω
+ω
+Production
+Charles
+
+
+
+
+
+In the resulting relation, tuples in R which have no common values in common attribute names with tuples in S take a null value, ω. Tuples in S which have no common values in common attribute names with tuples in R also take a null value, ω.
+The full outer join can be simulated using the left and right outer joins (and hence the natural join and set union) as follows:
+
+R=X=S = (R=XS)  (RX=S)
+
+
+[edit] Operations for domain computations
+
+[edit] The aggregation operation
+There are five aggregate functions that are included with most databases. These operations are Sum, Count, Average, Maximum and Minimum. In relational algebra, it is written as Exp1,Exp2,Exp3...Gfunc1,func2,func3...(Relation). While one must specify the function to use, the expressions, however, are optional. Let's assume that we have a table named Account with three columns, namely Account_Number, Branch_Name and Balance. We wish to find the maximum balance of each branch. This is accomplished by Branch_NameGMax(Balance)(Account). To find the highest balance of all accounts regardless of branch, we could simply write GMax(Balance)(Account).
+
+[edit] The extend operation
+
+
+
+This section requires expansion.
+
+
+
+[edit] Limitation of relational algebra
+Although relational algebra seems powerful enough for most practical purposes, there are some simple and natural operators on relations which cannot be expressed by relational algebra. The transitive closure of a binary relation is one of them. Given a domain D, let binary relation R be a subset of DxD. The transitive closure R+ of R is the smallest subset of DxD containing R which satifies the following condition:
+
+x y z ((x,y)  R+  (y,z)  R+  (x,z)  R+)
+
+It can be proven that there is no relational algebra expression E(R) taking R as a variable argument which produces R+. The proof is based on the fact that, given a relational expression E for which it is claimed that E(R) = R+, where R is a variable, we can always find an instance r of R (and a corresponding domain d) such that E(r) ≠ r+.[2]
+
+[edit] Use of algebraic properties for query optimization
+Queries can be represented as a tree, where
+
+the internal nodes are operators,
+leaves are relations,
+subtrees are subexpressions.
+
+Our primary goal is to transform expression trees into equivalent expression trees, where the average size of the relations yielded by subexpressions in the tree are smaller than they were before the optimization. Our secondary goal is to try to form common subexpressions within a single query, or if there are more than one queries being evaluated at the same time, in all of those queries. The rationale behind that second goal is that it is enough to compute common subexpressions once, and the results can be used in all queries that contain that subexpression.
+Here we present a set of rules, that can be used in such transformations.
+
+[edit] Selection
+Rules about selection operators play the most important role in query optimization. Selection is an operator that very effectively decreases the number of rows in its operand, so if we manage to move the selections in an expression tree towards the leaves, the internal relations (yielded by subexpressions) will likely shrink.
+
+[edit] Basic selection properties
+Selection is idempotent (multiple applications of the same selection have no additional effect beyond the first one), and commutative (the order selections are applied in has no effect on the eventual result).
+
+
+
+
+
+[edit] Breaking up selections with complex conditions
+A selection whose condition is a conjunction of simpler conditions is equivalent to a sequence of selections with those same individual conditions, and selection whose condition is a disjunction is equivalent to a union of selections. These identities can be used to merge selections so that fewer selections need to be evaluated, or to split them so that the component selections may be moved or optimized separately.
+
+
+
+
+
+[edit] Selection and cross product
+Cross product is the costliest operator to evaluate. If the input relations have N and M rows, the result will contain NM rows. Therefore it is very important to do our best to decrease the size of both operands before applying the cross product operator.
+This can be effectively done, if the cross product is followed by a selection operator, e.g. σA(R × P). Considering the definition of join, this is the most likely case. If the cross product is not followed by a selection operator, we can try to push down a selection from higher levels of the expression tree using the other selection rules.
+In the above case we break up condition A into conditions B, C and D using the split rules about complex selection conditions, so that A = B  C  D and B only contains attributes from R, C contains attributes only from P and D contains the part of A that contains attributes from both R and P. Note, that B, C or D are possibly empty. Then the following holds:
+
+
+
+
+[edit] Selection and set operators
+Selection is distributive over the setminus, intersection, and union operators. The following three rules are used to push selection below set operations in the expression tree. Note, that in the setminus and the intersection operators it is possible to apply the selection operator to only one of the operands after the transformation. This can make sense in cases, where one of the operands is small, and the overhead of evaluating the selection operator outweighs the benefits of using a smaller relation as an operand.
+
+
+
+
+
+
+[edit] Selection and projection
+Selection is associative with projection if and only if the fields referenced in the selection condition are a subset of the fields in the projection. Performing selection before projection may be useful if the operand is a cross product or join. In other cases, if the selection condition is relatively expensive to compute, moving selection outside the projection may reduce the number of tuples which must be tested (since projection may produce fewer tuples due to the elimination of duplicates resulting from elided fields).
+
+
+
+
+[edit] Projection
+
+[edit] Basic projection properties
+Projection is idempotent, so that a series of (valid) projections is equivalent to the outermost projection.
+
+
+
+
+[edit] Projection and set operators
+Projection is distributive over set difference, union, and intersection.
+
+
+
+
+
+
+[edit] Rename
+
+[edit] Basic rename properties
+Successive renames of a variable can be collapsed into a single rename. Rename operations which have no variables in common can be arbitrarily reordered with respect to one another, which can be exploited to make successive renames adjacent so that they can be collapsed.
+
+
+
+
+
+[edit] Rename and set operators
+Rename is distributive over set difference, union, and intersection.
+
+
+
+
+
+
+[edit] Implementations
+The first query language to be based on Codd's algebra was ISBL, and this pioneering work has been acclaimed by many authorities as having shown the way to make Codd's idea into a useful language. Business System 12 was a short-lived industry-strength relational DBMS that followed the ISBL example.
+In 1998 Chris Date and Hugh Darwen proposed a language called Tutorial D intended for use in teaching relational database theory, and its query language also draws on ISBL's ideas. Rel is an implementation of Tutorial D.
+Even the query language of SQL is loosely based on a relational algebra, though the operands in SQL (tables) are not exactly relations and several useful theorems about the relational algebra do not hold in the SQL counterpart (arguably to the detriment of optimisers and/or users).
+
+[edit] See also
+
+
+Cartesian product
+Database
+Logic of relatives
+Object role modeling
+Projection (mathematics)
+Projection (relational algebra)
+Projection (set theory)
+Relation
+Relation algebra
+Relational calculus
+Relation construction
+Relation composition
+Relation reduction
+Relational database
+Relational model
+Theory of relations
+Triadic relation
+Tutorial D
+D (data language specification)
+D4 (programming language) (an implementation of D)
+Aldat Relational Algebra
+
+
+
+
+[edit] References
+
+
+^ In Unicode, the bowtie symbol is ⋈ (U+22C8).
+^ Aho, Alfred V.; Jeffrey D. Ullman (1979). "Universality of data retrieval languages". Proceedings of the 6th ACM SIGACT-SIGPLAN symposium on Principles of programming languages: 110–119. http://portal.acm.org/citation.cfm?id=567763&coll=GUIDE&dl=ACM&CFID=26858249&CFTOKEN=38966071. 
+
+
+
+[edit] External links
+
+NoSQL - a fast, portable, relational database management system without arbitrary limits, that runs under, and interacts with, the UNIX Operating System
+LEAP - An implementation of the relational algebra
+Relational - A graphic implementation of the relational algebra
+Query Optimization This paper is an introduction into the use of the relational algebra in optimizing queries, and includes numerous citations for more in-depth study.
+
+
+
+
+
+
+
+
+v • d • e
+
+Database management systems
+
+
+
+
+
+Database models · Database normalization · Database storage · Distributed DBMS · Referential integrity · Relational algebra · Relational calculus · Relational database · Relational DBMS · Relational model · Object-relational database · Transaction processing
+
+
+
+
+
+Concepts
+
+Database · ACID · CRUD · Null · Candidate key · Foreign key · Primary key · Superkey · Surrogate key
+
+
+
+
+
+
+Objects
+
+Trigger · View · Table · Cursor · Log · Transaction · Index · Stored procedure · Partition
+
+
+
+
+
+
+SQL
+
+Select · Insert · Update · Merge · Delete · Join · Union · Create · Drop · Begin work · Commit · Rollback · Truncate · Alter
+
+
+
+
+
+
+Components
+
+Concurrency control · Data dictionary · JDBC · ODBC · Query language · Query optimizer · Query plan
+
+
+
+
+
+
+Database products: Object-oriented (comparison) · Relational (comparison) · Document-oriented
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Relational_algebra"
+Categories: Database management systems | Data modeling | Relational algebra | Relational modelHidden categories: Wikipedia articles to be split from August 2008 | Articles to be expanded since June 2008 | All articles to be expanded 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+فارسی
+Français
+한국어
+Italiano
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Tiếng Việt
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 23 February 2009, at 05:02 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

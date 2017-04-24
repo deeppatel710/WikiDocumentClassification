@@ -1,0 +1,328 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Page fault - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Page_fault";
+		var wgTitle = "Page fault";
+		var wgAction = "view";
+		var wgArticleId = "1157143";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282298855;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Page fault
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer storage technology, a page is a fixed-length block of memory that is used as a unit of transfer between physical memory and external storage like a disk, and a page fault is an interrupt (or exception) to the software raised by the hardware, when a program accesses a page that is mapped in address space, but not loaded in physical memory.
+The hardware that detects this situation is the memory management unit in a processor. The exception handling software that handles the page fault is generally part of an operating system. The operating system tries to handle the page fault by making the required page accessible at a location in physical memory or kills the program in case it is an illegal access.
+Contrary to what their name might suggest, page faults are not necessarily fatal and are common and necessary to increase the amount of memory available to programs in any operating system that utilizes virtual memory, including Microsoft Windows, Mac OS X, Linux and Unix. Note that Microsoft uses the term hard fault in its Resource Monitor to mean 'page fault' (cf. Resource View Help in Microsoft operating systems).
+
+
+
+
+Contents
+
+
+1 Reasons for page fault
+2 Types
+
+2.1 Minor page fault
+2.2 Major page fault
+2.3 Invalid page fault
+2.4 Protection fault
+
+
+3 Handling illegal accesses and invalid page faults
+4 Performance
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Reasons for page fault
+Hardware generates a page fault for page accesses where:
+
+the page corresponding to the requested address is not loaded in memory.
+the page corresponding to the memory address accessed is loaded, but its present status is not updated in hardware.
+
+The closely related exception known as the protection fault is generated for page accesses where:
+
+the page is not part of the program, and so is not mapped in program memory.
+the program does not have sufficient privileges to read or write the page.
+the page access is legal, but it is mapped with demand paging.
+
+Protection fault can also be generated for many other invalid accesses not related to paging.
+On the x86 architecture, accesses to pages that are not present and accesses to pages that do not conform to the permission attributes for a given page (protection faults as described above) are both reported via the page fault processor exception. Internally, the processor hardware provides information to the page fault handler that indicates what sort of access triggered the fault, so that these scenarios may be differentiated from of the operating system. The usage of the term protection fault (when speaking in relation to page faults) is thus not to be confused with the general protection fault exception, which is used to signal segmentation-based memory access violations, as well as a variety of other general protection related violations (such as the use of an instruction that is not valid at the current privilege level).
+
+
+Page Mapped
+Page Loaded
+Page Status
+Page access valid
+Exception
+
+
+yes
+yes
+present
+yes
+No exception
+
+
+yes
+--
+not present
+yes
+Page fault
+
+
+no
+yes
+yes
+yes
+Protection fault
+
+
+--
+--
+--
+no
+Protection fault
+
+
+
+[edit] Types
+
+[edit] Minor page fault
+If the page is loaded in memory at the time the fault is generated, but its status is not updated as 'present' in hardware, then it is called a minor or soft page fault. This could happen if the memory is shared by different programs and the page is already brought into memory for other programs. Since these faults do not involve disk latency, they are faster and less expensive than major page faults.
+
+[edit] Major page fault
+If the page is not loaded in memory at the time the fault is generated, then it is called a major or hard page fault. Major faults are more expensive than minor page faults and add disk latency to the interrupted program's execution. This is the mechanism used by an operating system to increase the amount of program memory available on demand. The operating system delays loading parts of the program from disk until the program attempts to use it and the page fault is generated.
+
+[edit] Invalid page fault
+If a page fault occurs that attempts to read the memory referenced by a null pointer, the system may alternatively generate an invalid page fault. The operating system maps a dummy page for catching null pointers.
+
+[edit] Protection fault
+When a program attempts invalid page accesses, for example trying to access pages not mapped into its memory, tries to write to read-only pages, or tries to modify privileged pages, the system hardware will generate a protection fault. Not all protection faults are illegal accesses, and they are the mechanism used by an operating system to implement copy on write access to share the same copy of memory among many programs until one of the programs wants to modify its copy.
+A program trying to access memory that belongs to another process is attempting 'illegal access' which generates a protection fault. The operating system handles this protection fault much like an invalid page fault: The operating system temporarily blocks 'write permission' until a page fault is generated, then creates new access information to allow the program to successfully find this memory.
+Note that in terms of the x86 architecture, memory protection violations reported via the page fault mechanism (protection faults, as described in this article) are distinct from memory protection violations reported via the general protection fault mechanism. The general protection fault mechanism is used to report segmentation-based memory access violations as well as other classes of protection violations. The page fault mechanism is used to report paging-based memory protection violations.
+
+[edit] Handling illegal accesses and invalid page faults
+Illegal accesses and invalid page faults can result in a program crash, segmentation error, bus error or core dump depending on the semantics of the operating system environment. Frequently these problems are the manifestation of software bugs, but the hardware memory errors frequently caused by overclocking may corrupt pointers causing even correct software to fail.
+Operating systems such as Windows and UNIX (and other UNIX-like systems) provide differing mechanisms for reporting errors caused by page faults. Windows uses structured exception handling to report page fault-based invalid accesses as access violation exceptions, and UNIX (and UNIX-like) systems typically use signals, such as SIGSEGV, to report these error conditions to programs.
+If the program that received the error does not handle it, then the operating system typically performs some sort of default action, typically involving the termination of the running process that caused the error condition, and a notification to the user that the program has malfunctioned. In this vein, recent versions of Windows often report such problems with less technical error messages simply stating something along the lines of "this program must close" (an experienced user or programmer with access to a debugger can still retrieve detailed information, if necessary). Additionally, recent Windows versions also write a minidump (similar in principle to a core dump) describing the state of the crashed process for later analysis alongside such less-technical error messages. UNIX and UNIX-like operating systems typically report these conditions to the user with error messages such as "segmentation violation", or "bus error".
+
+[edit] Performance
+Page faults, by their very nature, degrade the performance of a program or operating system and in the degenerate case can cause thrashing. Optimizations to programs and the operating system that reduce the number of page faults that occur improve the performance of the program or even the entire system. The two primary focuses of the optimization effort focus on reducing overall memory usage and improving memory locality. Generally, making more physical memory available also reduces page faults. Many page replacement algorithms have been proposed, implementing a heuristic to reduce the incidence of page faults.
+An average hard disk has an average latency of 3ms, a seek-time of 5ms, and a transfer-time of 0.05ms/page. So the total time for paging comes in near 8ms (8 000 000 ns). If the memory access time is 200ns, then the page fault would make the system about 40,000 times slower.
+
+[edit] See also
+
+Demand paging
+
+
+[edit] References
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (February 2008)
+
+
+
+
+John L. Hennessy, David A. Patterson, Computer Architecture, A Quantitative Approach (ISBN 1-55860-724-2)
+Tanenbaum, Andrew S. Operating Systems: Design and Implementation (Second Edition). New Jersey: Prentice-Hall 1997.
+Intel Architecture Software Developer's Manual–Volume 3: System Programming
+
+
+
+[edit] External links
+
+"So What Is A Page Fault?" from OSR Online (a Windows-specific explanation)
+"Virtual Memory Details" from the Red Hat website.
+"UnhandledExceptionFilter (Windows)" from MSDN Online.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Page_fault"
+Categories: Virtual memory | Computer errorsHidden categories: Articles lacking in-text citations from February 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Nederlands
+日本語
+Português
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 7 April 2009, at 08:21 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

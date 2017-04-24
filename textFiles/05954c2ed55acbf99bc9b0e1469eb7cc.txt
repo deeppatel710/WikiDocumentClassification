@@ -1,0 +1,426 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stack buffer overflow - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Stack_buffer_overflow";
+		var wgTitle = "Stack buffer overflow";
+		var wgAction = "view";
+		var wgArticleId = "12759537";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282570201;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-c {line-height: normal;}
+.source-c li, .source-c pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for c
+ * CSS class: source-c, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-c .de1, .source-c .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-c  {}
+.source-c .head {}
+.source-c .foot {}
+.source-c .imp {font-weight: bold; color: red;}
+.source-c .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-c li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-c li.li2 {font-weight: bold;}
+.source-c .kw1 {color: #b1b100;}
+.source-c .kw2 {color: #000000; font-weight: bold;}
+.source-c .kw3 {color: #000066;}
+.source-c .kw4 {color: #993333;}
+.source-c .co1 {color: #808080; font-style: italic;}
+.source-c .co2 {color: #339933;}
+.source-c .coMULTI {color: #808080; font-style: italic;}
+.source-c .es0 {color: #000099; font-weight: bold;}
+.source-c .br0 {color: #66cc66;}
+.source-c .st0 {color: #ff0000;}
+.source-c .nu0 {color: #cc66cc;}
+.source-c .me1 {color: #202020;}
+.source-c .me2 {color: #202020;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Stack buffer overflow
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For other uses, see Stack overflow (disambiguation).
+In software, a stack buffer overflow occurs when a program writes to a memory address on the program's call stack outside of the intended data structure; usually a fixed length buffer.[1][2] Stack buffer overflow bugs are caused when a program writes more data to a buffer located on the stack than there was actually allocated for that buffer. This almost always results in corruption of adjacent data on the stack, and in cases where the overflow was triggered by mistake, will often cause the program to crash or operate incorrectly. This type of overflow is part of the more general class of programming bugs known as buffer overflows.[1]
+If the affected program is running with special privileges, or accepts data from untrusted network hosts (e.g. a webserver) then the bug is a potential security vulnerability. If the stack buffer is filled with data supplied from an untrusted user then that user can corrupt the stack in such a way as to inject executable code into the running program and take control of the process. This is one of the oldest and more reliable methods for black hats to gain unauthorized access to a computer.[3][4][5]
+
+
+
+
+Contents
+
+
+1 Exploiting stack buffer overflows
+2 Platform related differences
+
+2.1 Stacks that grow up
+
+
+3 Protection schemes
+
+3.1 Stack canaries
+3.2 Nonexecutable stack
+
+
+4 Notable examples
+5 See also
+6 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Exploiting stack buffer overflows
+The canonical method for exploiting a stack based buffer overflow is to overwrite the function return address with a pointer to attacker-controlled data (usually on the stack itself).[3][6] This is illustrated in the example below:
+
+An example with memcpy
+
+
+
+#include <string.h>
+ 
+void foo (char *bar)
+{
+   char  c[12];
+ 
+   memcpy(c, bar, strlen(bar));  // no bounds checking...
+}
+ 
+int main (int argc, char **argv)
+{
+   foo(argv[1]); 
+}
+
+This code takes an argument from the command line and copies it to a local stack variable c. This works fine for command line arguments smaller than 12 characters (as you can see in figure B below). Any arguments larger than 11 characters long will result in corruption of the stack. (The maximum number of characters that is safe is one less than the size of the buffer here because in the C programming language strings are delimited by a zero byte character. A twelve-character input thus requires thirteen bytes to store, the input followed by the sentinel zero byte. The zero byte then ends up overwriting a memory location that's one byte beyond the end of the buffer.)
+
+The program stack in foo() with various inputs
+
+
+
+
+
+
+
+
+A. - Before data is copied.
+
+
+
+
+
+
+
+
+B. - "hello" is the first command line argument.
+
+
+
+
+
+
+
+
+C. - "A​A​A​A​A​A​A​A​A​A​A​A​A​A​A​A​A​A​A​A​\x08​\x35​\xC0​\x80" is the first command line argument.
+
+
+
+
+
+Notice in figure C above, when an argument larger than 11 bytes is supplied on the command line foo() overwrites local stack data, the saved frame pointer, and most importantly, the return address. When foo() returns it pops the return address off the stack and jumps to that address (i.e. starts executing instructions from that address). As you can see in figure C above, the attacker has overwritten the return address with a pointer to the stack buffer char c[12], which now contains attacker supplied data. In an actual stack buffer overflow exploit the string of "A"'s would be replaced with shellcode suitable to the platform and desired function. If this program had special privileges (e.g. the SUID bit set to run as the superuser), then the attacker could use this vulnerability to gain superuser privileges on the affected machine.[3]
+The attacker also can modify internal variables values to exploit some bugs. With same example :
+
+
+#include <string.h>
+ 
+void foo (char *bar)
+{
+   float My_Float = 10.5; // Addr = 0x0023FF4C
+   char  c[12];           // Addr = 0x0023FF30
+ 
+ 
+   // Will print 10.500000
+   printf("My Float value = %f\n", My_Float);
+ 
+    /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       Memory map:
+       @ : c allocated memory
+       # : My_Float allocated memory
+       - : other memory
+ 
+ 
+           *c                      *My_Float
+       0x0023FF30                  0x0023FF4C
+           |                           |
+           @@@@@@@@@@@@----------------#####
+      foo("my string is too long !!!!! XXXXX");
+ 
+   memcpy will put 0x1010C042 in My_Float value.
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+ 
+   memcpy(c, bar, strlen(bar));  // no bounds checking...
+ 
+ 
+   // Will print 96.031372
+   printf("My Float value = %f\n", My_Float);
+}
+ 
+int main (int argc, char **argv)
+{
+   foo("my string is too long !!!!! \x10\x10\xC0\x42");
+}
+
+
+[edit] Platform related differences
+A number of platforms have subtle differences in their implementation of the call stack that can affect the way a stack buffer overflow exploit will work. Some machine architectures store the top level return address of the call stack in a register. This means that any overwritten return address will not be used until a later unwinding of the call stack. Another example of a machine specific detail that can affect the choice of exploitation techniques is the fact that most RISC style machine architectures will not allow unaligned access to memory.[7] Combined with a fixed length for machine opcodes this machine limitation can make the jump to ESP technique almost impossible to implement (with the one exception being when the program actually contains the unlikely code to explicitly jump to the stack register).[8][9]
+
+[edit] Stacks that grow up
+
+
+
+
+
+This section may contain original research or unverified claims. Please improve the article by adding references. See the talk page for details. (February 2009)
+
+
+Within the topic of stack buffer overflows an often discussed but rarely seen architecture is one in which the stack grows in the opposite direction. This change in architecture is frequently suggested as a solution to the stack buffer overflow problem because any overflow of a stack buffer that occurs within the same stack frame can not overwrite the return pointer. Further investigation of this claimed protection finds it to be a naïve solution at best. Any overflow that occurs in a buffer from a previous stack frame will still overwrite a return pointer and allow for malicious exploitation of the bug.[10] For instance, in the example above, the return pointer for foo will not be overwritten because the overflow actually occurs within the stack frame for strcpy. However, because the buffer that overflows during the call to strcpy resides in a previous stack frame, the return pointer for strcpy will have a numerically higher memory address than the buffer. This means that instead of the return pointer for foo being overwritten, the return pointer for strcpy will be overwritten. At most this means that growing the stack in the opposite direction will change some details of how stack buffer overflows are exploitable, but it will not reduce significantly in the number of exploitable bugs.
+
+[edit] Protection schemes
+Main article: Stack-smashing protection
+Over the years a number of schemes have been developed to inhibit malicious stack buffer overflow exploitation. These usually have taken one of two forms. The first method is to detect that a stack buffer overflow has occurred and thus prevent redirection of the instruction pointer to malicious code. The second attempts to prevent the execution of malicious code from the stack without directly detecting the stack buffer overflow.[11]
+
+[edit] Stack canaries
+Stack canaries, so named because they operate as a canary in a coal mine so to speak, are used to detect a stack buffer overflow before execution of malicious code can occur. This method works by placing a small integer, the value of which is randomly chosen at program start, in memory just before the stack return pointer. Most buffer overflows overwrite memory from lower to higher memory addresses, so in order to overwrite the return pointer (and thus take control of the process) the canary value must also be overwritten. This value is checked to make sure it has not changed before a routine uses the return pointer on the stack.[2] This technique can greatly increase the difficulty of exploiting a stack buffer overflow because it forces the attacker to gain control of the instruction pointer by some nontraditional means such as corrupting other important variables on the stack.[2]
+
+[edit] Nonexecutable stack
+Main article: Data Execution Prevention
+Another approach to preventing stack buffer overflow exploitation is to enforce memory policy on stack memory region to disallow execution from the stack. This means that in order to execute shellcode from the stack an attacker must either find a way to disable the execution protection from memory, or find a way to put his shellcode payload in a non-protected region of memory. This method is becoming more popular now that hardware support for the no-execute flag is available in most desktop processors. While this method definitely makes the canonical approach to stack buffer overflow exploitation fail it is not without its problems. First it is common to find ways to store shellcode in unprotected memory regions like the heap, and so very little need change in the way of exploitation.[12] Even if this were not so, there are other ways. The most damning is the so called return to libc method for shellcode creation. In this attack the malicious payload will load the stack not with shellcode, but with a proper call stack so that execution is vectored to a chain of standard library calls, usually with the effect of disabling memory execute protections and allowing shellcode to run as normal.[13] This works because the execution never actually vectors to the stack itself. Still if used in conjunction with techniques like ASLR a nonexecutable stack can be somewhat resistant to return to libc attacks and thus can greatly improve the security of an application.
+
+[edit] Notable examples
+
+The Morris worm spread in part by exploiting a stack buffer overflow in the Unix finger server.[1]
+The Witty worm spread by exploiting a stack buffer overflow in the Internet Security Systems BlackICE Desktop Agent.[2]
+The Slammer worm spread by exploiting a stack buffer overflow in Microsoft's SQL server.[3]
+The Blaster worm spread by exploiting a stack buffer overflow in Microsoft DCOM service
+The Twilight hack was made for the Wii by giving a lengthy character name for the horse ('Epona') in The Legend of Zelda: Twilight Princess
+
+
+[edit] See also
+
+Stack overflow
+Call stack
+Buffer overflow
+Heap overflow
+Integer overflow
+Format string attack
+Vulnerability (computing)
+Exploit (computer security)
+Computer security
+
+
+[edit] References
+
+
+^ a b Fithen, William L; Seacord, Robert (2007-03-27). "VT-MB. Violation of Memory Bounds". US CERT. https://www.securecoding.cert.org/confluence/display/sci/VT-MB.+Violation+of+Memory+Bounds. 
+^ a b c Dowd, Mark; McDonald, John; Schuh, Justin (November 2006). The Art Of Software Security Assessment. Addison Wesley. pp. 169-196. ISBN 0-321-44442-6. 
+^ a b c Levy, Elias (1996-11-08). "Smashing the stack for fun and profit". Phrack 1 (49): 14. http://www.phrack.org/issues.html?issue=49&id=14&mode=txt. 
+^ Pincus, Jonathan; Baker, Brandon (July-August 2004). "Beyond Stack Smashing: Recent Advances in Exploiting Buffer Overruns" ([dead link] – Scholar search). IEEE Security & Privacy 2 (4): 20–27. doi:10.1109/MSP.2004.36. http://research.microsoft.com/users/jpincus/beyond-stack-smashing.pdf. 
+^ Burebista (PDF). Stack Overflows. http://www.securityforest.com/downloads/educationtree/stack_overflows.pdf. 
+^ Bertrand, Louis (2002). "OpenBsd: Fix the Bugs, Secure the System". MUSESS '02: McMaster University Software Engineering Symposium. 
+^ pr1 (HTML). Exploiting SPARC Buffer Overflow vulnerabilities. http://www.utdallas.edu/~edsha/UGsecurity/sparcoverflow.htm. 
+^ Curious (2005-01-08). "Reverse engineering - PowerPC Cracking on Mac OS X with GDB". Phrack 11 (63): 16. http://www.phrack.org/issues.html?issue=63&id=16#article. 
+^ Sovarel, Ana Nora; Evans, David; Paul, Nathanael (HTML). Where’s the FEEB? The Effectiveness of Instruction Set Randomization. http://www.cs.virginia.edu/feeb/paper/. 
+^ Zhodiac (2001-12-28). "HP-UX (PA-RISC 1.1) Overflows". Phrack 11 (58): 11. http://www.trust-us.ch/phrack/show.php@p=58&a=11. 
+^ Ward, Craig E. (2005-06-13). "C/C++ Buffer Overflows" (PDF). Unix Users Association of Southern California. 
+^ Foster, James C.; Osipov, Vitaly; Bhalla, Nish; Heinen, Niels (2005) (PDF). Buffer Overflow Attacks: Detect, Exploit, Prevent. United States of America: Syngress Publishing,Inc.. ISBN 1-932266-67-4. http://apossum.alfaspace.net/eng/Syngress.Buffer.Overflow.Attacks.Dec.2004.ISBN1932266674.pdf. 
+^ Nergal (2001-12-28). "The advanced return-into-lib(c) exploits: PaX case study". Phrack 11 (58): 4. http://www.phrack.org/issues.html?issue=58&id=4#article. 
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Stack_buffer_overflow"
+Categories: Programming bugs | Software anomalies | Computer security exploits | Computer errorsHidden categories: All articles with dead external links | Articles with dead external links since June 2008 | Articles that may contain original research since February 2009 | All articles that may contain original research 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Italiano
+日本語
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 April 2009, at 15:36 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

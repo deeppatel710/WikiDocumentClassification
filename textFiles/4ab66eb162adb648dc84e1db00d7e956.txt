@@ -1,0 +1,323 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Smith-Waterman algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Smith-Waterman_algorithm";
+		var wgTitle = "Smith-Waterman algorithm";
+		var wgAction = "view";
+		var wgArticleId = "1606195";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276989939;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Smith-Waterman algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Smith-Waterman algorithm is a well-known algorithm for performing local sequence alignment; that is, for determining similar regions between two nucleotide or protein sequences. Instead of looking at the total sequence, the Smith-Waterman algorithm compares segments of all possible lengths and optimizes the similarity measure.
+
+
+
+
+Contents
+
+
+1 Background
+2 Algorithm Explanation
+3 Example
+4 Motivation
+5 Accelerated versions
+
+5.1 FPGA
+5.2 GPU
+5.3 SSE
+5.4 Cell Broadband Engine
+
+
+6 References
+7 External links
+8 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Background
+The algorithm was first proposed by Temple Smith and Michael Waterman in 1981.[1] Like the Needleman-Wunsch algorithm, of which it is a variation, Smith-Waterman is a dynamic programming algorithm. As such, it has the desirable property that it is guaranteed to find the optimal local alignment with respect to the scoring system being used (which includes the substitution matrix and the gap-scoring scheme). The main difference to the Needleman-Wunsch algorithm is that negative scoring matrix cells are set to zero, which renders the (thus positively scoring) local alignments visible. Backtracing starts at the highest scoring matrix cell and proceeds until a cell with score zero is encountered, yielding the highest scoring local alignment.
+
+[edit] Algorithm Explanation
+A matrix H is built as follows:
+
+
+
+Where:
+
+a, b = Strings over the Alphabet Σ
+m = length(a)
+n = length(b)
+H(i,j) - is the maximum Similarity-Score between the substring of a of length i, and the substring of b of length j
+, '-' is the gap-scoring scheme
+
+
+
+[edit] Example
+
+Sequence 1 = ACACACTA
+Sequence 2 = AGCACACA
+
+
+w(match) = +2
+w(a, − ) = w( − ,b) = w(mismatch) = − 1
+
+
+To obtain the optimum local alignment, we start with the highest value in the matrix (i,j). Then, we go to the biggest value among those in positions (i-1,j), (i,j-1), and (i-1,j-1). (In case there is a tie, the diagonal jump is preferred.) We keep the process until we reach a matrix cell with zero value, or the value in position (0,0).
+In the example, the highest value corresponds to the cell in position (8,8). The walk back corresponds to (8,8), (7,7), (7,6), (6,5), (5,4), (4,3), (3,2), (2,1), (1,1), and (0,0),
+Once we've finished, we reconstruct the alignment as follows: Starting with the last value, we reach (i,j) using the previously-calculated path. A diagonal jump implies there is an alignment (either a match or a mismatch). A top-down jump implies there is a deletion. A left-right jump implies there is an insertion.
+For the example, we get:
+
+Sequence 1 = A-CACACTA
+Sequence 2 = AGCACAC-A
+
+
+[edit] Motivation
+One motivation for local alignment is the difficulty of obtaining correct alignments in regions of low similarity between distantly related biological sequences, because mutations have added too much 'noise' over evolutionary time to allow for a meaningful comparison of those regions. Local alignment avoids such regions altogether and focuses on those with a positive score, i.e. those with an evolutionary conserved signal of similarity. A prerequisite for local alignment is a negative expectation score. The expectation score is defined as the average score that the scoring system (substitution matrix and gap penalties) would yield for a random sequence.
+Another motivation for using local alignments is that there is a reliable statistical model (developed by Karlin and Altschul) for optimal local alignments. The alignment of unrelated sequences tends to produce optimal local alignment scores which follow an extreme value distribution. This property allows programs to produce an expectation value for the optimal local alignment of two sequences, which is a measure of how often two unrelated sequences would produce an optimal local alignment whose score is greater than or equal to the observed score. Very low expectation values indicate that the two sequences in question might be homologous, meaning they might share a common ancestor.
+However, the Smith-Waterman algorithm is fairly demanding of time and memory resources: in order to align two sequences of lengths m and n, O(mn) time and space are required. As a result, it has largely been replaced in practical use by the BLAST algorithm; although not guaranteed to find optimal alignments, BLAST is much more efficient.
+An implementation of the Smith-Waterman Algorithm, SSEARCH, is available in the FASTA sequence analysis package from [4]. This implementation includes Altivec accelerated code for PowerPC G4 and G5 processors that speeds up comparisons 10 - 20-fold, using a modification of the Wozniak, 1997 approach[2], and an SSE2 vectorization developed by Farrar [3] making optimal protein database searches quite practical.
+
+[edit] Accelerated versions
+
+[edit] FPGA
+
+
+
+
+
+This article needs references that appear in reliable third-party publications. Primary sources or sources affiliated with the subject are generally not sufficient for a Wikipedia article. Please add more appropriate citations from reliable sources. (August 2007)
+
+
+Other recent work developed by Cray demonstrates acceleration of the Smith-Waterman algorithm using a reconfigurable computing platform based on FPGA chips.[4] The results show up to 28x speed-up over standard microprocessor-based solutions. An FPGA based version of the Smith-Waterman algorithm shows FPGA (Virtex-4) speedups up to 100x[5] over a 2.2 GHz Opteron processor.[6]
+
+[edit] GPU
+Recent work developed at Lawrence Livermore National Laboratory and the US Department of Energy's Joint Genome Institute accelerates Smith-Waterman local sequence alignment searches using graphics processing units (GPUs) with preliminary results showing a 2x speed-up over software implementations[7]. A similar method has already been implemented in the Biofacet software since 1997, with the same speed-up factor.[8]
+A GPGPU implementation of the algorithm in the CUDA language by NVIDIA is also available.[9] The performance tests on this solution actually show a slow-down versus the best known CPU implementation (using SIMD instructions on the x86 architecture), by Farrar.
+At present there is no public GPU result showing a speedup over Farrar's implementation, although obtaining a speedup should be possible.
+
+[edit] SSE
+In 2000, a fast implementation of the Smith-Waterman algorithm using the SIMD technology available in Intel Pentium MMX processors and similar technology was described in a publication by Rognes and Seeberg[10]. In contrast to the Wozniak (1997) approach, the new implementation was based on vectors parallel with the query sequence, not diagonal vectors. The company Sencel Bioinformatics has applied for a patent covering this approach. Sencel is developing the software further and provides executables for academic use free of charge.
+A SSE2 vectorization of the algorithm (Farrar, 2007) is now available providing an 8-fold speedup on Intel/AMD processors with SSE2 extensions.[3] When running on Intel processor using the new Intel Core microarchitecture the SSE2 implementation achieves a 20-fold increase.
+Danish bioinformatics company CLC bio has achieved speed-ups of close to 200 over standard software implementations with SSE2 on a Intel 2.17 GHz Core 2 Duo CPU, according to a publicly available white paper.
+Accelerated version of the Smith-Waterman algorithm, on Intel and AMD based Linux servers, is supported by the GenCore 6 package, offered by Biocceleration. Performance benchmarks of this software package show up to 10 fold speed acceleration relative to standard software implementation on the same processor.
+Currently the only company in bioinformatics to offer both SSE and FPGA solutions accelerating Smith-Waterman, CLC bio has achieved speed-ups of more than 110 over standard software implementations with CLC Bioinformatics Cube.
+The TimeLogic DeCypher and CodeQuest systems also accelerate Smith-Waterman and Framesearch using FPGA technology.
+
+[edit] Cell Broadband Engine
+In 2008, Farrar[11] described a port of the Striped Smith-Waterman[3] to the Cell Broadband Engine and reported speeds of 32 and 12 GCUPS on an IBM QS20 blade and a Sony PlayStation 3, respectively.
+
+[edit] References
+
+
+^ Smith TF, Waterman MS (1981). "Identification of Common Molecular Subsequences". Journal of Molecular Biology 147: 195–197. doi:10.1016/0022-2836(81)90087-5. http://gel.ym.edu.tw/~chc/AB_papers/03.pdf. 
+^ Wozniak A (1997). "Using video-oriented instructions to speed up sequence comparison". Comput Appl Biosci 13 (2): 145–50. http://bioinformatics.oxfordjournals.org/cgi/reprint/13/2/145.pdf. 
+^ a b c Farrar M (2007). "Striped Smith–Waterman speeds database searches six times over other SIMD implementations". Bioinformatics 23: 156–161. doi:10.1093/bioinformatics/btl582. PMID 17110365. http://bioinformatics.oxfordjournals.org/cgi/reprint/23/2/156.pdf. 
+^ Cray Computer Corp, "Smith-Waterman Solution for Life Sciences".
+^ FPGA 100x Papers: [1], [2], and [3]
+^ Progeniq Pte Ltd, "White Paper - Accelerating Intensive Applications at 10x-50x Speedup to Remove Bottlenecks in Computational Workflows".
+^ "GPU Accelerated Smith-Waterman". SpringerLink. http://www.springerlink.com/content/w3727h42513362xn. 
+^ "Bioinformatics High Throughput Sequence Search and Analysis (white paper)". GenomeQuest. http://www.genomequest.com/contact-bioinformatics-ht.html. Retrieved on 2008-05-09. 
+^ Manavski SA, Valle G (2008). "CUDA compatible GPU cards as efficient hardware accelerators for Smith-Waterman sequence alignment". BMC Bioinformatics 9 (Suppl 2:S10): S10. doi:10.1186/1471-2105-9-S2-S10. http://www.biomedcentral.com/1471-2105/9/S2/S10. 
+^ Rognes T and Seeberg E (2000). "Six-fold speed-up of Smith-Waterman sequence database searches using parallel processing on common microprocessors". Bioinformatics 16: 699–706. http://bioinformatics.oxfordjournals.org/cgi/reprint/16/8/699.pdf. 
+^ Farrar M S (2008). Optimizing Smith-Waterman for the Cell Broadband Engine. http://farrar.michael.googlepages.com/smith-watermanfortheibmcellbe. 
+
+
+
+[edit] External links
+
+JAligner — an open source Java implementation of the Smith-Waterman algorithm
+B.A.B.A. — an applet (with source) which visually explains the algorithm.
+FASTA/SSEARCH at the EBI's FASTA/SSEARCH services page.
+UGENE Smith-Waterman plugin — An open source SSEARCH compatible implementation of the algorithm with graphical interface written in C++.
+
+
+[edit] See also
+
+BLAST
+FASTA
+Levenshtein distance
+Needleman-Wunsch algorithm
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Smith-Waterman_algorithm"
+Categories: Bioinformatics algorithms | Computational phylogenetics | Algorithms on strings | Dynamic programmingHidden categories: Articles lacking reliable references from August 2007 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+
+
+
+
+
+
+
+
+
+ This page was last modified on 13 March 2009, at 15:46 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

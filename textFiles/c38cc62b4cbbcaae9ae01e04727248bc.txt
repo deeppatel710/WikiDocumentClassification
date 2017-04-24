@@ -1,0 +1,305 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Abstract interpretation - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Abstract_interpretation";
+		var wgTitle = "Abstract interpretation";
+		var wgAction = "view";
+		var wgArticleId = "60490";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276007913;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Abstract interpretation
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article uses first-person ("I"; "we") or second-person ("you") inappropriately. Please rewrite it to use a more formal, encyclopedic tone. (January 2008)
+
+
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (February 2009)
+
+
+In computer science, abstract interpretation is a theory of sound approximation of the semantics of computer programs, based on monotonic functions over ordered sets, especially lattices. It can be viewed as a partial execution of a computer program which gains information about its semantics (e.g. control structure, flow of information) without performing all the calculations.
+Its main concrete application is formal static analysis, the automatic extraction of information about the possible executions of computer programs; such analyses have two main usages:
+
+inside compilers, to analyse programs in order to decide whether certain optimisations or transformations are applicable;
+for debugging or even the certification of programs against classes of bugs.
+
+Abstract interpretation was formalized by Patrick Cousot and Radhia Cousot.
+
+
+
+
+Contents
+
+
+1 Intuition
+2 Abstract interpretation of computer programs
+3 Formalization
+4 Examples of abstract domains
+5 Tools
+6 See also
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Intuition
+This article now illustrates what abstract interpretation means, by using real-world, non-computing, examples.
+Consider the people in a conference room. To prove that some persons were not present, one concrete method is to look up a list of the names and some identifiers unique to them, like a social security number in the United States, of all participants. Since two different people cannot have the same number, it is possible to prove or disprove the presence of a participant simply by looking up his or her number in the list.
+However it is possible that only the names of attendees were registered. If the name of a person is not found in the list, we may safely conclude that that person was not present; but if it is, we cannot conclude definitely without further inquiries, due to the possibility of homonyms. Note that this imprecise information will still be adequate for most purposes, because homonyms are rare in practice. However, in all rigor, we cannot say for sure that somebody was present in the room; all we can say is that he or she was possibly here. If the person we are looking up is a criminal, we will issue an alarm; but there is of course the possibility of issuing a false alarm. Similar phenomena will occur in the analysis of programs.
+If we are only interested in some specific information, say, "was there a person of age n in the room", keeping a list of all names and dates of births is unnecessary. We may safely and without loss of precision restrict ourselves to keeping a list of the participants' ages. If this is already too much to handle, we might keep only the minimal m and maximal M ages. If the question is about an age strictly lower than m or strictly higher than M, then we may safely respond that no such participant was present. Otherwise, we may only be able to say that we do not know.
+In the case of computing, concrete, precise information is in general not computable within finite time and memory (see Rice's theorem and the halting problem). Abstraction is used to simplify problems up to problems amenable to automatic solutions. One crucial requirement is to diminish precision so as to make problems manageable while still retaining enough precision for answering the important questions (such as "may the program crash?").
+
+[edit] Abstract interpretation of computer programs
+Given a programming or specification language, abstract interpretation consists in giving several semantics linked by relations of abstraction. A semantics is a mathematical characterization of a possible behavior of the program. The most precise semantics, describing very closely the actual execution of the program, are called the concrete semantics. For instance, the concrete semantics of an imperative programming language may associate to each program the set of execution traces it may produce – an execution trace being a sequence of possible consecutive states of the execution of the program; a state typically consists of the value of the program counter and the memory locations (globals, stack and heap). More abstract semantics are then derived; for instance, one may consider only the set of reachable states in the executions (which amounts to considering the last states in finite traces).
+The goal of static analysis is to derive a computable semantic interpretation at some point. For instance, one may choose to represent the state of a program manipulating integer variables by forgetting the actual values of the variables and only keeping their signs (+, - or 0). For some elementary operations, such as multiplication, such an abstraction does not lose any precision: to get the sign of a product, it is sufficient to know the sign of the operands. For some other operations, the abstraction may lose precision: for instance, it is impossible to know the sign of a sum whose operands are respectively positive and negative.
+Sometimes a loss of precision is necessary to make the semantics decidable (see Rice's theorem, halting problem). In general, there is a compromise to be made between the precision of the analysis and its decidability (computability), or tractability (complexity).
+In practice the abstractions that are defined are tailored to both the program properties one desires to analyze, and to the set of target programs.
+
+[edit] Formalization
+Let L be an ordered set, called a concrete set and let L′ be another ordered set, called an abstract set. These two sets are related to each other by defining total functions that map elements from one to the other.
+A function α is called an abstraction function if it maps an element x in the concrete set L to an element α(x) in the abstract set L′. That is, element α(x) in L′ is the abstraction of x in L.
+A function γ is called a concretization function if it maps an element x′ in the abstract set L′ to an element γ(x′) in the concrete set L. That is, element γ(x′) in L is a concretization of x′ in L′.
+Let L1, L2, L′1 and L′2 be ordered sets. The concrete semantics f is a monotonic function from L1 to L2. A function f′ from L′1 to L′2 is said to be a valid abstraction of f if for all x′ in L′1, (f ∘ γ)(x′) ≤ (γ ∘ f′)(x′).
+Program semantics are generally described using fixed points in the presence of loops or recursive procedures. Let us suppose that L is a complete lattice and let f be a monotonic function from L into L. Then, any x′ such that f′(x′) ≤ x′ is an abstraction of the least fixed-point of f, which exists, according to the Knaster-Tarski theorem.
+The difficulty is now to obtain such an x′. If L' is of finite height, or at least verifies the "ascending chain condition" (all ascending sequences are ultimately stationary), then such an x′ may be obtained as the stationary limit of the ascending sequence x′n defined by induction as follows: x′0=⊥ (the least element of L′) and x′n+1=f′(x′n).
+In other cases, it is still possible to obtain such an x′ through a widening operator ∇: for all x and y, x ∇ y should be greater or equal than both x and y, and for any sequence y′n, the sequence defined by x′0=⊥ and x′n+1=x′n ∇ y′n is ultimately stationary. We can then take y′n=f′(x′n).
+In some cases, it is possible to define abstractions using Galois connections (α, γ) where α is from L to L′ and γ is from L′ to L. This supposes the existence of best abstractions, which is not necessarily the case. For instance, if we abstract sets of couples (x,y) of real numbers by enclosing convex polyhedra, there is no optimal abstraction to the disc defined by x2+y2 ≤ 1.
+
+[edit] Examples of abstract domains
+One can assign to each variable x available at a given program point an interval [lx,hx]. A state assigning the value v(x) to variable x will be a concretization of these intervals if for all x, then v(x) is in [lx,hx]. From the intervals [lx,hx] and [ly,hy] for variables x and y, one can easily obtain intervals for x+y ([lx+ly,hx+hy]) and for x-y ([lx-hy,hx-ly]); note that these are exact abstractions, since the set of possible outcomes for, say, x+y, is precisely the interval ([lx+ly,hx+hy]). More complex formulas can be derived for multiplication, division, etc., yielding so-called interval arithmetics.
+Let us now consider the following very simple program:
+
+y = x;
+z = x - y;
+
+With reasonable arithmetic types, the result for z should be zero. But if we do interval arithmetics starting from x in [0,1], one gets z in [-1,1]. While each of the operations taken individually was exactly abstracted, their composition isn't.
+The problem is evident: we did not keep track of the equality relationship between x and y; actually, this domain of intervals does not take into account any relationships between variables, and is thus a non-relational domain. Non-relational domains tend to be fast and simple to implement, but imprecise.
+Some examples of relational numerical abstract domains are:
+
+congruence relations on integers
+convex polyhedra – with some high computational costs
+"octagons"
+difference-bound matrices
+linear equalities
+
+and combinations thereof.
+When one chooses an abstract domain, one typically has to strike a balance between keeping fine-grained relationships, and high computational costs.
+
+[edit] Tools
+
+ASTRÉE
+PolySpace Technologies
+PAG and PAG/WWW
+Sparrow
+CodeSonar
+Coverity Prevent
+Klocwork Insight
+PLC Checker
+
+
+[edit] See also
+
+DAEDALUS
+Standard interpretation
+Model checking
+Symbolic simulation
+
+
+[edit] External links
+
+David Schmidt's lecture notes on abstract interpretation
+Michael Schwarzbach's lecture notes on static analysis
+Agostino Cortesi's lecture notes on Program Analysis and Verification (in italian)
+Course on Abstract Interpretation given by Patrick Cousot and Jerome Clarke Hunsaker at MIT in Spring 2005
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Abstract_interpretation"
+Categories: Formal methods | Logic in computer science | Programming language implementationHidden categories: Wikipedia articles needing style editing from January 2008 | All articles needing style editing | Articles lacking in-text citations from February 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+日本語
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 March 2009, at 10:41 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

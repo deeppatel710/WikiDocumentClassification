@@ -1,0 +1,268 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DLL injection - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "DLL_injection";
+		var wgTitle = "DLL injection";
+		var wgAction = "view";
+		var wgArticleId = "5140924";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282866356;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); DLL injection
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article needs context or references with which to establish the notability of the subject matter. Please help out by providing context and reliable sources which back up the subject's importance for a general audience. (March 2009)
+
+
+In computer programming, DLL injection is a technique used to run code within the address space of another process by forcing it to load a dynamic-link library.[1] DLL injection is often used by third-party developers to influence the behavior of a program in a way its authors did not anticipate or intend.[1][2][3] For example, the injected code could trap system function calls,[4][5] or read the contents of password textboxes, which cannot be done the usual way.[6]
+
+[edit] Approaches on Microsoft Windows
+There are at least four ways to force a program to load a DLL on Microsoft Windows:
+
+DLLs listed under the registry key HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs will be loaded into every process that links to User32.dll as that DLL attaches itself to the process.[7][8][9][5]
+Process manipulation functions such as CreateRemoteThread can be used to inject a DLL into a program after it has started.[10][11][12][13][6][5]
+
+A handle to the target process is obtained, this can be done by spawning the process[14][15] or by keying off something created by that process that is known to exist – for instance, a window with a predictable title,[16] or by obtaining a list of running processes[17] and scanning for the target executable's filename.[18]
+Some memory is allocated in the target process,[19] and the name of the DLL to be injected is written to it.[20][10]
+
+This step can be skipped if a suitable DLL name is already available in the target process. For example, if a process links to ‘User32.dll’, ‘GDI32.dll’, ‘Kernel32.dll’ or any other library whose name ends in ‘32.dll’, it would be possible to load a library named ‘32.dll’. This technique has in the past been demonstrated to be effective against a method of guarding processes against DLL injection.[21]
+
+
+A new thread is created in the target process,[22] with the thread's start address set to be the address of LoadLibrary and the argument set to the address of the string just uploaded into the target.[23][10]
+
+Instead of writing the name of a DLL to load to the target and starting the new thread at LoadLibrary, one can of course also write the code to be executed itself to the target and start the thread at that code.[6]
+
+
+The operating system will now call DllMain in the injected DLL.[24][10]
+
+
+Note that without precautions, this approach can be detected by the target process due to the DLL_THREAD_ATTACH notifications sent to every loaded module as a thread starts.[24]
+
+
+Windows hooking calls such as SetWindowsHookEx.[25][26][27][6][2][5]
+Use the debugging functions to pause all threads, and then hijack an existing thread in the application to execute injected code, that in turn could load a DLL.[28][29][4]
+
+
+[edit] Approaches on Unix-like systems
+On Unix-like operating systems with the dynamic linker based on ld.so (on BSD) and ld-linux.so (on Linux), arbitrary libraries can be linked to a new process by giving the library's pathname in the LD PRELOAD environment variable, that can be set globally or individually for a single process.[30]
+For example, in bash, this command launches the command "prog --help" with the shared library from file "test.so" linked into it at the launchtime:
+
+LD_PRELOAD="./test.so" prog --help
+
+Such a library can be created with GCC by compiling the source file containing the new globals to be linked, with the -fpic or -fPIC option,[31] and linking with the -shared option.[32] The library has access to external symbols declared in the program like any other library.
+
+[edit] References
+
+
+^ a b James Shewmaker (2006). "Analyzing DLL Injection" (PDF). GSM Presentation. Bluenotch. http://bluenotch.com/files/Shewmaker-DLL-Injection.pdf. Retrieved on 2008-08-31. 
+^ a b Iczelion (August 2002). "Tutorial 24: Windows Hooks". Iczelion's Win32 Assembly Homepage. http://win32assembly.online.fr/tut24.html. Retrieved on 2008-08-31. 
+^ Rocky Pulley (2005-05-19). "Extending Task Manager with DLL Injection". CodeProject. CodeProject. http://secure.codeproject.com/KB/threads/taskex.aspx. Retrieved on 2008-09-01. 
+^ a b Nasser R. Rowhani (2003-10-23). "DLL Injection and function interception tutorial". CodeProject. CodeProject. http://www.codeproject.com/KB/DLL/DLL_Injection_tutorial.aspx. Retrieved on 2008-08-31. 
+^ a b c d Ivo Ivanov (2002-12-02). "API hooking revealed". CodeProject. CodeProject. http://www.codeproject.com/KB/system/hooksys.aspx. Retrieved on 2008-08-31. 
+^ a b c d Robert Kuster (2003-08-20). "Three Ways to Inject Your Code into Another Process". CodeProject. CodeProject. http://www.codeproject.com/KB/threads/winspy.aspx. Retrieved on 2008-08-31. 
+^ "Working with the AppInit_DLLs registry value". Microsoft Help and Support. Microsoft. 2006-11-21. http://support.microsoft.com/kb/197571. Retrieved on 2008-08-31. 
+^ Raymond Chen (2007-12-13). "AppInit_DLLs should be renamed Deadlock_Or_Crash_Randomly_DLLs". The Old New Thing. Microsoft. http://blogs.msdn.com/oldnewthing/archive/2007/12/13/6648400.aspx. Retrieved on 2008-08-31. 
+^ "dllmain.c". ReactOS. ReactOS Foundation. 2008-07-08. http://svn.reactos.org/svn/reactos/trunk/reactos/dll/win32/user32/misc/dllmain.c?view=markup. Retrieved on 2008-08-31. 
+^ a b c d Trent Waddington. "InjectDLL". http://www.quantumg.net/injectdll.php. Retrieved on 2008-08-31. 
+^ "Dll Injection". DreamInCode.net. MediaGroup1. 2006-05-04. http://www.dreamincode.net/code/snippet407.htm. Retrieved on 2008-08-31. 
+^ Greg Jenkins (November 2007). "DLL Injection Framework". Ring3 Circus. WordPress. http://www.ring3circus.com/downloads/dll-injection-framework/. Retrieved on 2008-08-31. 
+^ Drew Benton (2007-08-17). "A More Complete DLL Injection Solution Using CreateRemoteThread". CodeProject. CodeProject. http://69.10.233.10/KB/threads/completeinject.aspx. Retrieved on 2008-09-01. 
+^ CreateProcess ms-help://MS.PSDKXPSP2.1033/dllproc/base/createprocess.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ PROCESS_INFORMATION ms-help://MS.PSDKXPSP2.1033/dllproc/base/process_information_str.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ GetWindowThreadProcessId Function ms-help://MS.PSDKXPSP2.1033/winui/winui/windowsuserinterface/windowing/windows/windowreference/windowfunctions/getwindowthreadprocessid.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ EnumProcesses ms-help://MS.PSDKXPSP2.1033/perfmon/base/enumprocesses.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ GetModuleBaseName ms-help://MS.PSDKXPSP2.1033/perfmon/base/getmodulebasename.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ VirtualAllocEx ms-help://MS.PSDKXPSP2.1033/memory/base/virtualallocex.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ WriteProcessMemory ms-help://MS.PSDKXPSP2.1033/debug/base/writeprocessmemory.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ "Outpost Bypassing Self-Protection via Advanced DLL injection with handle stealing Vulnerability". Matousec. 2006-12-01. http://www.matousec.com/info/advisories/Outpost-Bypassing-Self-Protection-via-Advanced-DLL-injection-with-handle-stealing.php. Retrieved on 2008-08-31. 
+^ CreateRemoteThread ms-help://MS.PSDKXPSP2.1033/dllproc/base/createremotethread.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ LoadLibrary ms-help://MS.PSDKXPSP2.1033/dllproc/base/loadlibrary.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ a b DllMain ms-help://MS.PSDKXPSP2.1033/dllproc/base/dllmain.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ SetWindowsHookEx Function ms-help://MS.PSDKXPSP2.1033/winui/winui/windowsuserinterface/windowing/hooks/hookreference/hookfunctions/setwindowshookex.htm Platform SDK for Windows XP SP2. Microsoft. Retrieved on 2008-08-31.
+^ "AppInit_DLLs Registry Value and Windows 95". Microsoft Help and Support. Microsoft. 2005-03-01. http://support.microsoft.com/kb/134655. Retrieved on 2008-08-31. 
+^ "Dll Injection using SetWindowsHookEx() Method". Game Reversal. 2008-04-03. http://www.gamereversal.com/index.php?option=com_content&view=article&id=56%3Adll-injection-using-setwindowshookex-method&catid=39%3Ac--c-core-concepts&Itemid=1. Retrieved on 2008-09-01. 
+^ "SetThreadContext DLL Injection". 2007-01-16. http://nerd.egloos.com/2940083. Retrieved on 2008-09-01. 
+^ Ben Botto (2008-09-06). "DLL Injector". http://busybin.com/busybin/C++/dll_injector/. Retrieved on 2008-09-01. 
+^ Linus Torvalds; David Engel, Eric Youngdale, Peter MacDonald, Hongjiu Lu, Lars Wirzenius and Mitch D'Souza (1998-03-14). ld.so/ld-linux.so – dynamic linker/loader man ld.so UNIX man pages. Retrieved on 2008-08-31.
+^ "Code Gen Options". Using the GNU Compiler Collection (GCC). Free Software Foundation. http://gcc.gnu.org/onlinedocs/gcc-4.3.2/gcc/Code-Gen-Options.html#Code-Gen-Options. Retrieved on 2008-08-31.  "-fpic Generate position-independent code (PIC) suitable for use in a shared library, if supported for the target machine. sqq." 
+^ "Link Options". Using the GNU Compiler Collection (GCC). Free Software Foundation. http://gcc.gnu.org/onlinedocs/gcc-4.3.2/gcc/Link-Options.html#Link-Options. Retrieved on 2008-08-31.  "-shared Produce a shared object which can then be linked with other objects to form an executable. sqq." 
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/DLL_injection"
+Categories: Computer libraries | Malware | Microsoft WindowsHidden categories: Articles with topics of unclear notability from March 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Italiano
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 22:55 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,918 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Distance-vector routing protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Distance-vector_routing_protocol";
+		var wgTitle = "Distance-vector routing protocol";
+		var wgAction = "view";
+		var wgArticleId = "159228";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276783793;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Distance-vector routing protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (February 2007)
+
+
+A distance-vector routing protocol is one of the two major classes of routing protocols used in packet-switched networks for computer communications, the other major class being the link-state protocol. A distance-vector routing protocol uses the Bellman-Ford algorithm to calculate paths.
+Examples of distance-vector routing protocols include RIPv1 and 2 and IGRP. EGP and BGP are not pure distance-vector routing protocols but their concepts are the same. In many cases, EGP and BGP are considered DV (distance-vector) routing protocols.
+A distance-vector routing protocol requires that a router informs its neighbors of topology changes periodically and, in some cases, when a change is detected in the topology of a network. Compared to link-state protocols, which require a router to inform all the nodes in a network of topology changes, distance-vector routing protocols have less computational complexity and message overhead.[citation needed]
+
+
+
+
+Contents
+
+
+1 Method
+2 Limitations
+
+2.1 Partial solutions
+
+
+3 Example
+4 External links
+5 References and Further Reading
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Method
+The methods used to calculate the best path for a network are different between different routing protocols but the fundamental features of distance-vector algorithms are the same across all DV based protocols.
+As the name suggests the DV protocol is based on calculating the direction and distance to any link in a network. The cost of reaching a destination is calculated using various route metrics. RIP uses the hop count of the destination whereas IGRP takes into account other information such as node delay and available bandwidth.
+Updates are performed periodically in a distance-vector protocol where all or part of a router's routing table is sent to all its neighbors that are configured to use the same distance-vector routing protocol. RIP supports cross-platform distance vector routing whereas IGRP is a Cisco Systems proprietary distance vector routing protocol. Once a router has this information it is able to amend its own routing table to reflect the changes and then inform its neighbors of the changes. This process has been described as ‘routing by rumor’ because routers are relying on the information they receive from other routers and cannot determine if the information is actually valid and true. There are a number of features which can be used to help with instability and inaccurate routing information.
+
+[edit] Limitations
+The Bellman-Ford algorithm does not prevent routing loops from happening and suffers from the count-to-infinity problem. The core of the count-to-infinity problem is that if A tells B that it has a path somewhere, there is no way for B to know if the path has B as a part of it. To see the problem clearly, imagine a subnet connected like A-B-C-D-E-F, and let the metric between the routers be "number of jumps". Now suppose that A goes down (out of order). In the vector-update-process B notices that its once very short route of 1 to A is down - B does not receive the vector update from A. The problem is, B also gets an update from C, and C is still not aware of the fact that A is down - so it tells B that A is only two jumps from it, which is false. This slowly propagates through the network until it reaches infinity (in which case the algorithm corrects itself, due to the "Relax property" of Bellman Ford).
+
+[edit] Partial solutions
+RIP uses Split Horizon with Poison Reverse technique to reduce the chance of forming loops and use a maximum number of hops to counter the count-to-infinity problem. These measures avoid the formation of routing loops in some, but not all, cases. The addition of a hold time (refusing route updates for a few minutes after a route retraction) avoids loop formation in virtually all cases, but causes a significant increase in convergence times.
+A number of loop-free distance vector protocols, such as EIGRP and DSDV, have been developed. These avoid loop formation in all cases, but suffer from increased complexity, and their deployment has been slowed down by the success of link-state protocols such as OSPF.
+
+[edit] Example
+In this network we have 4 routers A, B, C, and D: 
+We shall mark the current time (or iteration) in the algorithm with T, and shall begin (at time 0, or T=0) by creating distance matrices for each router to its immediate neighbors. As we build the routing tables below, the shortest path is highlighted with the color green, a new shortest path is highlighted with the color yellow.
+
+
+T=0
+
+
+
+from A
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+
+
+
+
+to B
+
+3
+
+
+
+
+to C
+
+
+23
+
+
+
+to D
+
+
+
+
+
+
+
+
+
+
+from B
+via A
+via B
+via C
+via D
+
+
+to A
+3
+
+
+
+
+
+to B
+
+
+
+
+
+
+to C
+
+
+2
+
+
+
+to D
+
+
+
+
+
+
+
+
+
+
+from C
+via A
+via B
+via C
+via D
+
+
+to A
+23
+
+
+
+
+
+to B
+
+2
+
+
+
+
+to C
+
+
+
+
+
+
+to D
+
+
+
+5
+
+
+
+
+
+
+from D
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+
+
+
+
+to B
+
+
+
+
+
+
+to C
+
+
+5
+
+
+
+to D
+
+
+
+
+
+
+
+
+
+At this point, all the routers (A,B,C,D) have new "shortest-paths" for their DV (the list of distances that are from them to another router via a neighbor). They each broadcast this new DV to all their neighbors: A to B and C, B to C and A, C to A, B, and D, and D to C. As each of these neighbors receives this information, they now recalculate the shortest path using it.
+For example: A receives a DV from C that tells A there is a path via C to D, with a distance (or cost) of 5. Since the current "shortest-path" to C is 23, then A knows it has a path to D that costs 23+5=28. As there are no other shorter paths that A knows about, it puts this as its current estimate for the shortest-path from itself (A) to D, via C.
+
+
+
+
+T=1
+
+
+
+from A
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+
+
+
+
+to B
+
+3
+25
+
+
+
+to C
+
+5
+23
+
+
+
+to D
+
+
+28
+
+
+
+
+
+
+
+from B
+via A
+via B
+via C
+via D
+
+
+to A
+3
+
+25
+
+
+
+to B
+
+
+
+
+
+
+to C
+26
+
+2
+
+
+
+to D
+
+
+7
+
+
+
+
+
+
+
+from C
+via A
+via B
+via C
+via D
+
+
+to A
+23
+5
+
+
+
+
+to B
+26
+2
+
+
+
+
+to C
+
+
+
+
+
+
+to D
+
+
+
+5
+
+
+
+
+
+
+from D
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+28
+
+
+
+to B
+
+
+7
+
+
+
+to C
+
+
+5
+
+
+
+to D
+
+
+
+
+
+
+
+
+
+Again, all the routers have gained in the last iteration (at T=1) new "shortest-paths", so they all broadcast their DVs to their neighbors; This prompts each neighbor to re-calculate their shortest distances again.
+For instance: A receives a DV from B that tells A there is a path via B to D, with a distance (or cost) of 7. Since the current "shortest-path" to B is 3, then A knows it has a path to D that costs 7+3=10. This path to D of length 10 (via B) is shorter than the existing "shortest-path" to D of length 28 (via C), so it becomes the new "shortest-path" to D.
+
+
+
+
+T=2
+
+
+
+from A
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+
+
+
+
+to B
+
+3
+25
+
+
+
+to C
+
+5
+23
+
+
+
+to D
+
+10
+28
+
+
+
+
+
+
+
+from B
+via A
+via B
+via C
+via D
+
+
+to A
+3
+
+7
+
+
+
+to B
+
+
+
+
+
+
+to C
+8
+
+2
+
+
+
+to D
+31
+
+7
+
+
+
+
+
+
+
+from C
+via A
+via B
+via C
+via D
+
+
+to A
+23
+5
+
+33
+
+
+to B
+26
+2
+
+12
+
+
+to C
+
+
+
+
+
+
+to D
+51
+9
+
+5
+
+
+
+
+
+
+from D
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+10
+
+
+
+to B
+
+
+7
+
+
+
+to C
+
+
+5
+
+
+
+to D
+
+
+
+
+
+
+
+
+
+This time, only routers A and D have new shortest-paths for their DVs. So they broadcast their new DVs to their neighbors: A broadcasts to B and C, and D broadcasts to C. This causes each of the neighbors receiving the new DVs to re-calculate their shortest paths. However, since the information from the DVs doesn't yield any shorter paths than they already have in their routing tables, then there are no changes to the routing tables.
+
+
+
+
+
+T=3
+
+
+
+from A
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+
+
+
+
+to B
+
+3
+25
+
+
+
+to C
+
+5
+23
+
+
+
+to D
+
+10
+28
+
+
+
+
+
+
+
+from B
+via A
+via B
+via C
+via D
+
+
+to A
+3
+
+7
+
+
+
+to B
+
+
+
+
+
+
+to C
+8
+
+2
+
+
+
+to D
+13
+
+7
+
+
+
+
+
+
+
+from C
+via A
+via B
+via C
+via D
+
+
+to A
+23
+5
+
+15
+
+
+to B
+26
+2
+
+12
+
+
+to C
+
+
+
+
+
+
+to D
+33
+9
+
+5
+
+
+
+
+
+
+from D
+via A
+via B
+via C
+via D
+
+
+to A
+
+
+10
+
+
+
+to B
+
+
+7
+
+
+
+to C
+
+
+5
+
+
+
+to D
+
+
+
+
+
+
+
+
+
+None of the routers have any new shortest-paths to broadcast. Therefore, none of the routers receive any new information that might change their routing tables. So the algorithm comes to a stop.
+
+
+
+
+[edit] External links
+
+A Java applet implementing Distance Vector algorithm for pedagogical purposes
+
+
+[edit] References and Further Reading
+
+"RFC1058 - Routing Information Protocol", C. Hedrick, Internet Engineering Task Force, June 1988
+"RFC1723 - RIP Version 2 Carrying Additional Information", G. Malkin, Internet Engineering Task Force, November, 1994
+"RFC2453 - RIP Version 2", G. Malkin, Internet Engineering Task Force, November, 1998
+
+
+"A Path-Finding Algorithm for Loop-Free Routing, J.J. Garcia-Luna-Aceves and S. Murthy, IEEE/ACM Transactions on Networking, February 1997
+"Detection of Invalid Routing Announcements in the RIP Protocol", D. Pei, D. Massey, and L. Zhang, , IEEE Global Communications Conference (Globecom), December, 2003
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Distance-vector_routing_protocol"
+Categories: Routing protocols | Routing algorithmsHidden categories: Articles lacking sources from February 2007 | All articles lacking sources | All articles with unsourced statements | Articles with unsourced statements since January 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+Polski
+Português
+
+
+
+
+
+
+
+
+
+ This page was last modified on 12 March 2009, at 17:25 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

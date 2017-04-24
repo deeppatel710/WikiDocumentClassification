@@ -1,0 +1,392 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Befunge - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Befunge";
+		var wgTitle = "Befunge";
+		var wgAction = "view";
+		var wgArticleId = "53391";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274471644;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Befunge
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Befunge is a stack-based, reflective, esoteric programming language. It differs from conventional languages in that programs are arranged on a two-dimensional grid. "Arrow" instructions direct the control flow to the left, right, up or down, and loops are constructed by sending the control flow in a cycle.
+
+
+
+
+Contents
+
+
+1 History
+2 Compilation
+3 Sample Befunge-93 code
+4 Befunge-93 instruction list
+5 See also
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+The language was originally created by Chris Pressey in 1993 as an attempt to devise a language which is as hard to compile as possible — note that the p command allows for self-modifying code. Nevertheless, a number of compilers have subsequently been written. A number of extensions to the original "Befunge-93" specification also exist, including Funge-98, which extends the concept to an arbitrary number of dimensions and can be multithreaded, with multiple instruction pointers operating simultaneously on the same space. Befunge-extensions and variants are called Fungeoids or just Funges.
+The Befunge-93 specification restricts each valid program to a grid of 80 instructions horizontally by 25 instructions vertically. Program execution which exceeds these limits "wraps around" to a corresponding point on the other side of the grid; a Befunge program is in this manner topologically equivalent to a torus. Since a Befunge-93 program can only have a single stack and its storage array is bounded, the Befunge-93 language is, unlike most machine languages, not Turing-complete. The later Funge-98 specification provides Turing-completeness by removing the size restrictions on the program; rather than wrapping around at a fixed limit, the movement of a Funge-98 instruction pointer follows a model dubbed "Lahey-space" after its originator, Chris Lahey. In this model, the grid behaves like a torus of finite size with respect to wrapping, while still allowing itself to be extended indefinitely.
+
+[edit] Compilation
+As stated, the design goal for Befunge was to create a language which was difficult to compile. This was attempted with the implementation of self-modifying code (the 'p' instruction can write new instructions into the playfield) and a multi-dimensional playfield (the same instruction can be executed in four different directions).
+Nevertheless, these obstacles have been overcome, to some degree, and Befunge compilers have been written, using appropriate techniques.
+The bf2c compiler included with the standard Befunge-93 distribution uses threaded code: each instruction is compiled to a snippet of C code, and control flows through the snippets just as it does in a Befunge interpreter (that is, conditionally on the value of some 'direction' register.) This does not result in a significant advantage over a good interpreter. Note that the bf2c compiler is not correct since it does not handle p correctly, but it would not be impossible to make it do so (although the C language might not be well-suited for this.)
+The Betty compiler, for example, treats every possible straight line of instructions as a subprogram, and if a p instruction alters that subprogram, that subprogram is recompiled. This is an interesting variation on just-in-time compilation, and it results in a much better advantage over an interpreter, since many instructions can be executed in native code without making intervening decisions on the 'direction' register.
+The BFC (BeFunge Compiler) written by Andrew Carter (Uranium-239), simply uses a self-executing stub and modifies the preallocated 80x25 byte matrix inside the stub to execute any given befunge program. The negative effects of this technique include having an interpretter attached to every befunge program. However, using optimization tricks, BFC V1.1 guarantees an executable size of only 5632 bytes. BFC V1.1 can be downloaded here.
+
+[edit] Sample Befunge-93 code
+The technique of using arrows to change control flow is demonstrated in the random number generator program below. Following the arrows around, the ? instructions send the instruction pointer in random cardinal directions until the pointer hits a digit, pushing it to the stack. Then the arrows navigate to the . to output the digit from the stack and return the pointer to the first directional randomiser. Note that there is no @ to terminate this program so it produces an endless stream of random numbers from 1 to 9.
+
+vv  <      <
+    2
+    ^  v<
+ v1<?>3v4
+    ^   ^
+>  >?>  ?>5^
+    v   v
+ v9<?>7v6
+    v  v<
+    8
+ .  >  >   ^
+^<
+
+This is an example of the classic "Hello World!" program. First the letters "olleH" are pushed onto the stack as ASCII numbers. These are then popped from the stack in LIFO order and output as text characters to give "Hello". A space is character number 32 in ASCII, which here is constructed by multiplying 4 and 8, before being output as text. The remaining code then outputs "World!" in a similar way, followed by ASCII character 10 (a line feed character, moving the output cursor to a new line).
+
+>              v
+v  ,,,,,"Hello"<
+>48*,          v
+v,,,,,,"World!"<
+>25*,@
+
+
+[edit] Befunge-93 instruction list
+
+
+0-9
+Push this number on the stack
+
+
++
+Addition: Pop a and b, then push a+b
+
+
+-
+Subtraction: Pop a and b, then push b-a
+
+
+*
+Multiplication: Pop a and b, then push a*b
+
+
+/
+Integer division: Pop a and b, then push b/a, rounded down. If a is zero, ask the user what result they want.
+
+
+%
+Modulo: Pop a and b, then push the remainder of the integer division of b/a. If a is zero, ask the user what result they want.
+
+
+!
+Logical NOT: Pop a value. If the value is zero, push 1; otherwise, push zero.
+
+
+`
+Greater than: Pop a and b, then push 1 if b>a, otherwise zero.
+
+
+>
+Start moving right
+
+
+<
+Start moving left
+
+
+^
+Start moving up
+
+
+v
+Start moving down
+
+
+?
+Start moving in a random cardinal direction
+
+
+_
+Pop a value; move right if value=0, left otherwise
+
+
+|
+Pop a value; move down if value=0, up otherwise
+
+
+"
+Start string mode: push each character's ASCII value all the way up to the next "
+
+
+:
+Duplicate value on top of the stack
+
+
+\
+Swap two values on top of the stack
+
+
+$
+Pop value from the stack
+
+
+.
+Pop value and output as an integer
+
+
+,
+Pop value and output as ASCII character
+
+
+#
+Trampoline: Skip next cell
+
+
+p
+A "put" call (a way to store a value for later use). Pop y, x and v, then change the character at the position (x,y) in the program to the character with ASCII value v
+
+
+g
+A "get" call (a way to retrieve data in storage). Pop y and x, then push ASCII value of the character at that position in the program
+
+
+&
+Ask user for a number and push it
+
+
+~
+Ask user for a character and push its ASCII value
+
+
+@
+End program
+
+
+Most one-dimensional programming languages require some syntactic distinction between comment text and source code — although that distinction may be as trivial as Brainfuck's rule that any character not in the set +-[]<>,. is a comment. Languages like Lisp and Python treat strings as comments in contexts where the values are not used. Similarly, in Befunge, there is no comment syntax: to embed documentation in the code, the programmer simply routes the control flow around the "comment" area, so that the text in that area is never executed.
+
+[edit] See also
+
+brainfuck
+Carnage Heart - Playstation programming game using a similar language
+INTERCAL
+Whitespace
+Malbolge
+
+
+[edit] External links
+
+Esoteric languages wiki
+Official Funge-98 Specification
+Cat's Eye Technologies, the author's web site
+Yet Another Befunge93 Interpreter - An open source Befunge93 interpreter, written in java.
+Official home of the Rc/Funge-98 Interpreter
+BeQunge - An n-dimensional Funge-98 interpreter
+WASABI - A Superbly Asinine Befunge Interpreter An Open-Source Befunge93 IDE written in java
+Conforming Concurrent Befunge-98 Interpreter Befunge-98 interpreter which conforms to the specifications, and implements almost every fingerprint available.
+Language::Befunge Befunge-98 Perl module at CPAN
+Language::Befunge::Debugger Graphic Befunge debugger written in Perl
+Inline::Befunge Perl module at CPAN to insert Befunge code into Perl code
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Befunge"
+Categories: Esoteric programming languages | Stack-oriented programming languages | Non-English-based programming languages 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Galego
+한국어
+Nederlands
+日本語
+Polski
+Português
+Русский
+Slovenčina
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 2 March 2009, at 17:33 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

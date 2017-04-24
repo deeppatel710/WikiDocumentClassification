@@ -1,0 +1,308 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Control flow graph - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Control_flow_graph";
+		var wgTitle = "Control flow graph";
+		var wgAction = "view";
+		var wgArticleId = "43653";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279244763;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Control flow graph
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+Simplified control flowgraphs.[1]
+
+
+A control flow graph (CFG) in computer science is a representation, using graph notation, of all paths that might be traversed through a program during its execution.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Terminology
+3 Examples
+4 See also
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+In a control flow graph each node in the graph represents a basic block, i.e. a straight-line piece of code without any jumps or jump targets; jump targets start a block, and jumps end a block. Directed edges are used to represent jumps in the control flow. There are, in most presentations, two specially designated blocks: the entry block, through which control enters into the flow graph, and the exit block, through which all control flow leaves.
+The CFG is essential to many compiler optimizations and static analysis tools.
+Reachability is another graph property useful in optimization. If a block/subgraph is not connected from the subgraph containing the entry block, that block is unreachable during any execution, and so is unreachable code; it can be safely removed. If the exit block is unreachable from the entry block, it indicates an infinite loop (not all infinite loops are detectable, of course. See Halting problem). Again, dead code and some infinite loops are possible even if the programmer didn't explicitly code that way: optimizations like constant propagation and constant folding followed by jump threading could collapse multiple basic blocks into one, cause edges to be removed from a CFG, etc., thus possibly disconnecting parts of the graph.
+
+[edit] Terminology
+These terms are commonly used when discussing control flow graphs.
+
+entry block 
+block through which all control flow enters the graph
+exit block 
+block through which all control flow leaves the graph
+back edge 
+an edge that points to an ancestor in a depth-first (DFS) traversal of the graph
+critical edge 
+an edge which is neither the only edge leaving its source block, nor the only edge entering its destination block. These edges must be split (a new block must be created in the middle of the edge) in order to insert computations on the edge.
+abnormal edge 
+an edge whose destination is unknown. These edges tend to inhibit optimization. Exception handling constructs can produce them.
+impossible edge 
+(also known as a fake edge) An edge which has been added to the graph solely to preserve the property that the exit block postdominates all blocks. It cannot ever be traversed.
+dominator 
+block M dominates block N if every path from the entry that reaches block N has to pass through block M. The entry block dominates all blocks.
+postdominator 
+block M postdominates block N if every path from N to the exit has to pass through block M. The exit block postdominates all blocks.
+immediate dominator 
+block M immediately dominates block N if M dominates N, and there is no intervening block P such that M dominates P and P dominates N. In other words, M is the last dominator on any path from entry to N. Each block has a unique immediate dominator, if it has any at all.
+immediate postdominator 
+Analogous to immediate dominator.
+dominator tree 
+An ancillary data structure depicting the dominator relationships. There is an arc from Block M to Block N if M is an immediate dominator of N. This graph is a tree, since each block has a unique immediate dominator. This tree is rooted at the entry block. Can be calculated efficiently using Lengauer-Tarjan's algorithm.
+postdominator tree 
+Analogous to dominator tree. This tree is rooted at the exit block.
+loop header 
+Sometimes called the entry point of the loop, a dominator that is the target of a loop-forming back edge. Dominates all blocks in the loop body.
+loop pre-header 
+Suppose block M is a dominator with several incoming edges, some of them being back edges (so M is a loop header). It is advantageous to several optimization passes to break M up into two blocks Mpre and Mloop. The contents of M and back edges are moved to Mloop, the rest of the edges are moved to point into Mpre, and a new edge from Mpre to Mloop is inserted (so that Mpre is the immediate dominator of Mloop). In the beginning, Mpre would be empty, but passes like loop-invariant code motion could populate it. Mpre is called the loop pre-header, and Mloop would be the loop header.
+
+
+[edit] Examples
+Consider the following fragment of code:
+
+0: (A) t0 = read_num
+1: (A) if t0 mod 2 == 0 goto 4
+2: (B)   print t0 + " is odd."
+3: (B)   goto 5
+4: (C) print t0 + " is even."
+5: (D) end program
+
+In the above, we have 4 basic blocks: A from 0 to 1, B from 2 to 3, C at 4 and D at 5. In particular, in this case, A is the "entry block", D the "exit block" and lines 4 and 5 are jump targets. A graph for this fragment has edges from A to B, A to C, B to D and C to D.
+
+[edit] See also
+
+Flowchart
+Control flow analysis
+Control flow diagram
+Program dependence graph
+
+
+[edit] References
+
+
+^ Joseph Poole, NIST (1991). A Method to Determine a Basis Set of Paths to Perform Program Testing.
+
+
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (January 2009)
+
+
+
+[edit] External links
+
+The Machine-SUIF Control Flow Graph Library
+Compiler Collection Internals
+Paper "Infrastructure for Profile Driven Optimizations in GCC Compiler" by Zdeněk Dvořák et al.
+
+
+Examples
+
+
+http://www.aisee.com/graph_of_the_month/cfg.htm
+http://www.absint.com/aicall/gallery.htm
+http://www.icd.de/es/icd-c/example.html
+http://compilers.cs.ucla.edu/avrora/cfg.html
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Control_flow_graph"
+Categories: Compiler theoryHidden categories: Articles needing additional references from January 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Magyar
+日本語
+Polski
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 23 March 2009, at 22:22.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

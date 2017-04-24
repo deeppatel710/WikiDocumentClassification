@@ -1,0 +1,290 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Journaling file system - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Journaling_file_system";
+		var wgTitle = "Journaling file system";
+		var wgAction = "view";
+		var wgArticleId = "48073";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 260870142;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Journaling file system
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For the IBM Journaled File System, see JFS (file system).
+A journaling file system is a file system that logs changes to a journal (usually a circular log in a dedicated area) before committing them to the main file system. Such file systems are less likely to become corrupted in the event of power failure or system crash.
+
+
+
+
+Contents
+
+
+1 Rationale
+2 Optimizations
+
+2.1 Metadata-only journaling
+2.2 Dynamically-allocated journals
+
+
+3 References
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Rationale
+Updating file systems to reflect changes to files and directories usually requires many separate write operations. This introduces a race condition for which an interruption (like a power failure or system crash) between writes can leave data structures in an invalid intermediate state.
+For example, deleting a file on a Unix file system involves two steps:
+
+Removing its directory entry.
+Marking space for the file and its inode as free in the free space map.
+
+If a crash occurs between steps 1 and 2, there will be an orphaned inode and hence a storage leak. On the other hand, if only step 2 is performed first before the crash, the not-yet-deleted file will be marked free and possibly be overwritten by something else.
+In a non-journaled file system, detecting and recovering from such inconsistencies requires a complete walk of its data structures. This can take a long time if the file system is large and if there is relatively little I/O bandwidth.
+A journaled file system maintains a journal of the changes it intends to make, ahead of time. After a crash, recovery simply involves replaying changes from this journal until the file system is consistent again. The changes are thus said to be atomic (or indivisible) in that they either:
+
+succeed (have succeeded originally or be replayed completely during recovery), or
+are not replayed at all (are skipped because they had not yet been completely written to the journal).
+
+
+[edit] Optimizations
+Some file systems allow the journal to grow, shrink and be re-allocated just as would a regular file; most, however, put the journal in a contiguous area or a special hidden file that is guaranteed not to move or change size while the file system is mounted.
+A physical journal logs verbatim copies of blocks that will be written later, such as that in ext3.[1] A logical journal logs information about the changes in a special, compact format, such as that in XFS or the USN Journal (NTFS). This reduces the amount of data that needs to be read from and written to the journal in large, metadata-heavy operations (for example, deleting a large directory tree).
+Because the Error Correcting Codes used by disk drives apply to whole disk blocks rather than individual bits or bytes, a power failure in the middle of a write can prevent the code for that block from being updated, causing all the bytes belonging to it to become unreadable. This can make a logical journal somewhat riskier than a physical journal, which can overwrite entire blocks without needing to access their old contents.
+Some UFS implementations avoid journaling and instead implement soft updates: they order their writes in such a way that the on-disk file system is never inconsistent, or that the only inconsistency that can be created in the event of a crash is a storage leak. To recover from these leaks, the free space map is reconciled against a full walk of the file system at next mount. This garbage collection is usually done in the background.[2]
+
+[edit] Metadata-only journaling
+Journaling can have a severe impact on performance because it requires that all data be written twice.[3] Metadata-only journaling is a compromise between reliability and performance that stores only changes to file metadata in the journal. This still ensures that the file system can recover quickly when next mounted, but leaves an opportunity for data corruption because unjournaled file data and journaled metadata can fall out of sync.
+For example, appending to a file on a Unix file system involves three steps:
+
+Increasing the size of the file in its inode.
+Allocating space for the extension in the free space map.
+Writing the appended data to the newly-allocated space.
+
+In a metadata-only journal, step 3 would not be logged. If step 3 was not done, but steps 1 and 2 are replayed during recovery, the file will be appended with garbage.
+The write cache in most operating systems sorts its writes (using the elevator algorithm or some similar scheme) to maximize throughput. To avoid an out-of-order write hazard with a metadata-only journal, writes for file data must be sorted so that they are committed to storage before their associated metadata. This can be tricky to implement because it requires coordination within the operating system kernel between the file system driver and write cache. An out-of-order write hazard can also exist if the underlying storage:
+
+cannot write blocks atomically, or
+changes the order of its writes, or
+does not honor requests to flush its write cache.
+
+
+[edit] Dynamically-allocated journals
+In log-structured file systems, write-twice penalty does not apply because the journal itself is the file system. Most Unix file systems are not log-structured, but some implement similar techniques in order to avoid the double-write penalty. In particular, Reiser4 can group many separate writes into a single contiguously-written chunk, then extend the head of the journal to enclose the newly-written chunk. The tail of the journal retracts from the chunk after it has been committed to storage.[4]
+
+[edit] References
+
+
+^ Tweedie, Stephen C (1998), "Journaling the Linux ext2fs Filesystem" (PDF), The Fourth Annual Linux Expo, http://donner.cs.uni-magdeburg.de/bs/lehre/wise0001/bs2/journaling/journal-design.pdf .
+^ Seltzer, Margo I; Ganger, Gregory R; McKusick, M Kirk, ""Journaling Versus Soft Updates: Asynchronous Meta-data Protection in File Systems"", 2000 USENIX Annual Technical Conference (USENIX Association), http://www.usenix.org/event/usenix2000/general/full_papers/seltzer/seltzer_html .
+^ Prabhakaran, Vijayan; Arpaci-Dusseau, Andrea C; Arpaci-Dusseau, Remzi H, "Analysis and Evolution of Journaling File Systems" (PDF), 2005 USENIX Annual Technical Conference (USENIX Association), https://www.usenix.org/events/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf .
+^ Reiser, Hans (October 2003), Reiser4 white paper, http://namesys.com/v4/v4.html, retrieved on 2007-07-27 .
+
+
+
+[edit] See also
+
+Comparison of file systems
+ACID
+Database
+IBM's Journaled File System (JFS)
+Transaction processing
+
+
+[edit] External links
+
+Anatomy of Linux journaling file systems by M. Tim Jones
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Journaling_file_system"
+Categories: Computer file systems 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Česky
+Deutsch
+Español
+Français
+Italiano
+עברית
+Magyar
+日本語
+Polski
+Português
+Română
+Русский
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 30 December 2008, at 12:49.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

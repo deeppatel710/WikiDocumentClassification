@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Expectation-maximization algorithm,Arthur P. Dempster,Baum-Welch algorithm,Bayes theorem,Bayesian inference,Bimodal distribution,Binomial distribution,Biometrika,Computer vision,Conditional probability distribution,Conjugate gradient" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Expectation-maximization algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Expectation-maximization_algorithm";
+		var wgTitle = "Expectation-maximization algorithm";
+		var wgAction = "view";
+		var wgArticleId = "470752";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282739951;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Expectation-maximization_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Expectation-maximization algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>An <b>expectation-maximization</b> (<b>EM</b>) <b>algorithm</b> is used in <a href="/wiki/Statistics" title="Statistics">statistics</a> for finding <a href="/wiki/Maximum_likelihood" title="Maximum likelihood">maximum likelihood</a> estimates of <a href="/wiki/Parameter" title="Parameter">parameters</a> in probabilistic models, where the model depends on unobserved <a href="/wiki/Latent_variable" title="Latent variable">latent variables</a>. EM is an <a href="/wiki/Iterative_method" title="Iterative method">iterative method</a> which alternates between performing an expectation (E) step, which computes an expectation of the log likelihood with respect to the current estimate of the distribution for the latent variables, and a maximization (M) step, which computes the parameters which maximize the expected log likelihood found on the E step. These parameters are then used to determine the distribution of the latent variables in the next E step.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#History"><span class="tocnumber">1</span> <span class="toctext">History</span></a></li>
+<li class="toclevel-1"><a href="#Description"><span class="tocnumber">2</span> <span class="toctext">Description</span></a></li>
+<li class="toclevel-1"><a href="#Properties"><span class="tocnumber">3</span> <span class="toctext">Properties</span></a></li>
+<li class="toclevel-1"><a href="#Alternative_description"><span class="tocnumber">4</span> <span class="toctext">Alternative description</span></a></li>
+<li class="toclevel-1"><a href="#Applications"><span class="tocnumber">5</span> <span class="toctext">Applications</span></a></li>
+<li class="toclevel-1"><a href="#Variants"><span class="tocnumber">6</span> <span class="toctext">Variants</span></a></li>
+<li class="toclevel-1"><a href="#Relation_to_variational_Bayes_methods"><span class="tocnumber">7</span> <span class="toctext">Relation to variational Bayes methods</span></a></li>
+<li class="toclevel-1"><a href="#Example:_Gaussian_Mixture"><span class="tocnumber">8</span> <span class="toctext">Example: Gaussian Mixture</span></a>
+<ul>
+<li class="toclevel-2"><a href="#E-step"><span class="tocnumber">8.1</span> <span class="toctext">E-step</span></a></li>
+<li class="toclevel-2"><a href="#M-step"><span class="tocnumber">8.2</span> <span class="toctext">M-step</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">9</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#Notes"><span class="tocnumber">10</span> <span class="toctext">Notes</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">11</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">12</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="History" id="History"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=1" title="Edit section: History">edit</a>]</span> <span class="mw-headline">History</span></h2>
+<p>The EM algorithm was explained and given its name in a classic 1977 paper by <a href="/wiki/Arthur_P._Dempster" title="Arthur P. Dempster">Arthur Dempster</a>, <a href="/wiki/Nan_Laird" title="Nan Laird">Nan Laird</a>, and <a href="/wiki/Donald_Rubin" title="Donald Rubin">Donald Rubin</a><sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup>. They pointed out that the method had been "proposed many times in special circumstances" by other authors, but the 1977 paper generalized the method and developed the theory behind it.</p>
+<p><a name="Description" id="Description"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=2" title="Edit section: Description">edit</a>]</span> <span class="mw-headline">Description</span></h2>
+<p>Given a <a href="/wiki/Likelihood_function" title="Likelihood function">likelihood function</a> <i>L(θ;x,z)</i>, where <i>θ</i> is the parameter vector, <i>x</i> is the observed data and <i>z</i> represents the unobserved latent data or <a href="/wiki/Missing_values" title="Missing values">missing values</a>, the <a href="/wiki/Maximum_likelihood_estimate" title="Maximum likelihood estimate" class="mw-redirect">maximum likelihood estimate</a> (MLE) is determined by the <a href="/wiki/Marginal_likelihood" title="Marginal likelihood">marginal likelihood</a> of the observed data <i>L(θ;x)</i>, however this quantity is often <a href="/wiki/Intractable" title="Intractable" class="mw-redirect">intractable</a>.</p>
+<p>The EM algorithm seeks to find the MLE by iteratively applying the following two steps:</p>
+<dl>
+<dd><b>Expectation step</b>: Calculate the <a href="/wiki/Expected_value" title="Expected value">expected value</a> of the log likelihood function, with respect to the <a href="/wiki/Conditional_probability_distribution" title="Conditional probability distribution">conditional distribution</a> of <i>z</i> given <i>x</i> under the current estimate of the parameters <i>θ<sup>(t)</sup></i>:
+<dl>
+<dd><img class="tex" alt="Q(\theta|\theta^{(t)}) = \operatorname{E}\big[ \log L (\theta;x,Z) \big| x,\theta^{(t)} \big] \," src="http://upload.wikimedia.org/math/7/e/e/7eedf844de1f545701ab46d044481629.png" /></dd>
+</dl>
+</dd>
+<dd><b>Maximization step</b>: Find the parameter which maximises this quantity:
+<dl>
+<dd><img class="tex" alt="\theta^{(t+1)} = \underset{\theta} \operatorname{arg\,max} \ Q(\theta|\theta^{(t)}) \, " src="http://upload.wikimedia.org/math/4/8/9/489f73e9b64639437b75177f1f99b78d.png" /></dd>
+</dl>
+</dd>
+</dl>
+<p><a name="Properties" id="Properties"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=3" title="Edit section: Properties">edit</a>]</span> <span class="mw-headline">Properties</span></h2>
+<p>Speaking of an expectation (E) step is a bit of a <a href="/wiki/Misnomer" title="Misnomer">misnomer</a>. What is calculated in the first step are the fixed, data-dependent parameters of the function <i>Q</i>. Once the parameters of <i>Q</i> are known, it is fully determined and is maximized in the second (M) step of an EM algorithm.</p>
+<p>Although an EM iteration does not decrease the observed data likelihood function, there is no guarantee that the sequence converges to a <a href="/wiki/Maximum_likelihood_estimator" title="Maximum likelihood estimator" class="mw-redirect">maximum likelihood estimator</a>. For <a href="/wiki/Bimodal_distribution" title="Bimodal distribution">multimodal distributions</a>, this means that an EM algorithm may converge to a <a href="/wiki/Local_maximum" title="Local maximum" class="mw-redirect">local maximum</a> (or <a href="/wiki/Saddle_point" title="Saddle point">saddle point</a>) of the observed data likelihood function, depending on starting values. There are a variety of heuristic approaches for escaping a local maximum such as random restart (starting with several different random initial estimates <i>θ</i><sup>(<i>t</i>)</sup>), or applying <a href="/wiki/Simulated_annealing" title="Simulated annealing">simulated annealing</a> methods.</p>
+<p>EM is particularly useful when the likelihood is an <a href="/wiki/Exponential_family" title="Exponential family">exponential family</a>: the E-step becomes the sum of expectations of <a href="/wiki/Sufficient_statistic" title="Sufficient statistic" class="mw-redirect">sufficient statistics</a>, and the M-step involves maximising a linear function. In such a case, it is usually possible to derive closed form updates for each step.</p>
+<p>An EM algorithm can be easily applied to find the <a href="/wiki/Maximum_a_posteriori" title="Maximum a posteriori" class="mw-redirect">maximum a posteriori</a> (MAP) estimates for <a href="/wiki/Bayesian_inference" title="Bayesian inference">Bayesian inference</a>.</p>
+<p>There are other methods for finding maximum likelihood estimates, such as <a href="/wiki/Gradient_descent" title="Gradient descent">gradient descent</a>, <a href="/wiki/Conjugate_gradient" title="Conjugate gradient" class="mw-redirect">conjugate gradient</a> or variations of the <a href="/wiki/Gauss-Newton_method" title="Gauss-Newton method" class="mw-redirect">Gauss-Newton method</a>. Unlike EM, such methods typically require the evaluation of first and/or second derivatives of the likelihood function.</p>
+<p><a name="Alternative_description" id="Alternative_description"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=4" title="Edit section: Alternative description">edit</a>]</span> <span class="mw-headline">Alternative description</span></h2>
+<p>Under some circumstances, it is convenient to view the EM algorithm as two alternating maximization steps.<sup id="cite_ref-neal1999_1-0" class="reference"><a href="#cite_note-neal1999-1" title=""><span>[</span>2<span>]</span></a></sup><sup id="cite_ref-hastie2001_2-0" class="reference"><a href="#cite_note-hastie2001-2" title=""><span>[</span>3<span>]</span></a></sup> Consider the function:</p>
+<dl>
+<dd><img class="tex" alt="F(q,\theta) = \operatorname{E}_q [ \log L (\theta&#160;; x,Z) ] - H(q) = -D_{\text{KL}}\big(q \big\| p_{Z|X}(\cdot|x;\theta ) \big) + \log L(\theta;x) " src="http://upload.wikimedia.org/math/b/2/d/b2de673a478aaadb48172397c1612349.png" /></dd>
+</dl>
+<p>where <i>q</i> is an arbitrary probability distribution over the unobserved data <i>z</i>, <i>p</i><sub><i>Z</i>|<i>X</i></sub>(· |<i>x</i>;<i>θ</i>) is the conditional distribution of the unobserved data given the observed data <i>x</i>, <i>H</i> is the <a href="/wiki/Entropy_(information_theory)" title="Entropy (information theory)">entropy</a> and <i>D</i><sub>KL</sub> is the <a href="/wiki/Kullback%E2%80%93Leibler_divergence" title="Kullback–Leibler divergence">Kullback–Leibler divergence</a>.</p>
+<p>Then the steps in the EM algorithm may be viewed as:</p>
+<dl>
+<dd><b>Expectation step</b>: Choose <i>q</i> to maximize <i>F</i>:
+<dl>
+<dd><img class="tex" alt=" q^{(t)} = \underset{q} \operatorname{\arg\,max} \ F(q,\theta^{(t)}) " src="http://upload.wikimedia.org/math/f/4/5/f45beb52f79638720698502e680588d1.png" /></dd>
+</dl>
+</dd>
+<dd><b>Maximization step</b>: Choose <i>θ</i> to maximize <i>F</i>:
+<dl>
+<dd><img class="tex" alt=" \theta^{(t+1)} = \underset{\theta} \operatorname{\arg\,max} \ F(q^{(t)},\theta) " src="http://upload.wikimedia.org/math/e/4/1/e417e5524810a255c1f532a8d0c452ee.png" /></dd>
+</dl>
+</dd>
+</dl>
+<p><a name="Applications" id="Applications"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=5" title="Edit section: Applications">edit</a>]</span> <span class="mw-headline">Applications</span></h2>
+<p>EM is frequently used for <a href="/wiki/Data_clustering" title="Data clustering" class="mw-redirect">data clustering</a> in <a href="/wiki/Machine_learning" title="Machine learning">machine learning</a> and <a href="/wiki/Computer_vision" title="Computer vision">computer vision</a>. In <a href="/wiki/Natural_language_processing" title="Natural language processing">natural language processing</a>, two prominent instances of the algorithm are the <a href="/wiki/Baum-Welch_algorithm" title="Baum-Welch algorithm">Baum-Welch algorithm</a> (also known as <i>forward-backward</i>) and the <a href="/wiki/Inside-outside_algorithm" title="Inside-outside algorithm">inside-outside algorithm</a> for unsupervised induction of <a href="/wiki/Probabilistic_context-free_grammar" title="Probabilistic context-free grammar" class="mw-redirect">probabilistic context-free grammars</a>.</p>
+<p>In <a href="/wiki/Psychometrics" title="Psychometrics">psychometrics</a>, EM is almost indispensable for estimating item parameters and latent abilities of <a href="/wiki/Item_response_theory" title="Item response theory">item response theory</a> models.</p>
+<p>With the ability to deal with missing data and observe unidentified variables, EM is becoming a useful tool to price and manage risk of a portfolio.</p>
+<p>The EM algorithm (and its faster variant <a href="/wiki/Osem_(mathematics)" title="Osem (mathematics)" class="mw-redirect">OS-EM</a>) is also widely used in <a href="/wiki/Medical_imaging" title="Medical imaging">medical image</a> reconstruction, especially in <a href="/wiki/Positron_Emission_Tomography" title="Positron Emission Tomography" class="mw-redirect">Positron Emission Tomography</a> and <a href="/wiki/Single_Photon_Emission_Computed_Tomography" title="Single Photon Emission Computed Tomography" class="mw-redirect">Single Photon Emission Computed Tomography</a>. See below for other faster variants of EM.</p>
+<p><a name="Variants" id="Variants"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=6" title="Edit section: Variants">edit</a>]</span> <span class="mw-headline">Variants</span></h2>
+<p>A number of methods have been proposed to accelerate the sometimes slow convergence of the EM algorithm, such as those utilising <a href="/wiki/Conjugate_gradient" title="Conjugate gradient" class="mw-redirect">conjugate gradient</a> and modified <a href="/wiki/Newton-Raphson" title="Newton-Raphson" class="mw-redirect">Newton-Raphson</a> techniques.<sup id="cite_ref-3" class="reference"><a href="#cite_note-3" title=""><span>[</span>4<span>]</span></a></sup> Additionally EM can be utilised with constrained estimation techniques.</p>
+<p><b>Expectation conditional maximization (ECM)</b> replaces each M-step with a sequence of conditional maximization (CM) steps in which each parameter <i>θ</i><sub><i>i</i></sub> is maximized individually, conditionally on the other parameters remaining fixed.<sup id="cite_ref-4" class="reference"><a href="#cite_note-4" title=""><span>[</span>5<span>]</span></a></sup></p>
+<p>This idea is further extended in <b>generalized expectation maximization (GEM)</b> algorithm, in which one only seeks an increase in the objective function <i>F</i> for both the E step and M step under the <a href="#Alternative_description" title="">alternative description</a>.<sup id="cite_ref-neal1999_1-1" class="reference"><a href="#cite_note-neal1999-1" title=""><span>[</span>2<span>]</span></a></sup></p>
+<p><a name="Relation_to_variational_Bayes_methods" id="Relation_to_variational_Bayes_methods"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=7" title="Edit section: Relation to variational Bayes methods">edit</a>]</span> <span class="mw-headline">Relation to variational Bayes methods</span></h2>
+<p>EM is a partially non-Bayesian, maximum likelihood method. Its final result gives a <a href="/wiki/Probability_distribution" title="Probability distribution">probability distribution</a> over the latent variables (in the Bayesian style) together with a point estimate for <i>θ</i> (either a <a href="/wiki/Maximum_likelihood_estimation" title="Maximum likelihood estimation" class="mw-redirect">maximum likelihood estimate</a> or a posterior mode). We may want a fully Bayesian version of this, giving a probability distribution over <i>θ</i> as well as the latent variables. In fact the Bayesian approach to inference is simply to treat <i>θ</i> as another latent variable. In this paradigm, the distinction between the E and M steps disappears. If we use the factorized Q approximation as described above (<a href="/wiki/Variational_Bayes" title="Variational Bayes" class="mw-redirect">variational Bayes</a>), we may iterate over each latent variable (now including <i>θ</i>) and optimize them one at a time. There are now <i>k</i> steps per iteration, where <i>k</i> is the number of latent variables. For <a href="/wiki/Graphical_models" title="Graphical models" class="mw-redirect">graphical models</a> this is easy to do as each variable's new <i>Q</i> depends only on its <a href="/wiki/Markov_blanket" title="Markov blanket">Markov blanket</a>, so local <a href="/wiki/Message_passing" title="Message passing">message passing</a> can be used for efficient inference.</p>
+<p><a name="Example:_Gaussian_Mixture" id="Example:_Gaussian_Mixture"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=8" title="Edit section: Example: Gaussian Mixture">edit</a>]</span> <span class="mw-headline">Example: Gaussian Mixture</span></h2>
+<div class="thumb tright">
+<div class="thumbinner" style="width:242px;"><a href="/wiki/File:Em_old_faithful.gif" class="image" title="The steps of the EM algorithm on a two component Gaussian mixture model on the Old Faithful dataset"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/a/a7/Em_old_faithful.gif" width="240" height="240" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Em_old_faithful.gif" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+The steps of the EM algorithm on a two component Gaussian <a href="/wiki/Mixture_model" title="Mixture model">mixture model</a> on the <a href="/wiki/Old_Faithful" title="Old Faithful" class="mw-redirect">Old Faithful</a> dataset</div>
+</div>
+</div>
+<p>Let <b>x</b>=(<b>x</b><sub>1</sub>,<b>x</b><sub>2</sub>,…,<b>x</b><sub><i>n</i></sub>) be a sample of independent observations from a <a href="/wiki/Mixture_model" title="Mixture model">mixture</a> of two <a href="/wiki/Multivariate_normal_distribution" title="Multivariate normal distribution">multivariate normal distributions</a>, and let <b>z</b>=(<i>z</i><sub>1</sub>,<i>z</i><sub>2</sub>,…,<i>z</i><sub><i>n</i></sub>) be the latent variables that determine the component from which the observation originates.<sup id="cite_ref-hastie2001_2-1" class="reference"><a href="#cite_note-hastie2001-2" title=""><span>[</span>3<span>]</span></a></sup></p>
+<dl>
+<dd><img class="tex" alt="X_i |(Z_i = 1) \sim \mathcal{N}_p(\boldsymbol{\mu}_1,\Sigma_1)" src="http://upload.wikimedia.org/math/e/b/a/eba9b2446b38260b5dbdc9f7c66af540.png" /> and <img class="tex" alt="X_i |(Z_i = 2) \sim \mathcal{N}_p(\boldsymbol{\mu}_2,\Sigma_2)" src="http://upload.wikimedia.org/math/8/e/c/8ec9d562e3bdb63a0127184db41de4cd.png" /></dd>
+</dl>
+<p>where</p>
+<dl>
+<dd><img class="tex" alt="\operatorname{P} (Z_i = 1 ) = \tau_1 \, " src="http://upload.wikimedia.org/math/2/8/5/285a8e16b0eef16d4ae498b0d3ef92f1.png" /> and <img class="tex" alt="\operatorname{P} (Z_i=2) = \tau_2 = 1-\tau_1" src="http://upload.wikimedia.org/math/c/b/8/cb8543b2f735b8d236bd8ac02c236cb9.png" /></dd>
+</dl>
+<p>The aim is to estimate the unknown parameters representing the "mixing" value between the Gaussians and the means and standard deviations of each:</p>
+<dl>
+<dd><img class="tex" alt="\theta = \big( \boldsymbol{\tau},\boldsymbol{\mu}_1,\boldsymbol{\mu}_2,\Sigma_1,\Sigma_2 \big)" src="http://upload.wikimedia.org/math/f/7/d/f7da7072acb1f1fd0203fc5a6fa907a3.png" /></dd>
+</dl>
+<p>where the likelihood function is:</p>
+<dl>
+<dd><img class="tex" alt="L(\theta;\mathbf{x},\mathbf{z}) = \prod_{i=1}^n  \sum_{j=1}^2  \mathbb{I}(z_i=j) \ \tau_j \ f(\mathbf{x}_i;\boldsymbol{\mu}_j,\Sigma_j) " src="http://upload.wikimedia.org/math/9/d/6/9d6973808136148cdb30175b3154348f.png" /></dd>
+</dl>
+<p>where <img class="tex" alt="\mathbb{I}" src="http://upload.wikimedia.org/math/a/4/5/a451c1a8e48f5769fa6eff6e3ee7b862.png" /> is an <a href="/wiki/Indicator_function" title="Indicator function">indicator function</a> and <i>f</i> is the <a href="/wiki/Probability_density_function" title="Probability density function">probability density function</a> of a multivariate normal. This may be rewritten in <a href="/wiki/Exponential_family" title="Exponential family">exponential family</a> form:</p>
+<dl>
+<dd><img class="tex" alt="L(\theta;\mathbf{x},\mathbf{z}) = \exp \left\{ \sum_{i=1}^n \sum_{j=1}^2 \mathbb{I}(z_i=j) \big[ \log \tau_j -\tfrac{1}{2} \log |\Sigma_j| -\tfrac{1}{2}(\mathbf{x}_i-\boldsymbol{\mu}_j)^\top\Sigma_j^{-1} (\mathbf{x}_i-\boldsymbol{\mu}_j) -\tfrac{p}{2} \log(2\pi) \big] \right\} " src="http://upload.wikimedia.org/math/9/2/2/9226d14b2123b5c6bf2ad16d1806e7ef.png" /></dd>
+</dl>
+<p><a name="E-step" id="E-step"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=9" title="Edit section: E-step">edit</a>]</span> <span class="mw-headline">E-step</span></h3>
+<p>Given our current estimate of the parameters <i>θ</i><sup>(<i>t</i>)</sup>, the conditional distribution of the <i>Z</i><sub><i>i</i></sub> is determined by <a href="/wiki/Bayes_theorem" title="Bayes theorem" class="mw-redirect">Bayes theorem</a> to be the proportional height of the normal <a href="/wiki/Probability_density_function" title="Probability density function">density</a> weighted by <i>τ</i>:</p>
+<dl>
+<dd><img class="tex" alt="T_{j,i}^{(t)}&#160;:= \operatorname{P}(Z_i=j | X_i=\mathbf{x}_i&#160;;\theta^{(t)}) = \frac{\tau_j^{(t)} \ f(\mathbf{x}_i;\boldsymbol{\mu}_j^{(t)},\Sigma_j^{(t)})}{\tau_1^{(t)} \ f(\mathbf{x}_i;\boldsymbol{\mu}_1^{(t)},\Sigma_1^{(t)}) + \tau_2^{(t)} \ f(\mathbf{x}_i;\boldsymbol{\mu}_2^{(t)},\Sigma_2^{(t)})} " src="http://upload.wikimedia.org/math/f/d/9/fd949144f08371b1edc1313e4232c1e5.png" />.</dd>
+</dl>
+<p>Thus, the E-step results in the function:</p>
+<dl>
+<dd><img class="tex" alt="Q(\theta|\theta^{(t)}) = \operatorname{E} [\log L(\theta;\mathbf{x},\mathbf{Z}) ] = \sum_{i=1}^n \sum_{j=1}^2 T_{j,i}^{(t)} \big[ \log \tau_j -\tfrac{1}{2} \log |\Sigma_j| -\tfrac{1}{2}(\mathbf{x}_i-\boldsymbol{\mu}_j)^\top\Sigma_j^{-1} (\mathbf{x}_i-\boldsymbol{\mu}_j) -\tfrac{p}{2} \log(2\pi) \big] " src="http://upload.wikimedia.org/math/f/a/8/fa83486862373fc2290266df3b56f6da.png" /></dd>
+</dl>
+<p><a name="M-step" id="M-step"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=10" title="Edit section: M-step">edit</a>]</span> <span class="mw-headline">M-step</span></h3>
+<p>The linear form of <i>Q</i>(<i>θ</i>|<i>θ</i><sup>(<i>t</i>)</sup>) means that determining the maximising values of <i>θ</i> is relatively straightforward. Firstly note that <i>τ</i>, (<b>μ</b><sub>1</sub>,<i>Σ</i><sub>1</sub>) and (<b>μ</b><sub>2</sub>,<i>Σ</i><sub>2</sub>) may be all maximised independently of each other since they all appear in separate linear terms.</p>
+<p>Firstly, consider <i>τ</i>, which has the constraint <i>τ</i><sub>1</sub> + <i>τ</i><sub>2</sub>=1:</p>
+<dl>
+<dd><img class="tex" alt="\boldsymbol{\tau}^{(t+1)} = \underset{\boldsymbol{\tau}} \operatorname{arg\,max}\  Q(\theta | \theta^{(t)} ) = \underset{\boldsymbol{\tau}} \operatorname{arg\,max} \ \left\{ \left[  \sum_{i=1}^n T_{1,i}^{(t)} \right] \log \tau_1 + \left[  \sum_{i=1}^n T_{2,i}^{(t)} \right] \log \tau_2  \right\} " src="http://upload.wikimedia.org/math/b/d/d/bdd917fe463bb87d48ab6a36c8219894.png" /></dd>
+</dl>
+<p>This has the same form as the MLE for the <a href="/wiki/Binomial_distribution" title="Binomial distribution">binomial distribution</a>, so:</p>
+<dl>
+<dd><img class="tex" alt="\tau^{(t+1)}_j = \frac{\sum_{i=1}^n T_{j,i}^{(t)}}{\sum_{i=1}^n (T_{1,i}^{(t)} + T_{2,i}^{(t)} ) } = \frac{1}{n} \sum_{i=1}^n T_{j,i}^{(t)}" src="http://upload.wikimedia.org/math/2/7/c/27c2dc101865e4703696ee43254d758c.png" /></dd>
+</dl>
+<p>For the next estimates of (<b>μ</b><sub>1</sub>,<i>Σ</i><sub>1</sub>):</p>
+<dl>
+<dd><img class="tex" alt="(\boldsymbol{\mu}_1^{(t+1)},\Sigma_1^{(t+1)}) = \underset{\boldsymbol{\mu}_1,\Sigma_1} \operatorname{arg\,max}\  Q(\theta | \theta^{(t)} ) = \underset{\boldsymbol{\mu}_1,\Sigma_1} \operatorname{arg\,max}\  \sum_{i=1}^n T_{1,i}^{(t)} \left\{ -\tfrac{1}{2} \log |\Sigma_1| -\tfrac{1}{2}(\mathbf{x}_i-\boldsymbol{\mu}_1)^\top\Sigma_1^{-1} (\mathbf{x}_i-\boldsymbol{\mu}_1) \right\} " src="http://upload.wikimedia.org/math/c/0/7/c07a0a51726dbd67ae3cc939f2958c79.png" /></dd>
+</dl>
+<p>This has the same form as a weighted MLE for a normal distribution, so</p>
+<dl>
+<dd><img class="tex" alt="\boldsymbol{\mu}_1^{(t+1)} = \frac{\sum_{i=1}^n T_{1,i}^{(t)} \mathbf{x}_i}{\sum_{i=1}^n T_{1,i}^{(t)}} " src="http://upload.wikimedia.org/math/0/6/3/063abf4e84d80064d15cfb6350cfd912.png" /> and <img class="tex" alt="\Sigma_1^{(t+1)} = \frac{\sum_{i=1}^n T_{1,i}^{(t)} (\mathbf{x}_i - \boldsymbol{\mu}_1^{(t+1)})^\top (\mathbf{x}_i - \boldsymbol{\mu}_1^{(t+1)}) }{\sum_{i=1}^n T_{1,i}^{(t)}} " src="http://upload.wikimedia.org/math/5/6/6/5666f9a792224175b116b3a175c702a2.png" /></dd>
+</dl>
+<p>and, by symmetry:</p>
+<dl>
+<dd><img class="tex" alt="\boldsymbol{\mu}_2^{(t+1)} = \frac{\sum_{i=1}^n T_{2,i}^{(t)} \mathbf{x}_i}{\sum_{i=1}^n T_{2,i}^{(t)}} " src="http://upload.wikimedia.org/math/d/1/c/d1ca34cc94f0970b0148b12ceaf45019.png" /> and <img class="tex" alt="\Sigma_2^{(t+1)} = \frac{\sum_{i=1}^n T_{2,i}^{(t)} (\mathbf{x}_i - \boldsymbol{\mu}_2^{(t+1)})^\top (\mathbf{x}_i - \boldsymbol{\mu}_2^{(t+1)}) }{\sum_{i=1}^n T_{2,i}^{(t)}} " src="http://upload.wikimedia.org/math/c/2/7/c277b0b1e4b78d5b9ba56169b4eda6b8.png" />.</dd>
+</dl>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=11" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Estimation_theory" title="Estimation theory">Estimation theory</a></li>
+<li><a href="/wiki/Constrained_clustering" title="Constrained clustering">Constrained clustering</a></li>
+<li><a href="/wiki/Data_clustering" title="Data clustering" class="mw-redirect">Data clustering</a></li>
+<li><a href="/wiki/K-means_algorithm" title="K-means algorithm" class="mw-redirect">K-means algorithm</a></li>
+<li><a href="/wiki/Imputation_(statistics)" title="Imputation (statistics)">Imputation (statistics)</a></li>
+<li><a href="/wiki/SOCR" title="SOCR" class="mw-redirect">SOCR</a></li>
+<li><a href="/wiki/Ordered_subset_expectation_maximization" title="Ordered subset expectation maximization">Ordered subset expectation maximization</a></li>
+<li><a href="/wiki/Baum-Welch_algorithm" title="Baum-Welch algorithm">Baum-Welch algorithm</a>, a particular case</li>
+<li><a href="/wiki/Latent_variable_model" title="Latent variable model">Latent variable model</a></li>
+<li><a href="/wiki/Hidden_Markov_Model" title="Hidden Markov Model" class="mw-redirect">Hidden Markov Model</a></li>
+<li><a href="/wiki/Structural_equation_model" title="Structural equation model" class="mw-redirect">Structural equation model</a></li>
+<li><a href="/wiki/Rubin_causal_model" title="Rubin causal model" class="mw-redirect">Rubin causal model</a></li>
+</ul>
+<p><a name="Notes" id="Notes"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=12" title="Edit section: Notes">edit</a>]</span> <span class="mw-headline">Notes</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFDempsterLairdRubin1977"><a href="/wiki/Arthur_P._Dempster" title="Arthur P. Dempster">Dempster, A.P.</a>; <a href="/wiki/Nan_Laird" title="Nan Laird">Laird, N.M.</a>; <a href="/wiki/Donald_Rubin" title="Donald Rubin">Rubin, D.B.</a> (1977). "Maximum Likelihood from Incomplete Data via the EM Algorithm". <i><a href="/wiki/Journal_of_the_Royal_Statistical_Society" title="Journal of the Royal Statistical Society">Journal of the Royal Statistical Society</a>. Series B (Methodological)</i> <b>39</b> (1): 1–38. <a href="/wiki/JSTOR" title="JSTOR">JSTOR</a>: <a href="http://www.jstor.org/stable/2984875" class="external text" title="http://www.jstor.org/stable/2984875" rel="nofollow">2984875</a>. <a href="/wiki/Mathematical_Reviews" title="Mathematical Reviews">MR</a><a href="http://www.ams.org/mathscinet-getitem?mr=0501537" class="external text" title="http://www.ams.org/mathscinet-getitem?mr=0501537" rel="nofollow">0501537</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Maximum+Likelihood+from+Incomplete+Data+via+the+EM+Algorithm&amp;rft.jtitle=%5B%5BJournal+of+the+Royal+Statistical+Society%5D%5D.+Series+B+%28Methodological%29&amp;rft.aulast=Dempster&amp;rft.aufirst=A.P.&amp;rft.au=Dempster%2C+A.P.&amp;rft.au=Laird%2C+N.M.&amp;rft.au=Rubin%2C+D.B.&amp;rft.date=1977&amp;rft.volume=39&amp;rft.issue=1&amp;rft.pages=1%26ndash%3B38&amp;rfr_id=info:sid/en.wikipedia.org:Expectation-maximization_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-neal1999-1">^ <a href="#cite_ref-neal1999_1-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-neal1999_1-1" title=""><sup><i><b>b</b></i></sup></a> <cite style="font-style:normal" class="" id="CITEREFNealHinton1999">Neal, Radford; <a href="/wiki/Geoffrey_Hinton" title="Geoffrey Hinton">Hinton, Geoffrey</a> (1999). <a href="/wiki/Michael_I._Jordan" title="Michael I. Jordan">Michael I. Jordan</a>. ed. "<a href="ftp://ftp.cs.toronto.edu/pub/radford/emk.pdf" class="external text" title="ftp://ftp.cs.toronto.edu/pub/radford/emk.pdf" rel="nofollow">A view of the EM algorithm that justifies incremental, sparse, and other variants</a>". <i>Learning in Graphical Models</i> (Cambridge, MA: MIT Press): 355–368. <a href="/wiki/Special:BookSources/0262600323" class="internal">ISBN 0262600323</a><span class="printonly">. <a href="ftp://ftp.cs.toronto.edu/pub/radford/emk.pdf" class="external free" title="ftp://ftp.cs.toronto.edu/pub/radford/emk.pdf" rel="nofollow">ftp://ftp.cs.toronto.edu/pub/radford/emk.pdf</a></span><span class="reference-accessdate">. Retrieved on 2009-03-22</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+view+of+the+EM+algorithm+that+justifies+incremental%2C+sparse%2C+and+other+variants&amp;rft.jtitle=Learning+in+Graphical+Models&amp;rft.aulast=Neal&amp;rft.aufirst=Radford&amp;rft.au=Neal%2C+Radford&amp;rft.au=Hinton%2C+Geoffrey&amp;rft.date=1999&amp;rft.pages=355%26ndash%3B368&amp;rft.place=Cambridge%2C+MA&amp;rft.pub=MIT+Press&amp;rft.isbn=0262600323&amp;rft_id=ftp%3A%2F%2Fftp.cs.toronto.edu%2Fpub%2Fradford%2Femk.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Expectation-maximization_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-hastie2001-2">^ <a href="#cite_ref-hastie2001_2-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-hastie2001_2-1" title=""><sup><i><b>b</b></i></sup></a> <cite style="font-style:normal" class="book" id="CITEREFHastieTibshiraniFriedman2001">Hastie, Trevor; Tibshirani, Robert; Friedman, Jerome (2001). "8.5 The EM algorithm". <i>The Elements of Statistical Learning</i>. New York: Springer. pp.&#160;236–243. <a href="/wiki/Special:BookSources/0387952845" class="internal">ISBN 0-387-95284-5</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=8.5+The+EM+algorithm&amp;rft.atitle=The+Elements+of+Statistical+Learning&amp;rft.aulast=Hastie&amp;rft.aufirst=Trevor&amp;rft.au=Hastie%2C+Trevor&amp;rft.au=Tibshirani%2C+Robert&amp;rft.au=Friedman%2C+Jerome&amp;rft.date=2001&amp;rft.pages=pp.%26nbsp%3B236%26ndash%3B243&amp;rft.place=New+York&amp;rft.pub=Springer&amp;rft.isbn=0-387-95284-5&amp;rfr_id=info:sid/en.wikipedia.org:Expectation-maximization_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-3"><b><a href="#cite_ref-3" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFJamshidianJennrich1997">Jamshidian, Mortaza; Jennrich, Robert I. (1997). "Acceleration of the EM Algorithm by using Quasi-Newton Methods". <i><a href="/wiki/Journal_of_the_Royal_Statistical_Society" title="Journal of the Royal Statistical Society">Journal of the Royal Statistical Society</a>: Series B (Statistical Methodology)</i> <b>59</b> (2): 569–587. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1111%2F1467-9868.00083" class="external text" title="http://dx.doi.org/10.1111%2F1467-9868.00083" rel="nofollow">10.1111/1467-9868.00083</a></span>. <a href="/wiki/Mathematical_Reviews" title="Mathematical Reviews">MR</a><a href="http://www.ams.org/mathscinet-getitem?mr=1452026" class="external text" title="http://www.ams.org/mathscinet-getitem?mr=1452026" rel="nofollow">1452026</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Acceleration+of+the+EM+Algorithm+by+using+Quasi-Newton+Methods&amp;rft.jtitle=%5B%5BJournal+of+the+Royal+Statistical+Society%5D%5D%3A+Series+B+%28Statistical+Methodology%29&amp;rft.aulast=Jamshidian&amp;rft.aufirst=Mortaza&amp;rft.au=Jamshidian%2C+Mortaza&amp;rft.au=Jennrich%2C+Robert+I.&amp;rft.date=1997&amp;rft.volume=59&amp;rft.issue=2&amp;rft.pages=569%26ndash%3B587&amp;rft_id=info:doi/10.1111%2F1467-9868.00083&amp;rfr_id=info:sid/en.wikipedia.org:Expectation-maximization_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-4"><b><a href="#cite_ref-4" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFMengRubin1993">Meng, Xiao-Li; <a href="/wiki/Donald_Rubin" title="Donald Rubin">Rubin, Donald B.</a> (1993). "Maximum likelihood estimation via the ECM algorithm: A general framework". <i><a href="/wiki/Biometrika" title="Biometrika">Biometrika</a></i> <b>80</b> (2): 267–278. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1093%2Fbiomet%2F80.2.267" class="external text" title="http://dx.doi.org/10.1093%2Fbiomet%2F80.2.267" rel="nofollow">10.1093/biomet/80.2.267</a></span>. <a href="/wiki/Mathematical_Reviews" title="Mathematical Reviews">MR</a><a href="http://www.ams.org/mathscinet-getitem?mr=1243503" class="external text" title="http://www.ams.org/mathscinet-getitem?mr=1243503" rel="nofollow">1243503</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Maximum+likelihood+estimation+via+the+ECM+algorithm%3A+A+general+framework&amp;rft.jtitle=%5B%5BBiometrika%5D%5D&amp;rft.aulast=Meng&amp;rft.aufirst=Xiao-Li&amp;rft.au=Meng%2C+Xiao-Li&amp;rft.au=Rubin%2C+Donald+B.&amp;rft.date=1993&amp;rft.volume=80&amp;rft.issue=2&amp;rft.pages=267%26ndash%3B278&amp;rft_id=info:doi/10.1093%2Fbiomet%2F80.2.267&amp;rfr_id=info:sid/en.wikipedia.org:Expectation-maximization_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+</div>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=13" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li>Robert Hogg, Joseph McKean and Allen Craig. <i>Introduction to Mathematical Statistics</i>. pp. 359-364. Upper Saddle River, NJ: Pearson Prentice Hall, 2005.</li>
+<li><a href="http://www.inference.phy.cam.ac.uk/mackay/itila/" class="external text" title="http://www.inference.phy.cam.ac.uk/mackay/itila/" rel="nofollow">The on-line textbook: Information Theory, Inference, and Learning Algorithms</a>, by <a href="/wiki/David_J.C._MacKay" title="David J.C. MacKay" class="mw-redirect">David J.C. MacKay</a> includes simple examples of the E-M algorithm such as clustering using the soft K-means algorithm, and emphasizes the variational view of the E-M algorithm.</li>
+<li><a href="http://citeseer.ist.psu.edu/bilmes98gentle.html" class="external text" title="http://citeseer.ist.psu.edu/bilmes98gentle.html" rel="nofollow">A Gentle Tutorial of the EM Algorithm and its Application to Parameter Estimation for Gaussian Mixture and Hidden Markov Models</a>, by <a href="http://ssli.ee.washington.edu/people/bilmes/" class="external text" title="http://ssli.ee.washington.edu/people/bilmes/" rel="nofollow">Jeff Bilmes</a> includes a simplified derivation of the EM equations for Gaussian Mixtures and Gaussian Mixture Hidden Markov Models.</li>
+<li><a href="http://www.cse.buffalo.edu/faculty/mbeal/thesis/index.html" class="external text" title="http://www.cse.buffalo.edu/faculty/mbeal/thesis/index.html" rel="nofollow">Variational Algorithms for Approximate Bayesian Inference</a>, by M. J. Beal includes comparisons of EM to Variational Bayesian EM and derivations of several models including Variational Bayesian HMMs.</li>
+<li><a href="http://www.cc.gatech.edu/~dellaert/em-paper.pdf" class="external text" title="http://www.cc.gatech.edu/~dellaert/em-paper.pdf" rel="nofollow">The Expectation Maximization Algorithm</a>, by Frank Dellaert, gives an easier explanation of EM algorithm in terms of lowerbound maximization.</li>
+<li><a href="http://www.seanborman.com/publications/EM_algorithm.pdf" class="external text" title="http://www.seanborman.com/publications/EM_algorithm.pdf" rel="nofollow">The Expectation Maximization Algorithm: A short tutorial</a>, A self contained derivation of the EM Algorithm by Sean Borman.</li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit&amp;section=14" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li>Various 1D, 2D and 3D <a href="http://wiki.stat.ucla.edu/socr/index.php/SOCR_EduMaterials_Activities_2D_PointSegmentation_EM_Mixture" class="external text" title="http://wiki.stat.ucla.edu/socr/index.php/SOCR_EduMaterials_Activities_2D_PointSegmentation_EM_Mixture" rel="nofollow">demonstrations of EM together with Mixture Modeling</a> are provided as part of the paired <a href="/wiki/SOCR" title="SOCR" class="mw-redirect">SOCR</a> activities and applets. These applets and activities show empirically the properties of the EM algorithm for parameter estimation in diverse settings.</li>
+<li><a href="http://lcn.epfl.ch/tutorial/english/mixtureModel/index.html" class="external text" title="http://lcn.epfl.ch/tutorial/english/mixtureModel/index.html" rel="nofollow">Java code example</a></li>
+<li><a href="http://www.neurosci.aist.go.jp/~akaho/MixtureEM.html" class="external text" title="http://www.neurosci.aist.go.jp/~akaho/MixtureEM.html" rel="nofollow">Another Java code example</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 3019/1000000
+Post-expand include size: 23264/2048000 bytes
+Template argument size: 7755/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:470752-0!1!0!default!!en!2 and timestamp 20090409102355 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Expectation-maximization_algorithm">http://en.wikipedia.org/wiki/Expectation-maximization_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Estimation_theory" title="Category:Estimation theory">Estimation theory</a></span> | <span dir='ltr'><a href="/wiki/Category:Machine_learning" title="Category:Machine learning">Machine learning</a></span> | <span dir='ltr'><a href="/wiki/Category:Optimization_algorithms" title="Category:Optimization algorithms">Optimization algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Missing_values" title="Category:Missing values">Missing values</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Expectation-maximization_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Expectation-maximization_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Expectation-maximization_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Expectation-maximization_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Expectation-maximization_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Expectation-maximization_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Expectation-maximization_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Expectation-maximization_algorithm&amp;oldid=282739951" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Expectation-maximization_algorithm&amp;id=282739951">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/EM-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_esperanza-maximizaci%C3%B3n">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_esp%C3%A9rance-maximisation">Français</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/EM%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0">日本語</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/EM-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC">Русский</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E6%9C%9F%E6%9C%9B%E7%AE%97%E6%B3%95">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 9 April 2009, at 10:19 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv167 in 1.633 secs. --></body></html>

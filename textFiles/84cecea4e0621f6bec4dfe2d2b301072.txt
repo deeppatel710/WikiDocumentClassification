@@ -1,0 +1,382 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Volume rendering - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Volume_rendering";
+		var wgTitle = "Volume rendering";
+		var wgAction = "view";
+		var wgArticleId = "698016";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282437185;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Volume rendering
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+A volume rendered cadaver head using view-aligned texture mapping and diffuse reflection
+
+
+
+
+
+
+Volume rendered CT scan of a forearm with different colour schemes for muscle, fat, bone, and blood.
+
+
+Volume rendering is a technique used to display a 2D projection of a 3D discretely sampled data set.
+A typical 3D data set is a group of 2D slice images acquired by a CT or MRI scanner. Usually these are acquired in a regular pattern (e.g., one slice every millimeter) and usually have a regular number of image pixels in a regular pattern. This is an example of a regular volumetric grid, with each volume element, or voxel represented by a single value that is obtained by sampling the immediate area surrounding the voxel.
+To render a 2D projection of the 3D data set, one first needs to define a camera in space relative to the volume. Also, one needs to define the opacity and color of every voxel. This is usually defined using an RGBA (for red, green, blue, alpha) transfer function that defines the RGBA value for every possible voxel value.
+A volume may be viewed by extracting surfaces of equal values from the volume and rendering them as polygonal meshes or by rendering the volume directly as a block of data. The Marching Cubes algorithm is a common technique for extracting a surface from volume data. Direct volume rendering is a computationally intensive task that may be performed in several ways.
+Volume Rendering Resource http://www.celebisoftware.com
+
+
+
+
+
+Contents
+
+
+1 Direct volume rendering
+
+1.1 Volume ray casting
+1.2 Splatting
+1.3 Shear warp
+1.4 Texture mapping
+1.5 Hardware-accelerated volume rendering
+
+
+2 Optimization techniques
+
+2.1 Empty space skipping
+2.2 Early ray termination
+2.3 Octree and BSP space subdivision
+2.4 Volume segmentation
+2.5 Multiple and adaptive resolution representation
+2.6 Pre-integrated volume rendering
+
+
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Direct volume rendering
+A direct volume renderer[1][2] requires every sample value to be mapped to opacity and a color. This is done with a “transfer function” which can be a simple ramp, a piecewise linear function or an arbitrary table. Once converted to an RGBA (for red, green, blue, alpha) value, the composed RGBA result is projected on correspondent pixel of the frame buffer. The way this is done depends on the rendering technique.
+A combination of these techniques is possible. For instance, a shear warp implementation could use texturing hardware to draw the aligned slices in the off-screen buffer.
+
+[edit] Volume ray casting
+
+
+
+
+Example of high definition volume rendering via Volume Ray Casting
+
+
+Main article: Volume ray casting
+The technique of volume ray casting can be derived directly from the rendering equation. It provides results of very high quality, usually it is considered to provide the best image quality. Volume ray casting is classified as image based volume rendering technique, as the computation emanates from the output image, not the input volume data as is the case with object based techniques. In this technique, a ray is generated for each desired image pixel. Using a simple camera model, the ray starts at the center of projection of the camera (usually the eye point) and passes through the image pixel on the imaginary image plane floating in between the camera and the volume to be rendered. The ray is clipped by the boundaries of the volume in order to save time. Then the ray is sampled at regular or adaptive intervals throughout the volume. The data is interpolated at each sample point, the transfer function applied to form an RGBA sample, the sample is composited onto the accumulated RGBA of the ray, and the process repeated until the ray exits the volume. The RGBA color is converted to an RGB color and deposited in the corresponding image pixel. The process is repeated for every pixel on the screen to form the completed image.
+
+[edit] Splatting
+This is a technique which trades quality for speed. Here, every volume element is splatted, as Lee Westover said, like a snow ball, on to the viewing surface in back to front order. These splats are rendered as disks whose properties (color and transparency) vary diametrically in normal (Gaussian) manner. Flat disks and those with other kinds of property distribution are also used depending on the application.
+
+[edit] Shear warp
+
+
+
+
+Example of a mouse skull (CT) rendering using the shear warp algorithm
+
+
+A new approach to volume rendering was developed by Cameron and Undrill, popularized by Philippe Lacroute and Marc Levoy.[3] In this technique, the viewing transformation is transformed such that the nearest face of the volume becomes axis aligned with an off-screen image buffer with a fixed scale of voxels to pixels. The volume is then renderered into this buffer using the far more favourable memory alignment and fixed scaling and blending factors. Once all slices of the volume have been rendered, the buffer is then warped into the desired orientation and scale in the displayed image.
+This technique is relatively fast in software at the cost of less accurate sampling and potentially worse image quality compared to ray casting. There is memory overhead for storing multiple copies of the volume, for the ability to have near axis aligned volumes. This overhead can be mitigated using run length encoding.
+
+[edit] Texture mapping
+Many 3D graphics systems use texture mapping to apply images, or textures, to geometric objects. Commodity PC graphics cards are fast at texturing and can efficiently render slices of a 3D volume, with realtime interaction capabilities. Workstation GPUs are even faster, and are the basis for much of the production volume visualization used in medical imaging, oil and gas, and other markets (2007). In earlier years, dedicated 3D texture mapping systems were used on graphics systems such as Silicon Graphics InfiniteReality, HP Visualize FX, and others.
+These slices can either be aligned with the volume and rendered at an angle to the viewer, or aligned with the viewing plane and sampled from unaligned slices through the volume. Graphics hardware support for 3D textures is needed for the second technique.
+Volume aligned texturing produces images of reasonable quality, though there is often a noticeable transition when the volume is rotated.
+
+[edit] Hardware-accelerated volume rendering
+A recently exploited technique to accelerate traditional volume rendering algorithms such as ray-casting, is the use of modern graphics cards. Starting with the programmable pixel shaders, people recognized the power of parallel operations on multiple pixels and began to perform general purpose computations on the graphics chip (GPGPU). The pixel shaders are able to read and write randomly from video memory and perform some basic mathematical and logical calculations. These SIMD processors were used to perform general calculations such as rendering polygons and signal processing. In recent GPU generations, the pixel shaders now are able to function as MIMD processors (now able to independently branch) utilizing up to 1GB of texture memory with floating point formats. With such power, virtually any algorithm with steps that can be performed in parallel, such as volume ray casting or tomographic reconstruction, can be performed with tremendous acceleration. The programmable pixel shaders can be used to simulate variations in the characteristics of lighting, shadow, reflection, emissive colour and so forth. Such simulations can be written using high level shading languages.
+
+[edit] Optimization techniques
+
+[edit] Empty space skipping
+Often, a volume rendering system will have a system for identifying regions of the volume containing no visible material. This information can be used to avoid rendering these transparent regions[4].
+
+[edit] Early ray termination
+This is a technique used when the volume is rendered in front to back order. For a ray through a pixel, once sufficient dense material has been encountered, further samples will make no significant contribution to the pixel and so may be ignored.
+
+[edit] Octree and BSP space subdivision
+The use of hierarchical structures such as octree and BSP-tree could be very helpful for both compression of volume data and speed optimization of volumetric ray casting process.
+
+[edit] Volume segmentation
+By sectioning out large portions of the volume that one considers uninteresting before rendering, the amount of calculations that have to be made by ray casting or texture blending can be significantly reduced. This reduction can be as much as from O(n) to O(log n) for n sequentially indexed voxels. Volume segmentation also has significant performance benefits for other ray tracing algorithms.
+
+[edit] Multiple and adaptive resolution representation
+By representing less interesting regions of the volume in a coarser resolution, the data input overhead can be reduced. On closer observation, the data in these regions can be populated either by reading from memory or disk, or by interpolation.
+
+[edit] Pre-integrated volume rendering
+Pre-integrated volume rendering[5][6] is a method that can reduce sampling artifacts by pre-computing much of the required data. It is especially useful in hardware-accelerated applications[7][8] because it improves quality without a large performance impact.
+
+[edit] References
+
+^ Marc Levoy, “Display of Surfaces from Volume Data”, IEEE CG&A, May 1988. Archive of Paper
+^ Drebin, R.A., Carpenter, L., Hanrahan, P., “Volume Rendering”, Computer Graphics, SIGGRAPH88. DOI citation link
+Barthold Lichtenbelt, Randy Crane, Shaz Naqvi, Introduction to Volume Rendering (Hewlett-Packard Professional Books) , Hewlett-Packard Company 1998.
+^ Engel K., Kraus M., Ertl T.: High-quality pre-integrated volume rendering using hardware-accelerated pixel shading. In Proceedings of Eurographics/SIGGRAPH Workshop on Graphics Hardware (2001), pp. 9–16.
+^ Lum E., Wilson B., Ma K.: High-Quality Lighting and Efficient Pre-Integration for Volume Rendering. In Eurographics/IEEE Symposium on Visualization 2004.
+^ Max N., Hanrahan P., Crawfis R.: Area and volume coherence for efficient visualization of 3D scalar functions. In Computer Graphics (San Diego Workshop on Volume Visualization) (1990) vol. 24, pp. 27–33.
+^ Sherbondy A., Houston M., Napel S.: Fast volume segmentation with simultaneous visualization using programmable graphics hardware. In Proceedings of IEEE Visualization (2003), pp. 171–176.
+^  Stein C., Backer B., Max N.: Sorting and hardware assisted rendering for volume visualization. In Symposium on Volume Visualization (1994), pp. 83–90.
+^  "Fast Volume Rendering Using a Shear-Warp Factorization of the Viewing Transformation"
+
+
+[edit] External links
+
+
+
+
+Computer graphics portal
+
+
+
+
+Tutorial: Interactive Visualization of Volumetric Data on Consumer PC Hardware
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Visualization of technical information
+
+
+
+
+
+Fields
+
+Chemical imaging · Crime mapping · Data visualization · Educational visualization · Flow visualization · Geovisualization · Information visualization · Mathematical visualization · Medical imaging · Molecular graphics · Product visualization · Scientific visualization · Software visualization · Technical drawing · Volume visualization
+
+
+
+
+
+
+Image types
+
+Chart · Computer graphics · Diagram · Graph of a function · Engineering drawing  · Ideogram · Information graphics · Map · Photograph · Pictogram · Plot · Statistical graphics · Table · Technical illustration
+
+
+
+
+
+
+Experts
+
+Jacques Bertin · Stuart Card · Thomas A. DeFanti · Michael Friendly · Nigel Holmes · Alan MacEachren · Jock D. Mackinlay · Michael Maltz · Bruce H. McCormick · Charles Joseph Minard · Otto Neurath · William Playfair · Clifford A. Pickover · Arthur H. Robinson · Lawrence J. Rosenblum · Adolphe Quetelet · George G. Robertson · Ben Shneiderman · Edward Tufte
+
+
+
+
+
+
+Related topics
+
+Cartography · Computer graphics  · Graph drawing · Graphic design · Imaging science · Information science  · Mental visualisation · Neuroimaging · Scientific modelling · Spatial analysis · Visual analytics · Visual perception
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Volume_rendering"
+Categories: 3D computer graphics | 3D imaging 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Español
+Français
+Italiano
+Nederlands
+中文
+Deutsch
+
+
+
+
+
+
+
+
+
+ This page was last modified on 7 April 2009, at 22:34.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

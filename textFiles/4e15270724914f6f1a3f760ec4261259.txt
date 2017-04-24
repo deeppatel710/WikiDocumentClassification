@@ -1,0 +1,265 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Translation lookaside buffer - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Translation_lookaside_buffer";
+		var wgTitle = "Translation lookaside buffer";
+		var wgAction = "view";
+		var wgArticleId = "528352";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279523254;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Translation lookaside buffer
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A Translation lookaside buffer (TLB) is a CPU cache that is used by memory management hardware to improve the speed of virtual address translation. All current desktop and server processors (such as x86) use a TLB. A TLB has a fixed number of slots containing page table entries, which map virtual addresses onto physical addresses. It is typically a content-addressable memory (CAM), in which the search key is the virtual address and the search result is a physical address. If the requested address is present in the TLB, the CAM search yields a match very quickly, after which the physical address can be used to access memory. If the requested address is not in the TLB, the translation proceeds using the page table, which is slower to access. Furthermore, the translation takes significantly longer if the translation tables are swapped out into secondary storage, which a few systems allow.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Miss
+3 Typical TLB
+4 Task switch
+5 References
+6 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+The TLB references physical memory addresses in its table. It may reside between the CPU and the CPU cache or between the CPU cache and primary storage memory. This depends on whether the cache uses physical or virtual addressing. If the cache is virtually addressed, requests are sent directly from the CPU to the cache, which then accesses the TLB as necessary. If the cache is physically addressed, the CPU does a TLB lookup on every memory operation, and the resulting physical address is sent to the cache. There are pros and cons to both implementations.
+A common optimization for physically addressed caches is to perform the TLB lookup in parallel with the cache access. The low-order bits of any virtual address (e.g., in a virtual memory system having 4KB pages, the lower 12 bits of the virtual address) represent the offset of the desired address within the page, and thus they do not change in the virtual-to-physical translation. During a cache access, two steps are performed: an index is used to find an entry in the cache's data store, and then the tags for the cache line found are compared. If the cache is structured in such a way that it can be indexed using only the bits that do not change in translation, the cache can perform its "index" operation while the TLB translates the upper bits of the address. Then, the translated address from the TLB is passed to the cache. The cache performs a tag comparison to determine if this access was a hit or miss. It is possible to perform the TLB lookup in parallel with the cache access even if the cache must be indexed using some bits that may change upon address translation; see the address translation section in the cache article for more details about virtual addressing as it pertains to caches and TLBs.
+
+[edit] Miss
+Two schemes for handling TLB misses are commonly found in modern architectures:
+
+With hardware TLB management, the CPU itself walks the page tables (using the CR3 register on x86 for instance) to see if there is a valid page table entry for the specified virtual address. If an entry exists, it is brought into the TLB and the TLB access is retried: this time the access will hit, and the program can proceed normally. If the CPU finds no valid entry for the virtual address in the page tables, it raises a page fault exception, which the operating system must handle. Handling page faults usually involves bringing the requested data into physical memory, setting up a page table entry to map the faulting virtual address to the correct physical address, and resuming the program (see Page fault for more details.)
+With software-managed TLBs, a TLB miss generates a "TLB miss" exception, and the operating system must walk the page tables and perform the translation in software. The operating system then loads the translation into the TLB and restarts the program from the instruction that caused the TLB miss. As with hardware TLB management, if the OS finds no valid translation in the page tables, a page fault has occurred, and the OS must handle it accordingly. This is how TLB misses are handled on MIPS CPUs for instance[1].
+
+
+[edit] Typical TLB
+
+Size: 8 - 4,096 entries
+Hit time: 0.5 - 1 clock cycle
+Miss penalty: 10 - 30 clock cycles
+Miss rate: 0.01% - 1%
+
+Computer Organization And Design. Burlington, MA 01803, USA: Morgan Kaufmann Publishers. 2007. p. 523. ISBN 978-0-12-370606-5. 
+If a TLB hit takes 1 clock cycle, a miss takes 30 clock cycles, and the miss rate is 1%, the effective memory cycle rate is an average of
+
+(1.30 clock cycles per memory access).
+In a Harvard architecture or hybrid thereof, a separate virtual address space may exist for instruction and data caching. This can lead to distinct TLB buffers for each of the caches (instructions, data, or unified TLB).
+
+[edit] Task switch
+On a task switch, some TLB entries can become invalid, since for example the previously running process had access to a page, but the process to run has not. The simplest strategy to deal with this is to completely flush the TLB. Newer CPUs have more efficient strategies; for example in the Alpha EV6, each TLB entry is tagged with an "address space number" (ASN), and only TLB entries with an ASN matching the current task are considered valid.
+
+[edit] References
+
+
+^ Welsh, Matt. "MIPS r2000/r3000 Architecture". http://www.eecs.harvard.edu/~mdw/course/cs161/handouts/mips.html. Retrieved on 16 November 2008.  "If no matching TLB entry is found, a TLB miss exception occurs" 
+
+
+
+
+Virtual Memory in the IA-64 Kernel > Translation Lookaside Buffer
+Virtual Translation Lookaside Buffer
+
+
+
+[edit] See also
+
+Memory management
+Paging
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Translation_lookaside_buffer"
+Categories: Virtual memory | Computer memory | Central processing unit 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+فارسی
+Français
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 March 2009, at 05:03.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,305 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Purely functional - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Purely_functional";
+		var wgTitle = "Purely functional";
+		var wgAction = "view";
+		var wgArticleId = "468375";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 285909570;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Purely functional
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article is written like a personal reflection or essay and may require cleanup. Please help improve it by rewriting it in an encyclopedic style. (December 2007)
+
+
+Purely functional is a term in computing used to describe algorithms, data structures or programming languages that exclude destructive modifications (updates). According to this restriction, variables are used in a mathematical sense, with identifiers referring to immutable, persistent values.
+
+
+
+
+Contents
+
+
+1 Benefits and applications
+2 Examples of purely functional data structures
+
+2.1 Linked lists
+2.2 Trees
+
+
+3 Reference cycles
+4 See also
+5 External links
+6 Bibliography
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Benefits and applications
+The persistence property of purely functional data structures can be advantageous in the development of many applications which deal with multiple versions of an object.
+For example, consider a comprehensive web-based thesaurus service that uses a large red-black tree to store its list of synonym relationships, and that allows each user to add their own custom words to their personal thesaurus. One way to do this is to make a copy of the tree for each user, and then add their custom words to it; however, this is wasteful duplication. Moreover, it would cause a significant processing delay to make the complete copy of the tree.
+A better approach is to store the words in an immutable (and therefore purely functional) red-black tree. Then, one can simply take the original version and produce a new tree based on it for each set of custom words. Because these new trees share large amounts of structure with the main tree, the space overhead for each additional user is at most 2klog2n, where k is the number of custom nodes. With a mutable red-black tree, this approach would not work, since changes to the main tree would affect all users.
+Besides their efficiency benefits, the inherent referential transparency of functional data structures tends to make purely functional computation more amenable to analysis and optimization, both formal and informal.
+
+[edit] Examples of purely functional data structures
+
+
+
+
+
+It has been suggested that this article or section be merged into Persistent data structure. (Discuss)
+
+
+
+[edit] Linked lists
+This example is taken from Okasaki. See the bibliography.
+Singly linked lists are a bread and butter data structure in functional languages. In ML-derived languages and Haskell, they are purely functional because once a node in the list has been allocated, it cannot be modified, only copied or destroyed.
+Consider the two lists:
+
+xs = [0, 1, 2]
+ys = [3, 4, 5]
+
+These would be represented in memory by:
+
+where a circle indicates a node in the list (the arrow out showing the second element of the node which is a pointer to another node).
+Now concatenating the two lists:
+
+zs = xs ++ ys
+
+results in the following memory structure:
+
+Notice that the nodes in list xs have been copied, but the nodes in ys are shared. As a result, the original lists (xs and ys) persist and have not been modified.
+The reason for the copy is that the last node in xs (the node containing the original value 2) cannot be modified to point to the start of ys, because that would change the value of xs.
+
+[edit] Trees
+This example is taken from Okasaki. See the bibliography.
+Consider a binary tree used for fast searching, where every node has the recursive invariant that subnodes on the left are less than the node, and subnodes on the right are greater than the node.
+For instance, the set of data
+
+xs = [a, b, c, d, f, g, h]
+
+might be represented by the following binary search tree:
+
+A function which inserts data into the binary tree and maintains the invariant is:
+
+fun insert (x, E) = T (E, x, E)
+  | insert (x, s as T (a, y, b)) =
+       if x < y then T (insert (x, a), y, b)
+       else if x > y then T (a, y, insert (x, b))
+       else s
+
+After executing
+
+ys = insert ("e", xs)
+
+we end up with the following:
+
+Notice two points: Firstly the original tree (xs) persists. Secondly many common nodes are shared between the old tree and the new tree. Such persistence and sharing is difficult to manage without some form of garbage collection (GC) to automatically free up nodes which have no live references, and this is why GC is a feature commonly found in functional programming languages.
+
+[edit] Reference cycles
+Since every value in a purely functional computation is built up out of existing values, it would seem that it is impossible to create a cycle of references. In that case, the reference graph (the graph of the references from object to object) could only be a directed acyclic graph. However, in most functional languages, functions can be defined recursively; this capability allows recursive structures using functional suspensions. In lazy languages, such as Haskell, all data structures are represented as implicitly suspended thunks; in these languages any data structure can be recursive. Some other languages, such as Objective Caml, allow the explicit definition of recursive values.
+
+[edit] See also
+
+Pure function
+Persistent data structure
+VList
+Identity (object-oriented programming)
+
+
+[edit] External links
+
+Purely Functional Data Structures thesis by Chris Okasaki (PDF format)
+Making Data-Structures Persistent by James R. Driscoll, Neil Sarnak, Daniel D. Sleator, Robert E. Tarjan (PDF)
+Fully Persistent Lists with Catenation by James R. Driscoll, Daniel D. Sleator, Robert E. Tarjan (PDF)
+Persistent Data Structures from MIT open course Advanced Algorithms
+
+
+[edit] Bibliography
+Purely functional data structures by Chris Okasaki, Cambridge University Press, 1998, ISBN 0-521-66350-4.
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Purely_functional"
+Categories: Functional programmingHidden categories: Wikipedia articles needing style editing from December 2007 | All articles needing style editing | All articles to be merged | Articles to be merged since November 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Français
+
+
+
+
+
+
+
+
+
+ This page was last modified on 24 April 2009, at 19:23 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

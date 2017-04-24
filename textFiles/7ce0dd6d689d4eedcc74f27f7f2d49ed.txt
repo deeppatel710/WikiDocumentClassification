@@ -1,0 +1,620 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cyclic redundancy check - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Cyclic_redundancy_check";
+		var wgTitle = "Cyclic redundancy check";
+		var wgAction = "view";
+		var wgArticleId = "38838";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281225338;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Cyclic redundancy check
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it has insufficient inline citations. Please help to improve this article by introducing more precise citations where appropriate. (January 2008)
+
+
+A cyclic redundancy check (CRC) is a type of function that takes as input a data stream of any length, and produces as output a value of a certain space, commonly a 32-bit integer. The term CRC denotes either the function or the function's output. A CRC can be used as a checksum to detect accidental alteration of data during transmission or storage. CRCs are popular because they are simple to implement in binary hardware, are easy to analyse mathematically, and are particularly good at detecting common errors caused by noise in transmission channels. The CRC was invented by W. Wesley Peterson, and published in his 1961 paper.[1] The IEEE-recommended 32-bit CRC, used in Ethernet and elsewhere, appeared at a telecommunications conference in 1975.[2]
+
+
+
+
+Contents
+
+
+1 Introduction
+2 CRCs and data integrity vs. correctness
+3 Computation of CRC
+4 Mathematics of CRC
+5 Specification of CRC
+6 Commonly used and standardised CRCs
+7 Designing CRC polynomials
+8 References
+9 See also
+10 External links
+
+10.1 Online tools
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Introduction
+A CRC is an error-detecting code. Its computation resembles a long division operation in which the quotient is discarded and the remainder becomes the result, with the important distinction that the arithmetic used is the carry-less arithmetic of a finite field. The length of the remainder is always less than or equal to the length of the divisor, which therefore determines how long the result can be. The definition of a particular CRC specifies the divisor to be used, among other things.
+Although CRCs can be constructed using any finite field, all commonly used CRCs employ the finite field GF(2). This is the field of two elements, usually called 0 and 1, comfortably matching computer architecture. The rest of this article will discuss only these binary CRCs, but the principles are more general.
+An important reason for the popularity of CRCs for detecting the accidental alteration of data is their efficiency guarantee. Typically, an n-bit CRC, applied to a data block of arbitrary length, will detect any single error burst not longer than n bits (in other words, any single alteration that spans no more than n bits of the data), and will detect a fraction 1-2-n of all longer error bursts. Errors in both data transmission channels and magnetic storage media tend to be distributed non-randomly (i.e. are "bursty"), making CRCs' properties more useful than alternative schemes such as multiple parity checks.
+The simplest error-detection system, the parity bit, is in fact a trivial CRC: it uses the two-bit-long divisor 11.
+
+[edit] CRCs and data integrity vs. correctness
+
+
+
+
+
+This section does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (September 2008)
+
+
+CRCs are not, by themselves, suitable for protecting against intentional alteration of data (for example, in authentication applications for data security), because their convenient mathematical properties make it easy to compute the CRC adjustment required to match any given change to the data.
+It is often falsely assumed that when a message and its CRC are received from an open channel and the CRC matches the message's calculated CRC then the message cannot have been altered in transit. This is of course false, because both could have been changed, such that the new CRC would match the new message.
+Although CRCs share a problem with message digests in that there cannot be a 1:1 relationship between all possible messages and all possible CRCs, the CRC function fares worse because it is not a trapdoor function. That is, it is easy to generate other messages that result in the same CRC, especially messages similar to the original. By design, however, a message that is too similar (differing only by a trivial noise pattern) will have a dramatically different CRC and thus be detected.
+Alternatively the message could just be intercepted and replaced by a phony message with a new, phony CRC (creating a packet that would be verified by any Data-Link entity). Therefore, CRCs can be relied upon to verify correctness but not integrity.
+In contrast, an effective way to protect messages against intentional tampering is by the use of a message authentication code such as HMAC.
+
+[edit] Computation of CRC
+Main article: Computation of CRC
+To compute an n-bit binary CRC, line the bits representing the input in a row, and position the (n+1)-bit pattern representing the CRC's divisor (called a "polynomial") underneath the left-hand end of the row. Here is the first calculation for computing a 3-bit CRC:
+
+11010011101100 <--- Input
+1011           <--- divisor (4 Bits)
+--------------
+01100011101100 <--- result
+
+If the input bit above the leftmost divisor bit is 0, do nothing and move the divisor to the right by one bit. If the input bit above the leftmost divisor bit is 1, the divisor is exclusive-ORed into the input (in other words, the input bit above each 1-bit in the divisor is toggled). The divisor is then shifted one bit to the right, and the process is repeated until the divisor reaches the right-hand end of the input row. Here is the last calculation:
+
+00000000001110 <--- result of multiplication calculation
+          1011 <--- divisor
+--------------
+00000000000101 <--- remainder (3 bits)
+
+Since the leftmost divisor bit zeroed every input bit it touched, when this process ends the only bits in the input row that can be nonzero are the n bits at the right-hand end of the row. These n bits are the remainder of the division step, and will also be the value of the CRC function (unless the chosen CRC specification calls for some postprocessing).
+
+[edit] Mathematics of CRC
+Main article: Mathematics of CRC
+Mathematical analysis of this division-like process reveals how to pick a divisor that guarantees good error-detection properties. In this analysis, the digits of the bit strings are thought of as the coefficients of a polynomial in some variable x -- coefficients that are elements of the finite field GF(2) instead of more familiar numbers. This "polynomial trick" allows bit strings to be viewed as elements of a ring. A ring is, loosely speaking, a set of elements somewhat like numbers, that can be operated on by an operation that somewhat resembles addition and another operation that somewhat resembles multiplication, these operations possessing many of the familiar arithmetic properties of commutativity, associativity, and distributivity. Many analytical tools commonly used with numbers also work on rings, and this is why the "polynomial" view helps the analysis.
+
+[edit] Specification of CRC
+The concept of the CRC as an error-detecting code gets complicated when an implementer or standards committee turns it into a practical system. Here are some of the complications:
+
+Sometimes an implementation prefixes a fixed bit pattern to the bitstream to be checked. This is useful when clocking errors might insert 0-bits in front of a message, an alteration that would otherwise leave the CRC unchanged.
+
+
+Sometimes an implementation appends n 0-bits (n being the size of the CRC) to the bitstream to be checked before the polynomial division occurs. This has the convenience that the CRC of the original bitstream with the CRC appended is exactly zero, so the CRC can be checked simply by performing the polynomial division on the expanded bitstream and comparing the remainder with zero.
+
+
+Sometimes an implementation exclusive-ORs a fixed bit pattern into the remainder of the polynomial division.
+
+
+Bit order: Some schemes view the low-order bit of each byte as "first", which then during polynomial division means "leftmost", which is contrary to our customary understanding of "low-order". This convention makes sense when serial-port transmissions are CRC-checked in hardware, because some widespread serial-port transmission conventions transmit bytes least-significant bit first.
+
+
+Byte order: With multi-byte CRCs, there can be confusion over whether the byte transmitted first (or stored in the lowest-addressed byte of memory) is the least-significant byte or the most-significant byte. For example, some 16-bit CRC schemes swap the bytes of the CRC.
+
+
+Omission of the high-order bit of the divisor polynomial: Since the high-order bit is always 1, and since an n-bit CRC must be defined by an (n + 1)-bit divisor which overflows an n-bit register, some writers assume that it is unnecessary to mention the divisor's high-order bit.
+
+
+[edit] Commonly used and standardised CRCs
+While cyclic redundancy checks form part of several standards, they are not themselves standardised to the point of adopting one algorithm of each degree worldwide: there are two known CRC-12 polynomials[3], at least eight documented variations of CRC-16, and three of CRC-32[4]. The polynomials usually seen are not the most efficient ones possible. Between 1993 and 2004, Koopman, Castagnoli and others surveyed the space of polynomials up to 16 bits[5], and of 24 and 32 bits,[6][7] finding examples that have much better performance (in terms of Hamming distance for a given message size) than the polynomials of earlier protocols, and publishing the best of these with the aim of improving the error detection capacity of future standards[7]. In particular, iSCSI has adopted one of the findings of this research.
+Far from being arbitrarily chosen, the popular CRC-32 polynomial, recommended by the IEEE and used by V.42, Ethernet, the POSIX cksum utility, FDDI and ZIP and PNG files among others, is the generating polynomial of a Hamming code and was selected for its error detection performance[2] on communication channels. Even so, it is outperformed by the Castagnoli CRC-32C polynomial used in iSCSI[7] on Internet SCSI environments. The ITU-T G.hn standard, which provides a way to create a high-speed (up to 1 Gigabit/s) Local area network using existing home wiring (power lines, phone lines and coaxial cables), also uses the Castagnoli CRC-32C polynomial to detect errors in payload (although it uses CRC-16-CCITT for PHY headers).
+The table below lists only the polynomials of the various algorithms in use. Any particular protocol can impose pre-inversion, post-inversion and reversed bit ordering as described above. CRCs in proprietary protocols might use a complicated initial value and final XOR for obfuscation but this does not add cryptographic strength to the algorithm.
+Note: in this table the high-order bit is omitted; see Specification of CRC above.
+
+
+Name
+Polynomial
+Representations: normal or reversed (reverse of reciprocal)
+
+
+CRC-1
+x + 1 (most hardware; also known as parity bit)
+0x1 or 0x1 (0x1)
+
+
+CRC-4-ITU
+x4 + x + 1 (ITU G.704, p. 12)
+0x3 or 0xC (0x9)
+
+
+CRC-5-ITU
+x5 + x4 + x2 + 1 (ITU G.704, p. 9)
+0x15 or 0x15 (0x1A)
+
+
+CRC-5-USB
+x5 + x2 + 1 (USB token packets)
+0x05 or 0x14 (0x12)
+
+
+CRC-6-ITU
+x6 + x + 1 (ITU G.704, p. 3)
+0x03 or 0x30 (0x21)
+
+
+CRC-7
+x7 + x3 + 1 (telecom systems, MMC,SD)
+0x09 or 0x48 (0x44)
+
+
+CRC-8-ATM
+x8 + x2 + x + 1 (ATM HEC)
+0x07 or 0xE0 (0x83)
+
+
+CRC-8-CCITT
+x8 + x7 + x3 + x2 + 1 (1-Wire bus)
+0x8D or 0xB1 (0xC6)
+
+
+CRC-8-Dallas/Maxim
+x8 + x5 + x4 + 1 (1-Wire bus)
+0x31 or 0x8C (0x98)
+
+
+CRC-8
+x8 + x7 + x6 + x4 + x2 + 1
+0xD5 or 0xAB (0xEA [5])
+
+
+CRC-8-SAE J1850
+x8 + x4 + x3 + x2 + 1
+0x1D or 0xB8 (0x8E)
+
+
+CRC-10
+x10 + x9 + x5 + x4 + x + 1
+0x233 or 0x331 (0x319)
+
+
+CRC-11
+x11 + x9 + x8 + x7 + x2 + 1 (FlexRay)
+0x385 or 0x50E (0x5C2)
+
+
+CRC-12
+x12 + x11 + x3 + x2 + x + 1 (telecom systems, [8][9] )
+0x80F or 0xF01 (0xC07)
+
+
+CRC-15-CAN
+x15 + x14 + x10 + x8 + x7 + x4 + x3 + 1
+0x4599 or 0x4CD1 (0x62CC)
+
+
+CRC-16-Fletcher
+Not a CRC; see Fletcher's checksum
+Used in Adler-32 A & B CRCs
+
+
+CRC-16-CCITT
+x16 + x12 + x5 + 1 (G.hn PHY headers, 802.15.4, X.25, V.41, CDMA, Bluetooth, XMODEM, HDLC,PPP, IrDA, BACnet; known as CRC-CCITT, MMC,SD)
+0x1021 or 0x8408 (0x8810 [5])
+
+
+CRC-16-DNP
+x16 + x13 + x12 + x11 + x10 + x8 + x6 + x5 + x2 + 1 (DNP, IEC 870, M-Bus)
+0x3D65 or 0xA6BC (0x9EB2)
+
+
+CRC-16-IBM
+x16 + x15 + x2 + 1 (SDLC, USB, many others; also known as CRC-16)
+0x8005 or 0xA001 (0xC002)
+
+
+CRC-24-Radix-64
+x24 + x23 + x18 + x17 + x14 + x11 + x10 + x7 + x6 + x5 + x4 + x3 + x + 1 (FlexRay)
+0x864CFB or 0xDF3261 (0xC3267D)
+
+
+CRC-30
+x30 + x29 + x21 + x20 + x15 + x13 + x12 + x11 + x8 + x7 + x6 + x2 + x + 1 (CDMA)
+0x2030B9C7 or 0x38E74301 (0x30185CE3)
+
+
+CRC-32-Adler
+Not a CRC; see Adler-32
+See Adler-32
+
+
+CRC-32-IEEE 802.3
+x32 + x26 + x23 + x22 + x16 + x12 + x11 + x10 + x8 + x7 + x5 + x4 + x2 + x + 1 (V.42, MPEG-2, PNG [10], POSIX cksum)
+0x04C11DB7 or 0xEDB88320 (0x82608EDB [7])
+
+
+CRC-32C (Castagnoli)
+x32 + x28 + x27 + x26 + x25 + x23 + x22 + x20 + x19 + x18 + x14 + x13 + x11 + x10 + x9 + x8 + x6 + 1 (G.hn payload)
+0x1EDC6F41 or 0x82F63B78 (0x8F6E37A0 [7])
+
+
+CRC-32K (Koopman)
+x32 + x30 + x29 + x28 + x26 + x20 + x19 + x17 + x16 + x15 + x11 + x10 + x7 + x6 + x4 + x2 + x + 1
+0x741B8CD7 or 0xEB31D82E (0xBA0DC66B [7])
+
+
+CRC-64-ISO
+x64 + x4 + x3 + x + 1 (HDLC — ISO 3309)
+0x000000000000001B or 0xD800000000000000 (0x800000000000000D)
+
+
+CRC-64-ECMA-182
+x64 + x62 + x57 + x55 + x54 + x53 + x52 + x47 + x46 + x45 + x40 + x39 + x38 + x37 + x35 + x33 + x32 + x31 + x29 + x27 + x24 + x23 + x22 + x21 + x19 + x17 + x13 + x12 + x10 + x9 + x7 + x4 + x + 1 (as described in ECMA-182 p.51)
+0x42F0E1EBA9EA3693 or 0xC96C5795D7870F42 (0xA17870F5D4F51B49)
+
+
+Known to exist, but technologically defunct -- mainly replaced by cryptographic hash functions:
+
+CRC-128 (IEEE)
+CRC-256 (IEEE)
+
+
+[edit] Designing CRC polynomials
+The selection of generator polynomial is the most important part of implementing the CRC algorithm. The polynomial must be chosen to maximise the error detecting capabilities while minimising overall collision probabilities.
+The most important attribute of the polynomial is its length (the number of the highest nonzero coefficient), because of its direct influence of the length of the computed checksum.
+The most commonly used polynomial lengths are
+
+9 bits (CRC-8)
+17 bits (CRC-16)
+33 bits (CRC-32)
+65 bits (CRC-64)
+
+When creating a new CRC polynomial or improving an existing CRC the general mathematical advice is to use an irreducible polynomial that satisfies all polynomical irreducibility constraints from modular arithmetics.
+
+Irreducibility in this case means that the polynomial cannot be divided by any polynomial except itself and 1 with zero remainder.
+Reducible polynomials can still be used, but their error correcting and detecting capabilities will be less effective. Some applications may choose to use reducible polynomials under certain conditions.
+
+The properties of the generator polynomial can be derived from the algorithm definition
+
+CRCs with more than one nonzero coefficients are able to detect all single bit errors in the input message.
+CRCs can be used to detect all double bit errors in the input message shorter than 2^k, where k is the length of the longest irreducible part of the polynomial.
+If the CRC polynomial is divisible by x + 1 then no polynomial with odd number of nonzero coefficients can be divided by it. Hence, it can be used to detect odd number of errors in the input message (like single bit parity function).
+CRC polynomials detect (single) burst errors shorter than the number of the position of the highest polynomial coefficient.
+
+
+[edit] References
+
+
+^ Peterson, W. W. and Brown, D. T. (January 1961). "Cyclic Codes for Error Detection". Proceedings of the IRE 49: 228. doi:10.1109/JRPROC.1961.287814. ISSN 0096-8390. 
+^ a b Brayer, K; Hammond, J L Jr. (December 1975). "Evaluation of error detection polynomial performance on the AUTOVON channel" in National Telecommunications Conference, New Orleans, La. Conference Record 1: p. 8-21 to 8-25, New York: Institute of Electrical and Electronics Engineers. 
+^ "(slib) Cyclic Checksum". http://os.cqu.edu.au/cgi-bin/info/info2html.cgi?(slib)Cyclic%20Checksum. Retrieved on 2008-04-06. 
+^ Greg Cook (2008-09-09). "Catalogue of parameterised CRC algorithms". http://homepages.tesco.net/rainstorm/crc-catalogue.htm. Retrieved on 2008-09-09. 
+^ a b c [|Koopman, Philip]; Chakravarty, Tridib (2004), Cyclic Redundancy Code (CRC) Polynomial Selection For Embedded Networks, http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf 
+^ Castagnoli, G.; S. Braeuer; M. Herrman (June 1993). "Optimization of Cyclic Redundancy-Check Codes with 24 and 32 Parity Bits". IEEE Transactions on Communications 41 (6): 883. doi:10.1109/26.231911. ISSN 0090-6778. . Castagnoli's et al. work on algorithmic selection of CRC polynomials
+^ a b c d e f Koopman, P. (June 2002). "32-Bit Cyclic Redundancy Codes for Internet Applications". The International Conference on Dependable Systems and Networks: 459. doi:10.1109/DSN.2002.1028931. http://citeseer.ist.psu.edu/koopman02bit.html. . Verification of Castagnoli's results by exhaustive search and some new good polynomials
+^ Perez, A.; Wismer & Becker (1983). "Byte-Wise CRC Calculations". IEEE Micro 3 (3): 40–50. doi:10.1109/MM.1983.291120. ISSN 0272-1732. 
+^ Ramabadran, T.V.; Gaitonde, S.S. (1988). "A tutorial on CRC computations". IEEE Micro 8 (4): 62–75. doi:10.1109/40.7773. ISSN 0272-1732. 
+^ Thomas Boutell, Glenn Randers-Pehrson, et al. (1998-07-14). "PNG (Portable Network Graphics) Specification, Version 1.2". http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html. Retrieved on 2008-04-28. 
+
+
+
+[edit] See also
+
+Error correcting code
+redundancy check
+List of checksum algorithms
+Parity
+Information security
+Simple file verification
+cksum
+Header Error Correction
+Adler-32
+Fletcher's checksum
+
+
+
+[edit] External links
+
+Cyclic Redundancy Checks: overview with an explanation of error-detection of different polynomials.
+Easy to understand CRC32 C++ Source Code
+Free CRC Source Code from the Boost C++ Libraries
+The CRC Pitstop
+Williams, R. (1993-09) A Painless Guide to CRC Error Detection Algorithms
+Understanding Cyclic Redundancy Check
+Black, R. (1994-02) Fast CRC32 in Software; algorithm 4 is used in Linux and info-zip's zip and unzip.
+Kounavis, M. and Berry, F. (2005). A Systematic Approach to Building High Performance, Software-based, CRC generators, Slicing-by-4 and slicing-by-8 algorithms
+CRC32: Generating a checksum for a file, C++ implementation by Brian Friesen
+CRC16 to CRC64 collision research
+Reversing CRC - Theory and Practice.
+'CRC-Analysis with Bitfilters'.
+Another Bad CRC Reading Tool, but free
+MathPages - Cyclic Redundancy Checks
+Tool for Bad CRC Reading with advanced options
+A CRC calculation utility and C source code generator written in Python. (MIT licence)
+CRC Encoding - C# Implementation by Marcel de Wijs
+Cyclic Redundancy Check: theory, practice, hardware, and software with emphasis on CRC-32. A sample chapter from Henry S. Warren, Jr. Hacker's Delight.
+
+
+[edit] Online tools
+
+www.hashsum.com -- A free online checksum tool for large files, supporting CRC, MD5, SHA, and more.
+Free CRC Verilog Circuit generator
+Online CRC32 and CRC32B calculator (uses IEEE 802.3 polynomial)
+Online Tool to compute common CRCs (8/16/32/64) from strings
+Online CRC calculator
+Another online CRC calculator
+A third online CRC calculator
+Online CRC Tool: Generator of synthesizable CRC functions
+Online Char (ASCII), HEX, Binary, Base64, etc... Encoder/Decoder with MD2, MD4, MD5, SHA1+2, CRC, etc. hashing algorithms
+
+
+
+
+
+e Error correction
+
+
+Decade of method introduction
+
+
+1850s-1900s: check digit
+
+
+1940s-1960s: checksum
+
+
+1950s: Hamming codes
+
+
+1960s: Reed-Solomon
+
+
+1960s: LDPC codes
+
+
+1990s: Turbo codes
+
+
+1990s: Space-time code
+
+
+Related topics
+
+
+Information theory Shannon limit
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Standards of Ecma International
+
+
+
+
+
+
+ANSI escape code · C++/CLI · C# · CD-ROM · CLI · DDS · E4X · ECMAScript · Eiffel · FAT · FD · HVD · Office Open XML · U3D · UDF · UDO · UMD · UWB
+
+
+
+
+
+
+List of Ecma standards
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Cyclic_redundancy_check"
+Categories: Checksum algorithms | Finite fieldsHidden categories: Articles lacking in-text citations | Articles needing additional references from September 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Български
+Català
+Česky
+Deutsch
+Ελληνικά
+Español
+Euskara
+Français
+한국어
+Bahasa Indonesia
+Italiano
+עברית
+Nederlands
+日本語
+Polski
+Português
+Русский
+Simple English
+Slovenčina
+Suomi
+Svenska
+Tiếng Việt
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 2 April 2009, at 04:12.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,336 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DLL hell - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "DLL_hell";
+		var wgTitle = "DLL hell";
+		var wgAction = "view";
+		var wgArticleId = "59441";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278897557;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); DLL hell
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computing, DLL hell is a colloquial term for the complications that arise when working with dynamic link libraries (DLLs) used with Microsoft Windows operating systems, particularly legacy 16-bit editions. Although the term is Windows-specific (the more general term is dependency hell) the rhyme is often used to depict a dependency hell case.
+DLL hell often shows up in a Windows alert pop-up that reports something similar to "A Required DLL File, Z.DLL, was not found" or "The procedure entry point Y couldn't be located in X.DLL" when users try to run an application, or during startup. This can also manifest itself more quietly as applications just not working properly. It takes a number of forms, as detailed below.
+
+
+
+
+Contents
+
+
+1 Problems
+2 Causes
+3 Solutions
+
+3.1 Static linking
+3.2 DLL Stomping
+3.3 Conflicting DLLs
+3.4 Countermeasures
+
+
+4 DLL hell as motivation for .NET
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Problems
+There are a number of problems commonly encountered with DLLs – especially after numerous applications have been installed and uninstalled on a system. The difficulties include conflicts between DLL versions, difficulty in obtaining required DLLs, and having many unnecessary DLL copies.
+
+Incompatible versions
+A particular version of a library can be compatible with some (and incompatible with other) programs that use it. Windows has been particularly vulnerable to this because of its emphasis on dynamic linking of C++ libraries and Object Linking and Embedding (OLE) objects. C++ classes export many methods, and a single change to the class (such as a new virtual method) can make it incompatible with programs that were built against an earlier version. Object Linking and Embedding has some very strict rules to prevent this -- interfaces are required to be stable and memory managers are not shared. But this is not enough, for the semantics of a class can change. A "bug fix" for one application may be the removal of a "feature" from another. Before Windows 2000, Windows was vulnerable to this because the COM class table was shared across all users and processes. Only one COM object, in one DLL/EXE could be declared as having a specific COM ClassID. If any program needed to create an instance of that class, it got whatever was the current centrally registered implementation. As a result, an installation of a program that installs a new version of a common object may inadvertently break other people's programs.
+
+
+DLL stomping
+A common and troublesome problem occurs when a newly-installed program overwrites a working system DLL with an earlier, incompatible version. A famous example of this was the ctl3d.dll and ctl3dv2.dll libraries for Windows 3.1, which had numerous updated versions appearing in the wild. [1] DLL Stomping occurs because:
+
+Microsoft in the past distributed runtime DLLs as shared system components [2], (originally C:\WINDOWS and C:\WINDOWS\SYSTEM), as a way of efficiently sharing code in a shared-memory OS with limited RAM and disk space. Consequently, third-party developers also distributed these in such a manner.
+Although somewhat discouraged today, applications installed by anyone with Administrator rights may have the ability to install DLLs into the system directories, and edit the registry to register new DLLs as COM objects. This can result in the old version becoming live on versions of Windows on which Windows File Protection or Windows Resource Protection do not roll back the change.
+Windows applications are permitted to include OS updates in their own installation programs. That is, many Microsoft DLLs are redistributable, meaning the applications get to include them if they need the services of the particular libraries.
+Windows installers historically were a commercial product only available at a price, and many people attempted to write their own installers, overlooking versioning problems[citation needed]
+Some developers neglected to include a version resource in their library. Checking file dates, overwriting existing files or skipping the copy if the DLL was already installed were the only options available. If a dialog was presented offering these options, the application being installed received support calls. If the DLL copy was skipped, again, support calls. If the DLL was stomped on, your application worked.
+Sometimes the OS itself stomps on DLLs. For example, Windows 2000 would install black and white printer DLLs on top of color-aware DLLs, if a black and white printer was installed after the color printer.[3]
+
+
+
+
+Incorrect COM registration
+In COM and other parts of Windows, the Registry is used to decide which DLL to use. If the wrong version of a module is registered, this module DLL will be loaded instead of the expected one. This can be caused by device driver installations that register the wrong libraries to load, or the wrong COM object factories. This effect can usually be replicated by installing an old version of a Microsoft Office application onto a system which already has a later version installed.
+
+
+Shared in-memory modules
+16-bit versions of Windows load only one instance of any given DLL; all applications reference the same in-memory copy, until no applications are using it and it is unloaded from memory. (For 32-bit and 64-bit versions of Windows, inter-process sharing occurs only where different executables load a module from exactly the same directory.) Thus, even when the desired DLL is located in a directory where it can be expected to be found, such as in the system directory or the application directory, neither of these instances will be used if another application has started with an incompatible version from a third directory. This issue can manifest itself as an application error that occurs only when another application is running.
+
+
+Lack of serviceability
+In direct conflict with the DLL stomping problem: If updates to a DLL do not affect all applications which use it, then it becomes much harder to 'service' the DLL - that is, to eliminate problems which exist in the current versions of the DLL. (Security fixes are a particularly compelling, and painful, case.) Instead of fixing just the latest version of the DLL, the implementor must ideally make their fixes, and test them for compatibility, on every released version of the DLL.
+
+
+[edit] Causes
+DLL incompatibility has been caused by:
+
+memory constraints, combined with lack of separation of process memory space in 16-bit versions of Windows
+enforced standard versioning, naming, and file system location schemata for DLLs;
+enforced standard method for software installation and removing (package management);
+centralized authoritative support for DLL application binary interface management and safeguards, allowing incompatible DLLs with the same file name and internal version numbers to be released;
+overly simplified management tools, preventing the identification of changed or problematic DLLs by users and administrators.
+developers breaking backward-compatibility of functions in shared modules.
+
+DLL hell was a very common phenomenon on pre-Windows NT versions of Microsoft operating systems, the primary cause being that the 16-bit operating systems did not restrict processes to their own memory space, thereby not allowing them to load their own version of a shared module that they were compatible with. Application installers were expected to be good citizens and verify DLL version information before overwriting the existing system DLLs. Standard tools to simplify application deployment (which always involves shipping the dependent operating system DLLs) were provided by Microsoft and other 3rd party tools vendors. Microsoft even required application vendors to use a standard installer and have their installation program certified to work correctly, before being granted use of the Microsoft logo. The good citizen installer approach did not mitigate the problem, as the rise in popularity of the Internet provided more opportunities to obtain non-conforming applications.
+
+[edit] Solutions
+Various forms of DLL hell have been solved or mitigated over the years.
+
+[edit] Static linking
+One of the simplest solutions to DLL hell in an application is to statically link against all the libraries. This is common in C/C++ applications, where, instead of having to worry about which version of MFC42.DLL is installed, the application is compiled to be statically linked against the same libraries. This eliminates the DLLs entirely, and is viable for standalone applications that are only using libraries - such as Microsoft Foundation Class Library - that offer a static option. The main purpose of DLLs (runtime library sharing between programs) is sacrificed though, and can prevent proper propagation of security fixes.
+
+[edit] DLL Stomping
+The DLL overwriting problem (referred to as DLL Stomping inside Microsoft) was somewhat reduced with Windows File Protection (WFP)[4] that was introduced in Windows 2000. This prevents unauthorized applications from overwriting system DLLs, unless they use the specific Windows APIs that permit this. There is still a risk that updates from Microsoft (such as Internet Explorer 7) are incompatible with existing applications.
+Third-party applications cannot stomp on OS files unless they bundle windows updates with their installer, or if they disable the Windows File Protection service during installation.
+Some other features that help to mitigate the problem are
+
+Installation tools are now bundled into Microsoft Visual Studio, the main environment for Windows development. These tools perform version checking before DLL installation, and can include predefined installation packages in a .MSI installation. This allows third party applications to integrate OS component updates without having to write their own installers for these components.
+System Restore can recover a system from a bad installation, including registry damage. While this does not prevent the problem, it makes it easier to recover from.
+
+
+[edit] Conflicting DLLs
+The solutions here consist of having different copies of the same DLLs for each application, both on-disk and in memory.
+An easy manual solution to conflicts was placing the different versions of the problem DLL into the applications' folders, rather than a system-wide folder. This works so long as the operating system is 32-bit or 64-bit, or that applications are not run simultaneously on a 16-bit platform. However, OLE prevented this before Windows XP, because earlier versions of Windows had a single registry of COM objects for all applications.
+Windows XP introduced a solution called Side-by-Side Component Sharing (MSDN page), which loads separate copies of DLLs for each application that requires them (and thus allows applications that require conflicting DLLs to run simultaneously). This approach eliminates conflicts by allowing applications to load unique versions of a module into their address space, while preserving the primary benefit of sharing DLLs between applications (i.e. reducing memory use) by using memory mapping techniques to share common code between different processes that do still use the same module. However DLLs that use shared data between multiple processes cannot take this approach.[5] One negative side-effect is that orphaned instances of DLLs may not be updated during automated processes.
+
+[edit] Countermeasures
+There are several countermeasures known to avoid DLL hell, which have to be used simultaneously for optimal results:
+
+Use of the .NET Framework, which had a specific design goal of addressing DLL hell.
+Run 16-bit applications in separate memory space under a 32-bit version of Windows.
+Use an edition of Windows that has the Windows File Protection or Windows Resource Protection feature.
+Registration-free COM: Windows XP introduced a new mode of COM object registration called "Registration-free COM" that was not well-publicized due to the simultaneous release of information related to .NET. This feature makes it possible for applications that need to install COM objects to store all the required COM registry information in the application's directory, instead of in the global registry, where strictly speaking if only a single application will ever use it is all that is needed. Thus, it provides a mechanism for multiple versions of the same DLL to be present at the same time as needed to cater for multiple applications (Microsoft calls this "Side-by-Side Assembly"[6]). DLL hell can be substantially avoided using Registration-free COM, the only limitation being it requires at least Windows XP or later Windows versions and that it must not be used for EXE COM servers or system-wide components such as MDAC, MSXML, DirectX or Internet Explorer.
+Shipping the operating system with a capable package management system that is able to track the DLL dependencies, encouraging the use of the package manager and discouraging manual installation of DLLs.
+Having a central authority for distributing the library. Changes to the library can be submitted to this authority; thus, it can make sure compatibility is preserved in the developed branches. If some older software is incompatible with the current library, the authority can provide a compatibility interface for it, or bundle the old version as a distinct package.
+If software developers need to customize a library, and if the main library release is unlikely to incorporate the changes that they need, they can ship the customized DLL for the program's private use (commonly by placing it in the program's private directory) or statically link the program against the customized library.
+Proper software design is paramount. DLLs are best for modularizing applications and the system's components and as third-party libraries; their usage is not imperative in all cases. For example, if an application needs a library that will not be used anywhere else, it can be linked statically, with no space penalty and with a speed gain.
+
+
+[edit] DLL hell as motivation for .NET
+In 2000, Microsoft publicly unveiled the .NET Framework, which included a new version of a package deployment system called assemblies.[7] This framework also provided support for a common language runtime (essentially moving much DLL code to a base foundation class). This concept, along with file versioning, is often seen as one of the last operating system constructs that had failed to bridge the gap between OpenVMS and Windows NT, which shared a common operating systems architecture.[citation needed]
+
+[edit] See also
+
+Dependency hell
+
+
+[edit] References
+
+
+^ "A summary of CTL3D.DLL articles in Microsoft Support Knowledge Base". Microsoft. http://support.microsoft.com/search/default.aspx?query=CTL3Dv2.DLL. >
+^ Redistribution of the shared C runtime component in Visual C++ 2005 and in Visual C++ .NET
+^ KB 830490: HP Color LaserJet printer prints only in grayscale or in black-and-white on your Windows 2000 SP4-based computer
+^ Windows File Protection and Windows
+^ "How do I share data in my DLL with an application or with other DLLs?". Microsoft. http://msdn.microsoft.com/en-us/library/h90dkhs0(VS.71).aspx. Retrieved on 2008-11-11. 
+^ Side-by-side Assemblies (Windows)
+^ Simplifying Deployment and Solving DLL Hell with the .NET Framework
+
+
+
+[edit] External links
+
+The End of DLL Hell on MSDN
+Getting Out of DLL Hell on Microsoft TechNet
+Simplifying Deployment and Solving DLL Hell with the .NET Framework on MSDN
+Avoiding DLL Hell: Introducing Application Metadata in the Microsoft .NET Framework by Matt Pietrek
+Dr. Dobb's on DLL Hell (details on LoadLibraryEx)
+Joel on Software discussion
+Great Article on DLL Hell
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/DLL_hell"
+Categories: Anti-patterns | Microsoft Windows | Computer libraries | Windows administration | Computer jargonHidden categories: All articles with unsourced statements | Articles with unsourced statements since August 2008 | Articles with unsourced statements since July 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Български
+Dansk
+Deutsch
+Español
+한국어
+עברית
+Magyar
+日本語
+Português
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 22 March 2009, at 06:49.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

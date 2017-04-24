@@ -1,0 +1,455 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Temporal database - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Temporal_database";
+		var wgTitle = "Temporal database";
+		var wgAction = "view";
+		var wgArticleId = "1252471";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281027082;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Temporal database
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A temporal database is a database with built-in time aspects, e.g. a temporal data model and a temporal version of structured query language.
+More specifically the temporal aspects usually include valid-time and transaction-time. These attributes go together to form bitemporal data.
+
+Valid time denotes the time period during which a fact is true with respect to the real world.
+Transaction time is the time period during which a fact is stored in the database.
+Bitemporal data combines both Valid and Transaction Time.
+
+Note that these two time periods do not have to be the same for a single fact. Imagine that we come up with a temporal database storing data about the 18th century. The valid time of these facts is somewhere between 1701 and 1800, whereas the transaction time starts when we insert the facts into the database, for example, January 21, 1998.
+
+
+
+
+Contents
+
+
+1 Example
+
+1.1 Using a Standard Database
+1.2 Bitemporal Relations
+1.3 Valid Time
+1.4 Transaction Time
+
+
+2 See also
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Example
+For illustration, we will take data from the following short biography of a fictional man John Doe. John Doe was born on April 3rd, 1975 in the Kids Hospital of Medicine County, as son of Jack Doe and Jane Doe who lived in Smallville. Jack Doe proudly registered the birth of his first-born on April 4th, 1975 at the Smallville City Hall. John grew up as a joyful boy, turned out to be a brilliant student and graduated with honors in 1993. After graduation he went to live on his own in Bigtown. Although he moved out on August 26th, 1994, he forgot to register the change of address officially. It was only at the turn of the seasons that his mother reminded him that he had to register, which he did a few days later on December 27, 1994. Although John had a promising future, his story ends tragically. John Doe was accidentally hit by a truck on April 1st, 2001. The coroner reported his date of death on the very same day.
+
+[edit] Using a Standard Database
+In order to store the life of John Doe in a (non-temporal) database table we use this table Person (Name, Address). In order to simplify we define Name as the primary key of Person.
+John's father officially reported birth on April 4th, 1975. This means that a Smallville official, inserted the following entry in the database on this date: Person (John Doe, Smallville) Note that the date itself is not stored in the database.
+After graduation John moves out, but forgets to register his new address. John's entry in the database is not changed until December 27, 1994, when he finally enters Bigtown's city hall. A Bigtown official updates his address in the database. The Person table now contains Person (John Doe, Bigtown) Note that the information of John living in Smallville has been overwritten. There is no way to retrieve that information from the database. Any official accessing the database on December 28, 1994 would be told that John lives in Bigtown. More technically: if a computer scientist ran the query SELECT ADDRESS FROM PERSON WHERE NAME='John Doe' on December 26, 1994, the result would be: Smallville. Running the same query 2 days later would result in Bigtown.
+Until his tragic death the database would state that he lived in Bigtown. On April 1, 2001 the coroner deletes the John Doe entry from the database. Running the above query would return no result at all.
+
+
+Date
+What happened in the real world
+Database Action
+What the database shows
+
+
+April 3rd, 1975
+John is born
+Nothing
+There is no person called John Doe
+
+
+April 4th, 1975
+John's father officially reports John's birth
+Inserted:Person(John Doe, Smallville)
+John Doe lives in Smallville
+
+
+August 26, 1994
+After graduation, John moves to Bigtown, but forgets to register his new address
+Nothing
+John Doe lives in Smallville
+
+
+December 26, 1994
+Nothing
+Nothing
+John Doe lives in Smallville
+
+
+December 27, 1994
+John registers his new address
+Updated:Person(John Doe, Bigtown)
+John Doe lives in Bigtown
+
+
+April 1, 2001
+John dies
+Deleted:Person(John Doe)
+There is no person called John Doe
+
+
+
+[edit] Bitemporal Relations
+A bi-temporal relation contains both valid and transaction time. This is good because it provides both temporal rollback and historical information. Temporal rollback (eg: "In 1992, where did the database believe John lived?") is provided by the transaction time. Historical information (eg: "Where did John live in 1992?") can be derived from valid time. The answers to these example questions may not be identical - the database may have been altered since 1992, causing the queries to produce different results.
+
+[edit] Valid Time
+Valid time is the time for which a fact is true in the real world. In the example above, the Person table gets two extra fields, Valid-From and Valid-To, specifying when a person's address was valid in the real world. On April 4th, 1975 John's father proudly registered his son's birth. An official will then insert a new entry to the database stating that John lives in Smallville from the April, 3rd. Notice that although the data was inserted on the 4th, the databases states that the information is valid since the 3rd. The official does not yet know if or when John will ever move to a better place so in the database the Valid-To is filled with infinity (∞). Resulting in this entry in the database:
+
+Person(John Doe, Smallville, 3-Apr-1975, ∞).
+
+December 27, 1994 John reports his new address in Bigtown where he has been living since August 26th, 1994. The Bigtown official does not change the address of the current entry of John Doe in the database. He adds a new one:
+
+Person (John Doe, Big Town, 26-Aug-1994, ∞).
+
+The original entry Person (John Doe, Smallville, 3-Apr-1975, ∞) is then updated (not removed!). Since it is now known that John stopped living in Smallville on August 26, 1994 the Valid-To entry can be filled in. The database now contains two entries for John Doe
+
+Person(John Doe, Smallville, 3-Apr-1975, 26-Aug-1994).
+Person(John Doe, Bigtown, 26-Aug-1994, ∞).
+
+When John dies the database is once more updated. The current entry will be updated stating that John does not live in the Bigtown any longer. No new entry is being added because officials never report heaven as a new address. The database now looks like this
+
+Person(John Doe, Smallville, 3-Apr-1975, 26-Aug-1994).
+Person(John Doe, Bigtown, 26-Aug-1994, 1-Apr-2001).
+
+
+[edit] Transaction Time
+Transaction time is the time a transaction was made. This enables queries that show the state of the database at a given time. Two more fields are added to the Person table: Transaction-From and Transaction-To. Transaction-From is the time a transaction was made, and Transaction-To is the time that the transaction was superseded (or infinity if it has not yet been superseded).
+What happens if the person's address as stored in the database is incorrect? Suppose an official accidentally entered the wrong address or date? Or, suppose the person lied about their address for some reason. Upon discovery of the fact, the officials go back and update the database.
+For example, from 1-Jun-1995 to 3-Sep-2000 John Doe moved to Beachy. But, to avoid paying Beachy's exorbitant residence tax, he never reported it to the authorities. Later, it is discovered on 2-Feb-2001, during a tax investigation that he was in fact in Beachy during these dates, so they update the database as follows:
+
+Person(John Doe, Bigtown, 26-Aug-1994, 1-Jun-1995).
+Person(John Doe, Beachy, 1-Jun-1995, 3-Sep-2000).
+Person(John Doe, Bigtown, 3-Sep-2000, 1-Apr-2001).
+
+So the existing two records are updated and a new record is inserted recording his residence in Beachy.
+However, this leaves no record that the database ever claimed that he lived in Bigtown during 1-Jun-1995 to 3-Sep-2000. Which might be important for say auditing reasons (or to use as evidence in the official's tax investigation.) This is where transaction time comes in. We record in each record when it was entered and when it was superseded. Thus we get something like this:
+
+Person(John Doe, Smallville, 3-Apr-1975,  ∞,           4-Apr-1975,  27-Dec-1994).
+Person(John Doe, Smallville, 3-Apr-1975,  26-Aug-1994, 27-Dec-1994, ∞          ).
+Person(John Doe, Bigtown,    26-Aug-1994, ∞,           27-Dec-1994, 2-Feb-2001 ).
+Person(John Doe, Bigtown,    26-Aug-1994, 1-Jun-1995,  2-Feb-2001,  ∞          ).
+Person(John Doe, Beachy,     1-Jun-1995,  3-Sep-2000,  2-Feb-2001,  ∞          ).
+Person(John Doe, Bigtown,    3-Sep-2000,  ∞,           2-Feb-2001,  1-Apr-2001 ).
+Person(John Doe, Bigtown,    3-Sep-2000,  1-Apr-2001,  1-Apr-2001,  ∞          ).
+
+So we record not only changes in what happened at different times, but also changes in what was officially recorded at different times.
+A particularly challenging issue is the support of temporal queries in a transaction time database under evolving schema. In order to achieve perfect archival quality it is of key importance to store the data under the schema version under which they firstly appeared. However even the most simple temporal query rewriting the history of an attribute value would required to be manually rewritten under each schema versions, potentially hundreds as in the case of MediaWiki[1] This process would be particularly taxing for users. A common solution is to provide automatic query rewriting[1].
+
+[edit] See also
+
+Database theory
+
+
+[edit] References
+
+
+^ Hyun J. Moon, Carlo A. Curino, Alin Deutsch, C.-Y. Hou, and Carlo Zaniolo (2008). "Managing and querying transaction-time databases under schema evolution" in Very Large Data Base VLDB.. 
+
+
+
+
+C.J. Date, Hugh Darwen, Nikos Lorentzos (2002). Temporal Data & the Relational Model, First Edition (The Morgan Kaufmann Series in Data Management Systems); Morgan Kaufmann; 1st edition; 422 pages. ISBN 1-55860-855-9.
+Joe Celko (2005). Joe Celko's SQL for Smarties: Advanced SQL Programming (The Morgan Kaufmann Series in Data Management); Morgan Kaufmann; 3rd edition; 808 pages. ISBN 0-12-369379-9.—Chapters 4 and 29 in particular discuss temporal issues.
+Richard T. Snodgrass (1999). Developing Time-Oriented Database Applications in SQL PDF (4.77 MiB) (Morgan Kaufmann Series in Data Management Systems); Morgan Kaufmann; 504 pages; ISBN 1-55860-436-7
+
+
+
+[edit] External links
+
+TimeCenter
+Temporal Relations in RDF
+TimeDB Free temporal relational DBMS by TimeConsult
+com.ervacon.bitemporal Simple bitemporal framework in Java
+Developing Time-Oriented Database Applications in SQL
+
+
+
+
+
+
+
+
+v • d • e
+
+Database models
+
+
+
+
+
+Models
+
+Flat  · Hierarchical  · Dimensional model  · Network  · Relational  · Object-oriented
+
+
+
+
+
+
+Other models
+
+Associative  · Concept-oriented  · Multi-dimensional  · Semantic  · Star schema  · XML database
+
+
+
+
+
+
+Implementations
+
+Flat file  · Deductive  · Document-oriented · Object-relational · Temporal · XML data stores  · Triple stores
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Database management systems
+
+
+
+
+
+Database models · Database normalization · Database storage · Distributed DBMS · Referential integrity · Relational algebra · Relational calculus · Relational database · Relational DBMS · Relational model · Object-relational database · Transaction processing
+
+
+
+
+
+Concepts
+
+Database · ACID · CRUD · Null · Candidate key · Foreign key · Primary key · Superkey · Surrogate key
+
+
+
+
+
+
+Objects
+
+Trigger · View · Table · Cursor · Log · Transaction · Index · Stored procedure · Partition
+
+
+
+
+
+
+SQL
+
+Select · Insert · Update · Merge · Delete · Join · Union · Create · Drop · Begin work · Commit · Rollback · Truncate · Alter
+
+
+
+
+
+
+Components
+
+Concurrency control · Data dictionary · JDBC · ODBC · Query language · Query optimizer · Query plan
+
+
+
+
+
+
+Database products: Object-oriented (comparison) · Relational (comparison) · Document-oriented
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Temporal_database"
+Categories: Database management systems | Database theory | Transaction processing 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 1 April 2009, at 05:56.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

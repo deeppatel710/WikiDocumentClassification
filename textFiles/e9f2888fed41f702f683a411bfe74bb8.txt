@@ -1,0 +1,609 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Monitor (synchronization) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Monitor_(synchronization)";
+		var wgTitle = "Monitor (synchronization)";
+		var wgAction = "view";
+		var wgArticleId = "1367789";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = "279489136";
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Monitor (synchronization)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In concurrent programming, a monitor is an object intended to be used safely by more than one thread. The defining characteristic of a monitor is that its methods are executed with mutual exclusion. That is, at each point in time, at most one thread may be executing any of its methods. This mutual exclusion greatly simplifies reasoning about the implementation of monitors compared with code that may be executed in parallel.
+Monitors also provide a mechanism for threads to temporarily give up exclusive access, in order to wait for some condition to be met, before regaining exclusive access and resuming their task. Monitors also have a mechanism for signaling other threads that such conditions have been met.
+Monitors were invented by C.A.R. Hoare [1] and Per Brinch Hansen, [2] and were first implemented in Brinch Hansen's Concurrent Pascal language.
+
+
+
+
+Contents
+
+
+1 Mutual exclusion
+2 Waiting and signaling
+
+2.1 Blocking condition variables
+2.2 Nonblocking condition variables
+2.3 Implicit condition monitors
+2.4 Implicit signaling
+
+
+3 History
+4 See also
+5 Bibliography
+6 External links
+7 Notes
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Mutual exclusion
+As a simple example, consider a monitor for performing transactions on a bank account.
+
+monitor class Account {
+  private int balance := 0
+  invariant balance >= 0 
+  
+  public method boolean withdraw(int amount)
+  {
+    if amount < 0 then error "Amount may not be negative"
+    else if balance < amount then return false
+    else { balance := balance - amount ; return true }
+  }
+  
+  public method deposit(int amount) {
+    if amount < 0 then error "Amount may not be negative"
+    else balance := balance + amount
+  }
+}
+
+While a thread is executing a method of a monitor, it is said to occupy the monitor. Monitors are implemented to enforce that at each point in time, at most one thread may occupy the monitor. This is the monitor's mutual exclusion property.
+Upon calling one of the methods, a thread must wait until no thread is executing any of the monitor's methods before starting execution of its method. Note that without this mutual exclusion, in the present example, two threads could cause money to be lost or gained for no reason; for example two threads withdrawing 1000 from the account could both return without error while causing the balance to drop by only 1000.
+In a simple implementation, mutual exclusion can be implemented by the compiler equipping each monitor object with a private lock, often in the form of a semaphore. This lock is initially unlocked, is locked at the start of each public method, and is unlocked at each return from each public method.
+
+[edit] Waiting and signaling
+For many applications, mutual exclusion is not enough. Threads attempting an operation may need to wait until some assertion P holds true. A busy waiting loop
+
+   while not( P ) do skip
+
+will not work, as mutual exclusion will prevent any other thread from entering the monitor to make the condition true.
+The solution is condition variables. Conceptually a condition variable is a queue of threads, associated with a monitor, upon which a thread may wait for some assertion to become true. Thus each condition variable c is associated with some assertion Pc. While a thread is waiting upon a condition variable, that thread is not considered to occupy the monitor, and so other threads may enter the monitor to changes the monitor's state. In most types of monitors, these other threads may signal the condition variable c to indicate that assertion Pc is true.
+Thus there are two main operations on conditions variables:
+
+wait c is called by a thread that needs to wait until the assertion Pc to be true before proceeding.
+signal c (sometimes written as notify c) is called by a thread to indicate that the assertion Pc is true.
+
+As an example, consider a monitor that implements a semaphore. There are methods to increment (V) and to decrement (P) a private integer s. However, the integer must never be decremented below 0; thus a thread that tries to decrement must wait until the integer is positive. We use a condition variable sIsPositive with an associated assertion of PsIsPositive = (s > 0).
+
+monitor class Semaphore {
+  private int s := 0
+  invariant s >= 0 
+  private Condition sIsPositive /* associated with s > 0 */
+  
+  public method P()
+  {
+    if s = 0 then wait sIsPositive 
+    assert s > 0
+    s := s - 1
+  }
+  
+  public method V() {
+    s := s + 1
+    assert s > 0
+    signal sIsPositive 
+  }
+}
+
+When a signal happens on a condition that at least one other thread is waiting on, there are at least two threads that could then occupy the monitor: the thread that signals and any one of the threads that is waiting. In order that at most one thread occupies the monitor at each time, a choice must be made. Two schools of thought exist on how best to resolve this choice. This leads to two kinds of condition variables which will be examined next:
+
+Blocking condition variables give priority to a signaled thread.
+Nonblocking condition variables give priority to the signaling thread.
+
+
+[edit] Blocking condition variables
+The original proposals by C.A.R. Hoare and Per Brinch Hansen were for blocking condition variables. Monitors using blocking condition variables are often called Hoare style monitors. With a blocking condition variable, the signaling thread must wait outside the monitor (at least) until the signaled thread relinquishes occupancy of the monitor by either returning or by again waiting on a condition.
+
+
+
+
+A Hoare style monitor with two condition variables a and b. After Buhr et al.
+
+
+We assume there are two queues of threads associated with each monitor object
+
+e is the entrance queue
+s is a queue of threads that have signaled.
+
+In addition we assume that for each condition c, there is a queue
+
+c.q, which is a queue for threads waiting on condition c
+
+All queues are typically guaranteed to be fair (i.e. each thread that enters the queue will not be not chosen an infinite number of times) and, in some implementations, may be guaranteed to be first in first out.
+The implementation of each operation is as follows. (We assume that each operation runs in mutual exclusion to the others; thus restarted threads do not begin executing until the operation is complete.)
+
+ enter the monitor:
+    enter the method
+    if the monitor is locked 
+        add this thread to e
+        block this thread
+    else
+        lock the monitor
+
+
+ leave the monitor:
+    schedule
+    return from the method
+
+
+ wait c :
+    add this thread to c.q
+    schedule
+    block this thread
+
+
+ signal c :
+    if there is a thread waiting on c.q 
+        select and remove one such thread t from c.q
+        (t is called "the signaled thread")
+        add this thread to s
+        restart t
+        (so t will occupy the monitor next)
+        block this thread
+
+
+  schedule :
+    if there is a thread on s 
+      select and remove one thread from s and restart it
+      (this thread will occupy the monitor next)
+    else if there is a thread on e 
+      select and remove one thread from e and restart it
+      (this thread will occupy the monitor next)
+    else
+      unlock the monitor
+      (the monitor will become unoccupied)
+
+The schedule routine selects the next thread to occupy the monitor or, in the absence of any candidate threads, unlocks the monitor.
+The resulting signaling discipline is known a "signal and urgent wait," as the signaler must wait, but is given priority over threads on the entrance queue. An alternative is "signal and wait," in which there is no s queue and signaler waits on the e queue instead.
+Some implementations provide a signal and return operation that combines signaling with returning from a procedure.
+
+ signal c and return :
+    if there is a thread waiting on c.q 
+        select and remove one such thread t from c.q
+        (t is called "the signaled thread")
+        restart t
+        (so t will occupy the monitor next)
+    else
+        schedule
+    return from the method
+
+In either case ("signal and urgent wait" or "signal and wait"), when a condition is signaled and there is at least one thread on waiting on the condition, the signaling thread hands occupancy over to the signaled thread seamlessly, so that no other thread can gain occupancy in between. If Pc is true at the start of each signal c operation, it will be true at the end of each wait c operation. This is summarized by the following contracts. In these contracts, I is the monitor's invariant.
+
+ enter the monitor:
+    postcondition I
+
+
+ leave the monitor:
+    precondition I
+
+
+ wait c :
+    precondition I
+    modifies the state of the monitor
+    postcondition Pc and I
+
+
+ signal c :
+    precondition Pc and I
+    modifies the state of the monitor
+    postcondition I
+
+
+ signal c and return :
+    precondition Pc and I
+
+In these contracts, it is assumed that I and Pc do not depend on the contents or lengths of any queues.
+(When the condition variable can be queried as to the number of threads waiting on its queue, more sophisticated contracts can be given. For example, a useful pair of contracts, allowing occupancy to be passed without establishing the invariant, is
+
+ wait c :
+    precondition I
+    modifies the state of the monitor
+    postcondition Pc
+
+
+ signal c
+    precondition (not empty(c) and Pc) or (empty(c) and I)
+    modifies the state of the monitor
+    postcondition I
+
+See Howard[3] and Buhr et al,[4] for more).
+It is important to note here that the assertion Pc is entirely up to the programmer; he or she simply needs to be consistent about what it is.
+We conclude this section with an example of a blocking monitor that implements a bounded, thread-safe stack.
+
+monitor class SharedStack {
+  private const capacity := 10
+  private int[capacity] A
+  private int size := 0
+  invariant 0 <= size and size <= capacity
+  private BlockingCondition theStackIsNotEmpty /* associated with 0 < size and size <= capacity */
+  private BlockingCondition theStackIsNotFull /* associated with 0 <= size and size < capacity */
+  
+  public method push(int value)
+  {
+    if size = capacity then wait theStackIsNotFull 
+    assert 0 <= size and size < capacity
+    A[size] := value ; size := size + 1
+    assert 0 < size and size <= capacity
+    signal theStackIsNotEmpty and return
+  }
+  
+  public method int pop()
+  {
+    if size = 0 then wait theStackIsNotEmpty 
+    assert 0 < size and size <= capacity
+    size := size - 1 ;
+    assert 0 <= size and size < capacity
+    signal theStackIsNotFull  and return A[size]
+  }
+}
+
+
+[edit] Nonblocking condition variables
+With nonblocking condition variables (also called "Mesa style" condition variables or "signal and continue" condition variables), signaling does not cause the signaling thread to lose occupancy of the monitor. Instead the signaled threads are moved to the e queue. There is no need for the s queue.
+
+
+
+
+A Mesa style monitor with two condition variables a and b
+
+
+With nonblocking condition variables, the signal operation is often called notify — a terminology we will follow here. It is also common to provide a notify all operation that moves all threads waiting on a condition to the e queue.
+The meaning of various operations are given here. (We assume that each operation runs in mutual exclusion to the others; thus restarted threads do not begin executing until the operation is complete.)
+
+ enter the monitor:
+    enter the method
+    if the monitor is locked 
+      add this thread to e
+      block this thread
+    else
+      lock the monitor
+    
+ leave the monitor:
+    schedule
+    return from the method
+
+
+ wait c :
+    add this thread to c.q
+    schedule
+    block this thread
+
+
+ notify c :
+    if there is a thread waiting on c.q 
+        select and remove one thread t from c.q
+        (t is called "the notified thread")
+        move t to e
+
+
+ notify all c :
+    move all threads waiting on c.q to e
+
+
+  schedule :
+    if there is a thread on e 
+      select and remove one thread from e and restart it
+    else
+      unlock the monitor
+
+As a variation on this scheme, the notified thread may by moved to a queue called w, which has priority over e. See Howard[5] and Buhr et al.[6] for further discussion.
+It is possible to associate an assertion Pc with each condition variable c such that Pc is sure to be true upon return from wait c. However, one must ensure that Pc is preserved from the time the notifying thread gives up occupancy until the notified thread is selected to re-enter the monitor. Between these times there could be activity by other occupants. Thus is is common for Pc to simply be true.
+For this reason, it is usually necessary to enclose each wait operation in a loop like this
+
+  while not( P ) do wait c
+
+where P is some assertion stronger than Pc. The operations notify c and notify all c operations are treated as "hints" that P may be true for some waiting thread. Every iteration of such a loop past the first represents a lost notification; thus with nonblocking monitors, one must be careful to ensure that too many notifications can not be lost.
+As an example of "hinting" consider a bank account in which a withdrawing thread will wait until the account has sufficient funds before proceeding
+
+monitor class Account {
+  private int balance := 0
+  invariant balance >= 0 
+  private NonblockingCondition balanceMayBeBigEnough
+  
+  public method withdraw(int amount)
+  {
+    if amount < 0 then error "Amount may not be negative"
+    else {
+       while balance < amount do wait balanceMayBeBigEnough
+       assert balance >= amount
+       balance := balance - amount }
+  }
+  
+  public method deposit(int amount) {
+    if amount < 0 then error "Amount may not be negative"
+    else {
+        balance := balance + amount
+        notify all balanceMayBeBigEnough }
+  }
+}
+
+In this example, the assertion being waited for is a function of the amount to be withdrawn, so it is impossible for a depositing thread to be sure that it has established the assertion. It makes sense in this case to allow each waiting thread into the monitor (one at a time) to check if its assertion is true.
+
+[edit] Implicit condition monitors
+
+
+
+
+A Java style monitor
+
+
+In the Java programming language each object may be used as a monitor. (However, methods that require mutual exclusion must be explicitly marked as synchronized). Rather than having explicit condition variables, each monitor (i.e. object) is equipped with a single wait queue, in addition to its entrance queue. All waiting is done on this single wait queue and all notify and notify all operations apply to this queue.
+This approach has also been adopted in other languages such as C#.
+
+[edit] Implicit signaling
+Another approach to signaling is to omit the signal operation. Whenever a thread leaves the monitor (by returning or waiting) the assertions of all waiting threads are evaluated until one is found to be true. In such a system, condition variables are not needed, but the assertions must be explicitly coded. The contract for wait is
+
+ wait P:
+    precondition I
+    modifies the state of the monitor
+    postcondition P and I
+
+
+
+[edit] History
+C. A. R. Hoare and Per Brinch Hansen developed the idea of monitors around 1972, based on earlier ideas of their own and of E. W. Dijkstra. [7] Brinch Hansen was the first to implement monitors. Hoare developed the theoretical framework and demonstrated their equivalence to semaphores.
+Monitors were soon used to structure inter-process communication in the Solo Operating System.
+Programming languages that have supported monitors include
+
+Ada 2005 (as protected objects)
+C# (and other languages that use the .NET Framework)
+Concurrent Euclid
+Concurrent Pascal
+D programming language
+Java (via the synchronized keyword)
+Mesa
+Modula-3
+Ruby
+Squeak Smalltalk
+Turing, Turing+, and Object-Oriented Turing
+μC++
+
+A number of libraries have been written that allow monitors to be constructed in languages that do not support them natively. When library calls are used, it is up to the programmer to explicitly mark the start and end of code executed with mutual exclusion. PThreads is one such library.
+
+[edit] See also
+
+Mutual exclusion
+Communicating sequential processes - a later development of monitors by C. A. R. Hoare
+Semaphore (programming)
+
+
+[edit] Bibliography
+
+Monitors: an operating system structuring concept, C. A. R. Hoare - Communications of the ACM, v.17 n.10, p.549-557, Oct. 1974 [5]
+Monitor classification P.A. Buhr, M. Fortier, M.H. Coffin - ACM Computing Surveys (CSUR), 1995 [6]
+
+
+[edit] External links
+
+"Monitors: An Operating System Structuring Concept" by Charles Antony Richard Hoare
+"Signalling in Monitors" by John H. Howard (Computer Scientist)
+"Proving Monitors" by John H. Howard (Computer Scientist)
+"Experience with Processes and Monitors in Mesa" by Butler W. Lampson and David D. Redell
+pthread_cond_wait - description from the Open Group Base Specifications Issue 6, IEEE Std 1003.1
+"Block on a Condition Variable" by Dave Marshall (Computer Scientist)
+"Strategies for Implementing POSIX Condition Variables on Win32" by Douglas C. Schmidt and Irfan Pyarali
+Condition Variable Routines from the Apache Portable Runtime Library
+wxCondition description
+Boost Condition Variables Reference
+ZThread Condition Class Reference
+Wefts::Condition Class Reference
+ACE_Condition Class Template Reference
+QWaitCondition Class Reference
+Common C++ Conditional Class Reference
+at::ConditionalMutex Class Reference
+threads::shared - Perl extension for sharing data structures between threads
+Tutorial multiprocessing traps
+http://msdn.microsoft.com/en-us/library/ms682052(VS.85).aspx
+
+
+[edit] Notes
+
+
+^ Hoare, C. A. R. (1974), "Monitors: an operating system structuring concept". Comm. A.C.M. 17(10), 549–57. [1]
+^ Brinch Hansen, P. (1975). "The programming language Concurrent Pascal". IEEE Trans. Softw. Eng. 2 (June), 199–206.
+^ John Howard (1976), "Signaling in monitors". Proceedings of the 2nd International Conference on Software Engineering, 47–52
+^ Buhr, P.H; Fortier, M., Coffin, M.H. (1995). "Monitor classification". ACM Computing Surveys (CSUR) 27(1). 63–107. [2]
+^ John Howard (1976), "Signaling in monitors". Proceedings of the 2nd International Conference on Software Engineering, 47–52
+^ Buhr, P.H; Fortier, M., Coffin, M.H. (1995). "Monitor classification". ACM Computing Surveys (CSUR) 27(1). 63–107. [3]
+^ Brinch Hansen, P. (1993). "Monitors and concurrent Pascal: a personal history", The second ACM SIGPLAN conference on History of programming languages 1–35. Also published in ACM SIGPLAN Notices 28(3), March 1993. [4]
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Monitor_(synchronization)"
+Categories: Programming constructs | Concurrency control 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+Nederlands
+日本語
+Polski
+Română
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 March 2009, at 01:07.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

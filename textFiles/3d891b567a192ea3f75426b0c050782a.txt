@@ -1,0 +1,222 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Emde Boas tree - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Van_Emde_Boas_tree";
+		var wgTitle = "Van Emde Boas tree";
+		var wgAction = "view";
+		var wgArticleId = "1189425";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 255645483;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); van Emde Boas tree
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A van Emde Boas tree (or van Emde Boas priority queue), also known as a vEB tree, is a tree data structure which implements an associative array with m-bit integer keys. It performs all operations in O(log m) time. Notice that m is the size of the keys — therefore O(log m) is O(log log n) in a full tree, exponentially better than a self-balancing binary search tree. They also have good space efficiency when they contain a large number of elements, as discussed below. They were invented by a team led by Peter van Emde Boas in 1977.[1]
+
+[edit] Supported operations
+The operations supported by a vEB tree are those of an ordered associative array, which includes the usual associative array operations along with two more order operations, FindNext and FindPrevious:[2]
+
+Insert: insert a key/value pair with an m-bit key
+Delete: remove the key/value pair with a given key
+Lookup: find the value associated with a given key
+FindNext: find the key/value pair with the smallest key at least a given k
+FindPrev: find the key/value pair with the largest key at most a given k
+
+
+[edit] How it works
+Because of the constrained key set, the time boundaries depend on the representation of integers. The idea is to take the m-bit key and divide it into its m/2 most significant bits (a) and its m/2 least significant bits (b). a is used to index into an array of 2m/2 vEB trees, each capable of holding m/2-bit numbers, and searching recursively for b in the ath one. The effect is to reduce the number of bits in the key by half for each recursive call.
+In addition to their speed, the trees can be quite compact when they contain many elements, because no subtrees are created until something needs to be added to them. Initially, each element added creates about log(m) new trees containing about m/2 pointers all together. As the tree grows, more and more subtrees are reused, especially the larger ones. In a full tree of 2m elements, only O(2m) space is used. Moreover, unlike a binary search tree, most of this space is being used to store data: even for billions of elements, the pointers in a full vEB tree number in the thousands.
+However, for small trees the overhead associated with vEB trees is enormous: on the order of 2m/2. This is one reason why they are not popular in practice. One way of addressing this limitation is to use only a fixed number of bits per level, which results in a trie.
+The order operations are slightly more complicated. If the following information is added to each tree, including all subtrees:
+
+a flag to tell whether it is empty,
+a field giving the maximum value in the tree,
+a field giving the minimum value in the tree,
+
+then FindNext can be performed as follows: let a be the top half and b the bottom half of the bits of k, the argument to FindNext. If b lies below the maximum value of subtree a, then the result is in that subtree, so FindNext is invoked on it recursively with b. Otherwise, the first nonempty subtree is found with index > a and returning its minimum value.
+This usually works, except for one small problem: the search could require as long as m/2 time. To speed it up, instead of storing flags, one more vEB tree able to hold numbers up to 2m/2 called top is added, which contains the indexes of all nonempty trees in the array. FindNext can then be invoked recursively on top to identify the first index > a with a nonempty tree, and its minimum element. FindPrev is similar.
+Unfortunately, this makes things difficult, because now the top tree has to be maintained properly. Doing this the naive way, by adding and removing when trees become empty and nonempty, results in a double recursion that could take O(m) time. To fix this, first a size field is added. Next, instead of storing the minimum element in the tree itself it is stored in the minimum field. Now, adding an element to an empty tree is constant time, so there is time left to make a recursion on top to add the index. Likewise, removing the last element from a tree is constant time, leaving time to remove the tree's index from top. All operations are, finally, O(log m).
+In practical implementations, especially on machines with shift-by-k and find first zero instructions, performance can further be improved by switching to a bit array once m equal to the word size (or a small multiple thereof) is reached. Since all operations on a single word are constant time, this does not affect the asymptotic performance, but it does avoid the majority of the pointer storage and several pointer dereferences, achieving a significant practical savings in time and space with this trick.
+
+[edit] References
+
+
+^ Peter van Emde Boas, R. Kaas, and E. Zijlstra: Design and Implementation of an Efficient Priority Queue (Mathematical Systems Theory 10: 99-127, 1977)
+^ Gudmund Skovbjerg Frandsen: Dynamic algorithms: Course notes on van Emde Boas trees (PDF) (University of Aarhus, Department of Computer Science)
+
+
+
+Erik Demaine, Shantonu Sen, and Jeff Lindy. Massachusetts Institute of Technology. 6.897: Advanced Data Structures (Spring 2003). Lecture 1 notes: Fixed-universe successor problem, van Emde Boas. Lecture 2 notes: More van Emde Boas, ....
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Van_Emde_Boas_tree"
+Categories: Trees (structure) 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 December 2008, at 15:44 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

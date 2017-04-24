@@ -1,0 +1,478 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Therac-25 - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Therac-25";
+		var wgTitle = "Therac-25";
+		var wgAction = "view";
+		var wgArticleId = "315212";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 277624834;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Therac-25
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article's citation style may be unclear. The references used may be clearer with a different or consistent style of citation, footnoting, or external linking. (March 2008)
+
+
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (March 2008)
+
+
+The Therac-25 was a radiation therapy machine produced by Atomic Energy of Canada Limited (AECL) and CGR of France after the Therac-6 and Therac-20 units. It was involved with at least six accidents between 1985 and 1987, in which patients were given massive overdoses of radiation, approximately 100 times the intended dose.[1] Three of the six patients died as a direct consequence. These accidents highlighted the dangers of software control of safety-critical systems, and they have become a standard case study in health informatics.
+
+
+
+
+Contents
+
+
+1 Problem description
+2 Root causes
+3 See also
+4 Notes
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Problem description
+The machine offered two modes of radiation therapy:
+
+Direct electron-beam therapy, which delivered low doses of high-energy (5 MeV to 25 MeV) electrons over short periods of time;
+Megavolt X-ray therapy, which delivered X-rays produced by colliding high-energy (25 MeV) electrons into a "target".
+
+When operating in direct electron-beam therapy mode, a low-powered electron beam was emitted directly from the machine, then spread to safe concentration using scanning magnets. When operating in megavolt X-ray mode, the machine was designed to rotate four components into the path of the electron beam: a target, which converted the electron beam into X-rays; a flattening filter, which spread the beam out over a larger area; a set of movable blocks (also called a collimator), which shaped the X-ray beam; and an X-ray ion chamber, which measured the strength of the beam.
+The accidents occurred when the high-power electron beam was activated instead of the intended low power beam, and without the beam spreader plate rotated into place. The machine's software did not detect that this had occurred, and therefore did not prevent the patient from receiving a potentially lethal dose of radiation. The high-powered electron beam struck the patients with approximately 100 times the intended dose of radiation, causing a feeling described by patient Ray Cox as "an intense electric shock". It caused him to scream and run out of the treatment room.[2] Several days later, radiation burns appeared and the patients showed the symptoms of radiation poisoning. In three cases, the injured patients died later from radiation poisoning.
+The software flaw is recognized as a race condition.
+
+[edit] Root causes
+Researchers who investigated the accidents found several contributing causes. These included the following institutional causes:
+
+AECL did not have the software code independently reviewed.
+AECL did not consider the design of the software during its assessment of how the machine might produce the desired results and what failure modes existed. These form parts of the general techniques known as reliability modeling and risk management.
+The system noticed that something was wrong and halted the X-ray beam, but merely displayed the word "MALFUNCTION" followed by a number from 1 to 64. The user manual did not explain or even address the error codes, so the operator pressed the P key to override the warning and proceed anyway.
+AECL personnel, as well as machine operators, initially did not believe complaints. This was likely due to overconfidence.[3]
+AECL had never tested the Therac-25 with the combination of software and hardware until it was assembled at the hospital.
+
+The researchers also found several engineering issues:
+
+The failure only occurred when a particular nonstandard sequence of keystrokes was entered on the VT-100 terminal which controlled the PDP-11 computer: an "X" to (erroneously) select 25MV photon mode followed by "cursor up", "E" to (correctly) select 25 MeV Electron mode, then "Enter". This sequence of keystrokes was improbable, and so the problem did not occur very often and went unnoticed for a long time.[2]
+The design did not have any hardware interlocks to prevent the electron-beam from operating in its high-energy mode without the target in place.
+The engineer had reused software from older models. These models had hardware interlocks that masked their software defects. Those hardware safeties had no way of reporting that they had been triggered, so there was no indication of the existence of faulty software commands.
+The hardware provided no way for the software to verify that sensors were working correctly (see open-loop controller). The table-position system was the first implicated in Therac-25's failures; the manufacturer revised it with redundant switches to cross-check their operation.
+The equipment control task did not properly synchronize with the operator interface task, so that race conditions occurred if the operator changed the setup too quickly. This was missed during testing, since it took some practice before operators were able to work quickly enough for the problem to occur.
+The software set a flag variable by incrementing it. Occasionally an arithmetic overflow occurred, causing the software to bypass safety checks.
+
+
+[edit] See also
+
+Software bug
+Race condition
+Nuclear and radiation accidents
+
+
+[edit] Notes
+
+
+^ Baase 2008, p.425.
+^ a b Set Phasers On Stun - Design and Human Error, Steven Casey, pp. 11-16
+^ Baase 2008, p.428.
+
+
+
+[edit] References
+
+Baase, S (2008). "A Gift of Fire", Pearson Prentice Hall.
+
+
+[edit] External links
+
+The Therac-25 Accidents (PDF), by Nancy Leveson (the updated version of the IEEE Computer article mentioned below)
+An Investigation of the Therac-25 Accidents (IEEE Computer)
+Short summary of the Therac-25 Accidents
+
+
+
+
+
+
+
+
+v • d • e
+
+Nuclear technology
+
+
+
+
+
+Science
+
+Physics · Fission · Fusion · Radiation (ionizing) · Nucleus · Safety · Chemistry · Engineering
+
+
+
+
+
+
+Fuels
+
+Fissile · Fertile · Thorium · Uranium (enriched • depleted) · Plutonium · Deuterium · Tritium · Isotope separation
+
+
+
+
+
+
+Power
+
+Reactor technology · Economics · Propulsion (rocket) · Fusion · Isotope thermoelectric (RTG)
+
+
+
+
+
+
+Fission
+reactors
+by
+moderator
+
+
+
+
+
+Water
+
+
+Pressurized (PWR) · Boiling (BWR) · Supercritical (SCWR) · Heavy (PHWR · CANDU)
+
+
+
+
+
+
+
+Carbon
+
+
+Pebble bed (PBMR) · Very high temperature (VHTR) · UHTREX · RBMK · Magnox · AGR
+
+
+
+
+
+
+
+Li / Be
+
+
+Molten salt (MSR)
+
+
+
+
+
+
+
+None
+(Fast)
+
+
+Breeder (FBR) · Liquid-metal-cooled (LMFR) · Integral (IFR) · SSTAR
+Generation IV by coolant: (Gas (GFR) · Lead (LFR) · Sodium (SFR))
+
+
+
+
+
+
+
+
+
+Medical
+
+
+
+
+
+Imaging
+
+
+Positron emission (PET) · Single photon emission (SPECT) · Gamma camera · X-ray
+
+
+
+
+
+
+
+Therapy
+
+
+Radiation therapy · TomoTherapy · Proton · Brachytherapy · Boron neutron capture (BNCT)
+
+
+
+
+
+
+
+
+
+Weapon
+
+
+
+
+
+Topics
+
+
+History · Design · War · Race · Explosion (effects) · Testing (underground) · Delivery · Proliferation · Yield (TNTe)
+
+
+
+
+
+
+
+Lists
+
+
+States · Tests · Weapons · Pop culture
+
+
+
+
+
+
+
+
+
+Waste
+
+
+
+
+
+Disposal
+
+
+Fuel cycle · Spent fuel (pool • cask) · Repository · Reprocessing · Transmutation
+
+
+
+
+
+
+
+Types
+
+
+Reprocessed uranium  • Isotopes of plutonium · Minor actinide · Fission product (LLFP) · Activation product
+
+
+
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Therac-25"
+Categories: Programming bugs | Software engineering disasters | Medical disasters | Nuclear medicineHidden categories: Wikipedia references cleanup | Articles needing additional references from March 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Lietuvių
+日本語
+Polski
+Português
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 March 2009, at 11:58 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

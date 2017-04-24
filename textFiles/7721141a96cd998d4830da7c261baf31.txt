@@ -1,0 +1,349 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Maximum transmission unit - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Maximum_transmission_unit";
+		var wgTitle = "Maximum transmission unit";
+		var wgAction = "view";
+		var wgArticleId = "20894";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276661421;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Maximum transmission unit
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article's tone or style may not be appropriate for Wikipedia. Specific concerns may be found on the talk page. See Wikipedia's guide to writing better articles for suggestions. (December 2007)
+
+
+In computer networking, the term Maximum Transmission Unit (MTU) refers to the size (in bytes) of the largest PDU that a given layer of a communications protocol can pass onwards. MTU parameters usually appear in association with a communications interface (NIC, serial port, etc.). The MTU may be fixed by standards (as is the case with Ethernet) or decided at connect time (as is usually the case with point-to-point serial links). A higher MTU brings greater efficiency because each packet carries more user data while protocol overheads, such as headers or underlying per-packet delays remain fixed, and higher efficiency means a slight improvement in bulk protocol throughput. However, large packets can occupy a slow link for some time, causing greater delays to following packets and increasing lag and minimum latency. For example, a 1500 byte packet, the largest allowed by Ethernet at the network layer (and hence most of the Internet), would tie up a 14.4k modem for about one second.
+
+
+
+
+Contents
+
+
+1 Table of MTUs of common media
+2 IP (Internet protocol)
+
+2.1 Path MTU discovery
+
+
+3 ATM backbones, an example of MTU tuning
+4 Disruption
+5 Notes
+6 References
+7 See also
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Table of MTUs of common media
+Note: the MTUs in this section are given as the maximum size of IP packet that can be transmitted without fragmentation including IP headers but excluding headers from lower levels in the protocol stack.
+
+
+Media
+Maximum Transmission Unit (bytes)
+Notes
+
+
+Internet Path MTU (RFC 879)
+At least 576
+Practical path MTUs are generally higher. Systems may use path MTU discovery (RFC 1191) to find the actual path MTU.
+
+
+Ethernet v2 (RFC 1191)
+1500
+Nearly all IP over ethernet implementations use the ethernet V2 frame format.
+
+
+Ethernet (802.3) (RFC 1191)
+1492
+
+
+Ethernet Jumbo Frames
+1500-9000
+Limit varies by vendor. For correct interoperation whole ethernet network must have same MTU. Usually only seen in special purpose networks.
+
+
+802.11[1]
+2272
+
+
+802.5
+4464
+
+
+FDDI (RFC 1191)
+4500
+
+
+
+[edit] IP (Internet protocol)
+The Internet protocol suite was designed to work over many networking technologies, each of which may have different sized packets. While a host will know the MTU of its own interface and possibly that of its peers (from initial handshakes), it will not initially know what the lowest MTU on a chain of links to any other peers are. Another potential problem is that higher-level protocols may create packets larger than a particular link supports.
+To get around this issue, IP allows fragmentation, which refers to dividing the datagram into pieces, each small enough to pass over the single link that is being fragmented for, using the MTU parameter configured for that interface. This fragmentation process takes place at the IP layer (OSI layer 3) and marks packets it fragments as such, so that the IP layer of the destination host knows it should reassemble the packets into the original datagram. This method implies a number of possible drawbacks:
+
+All fragments of a packet must arrive for the packet to be considered received. If any fragment is dropped, the entire packet is lost.
+
+
+When the MTU of a particular link is less than the size of most or all packets that have to be sent over that link, almost everything has to be fragmented. In certain cases the overhead this causes can be considered unreasonable or unnecessary. For example, various tunneling situations cross the MTU by very little as they add just a header's worth of data. The addition is small, but each packet now has to be sent in two fragments, the second of which carries very little payload. The same amount of payload is being moved, but every intermediate router has to do double the work in terms of header parsing and routing decisions.
+
+
+As it is normal to maximize the payload in every fragment, in general as well as when fragmenting, any further fragmentation that turns out to be necessary will increase the overhead even more.
+
+
+There is no simple method to discover the MTU of links beyond your direct peers.
+
+
+[edit] Path MTU discovery
+Main article: Path MTU discovery
+The Internet Protocol defines the "path MTU" of an Internet transmission path as the smallest MTU of any of the IP hops of the "path" between a source and destination. Put another way, the path MTU is the largest packet size that traverse this path without suffering fragmentation.
+RFC 1191 describes "Path MTU discovery", a technique for determining the path MTU between two IP hosts. It works by setting the DF (Don't Fragment) option in the IP headers of outgoing packets. Any device along the path whose MTU is smaller than the packet will drop such packets and send back an ICMP "Destination Unreachable (Datagram Too Big)" message containing its MTU, allowing the source host to reduce its assumed path MTU appropriately. The process repeats until the MTU is small enough to traverse the entire path without fragmentation.
+Unfortunately, increasing numbers of networks drop ICMP traffic (e.g. to prevent denial-of-service attacks), which prevents path MTU discovery from working. One often detects such blocking in the cases where a connection works for low-volume data but hangs as soon as a host sends a large block of data at a time. For example, with IRC a connecting client might see up to the ping message, but get no response after that. This is because the large set of welcome messages are sent out in packets bigger than the real MTU. Also, in an IP network, the path from the source address to the destination address often gets modified dynamically, in response to various events (load-balancing, congestion, outages, etc.) - this could result in the path MTU changing (sometimes repeatedly) during a transmission, which may introduce further packet drops before the host finds the new safe MTU.
+Most Ethernet LANs use an MTU of 1500 bytes (modern LANs can use Jumbo frames, allowing for an MTU up to 9000 bytes), however border protocols like PPPoE will reduce this. This causes path MTU discovery to come into effect with the possible result of making some sites behind badly-configured firewalls unreachable. One can possibly work around this, depending on which part of the network one controls; for example one can change the MSS (maximum segment size) in the initial packet that sets up the TCP connection at one's firewall.
+This problem has surfaced more frequently since the introduction of Windows Vista which introduces the 'Next Generation TCP/IP Stack'. This implements "Receive Window Auto-Tuning that continually determines the optimal receive window size by measuring the bandwidth-delay product and the application retrieve rate, and adjusts the maximum receive window size based on changing network conditions".[2] This has been seen to fail in conjunction with older routers and firewalls that appeared to work with other operating systems. It is most often seen in ADSL routers and can often be rectified by a firmware update.
+
+[edit] ATM backbones, an example of MTU tuning
+
+
+
+
+
+This article is in need of attention from an expert on the subject. WikiProject Computer Networking or the Computer Networking Portal may be able to help recruit one. (February 2009)
+
+
+Sometimes it is preferable from the point of view of efficiency to artificially declare a reduced MTU in software below the true maximum possible length supported. One example of this is the case where IP traffic is carried over an ATM (Asynchronous Transfer Mode) network. Some providers, particularly those with a telephony background, use ATM on their internal backbone network.
+Using ATM at optimum efficiency is achieved when packet length is a multiple of 48 bytes. This is because ATM is sent as a stream of fixed-length packets (known as 'cells'), each of which can carry a payload of 48 bytes of user data with 5 bytes of overhead for a total cost of 53 bytes per cell. So the total length of the transmitted data length is 53 * ncells bytes, where ncells = the number of required cells of = INT((payload_length+47)/48). So in the worst case, where the total length = (48*n+1) bytes, one additional cell is needed to transmit the one last byte of payload, the final cell costing an extra 53 transmitted bytes 47 of which are padding. For this reason, artificially declaring a reduced MTU in software maximises protocol efficiency at the ATM layer by making the ATM AAL5 total payload length be a multiple of 48 bytes whenever possible.
+For example, 31 completely filled ATM cells carry a payload of 31*48=1488 bytes. Taking this figure of 1488 and subtracting from it any overheads contributed by all relevant higher protocols we can obtain a suggested value for an artificially reduced optimal MTU. In the case where the user would normally send 1500 byte packets, sending between 1489 and 1536 bytes requires an additional fixed cost of a 53 bytes transmitted, in the form of one extra ATM cell.
+For the example of IP over DSL connections using PPPoA/VC-MUX, again choosing to fill 31 ATM cells as before, we obtain a desired optimal reduced MTU figure of 1478 = 31*48-10 taking into account an overhead of 10 bytes consisting of a Point-to-Point Protocol overhead of 2 bytes, and an AAL5 overhead of 8 bytes. This gives a total cost of 31*53=1643 bytes transmitted via ATM from a 1478 byte packet passed to PPPoA. In the case of IP sent over ADSL using PPPoA the figure of 1478 would be the total length of the IP packet including IP headers. So in this example keeping to a self-imposed reduced MTU of 1478 as opposed to sending IP packets of total length 1500 saves 53 bytes per packet at the ATM layer at a cost of a 22 byte reduction of the length of IP packets.
+A maximum MTU for PPPoE/DSL connections is 1492, per RFC 2516: 6 bytes being PPPoE header, leaving enough room for a 1488 byte payload, or 31 full ATM cells.
+
+[edit] Disruption
+Jabber is the transmission of a packet on a physical network segment that is larger than the segment's MTU. This is almost always caused by faulty devices. Many network switches have a built-in capability to detect when a device is jabbering and block it until it resumes proper operation.[3]
+
+[edit] Notes
+
+^ Structure of the IEEE 802.11 MAC Frames - Wireless,Wlan,wifi,Configuration,and,Optimization Tips
+^ "The Cable Guy" (November 2005). "Performance Enhancements in the Next Generation TCP/IP Stack". Microsoft Corporation. http://technet.microsoft.com/en-gb/library/bb878127.aspx. 
+^ 3Com SuperStack Switch Management Guide
+
+
+[edit] References
+
+RFC 1191
+Marc Slemko (January 18, 1998). "Path MTU Discovery and Filtering ICMP". http://alive.znep.com/~marcs/mtu/index.html. Retrieved on 2007-09-02. 
+
+
+[edit] See also
+
+Computer networking
+Ethernet
+
+
+[edit] External links
+
+Tweaking your MTU / RWin for Orange Broadband Users
+A wealth of information on MTU and RWin
+How to set the TCP MSS value using iptables
+Discovering of MTU value via ping and setting it in Microsoft Windows
+DrTCP – a utility for optimizing MTU under Microsoft Windows
+mturoute – a console utility for debugging mtu problems
+MSS Initiative
+Online MTURoute Test – An online MTURoute utility to test the MTU to a host/ip
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Maximum_transmission_unit"
+Categories: PacketsHidden categories: All articles needing style editing | Wikipedia articles needing style editing from December 2007 | Miscellaneous articles needing expert attention | Articles needing expert attention since February 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Dansk
+Deutsch
+Español
+Français
+Bahasa Indonesia
+Italiano
+עברית
+日本語
+Polski
+Português
+Русский
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 12 March 2009, at 02:32.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

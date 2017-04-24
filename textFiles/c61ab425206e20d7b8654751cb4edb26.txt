@@ -1,0 +1,479 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cron - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Cron";
+		var wgTitle = "Cron";
+		var wgAction = "view";
+		var wgArticleId = "476767";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281322058;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); cron
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For the calorie restriction diet, see CRON-diet.
+"CRON" redirects here. For the fictional world, see Might and Magic II: Gates to Another World.
+cron is a time-based job scheduler in Unix-like computer operating systems. 'cron' is short for 'chronograph'.
+This Newbie Introduction to Cron from 1999 describes cron well:
+
+Cron is the name of program that enables unix users to execute commands or scripts (groups of commands) automatically at a specified time/date. It is normally used for sys admin commands, like makewhatis, which builds a search database for the man -k command, or for running a backup script, but can be used for anything. A common use for it today is connecting to the internet and downloading your email.
+
+cron has been recreated several times in its history.
+
+
+
+
+Contents
+
+
+1 Design
+2 History
+
+2.1 Early versions
+2.2 Multi-user capability
+2.3 Modern versions
+
+
+3 Usage
+
+3.1 crontab syntax
+
+3.1.1 Operators
+3.1.2 Fields
+
+
+
+
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Design
+cron is driven by a crontab, a configuration file that specifies shell commands to run periodically on a given schedule.
+Early versions of cron, available up through Version 7 Unix and 32V, made their services available only to the super-user of the operating system; this was the single-user version. With the release of Unix System V and the multi-user cron, these services were extended to all account-holding users of the system.
+
+[edit] History
+
+[edit] Early versions
+The cron in Version 7 Unix, written by Brian Kernighan, was a system service (later called daemons) invoked from /etc/inittab when the operating system entered multi-user mode. Its algorithm was straightforward:
+
+Read /usr/etc/crontab
+Determine if any commands are to be run at the current date and time and if so, run them as the Superuser, root.
+Sleep for one minute
+Repeat from step 1.
+
+This version of cron was basic and robust, but it also consumed resources whether it found any work to do or not; upon hearing this description, Douglas Comer, a professor at Purdue University, remarked, "Ah, an oblivious algorithm." In an experiment at Purdue University in the late 1970s to extend cron's service to all 100 users on a time-shared VAX it was found to place too much load on the system.
+
+[edit] Multi-user capability
+The next version of cron was created to extend the capabilities of cron to all users of a Unix system, not just the superuser. Though this may seem trivial today with most Unix and Unix-like systems having powerful processors and small numbers of users, at the time it required a new approach on a 1 MIPS system having roughly 100 user accounts.
+In the August, 1977 issue of the Communications of the ACM, W. R. Franta and Kurt Maly published an article entitled "An efficient data structure for the simulation event set" describing an event queue data structure for discrete event-driven simulation systems that demonstrated "performance superior to that of commonly used simple linked list algorithms," good behavior given non-uniform time distributions, and worst case complexity , "n" being the number of events in the queue.
+A graduate student, Robert Brown, reviewing this article, recognized the parallel between cron and discrete event simulators, and created an implementation of the Franta-Maly event list manager (ELM) for experimentation. Discrete event simulators run in "virtual time," peeling events off the event queue as quickly as possible and advancing their notion of "now" to the scheduled time of the next event. By running the event simulator in "real time" instead of virtual time, a version of cron was created that spent most of its time sleeping, waiting for the moment in time when the task at the head of the event list was to be executed.
+The following school year brought new students into the graduate program, including Keith Williamson, who joined the systems staff in the Computer Science department. As a "warm up task" Brown asked him to flesh out the prototype cron into a production service, and this multi-user cron went into use at Purdue in late 1979. This version of cron wholly replaced the /etc/cron that was in use on the Computer Science department's VAX 11/780 running 32/V.
+The algorithm used by this cron is as follows:
+
+On start-up, look for a file named .crontab in the home directories of all account holders.
+For each crontab file found, determine the next time in the future that each command is to be run.
+Place those commands on the Franta-Maly event list with their corresponding time and their "five field" time specifier.
+Enter main loop:
+
+Examine the task entry at the head of the queue, compute how far in the future it is to be run.
+Sleep for that period of time.
+On awakening and after verifying the correct time, execute the task at the head of the queue (in background) with the privileges of the user who created it.
+Determine the next time in the future to run this command and place it back on the event list at that time value.
+
+
+
+Additionally, the daemon would respond to SIGHUP signals to rescan modified crontab files and would schedule special "wake up events" on the hour and half hour to look for modified crontab files. Much detail is omitted here concerning the inaccuracies of computer time-of-day tracking, Unix alarm scheduling, explicit time-of-day changes, and process management, all of which account for the majority of the lines of code in this cron. This cron also captured the output of stdout and stderr and e-mailed any output to the crontab owner.
+The resources consumed by this cron scale only with the amount of work it is given and do not inherently increase over time with the exception of periodically checking for changes.
+Williamson completed his studies and departed the University with a Masters of Science in Computer Science and joined AT&T Bell Labs in Murray Hill, New Jersey, and took this cron with him. At Bell Labs, he and others incorporated the Unix at command into cron, moved the crontab files out of users' home directories (which were not host-specific) and into a common host-specific spool directory, and of necessity added the crontab command to allow users to copy their crontabs to that spool directory.
+This version of cron later appeared largely unchanged in Unix System V and in BSD and their derivatives, the Solaris Operating System from Sun Microsystems, IRIX from Silicon Graphics, HP-UX from Hewlett-Packard, and IBM AIX. Technically, the original license for these implementations should be with the Purdue Research Foundation who funded the work, but this took place at a time when little concern was given to such matters.
+
+[edit] Modern versions
+With the advent of the GNU Project and Linux, new crons appeared. The most prevalent of these is the Vixie cron, originally coded by Paul Vixie in 1987. Version 3 of Vixie cron was released in late 1993. Version 4.1 was renamed to ISC Cron and was released in January 2004. Version 3, with some minor bugfixes, is used in most distributions of Linux and BSDs.
+Other popular implementations include anacron and fcron. However, anacron is not an independent cron program; it relies on another cron program to call it in order to perform.
+
+[edit] Usage
+Generally, the schedules modified by crontab are enacted by a daemon, crond, which runs constantly in the background and checks once a minute to see if any of the scheduled jobs need to be executed. If so, it executes them. These jobs are generally referred to as cron jobs. A job is executed when the time/date specification fields all match the current time and date, with the exception that either the "day of month" field (3) or the "day of week" field (5) must match the current day, even though the other of the two fields doesn't match the current day.
+
+[edit] crontab syntax
+The crontab files are stored where the lists of jobs and other instructions to the cron daemon are kept. Users can have their own individual crontab files and often there is a systemwide crontab file (usually in /etc or a subdirectory of /etc) which only system administrators can edit.
+Each line of a crontab file represents a job and follows a particular format as a series of fields, separated by spaces and/or tabs. Each field can have a single value or a series of values.
+
+[edit] Operators
+There are several ways of specifying multiple date/time values in a field:
+
+The comma (',') operator specifies a list of values, for example: "1,3,4,7,8"
+The dash ('-') operator specifies a range of values, for example: "1-6", which is equivalent to "1,2,3,4,5,6"
+The asterisk ('*') operator specifies all possible values for a field. For example, an asterisk in the hour time field would be equivalent to 'every hour' (subject to matching other specified fields).
+
+There is also an operator which some extended versions of cron support, the slash ('/') operator (called "step"), which can be used to skip a given number of values. For example, "*/3" in the hour time field is equivalent to "0,3,6,9,12,15,18,21".
+So "*" specifies 'every hour' but the "*/3" means only those hours divisible by 3.
+Example: the following will clear the Apache error log at one minute past midnight each day.
+
+1 0 * * *  echo "" > /www/apache/logs/error_log
+
+
+[edit] Fields
+
+# .---------------- minute (0 - 59) 
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ... 
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7)  OR sun,mon,tue,wed,thu,fri,sat 
+# |  |  |  |  |
+# *  *  *  *  *  command to be executed
+
+There are several special entries, most of which are just shortcuts, that can be used instead of specifying the full cron entry:
+
+
+Entry
+Description
+Equivalent To
+
+
+@reboot
+Run once, at startup.
+None
+
+
+@yearly
+Run once a year
+0 0 1 1 *
+
+
+@annually
+(same as @yearly)
+0 0 1 1 *
+
+
+@monthly
+Run once a month
+0 0 1 * *
+
+
+@weekly
+Run once a week
+0 0 * * 0
+
+
+@daily
+Run once a day
+0 0 * * *
+
+
+@midnight
+(same as @daily)
+0 0 * * *
+
+
+@hourly
+Run once an hour
+0 * * * *
+
+
+@reboot can be useful if there is a need to start up a server or daemon under a particular user, or if user does not have access to the rc.d/init.d files.
+Each of the patterns from the first five fields may be either * (an asterisk), which matches all legal values, or a list of elements separated by commas. Some implementations of cron, such as that in the popular 4th BSD edition written by Paul Vixie and included in many Linux distributions, insert a username into the format as the sixth field, as whom the specified job will be run (subject to user existence in /etc/passwd and allowed permissions), but only in the system crontabs (/etc/crontab and /etc/cron.d/*), not in others which are each assigned to a single user to configure. The seventh (or sixth if no user field is part of the format) and subsequent fields (i.e., the rest of the line) specify the command to be run.
+For "day of the week" (field 5), both 0 and 7 are considered Sunday, though some versions of Unix such as AIX do not list "7" as acceptable in the man page.
+A job is executed when the time/date specification fields all match the current time and date. There is one exception: if both "day of month" and "day of week" are restricted (not "*"), then either the "day of month" field (3) or the "day of week" field (5) must match the current day (even though the other of the two fields need not match the current day).
+
+[edit] See also
+
+anacron
+fcron
+at (Unix command)
+launchd
+List of Unix utilities
+
+
+[edit] External links
+
+GNU Cron
+Open Group's crontab specification – official UNIX 03
+ISC Cron 4.1
+fcron
+CVSweb for FreeBSD's cron – Vixie cron 3.0 release with some bugfixes applied times
+ACM Digital library – Franta, Maly, "An efficient data structure for the simulation event set" (requires ACM pubs subscription)
+Cron Sandbox at HxPI offers interactive facilities for exploring crontab command patterns.
+Cron Script Manager - a scheduling application for Windows using cron syntax.
+
+
+
+
+
+
+
+
+v • d • e
+
+Unix command line programs and builtins (more)
+
+
+
+
+
+File system
+
+cat · cd · chmod · chown · chgrp · cksum · cmp · cp · du · df · file · fsck · fuser · ln · ls · lsattr · lsof · mkdir · mount · mv · pwd · rm · rmdir · split · touch
+
+
+
+
+
+
+Processes
+
+at · chroot · cron · exit · kill · killall · nice · pgrep · pidof · pkill · ps · pstree · sleep · time · top · wait
+
+
+
+
+
+
+User environment
+
+env · finger · id · logname · mesg · passwd · su · sudo · uname · uptime · w · wall · who · whoami · write
+
+
+
+
+
+
+Text processing
+
+awk · comm · cut · ed · ex · fmt · head · iconv · join · less · more · paste · sed · sort · tac · tail · tr · uniq · vi · wc · xargs
+
+
+
+
+
+
+Shell programming
+
+alias · basename · dirname · echo · expr · false · printf · test · true · unset
+
+
+
+
+
+
+Networking
+
+inetd · netstat · ping · rlogin · netcat · traceroute
+
+
+
+
+
+
+Searching
+
+find · grep · strings
+
+
+
+
+
+
+Miscellaneous
+
+banner · bc · cal · clear · date · dd · lp · man · size · tee · tput · yes · umask
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Cron"
+Categories: Unix software 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+Galego
+Italiano
+Македонски
+日本語
+Polski
+Português
+Русский
+ไทย
+Suomi
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 2 April 2009, at 17:07.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

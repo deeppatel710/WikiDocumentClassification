@@ -1,0 +1,268 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Compare-and-swap - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Compare-and-swap";
+		var wgTitle = "Compare-and-swap";
+		var wgAction = "view";
+		var wgArticleId = "632224";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284609190;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Compare-and-swap
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article may require cleanup to meet Wikipedia's quality standards. Please improve this article if you can. (January 2009)
+
+
+
+
+
+
+
+This article may need to be wikified to meet Wikipedia's quality standards. Please help by adding relevant internal links, or by improving the article's layout. (January 2009)
+
+
+In computer science, the compare-and-swap CPU instruction ("CAS") (or the Compare & Exchange - CMPXCHG instruction in the x86 and Itanium architectures) is a special instruction that atomically compares the contents of a memory location to a given value and, if they are the same, modifies the contents of that memory location to a given new value. The result of the operation must indicate whether it performed the substitution; this can be done either with a simple boolean response (this variant is often called compare-and-set), or by returning the value read from the memory location (not the value written to it).
+CAS is used to implement synchronization primitives like semaphores and mutexes, as well as more sophisticated lock-free and wait-free algorithms. Maurice Herlihy (1991) proved that CAS can implement more of these algorithms than atomic read, write, and fetch-and-add, and that, assuming a fairly large[clarification needed] amount of memory, it can implement all of them [1].
+Algorithms built around CAS typically read some key memory location and remember the old value. Based on that old value, they compute some new value. Then they try to swap in the new value using CAS, where the comparison checks for the location still being equal to the old value. If CAS indicates that the attempt has failed, it has to be repeated from the beginning: the location is re-read, a new value is computed and the CAS is tried again.
+Some of these algorithms are affected by and must handle the problem of a false positive match, or the ABA problem. It's possible that between the time the old value is read and the time CAS is attempted, some other processors or threads change the memory location two or more times such that it acquires a bit pattern which matches the old value. The problem arises if this new bit pattern, which looks exactly like the old value, has a different meaning: for instance, it could be a recycled address, or a wrapped version counter.
+A general solution to this is to use a double-length CAS (e.g. on a 32 bit system, a 64 bit CAS). The second half is used to hold a counter. The compare part of the operation compares the previously read value of the pointer *and* the counter, to the current pointer and counter. If they match, the swap occurs - the new value is written - but the new value has an incremented counter. This means that if ABA has occurred, although the pointer value will be the same, the counter is exceedingly unlikely to be the same (for a 32 bit value, exactly 2^32 operations would have had to occurred, causing the counter to wrap and at that moment, the pointer value would have to also by chance be the same).
+On 64 bit systems with only single-length CAS, a 32 bit pointer and 32 bit counter can often be used, with an offset being added to the pointer when actual memory lookup occurs.
+CAS, and other atomic instructions, are sometime thought to be unnecessary in uniprocessor systems, because the atomicity of any sequence of instructions can be achieved by disabling interrupts while executing it. However, disabling interrupts has numerous downsides. For example, code that is allowed to do so must be trusted not to be malicious and monopolize the CPU, as well as to be correct and not accidentally hang the machine in an infinite loop. Further, disabling interrupts is often deemed too expensive to be practical. Thus, even programs only intended to run on uniprocessor machines will benefit from atomic instructions, as in the case of Linux's futexes.
+In multiprocessor systems, it is usually impossible to disable interrupts on all processors at the same time. Even if it were possible, two or more processors could be attempting to access the same semaphore's memory at the same time, and thus atomicity would not be achieved. The compare-and-swap instruction allows any processor to atomically test and modify a memory location, preventing such multiple-processor collisions.
+
+
+
+
+Contents
+
+
+1 Extensions
+2 See also
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Extensions
+Since CAS operates on a single pointer-sized memory location, while most lock-free and wait-free algorithms need to modify multiple locations, several extensions have been implemented.
+
+Double compare-and-swap compares two unrelated memory locations with two expected values, and if they're equal, sets both locations to new values. This operation only exists on Motorola 680x0 processors[2], but in early papers was often required.
+Double-wide compare-and-swap operates on two adjacent pointer-sized locations (or, equivalently, one location twice as big as a pointer). On later x86 processors, the CMPXCHG8B and CMPXCHG16B instructions[3] serve this role, although early 64-bit AMD CPUs did not support CMPXCHG16B (modern AMD CPUs do).
+Single compare, double swap compares one pointer but writes two. The Itanium's cmp8xchg16 instruction[4] implements this, where the two written pointers are adjacent.
+
+
+[edit] See also
+
+Fetch-and-add
+Load-Link/Store-Conditional
+Non-blocking synchronization
+
+
+[edit] References
+
+^ Herlihy, Maurice (January 1991). "Wait-free synchronization" (PDF). ACM Trans. Program. Lang. Syst. 13 (1): 124–149. doi:10.1145/114005.102808. http://www.cs.brown.edu/~mph/Herlihy91/p124-herlihy.pdf. Retrieved on 2007-05-20. 
+^ "CAS2". http://68k.hax.com/CAS2. Retrieved on 2007-12-15. 
+^ "Intel 64 and IA-32 Architectures Software Developer's Manual Volume 2A: Instruction Set Reference, A-M" (PDF). http://developer.intel.com/design/processor/manuals/253666.pdf. Retrieved on 2007-12-15. 
+^ "Intel Itanium Architecture Software Developer’s Manual Volume 3: Instruction Set Reference" (PDF). http://download.intel.com/design/Itanium/manuals/24531905.pdf. Retrieved on 2007-12-15. 
+
+
+[edit] External links
+
+compare_and_swap Kernel Service
+"Lock-Free and Practical Deques using Single-Word Compare-And-Swap" by Håkan Sundell, Philippas Tsigas
+"Fast, Reactive and Lock-free: Multi-word Compare-and-swap Algorithms" by Phuong Ha-Hoai, Philippas Tsigas
+"A Practical Multi-Word Compare-And-Swap Operation" by Timothy L. Harris, Keir Fraser, Ian A. Pratt
+"Lock-Free Linked Lists Using Compare-and-Swap" by John D. Valois
+"A Practical Nonblocking Queue Algorithm Using Compare-and-Swap" by Chien-Hua Shann, Ting-Lu Huang, Cheng Chen WARNING!! There is a bug in that algorithm--see "Formal verification of an array-based nonblocking queue" for explanation and correction. (C. Evequoz, in personal correspondence, revealed a slightly more efficient correction, but unlike with this paper's solution, I don't have a formal proof of correctness--message me or him for that version)
+"A Nonblocking Algorithm for Shared Queues Using Compare-and-Swap" by S. Prakash, Yann Hang Lee, T. Johnson
+A FOSS(BSD) C# implementation of a Lock-Free Queue
+Discussion "Lock-Free using cmpxchg8b..."
+Java method AtomicReferenceFieldUpdater.compareAndSet(T, V, V)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Compare-and-swap"
+Categories: Concurrency control | Computer arithmeticHidden categories: Cleanup from January 2009 | All pages needing cleanup | All pages needing to be wikified | Wikify from January 2009 | Wikipedia articles needing clarification from April 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 18 April 2009, at 13:06 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

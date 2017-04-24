@@ -1,0 +1,424 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Simulated annealing - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Simulated_annealing";
+		var wgTitle = "Simulated annealing";
+		var wgAction = "view";
+		var wgArticleId = "172244";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279620944;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Simulated annealing
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Simulated annealing (SA) is a generic probabilistic metaheuristic for the global optimization problem of applied mathematics, namely locating a good approximation to the global minimum of a given function in a large search space. It is often used when the search space is discrete (e.g., all tours that visit a given set of cities). For certain problems, simulated annealing may be more effective than exhaustive enumeration — provided that the goal is merely to find an acceptably good solution in a fixed amount of time, rather than the best possible solution.
+The name and inspiration come from annealing in metallurgy, a technique involving heating and controlled cooling of a material to increase the size of its crystals and reduce their defects. The heat causes the atoms to become unstuck from their initial positions (a local minimum of the internal energy) and wander randomly through states of higher energy; the slow cooling gives them more chances of finding configurations with lower internal energy than the initial one.
+By analogy with this physical process, each step of the SA algorithm replaces the current solution by a random "nearby" solution, chosen with a probability that depends on the difference between the corresponding function values and on a global parameter T (called the temperature), that is gradually decreased during the process. The dependency is such that the current solution changes almost randomly when T is large, but increasingly "downhill" as T goes to zero. The allowance for "uphill" moves saves the method from becoming stuck at local minima—which are the bane of greedier methods.
+The method was independently described by S. Kirkpatrick, C. D. Gelatt and M. P. Vecchi in 1983 [1], and by V. Černý in 1985 [2]. The method is an adaptation of the Metropolis-Hastings algorithm, a Monte Carlo method to generate sample states of a thermodynamic system, invented by N. Metropolis et al in 1953 [3].
+
+
+
+
+Contents
+
+
+1 Overview
+
+1.1 The basic iteration
+1.2 The neighbours of a state
+1.3 Acceptance probabilities
+1.4 The annealing schedule
+
+
+2 Pseudocode
+3 Selecting the parameters
+
+3.1 Diameter of the search graph
+3.2 Transition probabilities
+3.3 Acceptance probabilities
+3.4 Efficient candidate generation
+3.5 Barrier avoidance
+3.6 Cooling schedule
+
+
+4 Restarts
+5 Related methods
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+In the simulated annealing (SA) method, each point s of the search space is analogous to a state of some physical system, and the function E(s) to be minimized is analogous to the internal energy of the system in that state. The goal is to bring the system, from an arbitrary initial state, to a state with the minimum possible energy.
+
+[edit] The basic iteration
+At each step, the SA heuristic considers some neighbour s' of the current state s, and probabilistically decides between moving the system to state s' or staying in state s. The probabilities are chosen so that the system ultimately tends to move to states of lower energy. Typically this step is repeated until the system reaches a state that is good enough for the application, or until a given computation budget has been exhausted.
+
+[edit] The neighbours of a state
+The neighbours of each state (the candidate moves) are specified by the user, usually in an application-specific way. For example, in the traveling salesman problem, each state is typically defined as a particular tour (a permutation of the cities to be visited); and one could define the neighbours of a tour as those tours that can be obtained from it by exchanging any pair of consecutive cities.
+
+[edit] Acceptance probabilities
+The probability of making the transition from the current state s to a candidate new state s' is specified by an acceptance probability function P(e,e',T), that depends on the energies e = E(s) and e' = E(s') of the two states, and on a global time-varying parameter T called the temperature.
+One essential requirement for the probability function P is that it must be nonzero when e' > e, meaning that the system may move to the new state even when it is worse (has a higher energy) than the current one. It is this feature that prevents the method from becoming stuck in a local minimum—a state that is worse than the global minimum, yet better than any of its neighbours.
+On the other hand, when T goes to zero, the probability P(e,e',T) must tend to zero if e' > e, and to a positive value if e' < e. That way, for sufficiently small values of T, the system will increasingly favor moves that go "downhill" (to lower energy values), and avoid those that go "uphill". In particular, when T becomes 0, the procedure will reduce to the greedy algorithm—which makes the move only if it goes downhill.
+In the original description of SA, the probability P(e,e',T) was defined as 1 when e' < e — i.e., the procedure always moved downhill when it found a way to do so, irrespective of the temperature. Many descriptions and implementations of SA still take this condition as part of the method's definition. However, this condition is not essential for the method to work, and one may argue that it is both counterproductive and contrary to its spirit.
+The P function is usually chosen so that the probability of accepting a move decreases when the difference e' − e increases—that is, small uphill moves are more likely than large ones. However, this requirement is not strictly necessary, provided that the above requirements are met.
+Given these properties, the evolution of the state s depends crucially on the temperature T. Roughly speaking, the evolution of s is sensitive to coarser energy variations when T is large, and to finer variations when T is small.
+
+[edit] The annealing schedule
+Another essential feature of the SA method is that the temperature is gradually reduced as the simulation proceeds. Initially, T is set to a high value (or infinity), and it is decreased at each step according to some annealing schedule—which may be specified by the user, but must end with T = 0 towards the end of the allotted time budget. In this way, the system is expected to wander initially towards a broad region of the search space containing good solutions, ignoring small features of the energy function; then drift towards low-energy regions that become narrower and narrower; and finally move downhill according to the steepest descent heuristic.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Example illustrating the effect of cooling schedule on the performance of simulated annealing. The problem is to rearrange the pixels of an image so as to minimize a certain potential energy function, which causes similar colours to attract at short range and repel at slightly larger distance. The elementary moves swap two adjacent pixels. The images were obtained with fast cooling schedule (left) and slow cooling schedule (right), producing results similar to amorphous and crystalline solids, respectively.
+
+
+
+
+It can be shown [4] that for any given finite problem, the probability that the simulated annealing algorithm terminates with the global optimal solution approaches 1 as the annealing schedule is extended. This theoretical result, however, is not particularly helpful, since the time required to ensure a significant probability of success will usually exceed the time required for a complete search of the solution space.
+
+[edit] Pseudocode
+The following pseudocode implements the simulated annealing heuristic, as described above, starting from state s0 and continuing to a maximum of kmax steps or until a state with energy emax or less is found. The call neighbour(s) should generate a randomly chosen neighbour of a given state s; the call random() should return a random value in the range [0,1). The annealing schedule is defined by the call temp(r), which should yield the temperature to use, given the fraction r of the time budget that has been expended so far.
+
+s ← s0; e ← E(s)                             // Initial state, energy.
+sb ← s; eb ← e                               // Initial "best" solution
+k ← 0                                        // Energy evaluation count.
+while k < kmax and e > emax                  // While time remains & not good enough:
+  sn ← neighbour(s)                          //   Pick some neighbour.
+  en ← E(sn)                                 //   Compute its energy.
+  if en < eb then                            //   Is this a new best?
+    sb ← sn; eb ← en                         //     Yes, save it.
+  if P(e, en, temp(k/kmax)) > random() then  //   Should we move to it?
+    s ← sn; e ← en                           //     Yes, change state.
+  k ← k + 1                                  //   One more evaluation done
+return sb                                    // Return the best solution found.
+
+
+Actually, the "pure" SA algorithm does not keep track of the best solution found so far: it does not use the variables sb and eb, it lacks the first if inside the loop, and, at the end, it returns the current state s instead of sb. While saving the best state is a standard optimization, that can be used in any metaheuristic, it breaks the analogy with physical annealing — since a physical system can "store" a single state only.
+Saving the best state is not necessarily an improvement, since one may have to specify a smaller kmax in order to compensate for the higher cost per iteration. However, the step sb ← sn happens only on a small fraction of the moves. Therefore, the optimization is usually worthwhile, even when state-copying is an expensive operation.
+
+[edit] Selecting the parameters
+In order to apply the SA method to a specific problem, one must specify the following parameters: the state space, the energy (goal) function E(), the candidate generator procedure neighbour(), the acceptance probability function P(), and the annealing schedule temp(). These choices can have a significant impact on the method's effectiveness. Unfortunately, there are no choices of these parameters that will be good for all problems, and there is no general way to find the best choices for a given problem. The following sections give some general guidelines.
+
+[edit] Diameter of the search graph
+Simulated annealing may be modeled as a random walk on a search graph, whose vertices are all possible states, and whose edges are the candidate moves. An essential requirement for the neighbour() function is that it must provide a sufficiently short path on this graph from the initial state to any state which may be the global optimum. (In other words, the diameter of the search graph must be small.) In the traveling salesman example above, for instance, the search space for n = 20 cities has n! = 2432902008176640000 (2.5 quintillion) states; yet the neighbour generator function that swaps two consecutive cities can get from any state (tour) to any other state in maximum n(n − 1) / 2 = 190 steps.
+
+[edit] Transition probabilities
+For each edge (s,s') of the search graph, one defines a transition probability, which is the probability that the SA algorithm will move to state s' when its current state is s. This probability depends on the current temperature as specified by temp(), by the order in which the candidate moves are generated by the neighbour() function, and by the acceptance probability function P(). (Note that the transition probability is not simply P(e,e',T), because the candidates are tested serially.)
+
+[edit] Acceptance probabilities
+The specification of neighbour(), P(), and temp() is partially redundant. In practice, it's common to use the same acceptance function P() for many problems, and adjust the other two functions according to the specific problem.
+In the formulation of the method by Kirkpatrick et al., the acceptance probability function P(e,e',T) was defined as 1 if e' < e, and exp((e − e') / T) otherwise. This formula was superficially justified by analogy with the transitions of a physical system; it corresponds to the Metropolis-Hastings algorithm, in the case where the proposal distribution of Metropolis-Hastings is symmetric. However, this acceptance probability is often used for simulated annealing even when the neighbour() function, which is analogous to the proposal distribution in Metropolis-Hastings, is not symmetric, or not probabilistic at all. As a result, the transition probabilities of the simulated annealing algorithm do not correspond to the transitions of the analogous physical system, and the long-term distribution of states at a constant temperature T need not bear any resemblance to the the thermodynamic equilibrium distribution over states of that physical system, at any temperature. Nevertheless, most descriptions of SA assume the original acceptance function, which is probably hard-coded in many implementations of SA.
+
+[edit] Efficient candidate generation
+When choosing the candidate generator neighbour(), one must consider that after a few iterations of the SA algorithm, the current state is expected to have much lower energy than a random state. Therefore, as a general rule, one should skew the generator towards candidate moves where the energy of the destination state s' is likely to be similar to that of the current state. This heuristic (which is the main principle of the Metropolis-Hastings algorithm) tends to exclude "very good" candidate moves as well as "very bad" ones; however, the latter are usually much more common than the former, so the heuristic is generally quite effective.
+In the traveling salesman problem above, for example, swapping two consecutive cities in a low-energy tour is expected to have a modest effect on its energy (length); whereas swapping two arbitrary cities is far more likely to increase its length than to decrease it. Thus, the consecutive-swap neighbour generator is expected to perform better than the arbitrary-swap one, even though the latter could provide a somewhat shorter path to the optimum (with n − 1 swaps, instead of n(n − 1) / 2).
+A more precise statement of the heuristic is that one should try first candidate states s' for which P(E(s),E(s'),T) is large. For the "standard" acceptance function P above, it means that E(s') − E(s) is on the order of T or less. Thus, in the traveling salesman example above, one could use a neighbour() function that swaps two random cities, where the probability of choosing a city pair vanishes as their distance increases beyond T.
+
+[edit] Barrier avoidance
+When choosing the candidate generator neighbour() one must also try to reduce the number of "deep" local minima — states (or sets of connected states) that have much lower energy than all its neighbouring states. Such "closed catchment basins" of the energy function may trap the SA algorithm with high probability (roughly proportional to the number of states in the basin) and for a very long time (roughly exponential on the energy difference between the surrounding states and the bottom of the basin).
+As a rule, it is impossible to design a candidate generator that will satisfy this goal and also prioritize candidates with similar energy. On the other hand, one can often vastly improve the efficiency of SA by relatively simple changes to the generator. In the traveling salesman problem, for instance, it is not hard to exhibit two tours A, B, with nearly equal lengths, such that (0) A is optimal, (1) every sequence of city-pair swaps that converts A to B goes through tours that are much longer than both, and (2) A can be transformed into B by flipping (reversing the order of) a set of consecutive cities. In this example, A and B lie in different "deep basins" if the generator performs only random pair-swaps; but they will be in the same basin if the generator performs random segment-flips.
+
+[edit] Cooling schedule
+The physical analogy that is used to justify SA assumes that the cooling rate is low enough for the probability distribution of the current state to be near thermodynamic equilibrium at all times. Unfortunately, the relaxation time—the time one must wait for the equilibrium to be restored after a change in temperature—strongly depends on the "topography" of the energy function and on the current temperature. In the SA algorithm, the relaxation time also depends on the candidate generator, in a very complicated way. Note that all these parameters are usually provided as black box functions to the SA algorithm.
+Therefore, in practice the ideal cooling rate cannot be determined beforehand, and should be empirically adjusted for each problem. The variant of SA known as thermodynamic simulated annealing tries to avoid this problem by dispensing with the cooling schedule, and instead automatically adjusting the temperature at each step based on the energy difference between the two states, according to the laws of thermodynamics.
+
+[edit] Restarts
+Sometimes it is better to move back to a solution that was significantly better rather than always moving from the current state. This is called restarting. To do this we set s and e to sb and eb and perhaps restart the annealing schedule. The decision to restart could be based on a fixed number of steps, or based on the current energy being too high from the best energy so far.
+
+[edit] Related methods
+
+Quantum annealing uses "quantum fluctuations" instead of thermal fluctuations to get through high but thin barriers in the target function.
+
+
+Stochastic tunneling attempts to overcome the increasing difficulty simulated annealing runs have in escaping from local minima as the temperature decreases, by 'tunneling' through barriers.
+
+
+Tabu search normally moves to neighbouring states of lower energy, but will take uphill moves when it finds itself stuck in a local minimum; and avoids cycles by keeping a "taboo list" of solutions already seen.
+
+
+Stochastic gradient descent runs many greedy searches from random initial locations.
+
+
+Genetic algorithms maintain a pool of solutions rather than just one. New candidate solutions are generated not only by "mutation" (as in SA), but also by "combination" of two solutions from the pool. Probabilistic criteria, similar to those used in SA, are used to select the candidates for mutation or combination, and for discarding excess solutions from the pool.
+
+
+Ant colony optimization (ACO) uses many ants (or agents) to traverse the solution space and find locally productive areas.
+
+
+The cross-entropy method (CE) generates candidates solutions via a parameterized probability distribution. The parameters are updated via cross-entropy minimization, so as to generate better samples in the next iteration.
+
+
+Harmony search mimics musicians in improvisation process where each musician plays a note for finding a best harmony all together.
+
+
+Stochastic optimization is an umbrella set of methods that includes simulated annealing and numerous other approaches.
+
+
+[edit] See also
+
+Adaptive simulated annealing
+Markov chain
+Combinatorial optimization
+Automatic label placement
+Multidisciplinary optimization
+Place and route
+Traveling salesman problem
+Reactive search
+Graph cuts in computer vision
+
+
+[edit] References
+
+
+
+
+
+This article is missing citations or needs footnotes. Please help add inline citations to guard against copyright violations and factual inaccuracies. (January 2009)
+
+
+
+
+^ Kirkpatrick, S.; C. D. Gelatt, M. P. Vecchi (1983-05-13). "Optimization by Simulated Annealing". Science. New Series 220 (4598): 671-680. ISSN 00368075. http://www.jstor.org/stable/1690046. Retrieved on 2009-01-16. 
+^ V. Cerny, A thermodynamical approach to the travelling salesman problem: an efficient simulation algorithm. Journal of Optimization Theory and Applications, 45:41-51, 1985
+^ N. Metropolis, A.W. Rosenbluth, M.N. Rosenbluth, A.H. Teller, and E. Teller. "Equations of State Calculations by Fast Computing Machines". Journal of Chemical Physics, 21(6):1087-1092, 1953. [1]
+^ "Simulated annealing: A proof of convergence". IEEE Transactions on Pattern Analysis and Machine Intelligence 16 (6): 652-656. June 1994. doi:10.1109/34.295910. 
+
+
+
+A. Das and B. K. Chakrabarti (Eds.), Quantum Annealing and Related Optimization Methods, Lecture Note in Physics, Vol. 679, Springer, Heidelberg (2005)
+E. Weinberger, Correlated and Uncorrelated Fitness Landscapes and How to Tell the Difference, Biological Cybernetics, 63, No. 5, 325-336 (1990).
+J. De Vicente, J. Lanchares, R. Hermida, "Placement by Thermodynamic Simulated Annealing”, Physics Letters A,Vol. 317, Issue 5-6, pp.415-423, 2003.
+
+
+[edit] External links
+
+Image evolution Online demonstration. This is a debatable implementation of SA, being more like a hill climbing algorithm.
+C++ SA A simple C++ implementation of simulated annealing
+ParadisEO An open-source C++ framework for simulated annealing and other metaheuristic algorithms.
+Simulated Annealing A Java applet that allows you to experiment with simulated annealing. Source code included.
+"General Simulated Annealing Algorithm" An open-source MATLAB program for general simulated annealing exercises.
+Adaptive Simulated Annealing (ASA) [2] Free C-language simulated annealing code with many tuning options.
+Self-Guided Lesson on Simulated Annealing A Wikiversity project.
+MATLAB implementations of global optimization algorithms: SIMPSA (combination of SA and SIMPLEX), SCA, PSO.
+Javascript example of Simulated Annealing . It tries to find a maze with the longest path.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Simulated_annealing"
+Categories: Heuristics | Optimization algorithms | Monte Carlo methodsHidden categories: Articles with unsourced statements since January 2009 | All articles with unsourced statements 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Dansk
+Deutsch
+Español
+Français
+한국어
+Bahasa Indonesia
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+Türkçe
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 March 2009, at 17:25 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

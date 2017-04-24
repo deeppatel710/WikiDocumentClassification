@@ -1,0 +1,389 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Race condition - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Race_condition";
+		var wgTitle = "Race condition";
+		var wgAction = "view";
+		var wgArticleId = "475952";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281620829;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Race condition
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+Software Testing portal
+
+
+
+A race condition or race hazard is a flaw in a system or process whereby the output and/or result of the process is unexpectedly and critically dependent on the sequence or timing of other events. The term originates with the idea of two signals racing each other to influence the output first.
+Race conditions can occur in electronics systems, especially logic circuits, and in computer software, especially multithreaded or distributed programs.
+
+
+
+
+Contents
+
+
+1 Electronics
+
+1.1 Critical and non-critical race conditions
+1.2 Static, dynamic, and essential race conditions
+
+
+2 Simplified explanation
+3 Computing
+
+3.1 Real-world examples
+
+3.1.1 File systems
+3.1.2 Networking
+3.1.3 Life-critical systems
+
+
+3.2 Computer security
+3.3 Asynchronous finite state machines
+
+
+4 See also
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Electronics
+
+
+Race condition in a logic circuit. Here, ∆t1 and ∆t2 represent the propagation delays of the logic elements. When the input value (A) changes, the circuit outputs a short spike of duration ∆t1.
+
+
+A typical example of a race condition may occur in a system of logic gates, where inputs vary. If a particular output depends on the state of the inputs, it may only be defined for steady-state signals. As the inputs change state, a small delay will occur before the output changes, due to the physical nature of the electronic system. For a brief period, the output may change to an unwanted state before settling back to the designed state. Certain systems can tolerate such glitches, but if for example this output signal functions as a clock for further systems that contain memory, the system can rapidly depart from its designed behaviour (in effect, the temporary glitch becomes permanent).
+For example, consider a two input AND gate fed with a logic signal A on one input and its negation, NOT A, on another input. In theory, the output (A AND NOT A) should never be high. However, if changes in the value of A take longer to propagate to the second input than the first when A changes from false to true, a brief period will ensue during which both inputs are true, and so the gate's output will also be true.
+Proper design techniques (e.g. Karnaugh maps) encourage designers to recognise and eliminate race conditions before they cause problems.
+As well as these problems, some logic elements can enter metastable states, which create further problems for circuit designers.
+
+[edit] Critical and non-critical race conditions
+A critical race occurs when the order in which internal variables are changed determines the eventual state that the state machine will end up in.
+A non-critical race occurs when the order in which internal variables are changed does not alter the eventual state. In other words, a non-critical race occurs when moving to a desired state means that more than one internal state variable must be changed at once, but no matter in what order these internal state variables change, the resultant state will be the same anyway.
+
+[edit] Static, dynamic, and essential race conditions
+
+Static race conditions 
+These are caused when a signal and its complement are combined together.
+Dynamic race conditions 
+These result in multiple transitions when only one is intended. They are due to interaction between gates (Dynamic race conditions can be eliminated by using not more than two levels of gating).
+Essential race conditions 
+These are caused when an input has two transitions in less than the total feedback propagation time. Sometimes they are cured using inductive delay-line elements to effectively increase the time duration of an input signal.
+
+
+[edit] Simplified explanation
+In many work environments, it is often difficult for software developers or engineers to explain a race condition to managers, who may not be familiar with technical details. In this case, a horse race metaphor example can be provided:
+Example: A horse race represents the computer application. Each horse represents a specific element in the application, that are all running in parallel, such as user interface graphics versus network communications running concurrently. The software may require that a specific horse must win the race in order for the application to run properly. The application may work flawlessly if horse #5 finishes first, while the application crashes if the wrong horse finishes the race. One possible solution to this problem, is to add synchronization to guarantee that horse #5 finishes before #2. Metaphorically, this is similar to jockey #2 and #5 teaming up to let #5 run ahead of #2.
+Applications can run at different speeds on different computer systems or different situations (i.e. variations in Internet performance or processor loading), which may cause the application to crash randomly on some systems and never on others. The unpredictable nature of an intermittent bug caused by a race condition, is a frequent source of frustration within the profession of software development.
+
+[edit] Computing
+Race conditions arise in software when separate processes or threads of execution depend on some shared state. Operations upon shared states are critical sections that must be atomic to avoid harmful collision between processes or threads that share those states.
+Here is a simple example:
+Let us assume that two threads T1 and T2 each want to increment the value of a global integer by one. Ideally, the following sequence of operations would take place:
+
+Integer i = 0; (memory)
+T1 reads the value of i from memory into register1 : 0
+T1 increments the value of i in register1: (register1 contents) + 1 = 1
+T1 stores the value of register1 in memory : 1
+T2 reads the value of i from memory into register2 : 1
+T2 increments the value of i in register2: (register2 contents) + 1 = 2
+T2 stores the value of register2 in memory : 2
+Integer i = 2; (memory)
+
+In the case shown above, the final value of i is 2, as expected. However, if the two threads run simultaneously without locking or synchronization, the outcome of the operation could be wrong. The alternative sequence of operations below demonstrates this scenario:
+
+Integer i = 0; (memory)
+T1 reads the value of i from memory into register1 : 0
+T2 reads the value of i from memory into register2 : 0
+T1 increments the value of i in register1: (register1 contents) + 1 = 1
+T2 increments the value of i in register2: (register2 contents) + 1 = 1
+T1 stores the value of register1 in memory : 1
+T2 stores the value of register2 in memory : 1
+Integer i = 1; (memory)
+
+The final value of i is 1 instead of the expected result of 2. This occurs because the increment operations of the second case are non-atomic. Atomic operations are those that cannot be interrupted while accessing some resource such as a memory location. In the first case, T1 was not interrupted while accessing the variable i, so its operation was atomic.
+For another example, consider the following two tasks, in pseudocode:
+
+global int A = 0
+
+// increments the value of A and print "RX"
+// activated whenever an interrupt is received from the serial controller
+task Received()
+    A = A + 1
+    print "RX"
+end task
+
+// prints out only the even numbers
+// is activated every second
+task Timeout()
+    if (A is divisible by 2)
+        print A
+    end if
+end task
+
+Output would look something like:
+
+0
+0
+0
+RX
+RX
+2
+RX
+RX
+4
+4
+
+Now consider this chain of events, which might occur next:
+
+timeout occurs, activating task Timeout
+task Timeout evaluates A and finds it is divisible by 2, so elects to execute the "print A" next.
+data is received on the serial port, causing an interrupt and a switch to task Received
+task Received runs to completion, incrementing A and printing "RX"
+control returns to task Timeout
+task timeout executes print A, using the current value of A, which is 5.
+
+Mutexes are used to address this problem in concurrent programming.
+
+[edit] Real-world examples
+
+[edit] File systems
+In file systems, two or more programs may "collide" in their attempts to modify or access a file, which could result in data corruption. File locking provides a commonly-used solution. A more cumbersome remedy involves organizing the system in such a way that one unique process (running a daemon or the like) has exclusive access to the file, and all other processes that need to access the data in that file do so only via interprocess communication with that one process (which of course requires synchronization at the process level).
+A different form of race condition exists in file systems where unrelated programs may affect each other by suddenly using up available resources such as disk space (or memory, or processor cycles). Software not carefully designed to anticipate and handle this rare situation may then become quite fragile and unpredictable. Such a risk may be overlooked for a long time in a system that seems very reliable. But eventually enough data may accumulate or enough other software may be added to critically destabilize many parts of a system. Probably the best known example of this occurred with the near-loss of the Mars Rover "Spirit" not long after landing, but this is a commonly overlooked hazard in many computer systems. A solution is for software to request and reserve all the resources it will need before beginning a task; if this request fails then the task is postponed, avoiding the many points where failure could have occurred. (Alternately, each of those points can be equipped with error handling, or the success of the entire task can be verified afterwards, before continuing on.) A more common but incorrect approach is to simply verify that enough disk space (for example) is available before starting a task; this is not adequate because in complex systems the actions of other running programs can be unpredictable.
+
+[edit] Networking
+In networking, consider a distributed chat network like IRC, where a user acquires channel-operator privileges in any channel he starts. If two users on different servers, on different ends of the same network, try to start the same-named channel at the same time, each user's respective server will grant channel-operator privileges to each user, since neither server will yet have received the other server's signal that it has allocated that channel. (Note that this problem has been largely solved by various IRC server implementations.)
+In this case of a race condition, the concept of the "shared resource" covers the state of the network (what channels exist, as well as what users started them and therefore have what prk operation). Where users find such a solution unacceptable, a pragmatic solution can have the system 1) recognize when a race condition has occurred; and 2) repair the ill effects.
+
+[edit] Life-critical systems
+Software flaws in life-critical systems can be disastrous. Race conditions were among the flaws in the Therac-25 radiation therapy machine, which led to the death of three patients and injuries to several more [1]Another example is the Energy Management System provided by GE Energy and used by Ohio-based FirstEnergy Corp. (among other power facilities). A race condition existed in the alarm subsystem; when three sagging power lines were tripped simultaneously, the condition prevented alerts from being raised to the monitoring technicians, delaying their awareness of the problem. This software flaw eventually led to the North American Blackout of 2003[1]. GE Energy later developed a software patch to correct the previously undiscovered error.
+
+[edit] Computer security
+A specific kind of race condition involves checking for a predicate (e.g. for authentication), then acting on the predicate, while the state can change between the time of check and the time of use. When this kind of bug exists in security-conscious code, a security vulnerability called a time-of-check-to-time-of-use (TOCTTOU) bug is created.
+
+[edit] Asynchronous finite state machines
+Even after ensuring that single bit transitions occur between states, the asynchronous machine will fail if multiple inputs change at the same time. The solution to this is to design a machine so that each state is sensitive to only one input change.
+
+[edit] See also
+
+Concurrency control
+Deadlock
+Synchronization
+Therac-25
+Linearizability
+
+
+[edit] References
+
+
+^ http://courses.cs.vt.edu/~cs3604/lib/Therac_25/Side_bar_1.html.
+
+
+
+[edit] External links
+
+Starvation and Critical Race Analyzers for Ada
+VHDL example
+Paper "Algorithms for the Optimal State Assignment of Asynchronous State Machines" by Robert M. Fuhrer, Bill Lin and Steven M. Nowick
+Paper "A Novel Framework for Solving the State Assignment Problem for Event-Based Specifications" by Luciano Lavagno, Cho W. Moon, Robert K. Brayton and Alberto Sangiovanni-Vincentelli
+Article "Secure programmer: Prevent race conditions—Resource contention can be used against you" by David A. Wheeler
+Chapter "Avoid Race Conditions" (Secure Programming for Linux and Unix HOWTO)
+Race conditions, security, and immutability in Java, with sample source code and comparison to C code, by Chiral Software
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Race_condition"
+Categories: Computer security exploits | Anti-patterns | Concurrency | Programming bugs | Computer hardware | Logic in computer science 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+Lietuvių
+日本語
+Polski
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 April 2009, at 02:21.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

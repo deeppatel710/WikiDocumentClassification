@@ -1,0 +1,326 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bit array - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Bit_array";
+		var wgTitle = "Bit array";
+		var wgAction = "view";
+		var wgArticleId = "1189937";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 286116915;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Bit array
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A bit array (also known as a bitmap, a bitset, or a bitstring) is an array data structure which compactly stores individual bits (boolean values). It implements a simple set data structure storing a subset of {1,2,...,n} and is effective at exploiting bit-level parallelism in hardware to perform operations quickly. A typical bit array stores kw bits, where w is the number of bits in the unit of storage, such as a byte or word, and k is some nonnegative integer. If w does not divide the number of bits to be stored, some space is wasted due to internal fragmentation.
+
+
+
+
+Contents
+
+
+1 Basic operations
+2 More complex operations
+
+2.1 Population / Hamming weight
+2.2 Sorting
+2.3 Find first one
+
+
+3 Advantages and disadvantages
+4 Applications
+5 Language support
+6 See also
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Basic operations
+Although most machines are not able to address individual bits in memory, nor have instructions to manipulate single bits, each bit in a word can be singled out and manipulated using bitwise operations. In particular:
+
+OR can be used to set a bit to one: 11101010 OR 00000100 = 11101110
+AND can be used to set a bit to zero: 11101010 AND 11111101 = 11101000
+AND together with zero-testing can be used to determine if a bit is set:
+
+
+
+
+11101010 AND 00010000 = 00000000 = 0
+11101010 AND 00000010 = 00000010 ≠ 0
+
+
+
+
+XOR can be used to invert or toggle a bit:
+
+
+
+
+11101010 XOR 00000100 = 11101110
+11101110 XOR 00000100 = 11101010
+
+
+
+To obtain the bit mask needed for these operations, we can use a bit shift operator to shift the number 1 to the left by the appropriate number of places.
+We can view a bit array as a subset of {1,2,...,n}, where a 1 bit indicates a number in the set and a 0 bit a number not in the set. This set data structure uses about n/w words of space, where w is the number of bits in each machine word. Whether the least significant bit or the most significant bit indicates the smallest-index number is largely irrelevant, but the former tends to be preferred.
+Given two bit arrays of the same size representing sets, we can compute their union, intersection, and set-theoretic difference using n/w simple bit operations each (2n/w for difference), as well as the complement of either:
+
+ for i from 0 to n/w-1
+     complement_a[i] := not a[i]
+     union[i]        := a[i] or b[i]
+     intersection[i] := a[i] and b[i]
+     difference[i]   := a[i] and (not b[i])
+
+If we wish to iterate through the bits of a bit array, we can do this efficiently using a doubly-nested loop which loops through each word, one at a time. Only n/w memory accesses are required:
+
+ for i from 0 to n/w-1
+     index := 0    // if needed
+     word := a[i]
+     for b from 0 to w-1
+         value := word and 1 ≠ 0
+         word := word shift right 1
+         // do something with value
+         index := index + 1   // if needed
+
+Both of these code samples exhibit ideal locality of reference, and so get a large performance boost from a data cache. If a cache line is k words, only about n/wk cache misses will occur.
+
+[edit] More complex operations
+
+[edit] Population / Hamming weight
+If we wish to find the number of 1 bits in a bit array, sometimes called the population function, or Hamming weight, there are efficient branch-free algorithms which can compute the number of bits in a word using a series of simple bit operations. We simply run such an algorithm on each word and keep a running total. Counting zeros is similar. See the Hamming weight article for examples of an efficient implementation.
+
+[edit] Sorting
+Similarly, sorting a bit array is trivial to do in O(n) time using counting sort — we count the number of ones k, fill the last k/w words with ones, set only the low k mod w bits of the next word, and set the rest to zero.
+
+[edit] Find first one
+Bit arrays are useful in some contexts as priority queues. The goal in such a context is to identify the one bit of smallest index, that is the least significant bit has the highest priority. Some machines (including normal x86 PCs) have a find first one or find first zero operation that does this on a single word. With this, the operation is obvious: find the first nonzero word and run find first one on it, or find first zero on its complement. On machines that do not feature this operation, the operation can be reproduced using sequences of bit operations.
+On machines that use two's complement arithmetic, which includes all conventional CPUs, the find first one function can be performed quickly by anding a word with its two's complement, that is performing (w AND -w) results in a word with only the righmost bit set of the bits that were set before the operation. For instance, if the original value were 6 (110), after this operation the result would be 2 (010).
+
+[edit] Advantages and disadvantages
+Bit arrays, despite their simplicity, have a number of marked advantages over other data structures for the same problems:
+
+They are extremely compact; few other data structures can store n independent pieces of data in n/w words.
+They allow small arrays of bits to be stored and manipulated in the register set for long periods of time with no memory accesses.
+Because of their ability to exploit bit-level parallelism, limit memory access, and maximally utilize the data cache, they often outperform many other data structures on practical data sets, even those which are more efficient asymptotically.
+
+However, bit arrays aren't the solution to everything. In particular:
+
+They are wasteful set data structures for sparse sets (those with few elements compared to their range) in both time and space. For such applications, Judy arrays, tries, or even Bloom filters should be considered instead.
+Accessing individual elements can be expensive and difficult to express in some languages. If random access is more common than sequential and the array is relatively small, a byte array may be preferable on a machine with byte addressing. A word array, however, is probably not justified due to the huge space overhead and additional cache misses it causes, unless the machine only has word addressing.
+
+
+[edit] Applications
+Because of their compactness, bit arrays have a number of applications in areas where space or efficiency is at a premium. Most commonly, they are used to represent a simple group of boolean flags or an ordered sequence of boolean values.
+We mentioned above that bit arrays are used for priority queues, where the bit at index k is set if and only if k is in the queue; this data structure is used, for example, by the Linux kernel, and benefits strongly from a find-first-zero operation in hardware.
+Bit arrays can be used for the allocation of memory pages, inodes, disk sectors, etc. In such cases, the term bitmap may be used. However, this term is frequently used to refer to raster images, which may use multiple bits per pixel.
+Another application of bit arrays is the Bloom filter, a probabilistic set data structure that can store large sets in a small space in exchange for a small probability of error. It is also possible to build probabilistic hash tables based on bit arrays that accept either false positives or false negatives.
+Bit arrays and the operations on them are also important for constructing succinct data structures, which use close to the minimum possible space. In this context, operations like finding the nth 1 bit or counting the number of 1 bits up to a certain position become important.
+Bit arrays are also a useful abstraction for examining streams of compressed data, which often contain elements that occupy portions of bytes or are not byte-aligned. For example, the compressed Huffman coding representation of a single 8-bit character can be anywhere from 1 to 255 bits long.
+In information retrieval, bit arrays are a good representation for the posting lists of very frequent terms. If we compute the gaps between adjacent values in a list of strictly increasing integers and encode them using unary coding, the result is a bit array with a 1 bit in the nth position if and only if n is in the list. The implied probability of a gap of n is 1/2n. This is also the special case of Golomb coding where the parameter M is 1; this parameter is only normally selected when -log(2-p)/log(1-p) ≤ 1, or roughly the term occurs in at least 38% of documents.
+
+[edit] Language support
+The C programming language's bitfields, pseudo-objects found in structs with size equal to some number of bits, are in fact small bit arrays; they are limited in that they cannot span words. Although they give a convenient syntax, the bits are still accessed using bitwise operators on most machines, and they can only be defined statically (like C's static arrays, their sizes are fixed at compile-time). It is also a common idiom for C programmers to use words as small bit arrays and access bits of them using bit operators. A widely available header file included in the X11 system, xtrapbits.h, is "a portable way for systems to define bit field manipulation of arrays of bits.".
+In C++, although individual bools typically occupy the same space as a byte or an integer, the STL type vector<bool> is a partial specialization in which bits are packed as a space efficiency optimization. Since bytes (and not bits) are the smallest addressable unit in C++, the [] operator does not return a reference to an element, but instead returns a proxy reference. This might seem a minor point, but it means that vector<bool> is not a standard STL container, which is why the use of vector<bool> is generally discouraged. Another unique STL class, bitset, creates a vector of bits fixed at a particular size at compile-time, and in its interface and syntax more resembles the idiomatic use of words as bit sets by C programmers. It also has some additional power, such as the ability to efficiently count the number of bits that are set. The Boost C++ Libraries provides a dynamic_bitset class whose size is specified at run-time.
+The D programming language provides bit arrays in both of its competing standard libraries. In phobos, they are provided in std.bitmanip, and in Tango, they are provided in tango.core.BitArray. As in C++, the [] operator does not return a reference, since individual bits are not directly addressable on most hardware, but instead returns a bool.
+In Java, the class BitSet creates a bit array which is then manipulated with functions named after bitwise operators familiar to C programmers. Unlike the bitset in C++, the Java BitSet expands dynamically if a bit is set at an index beyond the current size of the bit vector. In addition, there is a class EnumSet, which represents a Set of values of an enumerated type internally as a bit vector, as a safer alternative to bitfields.
+The .NET Framework supplies a BitArray collection class. It stores boolean values, supports random access and bitwise operators, can be iterated over, and its Length property can be changed to grow or truncate it.
+Although Standard ML has no support for bit arrays, Standard ML of New Jersey has an extension, the BitArray structure, in its SML/NJ Library. It is not fixed in size and supports set operations and bit operations, including, unusually, shift operations.
+Haskell likewise currently lacks standard support for bitwise operations, but both GHC and Hugs provide a Data.Bits module with assorted bitwise functions and operators, including shift and rotate operations.
+
+[edit] See also
+
+Bit field
+Bitboard Chess and similar games.
+Bitmap index
+Binary numeral system
+Bitstream
+
+
+[edit] External links
+
+bitarray module for Python
+boost::dynamic_bitset
+std::bitset
+vector<bool> Is Nonconforming, and Forces Optimization Choice
+vector<bool>: More Problems, Better Solutions
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Bit_array"
+Categories: Arrays | Bit data structures 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 April 2009, at 22:10 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

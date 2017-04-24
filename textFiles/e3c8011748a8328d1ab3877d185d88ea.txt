@@ -1,0 +1,435 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Canny edge detector - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Canny_edge_detector";
+		var wgTitle = "Canny edge detector";
+		var wgAction = "view";
+		var wgArticleId = "476817";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280593313;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Canny edge detector
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+Feature detection
+
+
+
+Output of a typical corner detection algorithm
+
+
+Edge detection
+
+
+Canny
+
+
+Canny-Deriche
+
+
+Differential
+
+
+Sobel
+
+
+Interest point detection
+
+
+Corner detection
+
+
+Harris operator
+
+
+Shi and Tomasi
+
+
+Level curve curvature
+
+
+SUSAN
+
+
+FAST
+
+
+Blob detection
+
+
+Laplacian of Gaussian (LoG)
+
+
+Difference of Gaussians (DoG)
+
+
+Determinant of Hessian (DoH)
+
+
+Maximally stable extremal regions
+
+
+Ridge detection
+
+
+Affine invariant feature detection
+
+
+Affine shape adaptation
+
+
+Harris affine
+
+
+Hessian affine
+
+
+Feature description
+
+
+SIFT
+
+
+SURF
+
+
+GLOH
+
+
+LESH
+
+
+Scale-space
+
+
+Scale-space axioms
+
+
+Implementation details
+
+
+Pyramids
+
+
+
+This box: view • talk
+
+
+
+The Canny edge detection operator was developed by John F. Canny in 1986 and uses a multi-stage algorithm to detect a wide range of edges in images. Most importantly, Canny also produced a computational theory of edge detection explaining why the technique works.
+
+
+
+
+The Canny edge detector applied to a colour photograph of a steam engine. (See the original image here)
+
+
+
+
+
+
+Contents
+
+
+1 Development of the Canny algorithm
+2 Stages of the Canny algorithm
+
+2.1 Noise reduction
+2.2 Finding the intensity gradient of the image
+2.3 Non-maximum suppression
+2.4 Tracing edges through the image and hysteresis thresholding
+2.5 Differential geometric formulation of the Canny edge detector
+
+
+3 Parameters
+4 Conclusion
+5 References
+6 See also
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Development of the Canny algorithm
+Canny's aim was to discover the optimal edge detection algorithm. In this situation, an "optimal" edge detector means:
+
+good detection - the algorithm should mark as many real edges in the image as possible.
+good localization - edges marked should be as close as possible to the edge in the real image.
+minimal response - a given edge in the image should only be marked once, and where possible, image noise should not create false edges.
+
+To satisfy these requirements Canny used the calculus of variations - a technique which finds the function which optimizes a given functional. The optimal function in Canny's detector is described by the sum of four exponential terms, but can be approximated by the first derivative of a Gaussian.
+
+[edit] Stages of the Canny algorithm
+
+[edit] Noise reduction
+
+
+
+
+The image after a 5x5 Gaussian mask has been passed across each pixel.
+
+
+Because the Canny edge detector uses a filter based on the first derivative of a Gaussian, it is susceptible to noise present on raw unprocessed image data, so to begin with, the raw image is convolved with a Gaussian filter. The result is a slightly blurred version of the original which is not affected by a single noisy pixel to any significant degree.
+Here is an example of a 5x5 Gaussian filter, used to create the image to the right, with σ = 1.4:
+
+
+
+
+[edit] Finding the intensity gradient of the image
+
+
+
+
+A binary edge map, derived from the Sobel operator, with a threshold of 80. The edges are coloured to indicate the edge direction: yellow for zero degrees, green for 45 degrees, blue for 90 degrees and red for 135 degrees.
+
+
+An edge in an image may point in a variety of directions, so the Canny algorithm uses four filters to detect horizontal, vertical and diagonal edges in the blurred image. The edge detection operator (Roberts, Prewitt, Sobel for example) returns a value for the first derivative in the horizontal direction (Gy) and the vertical direction (Gx). From this the edge gradient and direction can be determined:
+
+
+The edge direction angle is rounded to one of four angles representing vertical, horizontal and the two diagonals (0, 45, 90 and 135 degrees for example).
+
+[edit] Non-maximum suppression
+
+
+
+
+The same binary map shown on the left after non-maxima suppression. The edges are still coloured to indicate direction.
+
+
+Given estimates of the image gradients, a search is then carried out to determine if the gradient magnitude assumes a local maximum in the gradient direction. So, for example,
+
+if the rounded angle is zero degrees the point will be considered to be on the edge if its intensity is greater than the intensities in the north and south directions,
+if the rounded angle is 90 degrees the point will be considered to be on the edge if its intensity is greater than the intensities in the west and east directions,
+if the rounded angle is 135 degrees the point will be considered to be on the edge if its intensity is greater than the intensities in the north east and south west directions,
+if the rounded angle is 45 degrees the point will be considered to be on the edge if its intensity is greater than the intensities in the north west and south east directions.
+
+This is worked out by passing a 3x3 grid over the intensity map.
+From this stage referred to as non-maximum suppression, a set of edge points, in the form of a binary image, is obtained. These are sometimes referred to as "thin edges".
+
+[edit] Tracing edges through the image and hysteresis thresholding
+Intensity gradients which are large are more likely to correspond to edges than if they are small. It is in most cases impossible to specify a threshold at which a given intensity gradient switches from corresponding to an edge into not doing so. Therefore Canny uses thresholding with hysteresis.
+Thresholding with hysteresis requires two thresholds - high and low. Making the assumption that important edges should be along continuous curves in the image allows us to follow a faint section of a given line and to discard a few noisy pixels that do not constitute a line but have produced large gradients. Therefore we begin by applying a high threshold. This marks out the edges we can be fairly sure are genuine. Starting from these, using the directional information derived earlier, edges can be traced through the image. While tracing an edge, we apply the lower threshold, allowing us to trace faint sections of edges as long as we find a starting point.
+Once this process is complete we have a binary image where each pixel is marked as either an edge pixel or a non-edge pixel. From complementary output from the edge tracing step, the binary edge map obtained in this way can also be treated as a set of edge curves, which after further processing can be represented as polygons in the image domain.
+
+[edit] Differential geometric formulation of the Canny edge detector
+A more refined approach to obtain edges with sub-pixel accuracy is by using the approach of differential edge detection, where the requirement of non-maximum suppression is formulated in terms of second- and third-order derivatives computed from a scale-space representation (Lindeberg 1998) -- see the article on edge detection for a detailed description.
+
+[edit] Parameters
+The Canny algorithm contains a number of adjustable parameters, which can affect the computation time and effectiveness of the algorithm.
+
+The size of the Gaussian filter: the smoothing filter used in the first stage directly affects the results of the Canny algorithm. Smaller filters cause less blurring, and allow detection of small, sharp lines. A larger filter causes more blurring, smearing out the value of a given pixel over a larger area of the image. Larger blurring radii are more useful for detecting larger, smoother edges - for instance, the edge of a rainbow.
+Thresholds: the use of two thresholds with hysteresis allows more flexibility than in a single-threshold approach, but general problems of thresholding approaches still apply. A threshold set too high can miss important information. On the other hand, a threshold set too low will falsely identify irrelevant information (such as noise) as important. It is difficult to give a generic threshold that works well on all images. No tried and tested approach to this problem yet exists.
+
+
+[edit] Conclusion
+The Canny algorithm is adaptable to various environments. Its parameters allow it to be tailored to recognition of edges of differing characteristics depending on the particular requirements of a given implementation. In Canny's original paper, the derivation of the optimal filter led to a Finite Impulse Response filter, which can be slow to compute in the spatial domain if the amount of smoothing required is important (the filter will have a large spatial support in that case). For this reason, it is often suggested to use Rachid Deriche's Infinite Impulse Response form of Canny's filter (the Canny-Deriche detector), which is recursive, and which can be computed in a short, fixed amount of time for any desired amount of smoothing. The second form is suitable for real time implementations in FPGAs or DSPs, or very fast embedded PCs. In this context, however, the regular recursive implementation of the Canny operator does not give a good approximation of rotational symmetry and therefore gives a bias towards horizontal and vertical edges.
+
+[edit] References
+
+Canny, J., A Computational Approach To Edge Detection, IEEE Trans. Pattern Analysis and Machine Intelligence, 8:679-714, 1986.
+R. Deriche, Using Canny's criteria to derive an optimal edge detector recursively implemented, Int. J. Computer Vision, Vol. 1, pp. 167-187, April 1987.
+Lindeberg, Tony "Edge detection and ridge detection with automatic scale selection", International Journal of Computer Vision, 30, 2, pp 117--154, 1998. (Includes the differential approach to non-maximum suppression.)
+
+
+[edit] See also
+
+Edge detection
+Feature detection (computer vision)
+Feature extraction
+Scale space
+Ridge detection
+Computer vision
+Digital image processing
+
+
+[edit] External links
+
+John Canny's home page
+On-line Canny edge detector
+Free Java implementation of Canny edge detector
+Publication List of Rachid Deriche
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Canny_edge_detector"
+Categories: Computer vision | Image processing 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Français
+Italiano
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 30 March 2009, at 06:39.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

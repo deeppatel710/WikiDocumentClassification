@@ -1,0 +1,257 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dancing Links - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Dancing_Links";
+		var wgTitle = "Dancing Links";
+		var wgAction = "view";
+		var wgArticleId = "2736402";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279327711;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Dancing Links
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, Dancing Links, also known as DLX, is the technique suggested by Donald Knuth to efficiently implement his Algorithm X. Algorithm X is a recursive, nondeterministic, depth-first, backtracking algorithm that finds all solutions to the exact cover problem. Some of the better-known exact cover problems include tiling, the N queens problem, and Sudoku.
+The name Dancing Links comes from the way the algorithm works, as iterations of the algorithm cause the links to "dance" with partner links so as to resemble an "exquisitely choreographed dance." Knuth credits Hirosi Hitotumatu and Kohei Noshita with having invented the idea in 1979[1], but it is his paper which has popularized it.
+
+
+
+
+Contents
+
+
+1 Implementation
+
+1.1 Main ideas
+1.2 Header
+1.3 Exploring
+1.4 Backtracking
+1.5 Optional constraints
+
+
+2 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Implementation
+As the remainder of this article discusses the details of an implementation technique for Algorithm X, the reader is strongly encouraged to read the Algorithm X article first.
+
+[edit] Main ideas
+The idea of DLX is based on the observation that in a circular doubly linked list of nodes,
+
+x.left.right ← x.right;
+x.right.left ← x.left;
+
+will remove node x from the list, while
+
+x.left.right ← x;
+x.right.left ← x;
+
+will restore x's position in the list. This works regardless of the number of elements in the list, even if that number is 1.
+Knuth observed that a naive implementation of his Algorithm X would spend an inordinate amount of time searching for 1's. When selecting a column, the entire matrix had to be searched for 1's. When selecting a row, an entire column had to be searched for 1's. After selecting a row, that row and a number of columns had to be searched for 1's. To improve this search time from complexity O(n) to O(1), Knuth implemented a sparse matrix where only 1's are stored.
+At all times, each node in the matrix will point to the adjacent nodes to the left and right (1's in the same row), above and below (1's in the same column), and the header for its column (described below). Each row and column in the matrix will consist of a circular doubly linked list of nodes.
+
+[edit] Header
+Each column will have a special node known as the "column header," which will be included in the column list, and will form a special row ("control row") consisting of all the columns which still exist in the matrix.
+Finally, each column header may optionally track the number of nodes in its column, so that locating a column with the lowest number of nodes is of complexity O(n) rather than O(n×m) where n is the number of columns and m is the number of rows.
+
+[edit] Exploring
+In Algorithm X, rows and columns are regularly eliminated from and restored to the matrix. Eliminations are determined by selecting a column and a row in that column. If a selected column doesn't have any rows, the current matrix is unsolvable and must be backtracked. When an elimination occurs, the selected row's column, other rows 'belonging' to that column, and other columns to which the selected row 'belongs' are all removed. These columns are removed because they have been filled, and these rows are removed because they conflict with the selected row. To perform the elimination, first remove the selected column's header. Next, for each row where the selected column contains a 1, traverse the row and remove it from other columns (this makes those rows inaccessible and is how conflicts are prevented). Finally, remove each column (other than the selected column, it has already been removed) in which the selected row has a 1 (they have been filled by the selected row). This order ensures that any removed node is removed exactly once and in a predictable order, so it can be backtracked appropriately. If the resulting matrix has no columns, then they have all been filled and the selected rows form the solution.
+
+[edit] Backtracking
+To backtrack, the above process must be reversed using the second algorithm stated above. A requirement of using that algorithm is that backtracking must be done as an exact reversal of eliminations. Knuth's paper gives a clear picture of these relationships and how the node removal and reinsertion works.
+
+[edit] Optional constraints
+It is also possible to solve one-cover problems in which a particular constraint is optional, but can be satisfied no more than once. Dancing Links accommodates these with primary columns which must be filled and secondary columns which are optional. This alters the algorithm's solution test from a matrix having no columns to a matrix having no primary columns, but doesn't require any further changes. Knuth discusses optional constraints as applied to the N queens problem. The chessboard diagonals represent optional constraints, as some diagonals may not be occupied. If a diagonal is occupied, it can only be occupied once.
+
+[edit] External links
+
+
+^ Hitotumatu, Hirosi; Noshita, Kohei (1979), "A Technique for Implementing Backtrack Algorithms and its Application", Information Processing Letters 8 (4): 174–175, doi:10.1016/0020-0190(79)90016-4 
+
+
+
+Knuth, Donald (2000). Dancing links. P159. http://www-cs-faculty.stanford.edu/~knuth/preprints.html. Retrieved on 2006-07-11. 
+Knuth, Donald (2000) (PDF). Dancing links. http://lanl.arxiv.org/pdf/cs/0011047. Retrieved on 2007-10-17. 
+A distributed Dancing Links implementation as a Hadoop MapReduce example
+a C++ implementation of DLX
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Dancing_Links"
+Categories: Search algorithms | Linked lists | Donald Knuth | Sudoku 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+
+
+
+
+
+
+
+
+
+ This page was last modified on 24 March 2009, at 08:52 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

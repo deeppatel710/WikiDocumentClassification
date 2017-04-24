@@ -1,0 +1,422 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+inetd - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Inetd";
+		var wgTitle = "Inetd";
+		var wgAction = "view";
+		var wgArticleId = "2173291";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282830212;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-c {line-height: normal;}
+.source-c li, .source-c pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for c
+ * CSS class: source-c, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-c .de1, .source-c .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-c  {}
+.source-c .head {}
+.source-c .foot {}
+.source-c .imp {font-weight: bold; color: red;}
+.source-c .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-c li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-c li.li2 {font-weight: bold;}
+.source-c .kw1 {color: #b1b100;}
+.source-c .kw2 {color: #000000; font-weight: bold;}
+.source-c .kw3 {color: #000066;}
+.source-c .kw4 {color: #993333;}
+.source-c .co1 {color: #808080; font-style: italic;}
+.source-c .co2 {color: #339933;}
+.source-c .coMULTI {color: #808080; font-style: italic;}
+.source-c .es0 {color: #000099; font-weight: bold;}
+.source-c .br0 {color: #66cc66;}
+.source-c .st0 {color: #ff0000;}
+.source-c .nu0 {color: #cc66cc;}
+.source-c .me1 {color: #202020;}
+.source-c .me2 {color: #202020;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); inetd
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+inetd is a super-server daemon on many Unix systems that manages Internet services. First appearing in 4.3BSD [1], it is generally located at /usr/sbin/inetd.
+
+
+
+
+Contents
+
+
+1 Function
+2 Setup
+3 Creating an inetd service
+4 inetd replacements
+5 Security concerns
+6 See also
+7 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Function
+Often called a super-server, inetd listens on designated ports used by internet services such as FTP, POP3, and telnet. When a TCP packet or UDP packet arrives with a particular destination port number, inetd launches the appropriate server program to handle the connection. For services that are not expected to run with high loads, this method uses memory more efficiently, since the specific servers run only when needed. Furthermore, no network code is required in the application-specific daemons, as inetd hooks the sockets directly to stdin, stdout and stderr of the spawned process. For protocols that have frequent traffic, such as HTTP and POP3, a dedicated server that intercepts the traffic directly may be preferable.
+
+[edit] Setup
+The file /etc/services is used to map port numbers and protocols to service names, and the file /etc/inetd.conf is used to map service names to server names. For example, if a TCP request comes in on port 23, /etc/services shows
+
+telnet          23/tcp
+
+The corresponding line in the /etc/inetd.conf file (in this case, taken from a machine running AIX version 5.1) is
+
+telnet  stream  tcp6    nowait  root    /usr/sbin/telnetd      telnetd -a
+
+This tells inetd to launch the program /usr/sbin/telnetd with the command line arguments telnetd -a. inetd automatically hooks the socket to stdin, stdout, and stderr of the server program.
+Generally TCP sockets are handled by spawning a separate server to handle each connection concurrently. UDP sockets are generally handled by a single server instance that handles all packets on that port.
+Some simple services, such as echo, are handled directly by inetd, without spawning an external server.
+
+[edit] Creating an inetd service
+This is a simple inetd service, written in C. It accepts an optional command line argument containing a filename for a log file, and then it logs all strings sent through the socket to the log file. This program is based on a logging service for a distributed processing program that may be accepting messages from multiple processes running on different machines. By using an inetd service for receiving the logging messages, all machines can send the messages to a common machine to be stored in a single log file.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+int main(int argc, char **argv)
+{
+  /* this is a buffer for the messages to be logged */
+  char str[4096];
+ 
+  const char *fn = (argc >= 2)
+    ? argv[1] /* if inetd passes an argument, use that as the filename */
+    : "/tmp/errorLog.txt"; /* else use a file in the /tmp directory */
+ 
+  /* open the log file */
+  FILE *fp = fopen(fn, "a+");
+ 
+  /* fail if the logfile cannot be opened */
+  if(fp == NULL) 
+    exit(EXIT_FAILURE);
+ 
+  /* read up to the newline, up to 4095 characters; 
+     fgets will null terminate the string for us */
+  while(fgets(str, sizeof(str), stdin)) {
+    /* write string to logfile and flush it */
+    fputs(str, fp);
+    fflush(fp);
+  }
+ 
+  /* close logfile and exit */
+  fclose(fp);
+  return 0;
+}
+
+In this case, we want all messages logged to a single file, so we only want one instance of the service running to service all requests. This means UDP would be the correct protocol to use. First, an unused port number must be picked. In this sample, 9999 will be used, as it was free on the machine on which the code was developed. The /etc/services entry will look like this:
+
+errorLogger 9999/udp
+
+And the entry in /etc/inetd.conf will look like this:
+
+errorLogger dgram udp wait root /usr/local/bin/errlogd errlogd /tmp/logfile.txt
+
+This tells inetd to run the /usr/local/bin/errlogd program, passing in the argument list errlogd /tmp/logfile.txt (refer to the inetd.conf man page for information on the other arguments). The first argument is always the executable name, and the second argument (argument 1 in the zero based arrays used in C) contains the filename to be used for the log file, /tmp/logfile.txt. inetd will run the service when needed, and attach port 9999 to the input and output streams, and all strings sent to that port will be logged to the file. By specifying wait, it tells inetd to only use one instance of the server to handle all requests, unlike the telnet example above, where a new server is spawned to handle each incoming request.
+Note: the functionality of the above example is usually implemented by using syslog and a process like syslogd. syslogd would normally be started in parallel with inetd, not as an inetd service.
+
+[edit] inetd replacements
+In recent years, because of the security limitations in the original design of inetd, it has been replaced by xinetd, rlinetd, ucspi-tcp, and others in many systems. Distributions of Linux especially have many options and Mac OS X (beginning with Mac OS X v10.2) uses xinetd. As of version Mac OS X v10.4, Apple has merged the functionality of inetd into launchd.
+The services provided by inetd can be omitted entirely. This is becoming more common where machines are dedicated to a single function. For example, an HTTP server could be configured to just run httpd and have no other ports open. A dedicated firewall could have no services started.
+
+[edit] Security concerns
+While the inetd concept as a service dispatcher is not inherently insecure, the long list of services that inetd traditionally provided gave computer security experts pause. The possibility of a service having an exploitable flaw, or the service just being abused, had to be considered. Unnecessary services were disabled and off by default became the mantra. It is not uncommon to find an /etc/inetd.conf with almost all the services commented out in a modern Unix distribution.
+
+[edit] See also
+
+TCP Wrapper
+Xinetd
+List of TCP and UDP port numbers
+
+
+[edit] References
+
+inetd(8): internet 'super-server' – FreeBSD System Manager's Manual
+
+
+
+
+
+
+
+
+v • d • e
+
+Unix command line programs and builtins (more)
+
+
+
+
+
+File system
+
+cat · cd · chmod · chown · chgrp · cksum · cmp · cp · du · df · file · fsck · fuser · ln · ls · lsattr · lsof · mkdir · mount · mv · pwd · rm · rmdir · split · touch
+
+
+
+
+
+
+Processes
+
+at · chroot · cron · exit · kill · killall · nice · pgrep · pidof · pkill · ps · pstree · sleep · time · top · wait
+
+
+
+
+
+
+User environment
+
+env · finger · id · logname · mesg · passwd · su · sudo · uname · uptime · w · wall · who · whoami · write
+
+
+
+
+
+
+Text processing
+
+awk · comm · cut · ed · ex · fmt · head · iconv · join · less · more · paste · sed · sort · tac · tail · tr · uniq · vi · wc · xargs
+
+
+
+
+
+
+Shell programming
+
+alias · basename · dirname · echo · expr · false · printf · test · true · unset
+
+
+
+
+
+
+Networking
+
+inetd · netstat · ping · rlogin · netcat · traceroute
+
+
+
+
+
+
+Searching
+
+find · grep · strings
+
+
+
+
+
+
+Miscellaneous
+
+banner · bc · cal · clear · date · dd · lp · man · size · tee · tput · yes · umask
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Inetd"
+Categories: Articles with example C code | Unix software 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Euskara
+Italiano
+日本語
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 19:41 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

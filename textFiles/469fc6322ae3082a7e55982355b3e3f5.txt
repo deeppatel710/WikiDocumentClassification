@@ -1,0 +1,312 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dataflow programming - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Dataflow_programming";
+		var wgTitle = "Dataflow programming";
+		var wgAction = "view";
+		var wgArticleId = "1079396";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282753481;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Dataflow programming
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer programming, dataflow programming implements dataflow principles and architecture, and models a program, conceptually if not physically, as a directed graph of the data flowing between operations. Dataflow programming languages share some features of functional languages, and were generally developed in order to bring some functional concepts to a language more suitable for numeric processing.
+
+
+
+
+Contents
+
+
+1 Properties of dataflow programming languages
+2 History
+3 Languages
+4 Application Programming Interfaces
+5 See also
+6 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Properties of dataflow programming languages
+Dataflow languages contrast with the majority of programming languages, which use the imperative programming model. In imperative programming the program is modeled as a series of operations, the data being effectively invisible. This distinction may seem minor, but the paradigm shift is fairly dramatic, and allows dataflow languages to be spread out across multicore, multiprocessor systems for free.
+One of the key concepts in computer programming is the idea of "state", essentially a snapshot of the measure of various conditions in the system. Most programming languages require a considerable amount of state information in order to operate properly, information which is generally hidden from the programmer. For a real world example, consider a three-way light switch. Typically a switch turns on a light by moving it to the "on" position, but in a three-way case that may turn the light back off — the result is based on the state of the other switch, which is likely out of view.
+In fact, the state is often hidden from the computer itself as well, which normally has no idea that this piece of information encodes state, while that is temporary and will soon be discarded. This is a serious problem, as the state information needs to be shared across multiple processors in parallel processing machines. Without knowing which state is important and which isn't, most languages force the programmer to add a considerable amount of extra code to indicate which data and parts of the code are important in this respect.
+This code tends to be both expensive in terms of performance, as well as difficult to debug and often downright ugly; most programmers simply ignore the problem. Those that cannot must pay a heavy performance cost, which is paid even in the most common case when the program runs on one processor. Explicit parallelism is one of the main reasons for the poor performance of Enterprise Java Beans when building data-intensive, non-OLTP applications.
+Dataflow languages promote the data to become the main concept behind any program. It may be considered odd that this is not always the case, as programs generally take in data, process it, and then feed it back out. This was especially true of older programs, and is well represented in the Unix operating system which pipes the data between small single-purpose tools. Programs in a dataflow language start with an input, perhaps the command line parameters, and illustrate how that data is used and modified. The data is now explicit, often illustrated physically on the screen as a line or pipe showing where the information flows.
+Operations consist of "black boxes" with inputs and outputs, all of which are always explicitly defined. They run as soon as all of their inputs become valid, as opposed to when the program encounters them. Whereas a traditional program essentially consists of a series of statements saying "do this, now do this", a dataflow program is more like a series of workers on an assembly line, who will do their assigned task as soon as the materials arrive. This is why dataflow languages are inherently parallel; the operations have no hidden state to keep track of, and the operations are all "ready" at the same time.
+Dataflow programs are generally represented very differently inside the computer as well. A traditional program is just what it seems, a series of instructions that run one after the other. A dataflow program might be implemented as a big hash table instead, with uniquely identified inputs as the keys, and pointers to the code as data. When any operation completes, the program scans down the list of operations until it finds the first operation where all of the inputs are currently valid, and runs it. When that operation finishes it will typically put data into one or more outputs, thereby making some other operation become valid.
+For parallel operation only the list needs to be shared; the list itself is the state of the entire program. Thus the task of maintaining state is removed from the programmer and given to the language's runtime instead. On machines with a single processor core where an implementation designed for parallel operation would simply introduce overhead, this overhead can be removed completely by using a different runtime.
+There are many hardware architectures oriented toward the efficient implementation of dataflow programming models. MIT's tagged token dataflow architecture was designed by Greg Papadopoulos.
+
+[edit] History
+Dataflow languages were originally developed in order to make parallel programming easier. In Bert Sutherland's 1966 Ph.D. thesis, The On-line Graphical Specification of Computer Procedures[1], Sutherland created one of the first graphical data flow programming frameworks. Subsequent data flow languages were often developed at the large supercomputer labs. One of the most popular was SISAL, developed at Lawrence Livermore National Laboratory. SISAL looks like most statement-driven languages, but demands that every variable be defined only once. This allows the compiler to easily identify the inputs and outputs. A number of offshoots of SISAL have been developed, including SAC, Single Assignment C, which tries to remain as close to the popular C programming language as possible.
+A more radical concept is Prograph, in which programs are constructed as graphs onscreen, and variables are replaced entirely with lines linking inputs to outputs. Ironically, Prograph was originally written on the Macintosh, which remained single-processor until the introduction of the DayStar Genesis MP in 1996.
+The most popular dataflow languages are more practical, the most famous being National Instruments LabVIEW. It was originally intended to make linking data between lab equipment easy for non-programmers, but has since become more general purpose. Another is VEE, optimized to use with data acquisition devices like digital voltmeters and oscilloscopes, and source devices like arbitrary waveform generators and power supplies.
+
+[edit] Languages
+
+AviSynth scripting language, for video processing
+Cantata, a Dataflow Visual Language for image processing.
+Bioera
+Easy5
+eXpecco
+Fabrik
+Flowdesigner
+FxEngine Framework
+Hartmann pipelines
+ID
+JMax - the jMax visual programming environment for building interactive real-time music and multimedia applications
+LabVIEW
+LAU [French]
+Lucid
+Lustre
+Marten - A commercial low-cost Mac OS X Prograph clone
+Max/Msp
+Microsoft Visual Programming Language - a component of Microsoft Robotics Studio designed for Robotics programming
+Mindscript - the Mindscript Open Source visualization and software development environment.
+Prograph
+Pure Data
+Informatica PowerCenter -- Data Integration product built and sold by Informatica Corporation
+Rhope
+Show and Tell
+Simulink
+SISAL
+SPACE - AREVAs toolchain for the TELEPERM XS instrumentation and control system used in the nuclear industry
+VEE
+vvvv
+BMDFM Binary Modular Dataflow Machine BMDFM
+Proto Financial - A commercial dataflow visual programming language (with a focus on financial services applications)
+CogniToy MindRover - A computer game which involves programming autonomous robots.
+VHDL
+Verilog
+XEE (Starlight) XML Engineering Environment [Future Point Systems]
+
+
+[edit] Application Programming Interfaces
+
+JavaFBP : Open source framework for Java and C#
+DataRush: Dataflow framework for Java.
+Adam and Eve: Extension for C++, by Adobe Systems.
+SystemC: Library for C++, mainly aimed at hardware design.
+
+
+[edit] See also
+
+Dataflow
+Actor model
+Configware
+Flow-based programming
+Functional reactive programming
+Incremental computing
+
+
+
+
+
+
+
+
+v • d • e
+
+Types of programming languages
+
+
+
+
+
+
+Array · Aspect-oriented · Assembly · Class-based · Compiled · Concurrent · Curly bracket · Data-oriented · Data-structured · Dataflow · Declarative · Domain-specific · Dynamic · Esoteric · Event-driven · Extensible · Functional · High-level · Imperative · Interpreted · Logic · Low-level · Machine · Macro · Metaprogramming · Multi-paradigm · Non-English-based · Object-oriented · Off-side rule · Pipeline · Procedural · Prototype-based · Reflective · Rule-based · Scripting · Synchronous · Visual
+
+
+
+
+
+
+
+[edit] References
+
+
+^ W.R. Sutherland (1966). The On-line Graphical Specification of Computer Procedures. MIT. 
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Dataflow_programming"
+Categories: Concurrent programming languages | Programming paradigms 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 12:25 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

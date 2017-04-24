@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Smith-Waterman algorithm,Articles lacking reliable references from August 2007,AMD,Alphabet,Altivec,BLAST,Big O notation,CLC bio,CUDA,Cell Broadband Engine,Cray" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Smith-Waterman algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Smith-Waterman_algorithm";
+		var wgTitle = "Smith-Waterman algorithm";
+		var wgAction = "view";
+		var wgArticleId = "1606195";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276989939;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Smith-Waterman_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Smith-Waterman algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>The <b>Smith-Waterman algorithm</b> is a well-known algorithm for performing <b>local <a href="/wiki/Sequence_alignment" title="Sequence alignment">sequence alignment</a></b>; that is, for determining similar regions between two <a href="/wiki/Nucleotide_sequence" title="Nucleotide sequence" class="mw-redirect">nucleotide</a> or <a href="/wiki/Protein_sequence" title="Protein sequence" class="mw-redirect">protein sequences</a>. Instead of looking at the total sequence, the Smith-Waterman algorithm compares segments of all possible lengths and optimizes the similarity measure.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Background"><span class="tocnumber">1</span> <span class="toctext">Background</span></a></li>
+<li class="toclevel-1"><a href="#Algorithm_Explanation"><span class="tocnumber">2</span> <span class="toctext">Algorithm Explanation</span></a></li>
+<li class="toclevel-1"><a href="#Example"><span class="tocnumber">3</span> <span class="toctext">Example</span></a></li>
+<li class="toclevel-1"><a href="#Motivation"><span class="tocnumber">4</span> <span class="toctext">Motivation</span></a></li>
+<li class="toclevel-1"><a href="#Accelerated_versions"><span class="tocnumber">5</span> <span class="toctext">Accelerated versions</span></a>
+<ul>
+<li class="toclevel-2"><a href="#FPGA"><span class="tocnumber">5.1</span> <span class="toctext">FPGA</span></a></li>
+<li class="toclevel-2"><a href="#GPU"><span class="tocnumber">5.2</span> <span class="toctext">GPU</span></a></li>
+<li class="toclevel-2"><a href="#SSE"><span class="tocnumber">5.3</span> <span class="toctext">SSE</span></a></li>
+<li class="toclevel-2"><a href="#Cell_Broadband_Engine"><span class="tocnumber">5.4</span> <span class="toctext">Cell Broadband Engine</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">6</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">7</span> <span class="toctext">External links</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">8</span> <span class="toctext">See also</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Background" id="Background"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=1" title="Edit section: Background">edit</a>]</span> <span class="mw-headline">Background</span></h2>
+<p>The algorithm was first proposed by <a href="/wiki/Temple_Smith" title="Temple Smith" class="mw-redirect">Temple Smith</a> and <a href="/wiki/Michael_Waterman" title="Michael Waterman">Michael Waterman</a> in 1981.<sup id="cite_ref-Smith1981_0-0" class="reference"><a href="#cite_note-Smith1981-0" title=""><span>[</span>1<span>]</span></a></sup> Like the <a href="/wiki/Needleman-Wunsch_algorithm" title="Needleman-Wunsch algorithm">Needleman-Wunsch algorithm</a>, of which it is a variation, Smith-Waterman is a <a href="/wiki/Dynamic_programming" title="Dynamic programming">dynamic programming</a> algorithm. As such, it has the desirable property that it is guaranteed to find the optimal local alignment with respect to the scoring system being used (which includes the <a href="/wiki/Substitution_matrix" title="Substitution matrix">substitution matrix</a> and the gap-scoring scheme). The main difference to the <a href="/wiki/Needleman-Wunsch_algorithm" title="Needleman-Wunsch algorithm">Needleman-Wunsch algorithm</a> is that negative scoring matrix cells are set to zero, which renders the (thus positively scoring) local alignments visible. Backtracing starts at the highest scoring matrix cell and proceeds until a cell with score zero is encountered, yielding the highest scoring local alignment.</p>
+<p><a name="Algorithm_Explanation" id="Algorithm_Explanation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=2" title="Edit section: Algorithm Explanation">edit</a>]</span> <span class="mw-headline">Algorithm Explanation</span></h2>
+<p>A matrix <span class="texhtml"><i>H</i></span> is built as follows:</p>
+<p><img class="tex" alt="
+H(i,0) = 0,\; 0\le i\le m
+" src="http://upload.wikimedia.org/math/3/5/f/35f0fde5c3d3faa59dfa44b8b46a858c.png" /></p>
+<p><img class="tex" alt="
+H(0,j) = 0,\; 0\le j\le n
+" src="http://upload.wikimedia.org/math/7/b/9/7b9c19fd5b64c77c1f84eab6c279b869.png" /></p>
+<p><img class="tex" alt="H(i,j) = \max \begin{Bmatrix}
+0 &amp; \\
+H(i-1,j-1) + \ w(a_i,b_j) &amp; \text{Match/Mismatch} \\
+H(i-1,j) + \ w(a_i,-) &amp; \text{Deletion} \\
+H(i,j-1) + \ w(-,b_j) &amp; \text{Insertion}
+\end{Bmatrix}
+,\; 1\le i\le m, 1\le j\le n
+" src="http://upload.wikimedia.org/math/3/8/a/38a85bbfbea32221dc3c68048d66ac6e.png" /></p>
+<p>Where:</p>
+<ul>
+<li>a, b = Strings over the <a href="/wiki/Alphabet" title="Alphabet">Alphabet</a> <span class="texhtml">Σ</span></li>
+<li>m = length(a)</li>
+<li>n = length(b)</li>
+<li><span class="texhtml"><i>H</i>(<i>i</i>,<i>j</i>)</span> - is the maximum <a href="/wiki/Similarity" title="Similarity">Similarity</a>-<a href="/wiki/Score" title="Score">Score</a> between the substring of a of length i, and the substring of b of length j</li>
+<li><img class="tex" alt="w(c,d),\; c, d\in\Sigma\cup\{'-'\}" src="http://upload.wikimedia.org/math/7/4/3/7432544e29c341aa060bd69d7c389f44.png" />, '-' is the <a href="/w/index.php?title=Gap_(Bioinformatics)&amp;action=edit&amp;redlink=1" class="new" title="Gap (Bioinformatics) (page does not exist)">gap</a>-scoring scheme</li>
+</ul>
+<p><br /></p>
+<p><a name="Example" id="Example"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=3" title="Edit section: Example">edit</a>]</span> <span class="mw-headline">Example</span></h2>
+<ul>
+<li>Sequence 1 = ACACACTA</li>
+<li>Sequence 2 = AGCACACA</li>
+</ul>
+<ul>
+<li>w(match) = +2</li>
+<li><span class="texhtml"><i>w</i>(<i>a</i>, − ) = <i>w</i>( − ,<i>b</i>) = <i>w</i>(<i>m</i><i>i</i><i>s</i><i>m</i><i>a</i><i>t</i><i>c</i><i>h</i>) = − 1</span></li>
+</ul>
+<p><img class="tex" alt="Matrix =
+\begin{pmatrix}
+ &amp;-&amp;A&amp;C&amp;A&amp;C&amp;A&amp;C&amp;T&amp;A \\
+-&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0 \\
+A&amp;0&amp;2&amp;1&amp;2&amp;1&amp;2&amp;1&amp;0&amp;2 \\
+G&amp;0&amp;1&amp;1&amp;1&amp;1&amp;1&amp;1&amp;0&amp;1 \\
+C&amp;0&amp;0&amp;3&amp;2&amp;3&amp;2&amp;3&amp;2&amp;1 \\
+A&amp;0&amp;2&amp;2&amp;5&amp;4&amp;5&amp;4&amp;3&amp;4 \\
+C&amp;0&amp;1&amp;4&amp;4&amp;7&amp;6&amp;7&amp;6&amp;5 \\
+A&amp;0&amp;2&amp;3&amp;6&amp;6&amp;9&amp;8&amp;7&amp;8 \\
+C&amp;0&amp;1&amp;4&amp;5&amp;8&amp;8&amp;11&amp;10&amp;9 \\
+A&amp;0&amp;2&amp;3&amp;6&amp;7&amp;10&amp;10&amp;10&amp;12 \\
+\end{pmatrix}
+" src="http://upload.wikimedia.org/math/7/2/4/724c52d904c6ea31251fecfcd9216aca.png" /></p>
+<p>To obtain the optimum local alignment, we start with the highest value in the matrix (i,j). Then, we go to the biggest value among those in positions (i-1,j), (i,j-1), and (i-1,j-1). (In case there is a tie, the diagonal jump is preferred.) We keep the process until we reach a matrix cell with zero value, or the value in position (0,0).</p>
+<p>In the example, the highest value corresponds to the cell in position (8,8). The walk back corresponds to (8,8), (7,7), (7,6), (6,5), (5,4), (4,3), (3,2), (2,1), (1,1), and (0,0),</p>
+<p>Once we've finished, we reconstruct the alignment as follows: Starting with the last value, we reach (i,j) using the previously-calculated path. A diagonal jump implies there is an alignment (either a match or a mismatch). A top-down jump implies there is a deletion. A left-right jump implies there is an insertion.</p>
+<p>For the example, we get:</p>
+<ul>
+<li>Sequence 1 = A-CACACTA</li>
+<li>Sequence 2 = AGCACAC-A</li>
+</ul>
+<p><a name="Motivation" id="Motivation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=4" title="Edit section: Motivation">edit</a>]</span> <span class="mw-headline">Motivation</span></h2>
+<p>One motivation for local alignment is the difficulty of obtaining correct alignments in regions of low similarity between distantly related biological sequences, because mutations have added too much 'noise' over evolutionary time to allow for a meaningful comparison of those regions. Local alignment avoids such regions altogether and focuses on those with a positive score, i.e. those with an evolutionary conserved signal of similarity. A prerequisite for local alignment is a negative expectation score. The expectation score is defined as the average score that the scoring system (<a href="/wiki/Substitution_matrix" title="Substitution matrix">substitution matrix</a> and gap penalties) would yield for a random sequence.</p>
+<p>Another motivation for using local alignments is that there is a reliable statistical model (developed by Karlin and Altschul) for optimal local alignments. The alignment of unrelated sequences tends to produce optimal local alignment scores which follow an extreme value distribution. This property allows programs to produce an <a href="/wiki/Expectation_value" title="Expectation value" class="mw-redirect">expectation value</a> for the optimal local alignment of two sequences, which is a measure of how often two unrelated sequences would produce an optimal local alignment whose score is greater than or equal to the observed score. Very low expectation values indicate that the two sequences in question might be <a href="/wiki/Homologous" title="Homologous" class="mw-redirect">homologous</a>, meaning they might share a common ancestor.</p>
+<p>However, the Smith-Waterman algorithm is fairly demanding of time and memory resources: in order to align two sequences of lengths <i>m</i> and <i>n</i>, <i><a href="/wiki/Big_O_notation" title="Big O notation">O</a>(mn)</i> time and space are required. As a result, it has largely been replaced in practical use by the <a href="/wiki/BLAST" title="BLAST">BLAST</a> algorithm; although not guaranteed to find optimal alignments, BLAST is much more efficient.</p>
+<p>An implementation of the Smith-Waterman Algorithm, SSEARCH, is available in the <a href="/wiki/FASTA" title="FASTA">FASTA</a> sequence analysis package from <a href="http://fasta.bioch.virginia.edu/fasta_www2/fasta_down.shtml" class="external autonumber" title="http://fasta.bioch.virginia.edu/fasta_www2/fasta_down.shtml" rel="nofollow">[4]</a>. This implementation includes <a href="/wiki/Altivec" title="Altivec" class="mw-redirect">Altivec</a> accelerated code for <a href="/wiki/PowerPC" title="PowerPC">PowerPC</a> G4 and G5 processors that speeds up comparisons 10 - 20-fold, using a modification of the Wozniak, 1997 approach<sup id="cite_ref-Wozniak1997_1-0" class="reference"><a href="#cite_note-Wozniak1997-1" title=""><span>[</span>2<span>]</span></a></sup>, and an SSE2 vectorization developed by Farrar <sup id="cite_ref-Farrar2007_2-0" class="reference"><a href="#cite_note-Farrar2007-2" title=""><span>[</span>3<span>]</span></a></sup> making optimal <a href="/w/index.php?title=Protein_database&amp;action=edit&amp;redlink=1" class="new" title="Protein database (page does not exist)">protein database</a> searches quite practical.</p>
+<p><a name="Accelerated_versions" id="Accelerated_versions"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=5" title="Edit section: Accelerated versions">edit</a>]</span> <span class="mw-headline">Accelerated versions</span></h2>
+<p><a name="FPGA" id="FPGA"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=6" title="Edit section: FPGA">edit</a>]</span> <span class="mw-headline">FPGA</span></h3>
+<table class="metadata plainlinks ambox ambox-content" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Question_book-new.svg" class="image" title="Question book-new.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/9/99/Question_book-new.svg/50px-Question_book-new.svg.png" width="50" height="39" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article <b>needs <a href="/wiki/Wikipedia:Verifiability" title="Wikipedia:Verifiability">references</a> that appear in reliable third-party publications</b>. <a href="/wiki/Wikipedia:No_original_research#Primary.2C_secondary.2C_and_tertiary_sources" title="Wikipedia:No original research">Primary sources</a> or sources affiliated with the subject are generally not sufficient for a Wikipedia article. Please add more appropriate <a href="/wiki/Wikipedia:Citing_sources" title="Wikipedia:Citing sources">citations</a> from <a href="/wiki/Wikipedia:Reliable_sources" title="Wikipedia:Reliable sources">reliable sources</a>. <small><i>(August 2007)</i></small></td>
+</tr>
+</table>
+<p>Other recent work developed by <a href="/wiki/Cray" title="Cray">Cray</a> demonstrates acceleration of the Smith-Waterman algorithm using a <a href="/wiki/Reconfigurable_computing" title="Reconfigurable computing">reconfigurable computing</a> platform based on <a href="/wiki/FPGA" title="FPGA" class="mw-redirect">FPGA</a> chips.<sup id="cite_ref-Cray_3-0" class="reference"><a href="#cite_note-Cray-3" title=""><span>[</span>4<span>]</span></a></sup> The results show up to 28x speed-up over standard microprocessor-based solutions. An <a href="/wiki/FPGA" title="FPGA" class="mw-redirect">FPGA</a> based version of the Smith-Waterman algorithm shows FPGA (Virtex-4) speedups up to 100x<sup id="cite_ref-4" class="reference"><a href="#cite_note-4" title=""><span>[</span>5<span>]</span></a></sup> over a 2.2 GHz Opteron processor.<sup id="cite_ref-Progeniq_5-0" class="reference"><a href="#cite_note-Progeniq-5" title=""><span>[</span>6<span>]</span></a></sup></p>
+<p><a name="GPU" id="GPU"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=7" title="Edit section: GPU">edit</a>]</span> <span class="mw-headline">GPU</span></h3>
+<p>Recent work developed at <a href="/wiki/Lawrence_Livermore_National_Laboratory" title="Lawrence Livermore National Laboratory">Lawrence Livermore National Laboratory</a> and the US Department of Energy's <a href="/wiki/Joint_Genome_Institute" title="Joint Genome Institute">Joint Genome Institute</a> accelerates Smith-Waterman local sequence alignment searches using <a href="/wiki/Graphics_processing_units" title="Graphics processing units" class="mw-redirect">graphics processing units</a> (GPUs) with preliminary results showing a 2x speed-up over software implementations<sup id="cite_ref-6" class="reference"><a href="#cite_note-6" title=""><span>[</span>7<span>]</span></a></sup>. A similar method has already been implemented in the Biofacet software since 1997, with the same speed-up factor.<sup id="cite_ref-7" class="reference"><a href="#cite_note-7" title=""><span>[</span>8<span>]</span></a></sup></p>
+<p>A <a href="/wiki/GPGPU" title="GPGPU">GPGPU</a> implementation of the algorithm in the <a href="/wiki/CUDA" title="CUDA">CUDA</a> language by <a href="/wiki/NVIDIA" title="NVIDIA" class="mw-redirect">NVIDIA</a> is also available.<sup id="cite_ref-Manavski2008_8-0" class="reference"><a href="#cite_note-Manavski2008-8" title=""><span>[</span>9<span>]</span></a></sup> The performance tests on this solution actually show a slow-down versus the best known CPU implementation (using SIMD instructions on the x86 architecture), by Farrar.</p>
+<p>At present there is no public GPU result showing a speedup over Farrar's implementation, although obtaining a speedup should be possible.</p>
+<p><a name="SSE" id="SSE"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=8" title="Edit section: SSE">edit</a>]</span> <span class="mw-headline">SSE</span></h3>
+<p>In 2000, a fast implementation of the Smith-Waterman algorithm using the SIMD technology available in <a href="/wiki/Intel" title="Intel" class="mw-redirect">Intel</a> <a href="/wiki/Pentium" title="Pentium">Pentium</a> <a href="/wiki/MMX_(instruction_set)" title="MMX (instruction set)">MMX</a> processors and similar technology was described in a publication by Rognes and Seeberg<sup id="cite_ref-RognesSeeberg2000_9-0" class="reference"><a href="#cite_note-RognesSeeberg2000-9" title=""><span>[</span>10<span>]</span></a></sup>. In contrast to the Wozniak (1997) approach, the new implementation was based on vectors parallel with the query sequence, not diagonal vectors. The company <a href="http://www.sencel.com/" class="external text" title="http://www.sencel.com/" rel="nofollow">Sencel Bioinformatics</a> has applied for a patent covering this approach. Sencel is developing the software further and provides executables for academic use free of charge.</p>
+<p>A <a href="/wiki/SSE2" title="SSE2">SSE2</a> vectorization of the algorithm (Farrar, 2007) is now available providing an 8-fold speedup on Intel/AMD processors with SSE2 extensions.<sup id="cite_ref-Farrar2007_2-1" class="reference"><a href="#cite_note-Farrar2007-2" title=""><span>[</span>3<span>]</span></a></sup> When running on Intel processor using the new <a href="/wiki/Intel_Core_microarchitecture" title="Intel Core microarchitecture" class="mw-redirect">Intel Core microarchitecture</a> the SSE2 implementation achieves a 20-fold increase.</p>
+<p>Danish bioinformatics company <a href="/wiki/CLC_bio" title="CLC bio">CLC bio</a> has achieved speed-ups of close to 200 over standard software implementations with SSE2 on a Intel 2.17 GHz Core 2 Duo CPU, according to a <a href="http://www.clccell.com/download.html" class="external text" title="http://www.clccell.com/download.html" rel="nofollow">publicly available white paper</a>.</p>
+<p>Accelerated version of the Smith-Waterman algorithm, on <a href="/wiki/Intel" title="Intel" class="mw-redirect">Intel</a> and <a href="/wiki/AMD" title="AMD" class="mw-redirect">AMD</a> based Linux servers, is supported by the <a href="http://www.biocceleration.com/GenCore6-General.html" class="external text" title="http://www.biocceleration.com/GenCore6-General.html" rel="nofollow">GenCore 6</a> package, offered by <a href="http://www.biocceleration.com" class="external text" title="http://www.biocceleration.com" rel="nofollow">Biocceleration</a>. Performance benchmarks of this software package show up to 10 fold speed acceleration relative to standard software implementation on the same processor.</p>
+<p>Currently the only company in bioinformatics to offer both SSE and FPGA solutions accelerating Smith-Waterman, <a href="/wiki/CLC_bio" title="CLC bio">CLC bio</a> has achieved speed-ups of more than 110 over standard software implementations with <a href="http://www.clccube.com" class="external text" title="http://www.clccube.com" rel="nofollow">CLC Bioinformatics Cube</a>.</p>
+<p>The <a href="http://www.timelogic.com" class="external text" title="http://www.timelogic.com" rel="nofollow">TimeLogic</a> DeCypher and CodeQuest systems also accelerate Smith-Waterman and Framesearch using FPGA technology.</p>
+<p><a name="Cell_Broadband_Engine" id="Cell_Broadband_Engine"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=9" title="Edit section: Cell Broadband Engine">edit</a>]</span> <span class="mw-headline">Cell Broadband Engine</span></h3>
+<p>In 2008, Farrar<sup id="cite_ref-Farrar2008_10-0" class="reference"><a href="#cite_note-Farrar2008-10" title=""><span>[</span>11<span>]</span></a></sup> described a port of the Striped Smith-Waterman<sup id="cite_ref-Farrar2007_2-2" class="reference"><a href="#cite_note-Farrar2007-2" title=""><span>[</span>3<span>]</span></a></sup> to the <a href="/wiki/Cell_Broadband_Engine" title="Cell Broadband Engine" class="mw-redirect">Cell Broadband Engine</a> and reported speeds of 32 and 12 GCUPS on an IBM QS20 blade and a Sony <a href="/wiki/PlayStation_3" title="PlayStation 3">PlayStation 3</a>, respectively.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=10" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-Smith1981-0"><b><a href="#cite_ref-Smith1981_0-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFSmith_TF.2C_Waterman_MS1981">Smith TF, Waterman MS (1981). "<a href="http://gel.ym.edu.tw/~chc/AB_papers/03.pdf" class="external text" title="http://gel.ym.edu.tw/~chc/AB_papers/03.pdf" rel="nofollow">Identification of Common Molecular Subsequences</a>". <i><a href="/wiki/Journal_of_Molecular_Biology" title="Journal of Molecular Biology">Journal of Molecular Biology</a></i> <b>147</b>: 195–197. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1016%2F0022-2836%2881%2990087-5" class="external text" title="http://dx.doi.org/10.1016%2F0022-2836%2881%2990087-5" rel="nofollow">10.1016/0022-2836(81)90087-5</a></span><span class="printonly">. <a href="http://gel.ym.edu.tw/~chc/AB_papers/03.pdf" class="external free" title="http://gel.ym.edu.tw/~chc/AB_papers/03.pdf" rel="nofollow">http://gel.ym.edu.tw/~chc/AB_papers/03.pdf</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Identification+of+Common+Molecular+Subsequences&amp;rft.jtitle=%5B%5BJournal+of+Molecular+Biology%5D%5D&amp;rft.aulast=Smith+TF%2C+Waterman+MS&amp;rft.au=Smith+TF%2C+Waterman+MS&amp;rft.date=1981&amp;rft.volume=147&amp;rft.pages=195%E2%80%93197&amp;rft_id=info:doi/10.1016%2F0022-2836%2881%2990087-5&amp;rft_id=http%3A%2F%2Fgel.ym.edu.tw%2F%7Echc%2FAB_papers%2F03.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-Wozniak1997-1"><b><a href="#cite_ref-Wozniak1997_1-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFWozniak_A1997">Wozniak A (1997). "<a href="http://bioinformatics.oxfordjournals.org/cgi/reprint/13/2/145.pdf" class="external text" title="http://bioinformatics.oxfordjournals.org/cgi/reprint/13/2/145.pdf" rel="nofollow">Using video-oriented instructions to speed up sequence comparison</a>". <i>Comput Appl Biosci</i> <b>13</b> (2): 145–50<span class="printonly">. <a href="http://bioinformatics.oxfordjournals.org/cgi/reprint/13/2/145.pdf" class="external free" title="http://bioinformatics.oxfordjournals.org/cgi/reprint/13/2/145.pdf" rel="nofollow">http://bioinformatics.oxfordjournals.org/cgi/reprint/13/2/145.pdf</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Using+video-oriented+instructions+to+speed+up+sequence+comparison&amp;rft.jtitle=Comput+Appl+Biosci&amp;rft.aulast=Wozniak+A&amp;rft.au=Wozniak+A&amp;rft.date=1997&amp;rft.volume=13&amp;rft.issue=2&amp;rft.pages=145%E2%80%9350&amp;rft_id=http%3A%2F%2Fbioinformatics.oxfordjournals.org%2Fcgi%2Freprint%2F13%2F2%2F145.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-Farrar2007-2">^ <a href="#cite_ref-Farrar2007_2-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-Farrar2007_2-1" title=""><sup><i><b>b</b></i></sup></a> <a href="#cite_ref-Farrar2007_2-2" title=""><sup><i><b>c</b></i></sup></a> <cite style="font-style:normal" class="" id="CITEREFFarrar_M2007">Farrar M (2007). "<a href="http://bioinformatics.oxfordjournals.org/cgi/reprint/23/2/156.pdf" class="external text" title="http://bioinformatics.oxfordjournals.org/cgi/reprint/23/2/156.pdf" rel="nofollow">Striped Smith–Waterman speeds database searches six times over other SIMD implementations</a>". <i>Bioinformatics</i> <b>23</b>: 156–161. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1093%2Fbioinformatics%2Fbtl582" class="external text" title="http://dx.doi.org/10.1093%2Fbioinformatics%2Fbtl582" rel="nofollow">10.1093/bioinformatics/btl582</a></span>. <a href="http://www.ncbi.nlm.nih.gov/pubmed/17110365" class="external" title="http://www.ncbi.nlm.nih.gov/pubmed/17110365">PMID 17110365</a><span class="printonly">. <a href="http://bioinformatics.oxfordjournals.org/cgi/reprint/23/2/156.pdf" class="external free" title="http://bioinformatics.oxfordjournals.org/cgi/reprint/23/2/156.pdf" rel="nofollow">http://bioinformatics.oxfordjournals.org/cgi/reprint/23/2/156.pdf</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Striped+Smith%E2%80%93Waterman+speeds+database+searches+six+times+over+other+SIMD+implementations&amp;rft.jtitle=Bioinformatics&amp;rft.aulast=Farrar+M&amp;rft.au=Farrar+M&amp;rft.date=2007&amp;rft.volume=23&amp;rft.pages=156%E2%80%93161&amp;rft_id=info:doi/10.1093%2Fbioinformatics%2Fbtl582&amp;rft_id=info:pmid/17110365&amp;rft_id=http%3A%2F%2Fbioinformatics.oxfordjournals.org%2Fcgi%2Freprint%2F23%2F2%2F156.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-Cray-3"><b><a href="#cite_ref-Cray_3-0" title="">^</a></b> Cray Computer Corp, "<a href="http://www.cray.com/downloads/SmithWaterman.pdf" class="external text" title="http://www.cray.com/downloads/SmithWaterman.pdf" rel="nofollow">Smith-Waterman Solution for Life Sciences</a>".</li>
+<li id="cite_note-4"><b><a href="#cite_ref-4" title="">^</a></b> FPGA 100x Papers: <a href="http://ft.ornl.gov/~olaf/pubs/OlafRSSI2July07.pdf" class="external autonumber" title="http://ft.ornl.gov/~olaf/pubs/OlafRSSI2July07.pdf" rel="nofollow">[1]</a>, <a href="http://ft.ornl.gov/~olaf/pubs/CUG07Olaf17M07.pdf" class="external autonumber" title="http://ft.ornl.gov/~olaf/pubs/CUG07Olaf17M07.pdf" rel="nofollow">[2]</a>, and <a href="http://ft.ornl.gov/~olaf/pubs/RSSIOlafDave.pdf" class="external autonumber" title="http://ft.ornl.gov/~olaf/pubs/RSSIOlafDave.pdf" rel="nofollow">[3]</a></li>
+<li id="cite_note-Progeniq-5"><b><a href="#cite_ref-Progeniq_5-0" title="">^</a></b> Progeniq Pte Ltd, "<a href="http://www.progeniq.com/news/BioBoost%20White%20Paper.pdf" class="external text" title="http://www.progeniq.com/news/BioBoost%20White%20Paper.pdf" rel="nofollow">White Paper - Accelerating Intensive Applications at 10x-50x Speedup to Remove Bottlenecks in Computational Workflows</a>".</li>
+<li id="cite_note-6"><b><a href="#cite_ref-6" title="">^</a></b> <cite style="font-style:normal" class="web"><a href="http://www.springerlink.com/content/w3727h42513362xn" class="external text" title="http://www.springerlink.com/content/w3727h42513362xn" rel="nofollow">"GPU Accelerated Smith-Waterman"</a>. SpringerLink<span class="printonly">. <a href="http://www.springerlink.com/content/w3727h42513362xn" class="external free" title="http://www.springerlink.com/content/w3727h42513362xn" rel="nofollow">http://www.springerlink.com/content/w3727h42513362xn</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=GPU+Accelerated+Smith-Waterman&amp;rft.atitle=&amp;rft.pub=SpringerLink&amp;rft_id=http%3A%2F%2Fwww.springerlink.com%2Fcontent%2Fw3727h42513362xn&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-7"><b><a href="#cite_ref-7" title="">^</a></b> <cite style="font-style:normal" class="web"><a href="http://www.genomequest.com/contact-bioinformatics-ht.html" class="external text" title="http://www.genomequest.com/contact-bioinformatics-ht.html" rel="nofollow">"Bioinformatics High Throughput Sequence Search and Analysis (white paper)"</a>. GenomeQuest<span class="printonly">. <a href="http://www.genomequest.com/contact-bioinformatics-ht.html" class="external free" title="http://www.genomequest.com/contact-bioinformatics-ht.html" rel="nofollow">http://www.genomequest.com/contact-bioinformatics-ht.html</a></span><span class="reference-accessdate">. Retrieved on 2008-05-09</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=Bioinformatics+High+Throughput+Sequence+Search+and+Analysis+%28white+paper%29&amp;rft.atitle=&amp;rft.pub=GenomeQuest&amp;rft_id=http%3A%2F%2Fwww.genomequest.com%2Fcontact-bioinformatics-ht.html&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-Manavski2008-8"><b><a href="#cite_ref-Manavski2008_8-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFManavski_SA.2C_Valle_G2008">Manavski SA, Valle G (2008). "<a href="http://www.biomedcentral.com/1471-2105/9/S2/S10" class="external text" title="http://www.biomedcentral.com/1471-2105/9/S2/S10" rel="nofollow">CUDA compatible GPU cards as efficient hardware accelerators for Smith-Waterman sequence alignment</a>". <i>BMC Bioinformatics</i> <b>9</b> (Suppl 2:S10): S10. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1186%2F1471-2105-9-S2-S10" class="external text" title="http://dx.doi.org/10.1186%2F1471-2105-9-S2-S10" rel="nofollow">10.1186/1471-2105-9-S2-S10</a></span><span class="printonly">. <a href="http://www.biomedcentral.com/1471-2105/9/S2/S10" class="external free" title="http://www.biomedcentral.com/1471-2105/9/S2/S10" rel="nofollow">http://www.biomedcentral.com/1471-2105/9/S2/S10</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=CUDA+compatible+GPU+cards+as+efficient+hardware+accelerators+for+Smith-Waterman+sequence+alignment&amp;rft.jtitle=BMC+Bioinformatics&amp;rft.aulast=Manavski+SA%2C+Valle+G&amp;rft.au=Manavski+SA%2C+Valle+G&amp;rft.date=2008&amp;rft.volume=9&amp;rft.issue=Suppl+2%3AS10&amp;rft.pages=S10&amp;rft_id=info:doi/10.1186%2F1471-2105-9-S2-S10&amp;rft_id=http%3A%2F%2Fwww.biomedcentral.com%2F1471-2105%2F9%2FS2%2FS10&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-RognesSeeberg2000-9"><b><a href="#cite_ref-RognesSeeberg2000_9-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFRognes_T_and_Seeberg_E2000">Rognes T and Seeberg E (2000). "<a href="http://bioinformatics.oxfordjournals.org/cgi/reprint/16/8/699.pdf" class="external text" title="http://bioinformatics.oxfordjournals.org/cgi/reprint/16/8/699.pdf" rel="nofollow">Six-fold speed-up of Smith-Waterman sequence database searches using parallel processing on common microprocessors</a>". <i><a href="http://bioinformaticsARRAYxfordjournalsARRAYrg/" class="external text" title="http://bioinformaticsARRAYxfordjournalsARRAYrg/" rel="nofollow">Bioinformatics</a></i> <b>16</b>: 699–706<span class="printonly">. <a href="http://bioinformatics.oxfordjournals.org/cgi/reprint/16/8/699.pdf" class="external free" title="http://bioinformatics.oxfordjournals.org/cgi/reprint/16/8/699.pdf" rel="nofollow">http://bioinformatics.oxfordjournals.org/cgi/reprint/16/8/699.pdf</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Six-fold+speed-up+of+Smith-Waterman+sequence+database+searches+using+parallel+processing+on+common+microprocessors&amp;rft.jtitle=%5Bhttp%3A%2F%2FbioinformaticsARRAYxfordjournalsARRAYrg%2F+Bioinformatics%5D&amp;rft.aulast=Rognes+T+and+Seeberg+E&amp;rft.au=Rognes+T+and+Seeberg+E&amp;rft.date=2000&amp;rft.volume=16&amp;rft.pages=699%E2%80%93706&amp;rft_id=http%3A%2F%2Fbioinformatics.oxfordjournals.org%2Fcgi%2Freprint%2F16%2F8%2F699.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-Farrar2008-10"><b><a href="#cite_ref-Farrar2008_10-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFFarrar_M_S2008">Farrar M S (2008). <i><a href="http://farrar.michael.googlepages.com/smith-watermanfortheibmcellbe" class="external text" title="http://farrar.michael.googlepages.com/smith-watermanfortheibmcellbe" rel="nofollow">Optimizing Smith-Waterman for the Cell Broadband Engine</a></i><span class="printonly">. <a href="http://farrar.michael.googlepages.com/smith-watermanfortheibmcellbe" class="external free" title="http://farrar.michael.googlepages.com/smith-watermanfortheibmcellbe" rel="nofollow">http://farrar.michael.googlepages.com/smith-watermanfortheibmcellbe</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Optimizing+Smith-Waterman+for+the+Cell+Broadband+Engine&amp;rft.aulast=Farrar+M+S&amp;rft.au=Farrar+M+S&amp;rft.date=2008&amp;rft_id=http%3A%2F%2Ffarrar.michael.googlepages.com%2Fsmith-watermanfortheibmcellbe&amp;rfr_id=info:sid/en.wikipedia.org:Smith-Waterman_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+</div>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=11" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://jaligner.sourceforge.net/" class="external text" title="http://jaligner.sourceforge.net/" rel="nofollow">JAligner</a> — an open source Java implementation of the Smith-Waterman algorithm</li>
+<li><a href="http://baba.sourceforge.net/" class="external text" title="http://baba.sourceforge.net/" rel="nofollow">B.A.B.A.</a> — an applet (with source) which visually explains the algorithm.</li>
+<li><a href="http://www.ebi.ac.uk/Tools/fasta" class="external text" title="http://www.ebi.ac.uk/Tools/fasta" rel="nofollow">FASTA/SSEARCH at the</a> <a href="/wiki/European_Bioinformatics_Institute" title="European Bioinformatics Institute">EBI's</a> FASTA/SSEARCH services page.</li>
+<li><a href="http://ugene.unipro.ru/plugin_smith_waterman.html" class="external text" title="http://ugene.unipro.ru/plugin_smith_waterman.html" rel="nofollow">UGENE Smith-Waterman plugin</a> — An open source SSEARCH compatible implementation of the algorithm with graphical interface written in C++.</li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit&amp;section=12" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/BLAST" title="BLAST">BLAST</a></li>
+<li><a href="/wiki/FASTA" title="FASTA">FASTA</a></li>
+<li><a href="/wiki/Levenshtein_distance" title="Levenshtein distance">Levenshtein distance</a></li>
+<li><a href="/wiki/Needleman-Wunsch_algorithm" title="Needleman-Wunsch algorithm">Needleman-Wunsch algorithm</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 4046/1000000
+Post-expand include size: 34739/2048000 bytes
+Template argument size: 13058/2048000 bytes
+Expensive parser function count: 1/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1606195-0!1!0!default!!en!2 and timestamp 20090419040609 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Smith-Waterman_algorithm">http://en.wikipedia.org/wiki/Smith-Waterman_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Bioinformatics_algorithms" title="Category:Bioinformatics algorithms">Bioinformatics algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Computational_phylogenetics" title="Category:Computational phylogenetics">Computational phylogenetics</a></span> | <span dir='ltr'><a href="/wiki/Category:Algorithms_on_strings" title="Category:Algorithms on strings">Algorithms on strings</a></span> | <span dir='ltr'><a href="/wiki/Category:Dynamic_programming" title="Category:Dynamic programming">Dynamic programming</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Articles_lacking_reliable_references_from_August_2007" title="Category:Articles lacking reliable references from August 2007">Articles lacking reliable references from August 2007</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_lacking_sources" title="Category:All articles lacking sources">All articles lacking sources</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Smith-Waterman_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Smith-Waterman_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Smith-Waterman_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Smith-Waterman_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Smith-Waterman_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Smith-Waterman_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Smith-Waterman_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Smith-Waterman_algorithm&amp;oldid=276989939" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Smith-Waterman_algorithm&amp;id=276989939">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Smith-Waterman-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_Smith-Waterman">Español</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 13 March 2009, at 15:46 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv194 in 0.061 secs. --></body></html>

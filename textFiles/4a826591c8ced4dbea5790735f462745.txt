@@ -1,0 +1,373 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DTrace - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "DTrace";
+		var wgTitle = "DTrace";
+		var wgAction = "view";
+		var wgArticleId = "1179136";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 275986923;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); DTrace
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+DTrace
+
+Developed by
+Sun Microsystems
+
+
+Initial release
+January 2005
+
+
+Operating system
+Unix-like
+
+
+Development status
+active
+
+
+Type
+tracing
+
+
+License
+Common Development and Distribution License
+
+
+Website
+http://opensolaris.org/os/community/dtrace/
+
+
+DTrace is a comprehensive dynamic tracing framework created by Sun Microsystems for troubleshooting kernel and application problems on production systems in real time. Originally developed for Solaris, it has since been released under the free Common Development and Distribution License (CDDL) and has been ported to several other Unix-like systems.
+DTrace can be used to get a global overview of a running system, such as the amount of memory, CPU time, filesystem and network resources used by the active processes. It can also provide much more fine-grained information, such as a log of the arguments with which a specific function is being called, or a list of the processes accessing a specific file.
+
+
+
+
+Contents
+
+
+1 Description
+2 Command line examples
+3 Supported platforms
+4 Authors and awards
+5 See also
+6 References
+
+6.1 Notes
+
+
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Description
+DTrace is designed to give operational insights that allow users to tune and troubleshoot applications and the OS itself.
+Tracing programs (also referred to as scripts) are written using the D programming language (not to be confused with other programming languages named "D"). The language is a subset of C with added functions and variables specific to tracing. D programs resemble awk programs in structure; they consist of a list of one or more probes (instrumentation points), and each probe is associated with an action. Whenever the condition for the probe is met, the associated action is executed (the probe "fires"). A typical probe might fire when a certain file is opened, or a process is started, or a certain line of code is executed. A probe that fires may analyze the run-time situation by accessing the call stack and context variables and evaluating expressions; it can then print out or log some information, record it in a database, or modify context variables. The reading and writing of context variables allows probes to pass information to each other, allowing them to cooperatively analyze the correlation of different events.
+Special consideration has been taken to make DTrace safe to use in a production environment. For example, there is minimal probe effect when tracing is underway, and no performance impact associated with any disabled probe; this is important since there are tens of thousands of DTrace probes that can be enabled. New probes can also be created dynamically.
+
+[edit] Command line examples
+DTrace scripts can be invoked directly from the command line, providing one or more probes and actions as arguments. Some examples:
+
+# New processes with arguments,
+dtrace -n 'proc:::exec-success { trace(curpsinfo->pr_psargs); }'
+ 
+# Files opened by process,
+dtrace -n 'syscall::open*:entry { printf("%s %s",execname,copyinstr(arg0)); }'
+ 
+# Syscall count by program,
+dtrace -n 'syscall:::entry { @num[execname] = count(); }'
+ 
+# Syscall count by syscall,
+dtrace -n 'syscall:::entry { @num[probefunc] = count(); }'
+ 
+# Syscall count by process,
+dtrace -n 'syscall:::entry { @num[pid,execname] = count(); }'
+ 
+# Disk size by process,
+dtrace -n 'io:::start { printf("%d %s %d",pid,execname,args[0]->b_bcount); }'   
+ 
+# Pages paged in by process,
+dtrace -n 'vminfo:::pgpgin { @pg[execname] = sum(arg0); }'
+
+
+[edit] Supported platforms
+DTrace was first made available for use in November 2003, and was formally released as part of Sun's Solaris 10 in January 2005. DTrace was the first component of the OpenSolaris project to have its source code released under the Common Development and Distribution License (CDDL).
+DTrace has been ported to FreeBSD as a substitute for the ktrace utility.[1]
+Apple added DTrace support in Mac OS X 10.5 "Leopard", including a GUI called Instruments.[2] Unlike other platforms that DTrace is supported on, Mac OS X has a flag (P_LNOATTACH) that a program may set that disallows tracing of that process by debugging utilities such as DTrace and gdb. In the original Mac OS X DTrace implementation, this could affect tracing of other system information, as unrelated probes that should fire while a program with this flag set was running would fail to do so.[3] This problem was addressed a few months later in the Mac OS X 10.5.3 update.[4]
+As of February 2009, a port for Linux was under development. The current DTrace port compiles and runs on many Linux kernels, with no kernel source code changes. This is desirable to ensure portability, but also to avoid licensing conflicts (CDDL vs GPL). User space DTrace probes are supported and syscall tracing works fine. Work is still underway to clean up the release and to start to look at edge cases and load testing.[5]
+
+[edit] Authors and awards
+DTrace was designed and implemented by Bryan Cantrill, Mike Shapiro, and Adam Leventhal. The authors received recognition in 2005 for the innovations in DTrace from InfoWorld and Technology Review.[6][7] DTrace won the top prize in the Wall Street Journal's 2006 Technology Innovation Awards competition.[8] The authors were recognized by USENIX with the Software Tools User Group (STUG) award in 2008.[9]
+
+[edit] See also
+
+SystemTap
+IBM ProbeVue
+
+
+[edit] References
+
+Bryan Cantrill (February 2006). "Hidden in Plain Sight". ACM Queue 4 (1): 26–36. doi:10.1145/1117389.1117401. ISSN 1542-7730. http://www.acmqueue.org/modules.php?name=Content&pa=showpage&pid=361. Retrieved on 2006-09-08. 
+Bryan M. Cantrill, Michael W. Shapiro and Adam H. Leventhal (June 2004). "Dynamic Instrumentation of Production Systems". Proceedings of the 2004 USENIX Annual Technical Conference. Retrieved on 2006-09-08. 
+
+
+[edit] Notes
+
+
+^ "FreeBSD 7.1-RELEASE Announcement date=2009-01-06". http://www.freebsd.org/releases/7.1R/announce.html. Retrieved on 2009-01-06. 
+^ "Mac OS X Leopard - Developer Tools - Instruments". Apple, Inc. http://www.apple.com/macosx/developertools/instruments.html. Retrieved on 2007-10-19. 
+^ "Mac OS X and the missing probes". Leventhal, Adam H.. January 18, 2008. http://blogs.sun.com/ahl/entry/mac_os_x_and_the. Retrieved on 2008-01-20. 
+^ "Apple Updates DTrace". Leventhal, Adam H.. June 7, 2008. http://blogs.sun.com/ahl/entry/apple_updates_dtrace. Retrieved on 2008-06-16. 
+^ "CRiSP Weblog". http://www.crisp.demon.co.uk/blog/index.html. Retrieved on 2008-07-23. 
+^ "Tracing software in real time". Technology Review. MIT. 2005. http://www.technologyreview.com/tr35/Profile.aspx?Cand=T&TRID=91. Retrieved on 2007-03-31. 
+^ McAllister, Neil (August 2005). "Innovation is alive and well in 2005". InfoWorld. IDG. http://www.infoworld.com/reports/31SRinnovators2005.html. Retrieved on 2007-03-31. 
+^ Totty, Michael (September 2006). "The Winners Are...". The Wall Street Journal. Dow Jones & Company, Inc.. http://online.wsj.com/public/article/SB115755300770755096-R2Ct41cQ4ZIPMwk4_xh0xU_HnQI_20061011.html?mod=tff_main_tff_top. Retrieved on 2007-03-31. 
+^ "2008 USENIX Annual Technical Conference (USENIX '08)". 2008. http://www.usenix.org/events/usenix08/index.html. Retrieved on 2008-11-26. 
+
+
+
+[edit] External links
+
+
+
+
+Free software portal
+
+
+
+
+DTrace BigAdmin Forum
+OpenSolaris DTrace Community
+Solaris Dynamic Tracing Guide
+DTrace FAQ at Genunix
+DTrace for FreeBSD
+DTraceToolkit, a collection of documented and useful DTrace scripts
+Top Ten DTrace scripts
+Understanding vmstat and mpstat output with DTrace
+Project D-Light Tutorial - a DTrace plug-in for the Sun Studio IDE
+Exploring Leopard with DTrace -- how to use DTrace for debugging and exploration
+Mac OS X 10.5 Leopard Review - Good description of DTrace from a writer at Ars Technica
+Google Tech Talk on DTrace given by Bryan Cantrill
+"I spy" - dtrace
+
+
+
+
+
+
+
+
+v • d • e
+
+Solaris
+
+
+
+
+
+Technologies
+
+Doors · DTrace · IPMP · MPxIO · SMF · snoop · Solaris Containers · Crossbow · Solaris Cluster · Trusted Solaris · ZFS
+
+
+
+
+
+
+OpenSolaris
+
+BeleniX · Nexenta OS · SchilliX · MilaX · OpenSolaris for System z
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/DTrace"
+Categories: Sun Microsystems software | Free system software | Debuggers 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Español
+Français
+日本語
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 March 2009, at 07:19 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,332 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+EncFS - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "EncFS";
+		var wgTitle = "EncFS";
+		var wgAction = "view";
+		var wgArticleId = "4387118";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 250846953;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); EncFS
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (November 2008)
+
+
+
+EncFS
+
+Developed by
+Valient Gough
+
+
+Latest release
+1.5.0 / September 7, 2008
+
+
+Operating system
+Linux, FreeBSD, Mac OS X
+
+
+Type
+filesystem, encryption
+
+
+License
+GPL
+
+
+Website
+EncFS home
+
+
+EncFS is a Free (GPL'ed) FUSE-based cryptographic filesystem that transparently encrypts files, using an arbitrary directory as storage for the encrypted files.
+Two directories are involved in mounting an EncFS filesystem: the source directory, and the mountpoint. Each file in the mountpoint has a specific file in the source directory that corresponds to it. The file in the mountpoint provides the unencrypted view of the one in the source directory. Filenames are encrypted in the source directory.
+Files are encrypted using a volume key, which is stored encrypted in the source directory. A password is used to decrypt this key.
+
+
+
+
+Contents
+
+
+1 Advantages
+2 Disadvantages
+3 Filesystem options
+
+3.1 Cipher
+3.2 Block size
+3.3 Filename encoding
+3.4 Filename IV chaining
+3.5 Per-file IV
+3.6 External IV chaining
+3.7 Block MAC headers
+
+
+4 Secondary volumes
+5 See also
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Advantages
+EncFS sports several advantages over other disk encryption software simply because each file is stored individually as an encrypted file somewhere else in the host's directory tree.
+
+EncFS "volumes" do not occupy a fixed size — they grow and shrink as more files are added to or removed from the mountpoint.
+It is possible for some directories on the mountpoint to exist on different physical devices, if a filesystem is mounted over one of the subdirectories in the source directory.
+Backup utilities can back up only the files that have changed in the source directory.
+
+
+[edit] Disadvantages
+There are some drawbacks to using EncFS.
+
+EncFS volumes cannot be formatted with an arbitrary filesystem. They share the same features and restrictions as the filesystem containing the source directory.
+Fragmentation of the encrypted volume causes fragmentation of the filesystem containing the source directory.
+Anyone having access to the source directory is able to see how many files are in the encrypted filesystem, what permissions they have, their approximate size and filename length, and the last time they were accessed or modified.
+
+
+[edit] Filesystem options
+When creating a new EncFS volume, several different options are available to customize the filesystem to suit various needs.
+
+[edit] Cipher
+EncFS uses whatever ciphers it is able to locate in various encryption libraries on the system. Blowfish and AES are typically available.
+The cipher key length can be selected for ciphers that support variable key lengths.
+
+[edit] Block size
+Each file is encrypted in blocks, and this option controls what size those blocks are. Each time a single byte is read the entire block it is contained in must be decrypted. Likewise, for each write the block must be decrypted, altered, and re-encrypted.
+The default block size of 512 is sufficient for most purposes.
+
+[edit] Filename encoding
+Filenames in the source directory can be encrypted in block or stream mode. Block mode obscures the filename length somewhat, while stream mode keeps them as short as possible, which might save space on the source directory's filesystem depending on how that filesystem manages the directory tree.
+
+[edit] Filename IV chaining
+When enabled, the initialization vector for filename encryption is derived from the file's parent directories, causing two files with the same name — but in different directories — to have different encrypted filenames.
+If a directory is renamed, all files and directories contained therein will need to have their encrypted filenames re-encrypted, which can be an expensive operation. This option should be disabled if heavily-populated directories will be renamed often.
+
+[edit] Per-file IV
+When enabled, each file is encrypted with a random 8-byte initialization vector, which is stored within the encrypted file in the source directory. If this option is disabled, each file is encrypted with the same initialization vector, which can make the volume key easier to break.
+Enabling this option makes the filesystem more secure at the cost of an additional 8 bytes per file.
+
+[edit] External IV chaining
+Causes the file data initialization vector to be derived from the filename's initialization vector chain. The same data will be encrypted differently given a different filename or directory.
+Consequently, renaming a file when this mode is enabled requires that either the file's random initialization vector be offset by the change in the filename initialization vector chain, or the data be re-encoded. The authors of EncFS have chosen the former route as it is considerably faster, especially for large files.
+
+[edit] Block MAC headers
+Stores a checksum with each encrypted block, causing corruption or modification of the encrypted files to be detected by EncFS. The checksum is 8 bytes, and optionally up to 8 additional bytes of random data can be added to each block to prevent two blocks with the same unencrypted data from having the same checksum. This option creates a large amount of CPU overhead, as each block's checksum must be calculated when data is read (to verify integrity) or written (to update the checksum).
+
+[edit] Secondary volumes
+EncFS supports a somewhat primitive form of secondary volumes, that is, a single source directory offering different files given different passwords.
+If EncFS is unable to decrypt a file with the volume key, it is ignored. If EncFS is forced to ignore an invalid password entry, the volume key will decode differently, and hence files will be encrypted and decrypted with a different key. This will present two different encrypted volumes given different passwords.
+However, it is possible that two filenames on two different secondary volumes will be encrypted to the same filename. In this case, any other file will be overwritten with a new file being created. Note that this refers only to the encrypted filenames, not the unencrypted filenames. This danger can be averted by creating one directory per secondary volume and storing files in the only visible directory after a secondary volume is mounted.
+Also, if the password is changed, the volume key will be re-encoded with the new password. This will cause secondary filesystems to vanish, as the volume key will no longer incorrectly decode to the same key for a given secondary password. If the primary password is changed back, the secondary filesystems will become available again.
+The EncFS author does not support this technique.
+
+[edit] See also
+
+
+
+
+Free software portal
+
+
+
+
+List of cryptographic file systems
+List of file systems
+Filesystem-level encryption
+Full disk encryption
+
+
+[edit] External links
+
+EncFS website
+HOWTO: EncFS in Ubuntu and Fedora GNU/Linux
+encfs version 1.3.2 for Mac OS X
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/EncFS"
+Categories: Disk encryption | Free special purpose file systems | User space file systemsHidden categories: Articles lacking sources from November 2008 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 10 November 2008, at 10:51.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

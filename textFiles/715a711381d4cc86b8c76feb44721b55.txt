@@ -1,0 +1,597 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Levenshtein distance - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Levenshtein_distance";
+		var wgTitle = "Levenshtein distance";
+		var wgAction = "view";
+		var wgArticleId = "406418";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280611938;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Levenshtein distance
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In information theory and computer science, the Levenshtein distance is a metric for measuring the amount of difference between two sequences (i.e., the so called edit distance). The Levenshtein distance between two strings is given by the minimum number of operations needed to transform one string into the other, where an operation is an insertion, deletion, or substitution of a single character. A generalization of the Levenshtein distance (Damerau–Levenshtein distance) allows the transposition of two characters as an operation.
+The metric is named after Vladimir Levenshtein, who considered this distance in 1965.[1] It is often used in applications that need to determine how similar, or different, two strings are, such as spell checkers.
+For example, the Levenshtein distance between "kitten" and "sitting" is 3, since the following three edits change one into the other, and there is no way to do it with fewer than three edits:
+
+kitten → sitten (substitution of 's' for 'k')
+sitten → sittin (substitution of 'i' for 'e')
+sittin → sitting (insert 'g' at the end).
+
+It can be considered a generalization of the Hamming distance, which is used for strings of the same length and only considers substitution edits.
+
+
+
+
+Contents
+
+
+1 The algorithm
+
+1.1 Proof of correctness
+1.2 Possible improvements
+1.3 Upper and lower bounds
+
+
+2 See also
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] The algorithm
+A commonly-used bottom-up dynamic programming algorithm for computing the Levenshtein distance involves the use of an (n + 1) × (m + 1) matrix, where n and m are the lengths of the two strings. This algorithm is based on the Wagner-Fischer algorithm for edit distance. Here is pseudocode for a function LevenshteinDistance that takes two strings, s of length m, and t of length n, and computes the Levenshtein distance between them:
+int LevenshteinDistance(char s[1..m], char t[1..n])
+
+// d is a table with m+1 rows and n+1 columns
+declare int d[0..m, 0..n]
+
+
+for i from 0 to m
+
+d[i, 0] := i
+
+
+for j from 0 to n
+
+d[0, j] := j
+
+
+
+
+for i from 1 to m
+
+for j from 1 to n
+{
+
+if s[i] = t[j] then cost := 0
+
+
+
+else cost := 1
+
+
+
+
+d[i, j] := minimum(
+
+
+
+
+
+
+
+
+
+d[i-1, j] + 1, // deletion
+d[i, j-1] + 1, // insertion
+d[i-1, j-1] + cost // substitution
+
+
+)
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+return d[m, n]
+
+Two examples of the resulting matrix (the minimum steps to be taken are highlighted):
+
+
+
+
+
+
+
+
+k
+i
+t
+t
+e
+n
+
+
+
+0
+1
+2
+3
+4
+5
+6
+
+
+s
+1
+1
+2
+3
+4
+5
+6
+
+
+i
+2
+2
+1
+2
+3
+4
+5
+
+
+t
+3
+3
+2
+1
+2
+3
+4
+
+
+t
+4
+4
+3
+2
+1
+2
+3
+
+
+i
+5
+5
+4
+3
+2
+2
+3
+
+
+n
+6
+6
+5
+4
+3
+3
+2
+
+
+g
+7
+7
+6
+5
+4
+4
+3
+
+
+
+
+
+
+
+
+S
+a
+t
+u
+r
+d
+a
+y
+
+
+
+0
+1
+2
+3
+4
+5
+6
+7
+8
+
+
+S
+1
+0
+1
+2
+3
+4
+5
+6
+7
+
+
+u
+2
+1
+1
+2
+2
+3
+4
+5
+6
+
+
+n
+3
+2
+2
+2
+3
+3
+4
+5
+6
+
+
+d
+4
+3
+3
+3
+3
+4
+3
+4
+5
+
+
+a
+5
+4
+3
+4
+4
+4
+4
+3
+4
+
+
+y
+6
+5
+4
+4
+5
+5
+5
+4
+3
+
+
+
+
+
+
+The invariant maintained throughout the algorithm is that we can transform the initial segment s[1..i] into t[1..j] using a minimum of d[i,j] operations. At the end, the bottom-right element of the array contains the answer.
+This algorithm is essentially part of a solution to the Longest common subsequence problem (LCS), in the particular case of 2 input lists.
+With a minor modification, the same algorithm can also be used in approximate string matching for finding a substring of a text which best matches a given pattern.
+
+[edit] Proof of correctness
+As mentioned earlier, the invariant is that we can transform the initial segment s[1..i] into t[1..j] using a minimum of d[i,j] operations. This invariant holds since:
+
+It is initially true on row and column 0 because s[1..i] can be transformed into the empty string t[1..0] by simply dropping all i characters. Similarly, we can transform s[1..0] to t[1..j] by simply adding all j characters.
+The minimum is taken over three distances, each of which is feasible:
+
+If we can transform s[1..i] to t[1..j-1] in k operations, then we can simply add t[j] afterwards to get t[1..j] in k+1 operations.
+If we can transform s[1..i-1] to t[1..j] in k operations, then we can do the same operations on s[1..i] and then remove the original s[i] at the end in k+1 operations.
+If we can transform s[1..i-1] to t[1..j-1] in k operations, we can do the same to s[1..i] and then do a substitution of t[j] for the original s[i] at the end if necessary, requiring k+cost operations.
+
+
+The operations required to transform s[1..n] into t[1..m] is of course the number required to transform all of s into all of t, and so d[n,m] holds our result.
+
+This proof fails to validate that the number placed in d[i,j] is in fact minimal; this is more difficult to show, and involves an argument by contradiction in which we assume d[i,j] is smaller than the minimum of the three, and use this to show one of the three is not minimal.
+
+[edit] Possible improvements
+Possible improvements to this algorithm include:
+
+We can adapt the algorithm to use less space, O(m) instead of O(mn), since it only requires that the previous row and current row be stored at any one time.
+We can store the number of insertions, deletions, and substitutions separately, or even the positions at which they occur, which is always j.
+We can normalize the distance to the interval [0,1].
+If we are only interested in the distance if it is smaller than a threshold k, then it suffices to compute a diagonal stripe of width 2k+1 in the matrix. In this way, the algorithm can be run in O(kl) time, where l is the length of the shortest string.[2]
+We can give different penalty costs to insertion, deletion and substitution. We can also give penalty costs that depend on which characters are inserted, deleted or substituted.
+By initializing the first row of the matrix with 0, the algorithm can be used for fuzzy string search of a string in a text [3]. This modification gives the end-position of matching substrings of the text. To determine the start-position of the matching substrings, the number of insertions and deletions can be stored separately and used to compute the start-position from the end-position.[4]
+This algorithm parallelizes poorly, due to a large number of data dependencies. However, all the cost values can be computed in parallel, and the algorithm can be adapted to perform the minimum function in phases to eliminate dependencies.
+By examining diagonals instead of rows, and by using lazy evaluation, we can find the Levenshtein distance in O(m (1 + d)) time (where d is the Levenshtein distance), which is much faster than the regular dynamic programming algorithm if the distance is small.[5]
+
+
+[edit] Upper and lower bounds
+The Levenshtein distance has several simple upper and lower bounds that are useful in applications which compute many of them and compare them. These include:
+
+It is always at least the difference of the sizes of the two strings.
+It is at most the length of the longer string.
+It is zero if and only if the strings are identical.
+If the strings are the same size, the Hamming distance is an upper bound on the Levenshtein distance.
+
+
+[edit] See also
+
+
+
+The Wikibook Algorithm implementation has a page on the topic of
+Levenshtein distance
+
+
+
+
+
+Euclidean distance
+agrep
+Bitap algorithm
+Damerau–Levenshtein distance
+diff
+Dynamic time warping
+Fuzzy string searching
+Hamming distance
+Hamming weight
+Jaccard index
+Jaro-Winkler distance
+Levenshtein automaton
+Longest common subsequence problem
+Lucene (an open source search engine that implements edit distance.)
+Manhattan distance
+Metric space
+Needleman-Wunsch algorithm
+Similarity (mathematics)
+Similarity space on Numerical taxonomy
+Smith-Waterman algorithm
+Sørensen similarity index
+
+
+
+[edit] References
+
+^ В.И. Левенштейн (1965) Двоичные коды с исправлением выпадений, вставок и замещений символов. Доклады Академий Наук СССР 163.4:845–848. Appeared in English as: V. I. Levenshtein, Binary codes capable of correcting deletions, insertions, and reversals. Soviet Physics Doklady 10 (1966):707–710.
+^ Dan Gusfield. Algorithms on strings, trees, and sequences: computer science and computational biology. Cambridge University Press, New York, NY, USA, 1997.
+^ Gonzalo Navarro. A guided tour to approximate string matching. ACM Computing Surveys, 33(1):31–88, 2001.
+^ Bruno Woltzenlogel Paleo. An approximate gazetteer for GATE based on levenshtein distance. Student Section of the European Summer School in Logic, Language and Information (ESSLLI), 2007.
+^ L. Allison, Lazy Dynamic-Programming can be Eager. Inf. Proc. Letters 43(4) pp207-212, Sept' 1992 http://www.csse.monash.edu.au/~lloyd/tildeStrings/Alignment/92.IPL.html
+
+
+[edit] External links
+
+The description of Levenshtein algorithm
+Dr. E. Garcia's example of Levenshtein edit distance calculation
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Levenshtein_distance"
+Categories: Algorithms on strings | Discrete mathematics | String similarity measures | Dynamic programming | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Afrikaans
+Deutsch
+Español
+Français
+Italiano
+Latviešu
+Nederlands
+日本語
+‪Norsk (nynorsk)‬
+Polski
+Português
+Русский
+Српски / Srpski
+Suomi
+Svenska
+Tiếng Việt
+Тоҷикӣ
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 30 March 2009, at 09:27.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

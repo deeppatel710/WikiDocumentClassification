@@ -1,0 +1,424 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lucid (programming language) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Lucid_(programming_language)";
+		var wgTitle = "Lucid (programming language)";
+		var wgAction = "view";
+		var wgArticleId = "1485589";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279795683;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Lucid (programming language)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+Lucid
+
+Paradigm
+Dataflow
+
+
+Appeared in
+1976
+
+
+Designed by
+Edward A. Ashcroft,William W. Wadge
+
+
+Developer
+,Wadge
+
+
+Typing discipline
+Typeless
+
+
+Major implementations
+pLucid
+
+
+Dialects
+GIPSY GLU
+
+
+Influenced by
+ISWIM
+
+
+Influenced
+SISAL, PureData, Lustre
+
+
+Lucid is a dataflow programming language. It is designed to experiment with non-von Neumann programming models. It was designed by Bill Wadge and Ed Ashcroft and described in the book Lucid, the Dataflow Programming Language.
+
+
+
+
+Contents
+
+
+1 Model
+2 Details
+3 Examples
+
+3.1 Total of a Sequence
+3.2 Running Average
+3.3 Prime Numbers
+
+3.3.1 Dataflow Diagram
+
+
+3.4 Quick Sort
+
+3.4.1 Data flow Diagram
+
+
+3.5 Square Root
+3.6 Hamming Problem
+
+3.6.1 Dataflow Diagram
+
+
+
+
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Model
+Lucid uses a demand-driven model for data computation. Each statement can be understood as an equation defining a network of processors and communication lines between them through which data flows. Each variable is an infinite stream of values and Every function is a filter or a transformer. Iteration is simulated by 'current' values and 'fby' operator allowing composition of streams.
+Lucid is based on an algebra of histories, a history being an infinite sequence of data items. Operationally, a history can be thought of as a record of the changing values of a variable, history operations such as first and next can be understood in ways suggested by their names. Lucid was originally conceived as a kind of very disciplined mathematically pure single assignment language in which verification would be very much simplified. However, the dataflow interpretation has been very important in helping the direction in which Lucid has evolved.[1]
+
+[edit] Details
+In Lucid (and other dataflow languages) an expression that contains a variable that was not yet bound waits until the variable is bound before proceeding. An expression like x + y will wait until both x and y are bound before returning with the output of the expression. An important result of this is that explicit logic for updating related values is avoided, which results in substantial code reduction compared to mainstream languages.
+Each variable in Lucid is a stream of values. An expression n = 1 fby n + 1 defines a stream using the operator 'fby'. fby (read as 'followed by') defines what comes after the previous expression. (In this instance the stream produces 1,2,3,...). The values in a stream can be addressed by these operators (assuming x is the variable being used):
+'first x' - fetches the first value in the stream x,
+'x' - the current value of the stream,
+'next x' - fetches the next value in the stream.
+'asa' - an operator that does some thing 'as soon as' the condition given becomes true.
+'x upon p' - upon is an operator that repeats the old value of the stream x, and updates to the new values only when the stream p makes a true value available. (It serves to slow down the stream x) ie: x upon p is the stream x with new values appearing upon the truth of p.
+The computation is carried out by defining filters or transformation functions that act on these time-varying streams of data.
+pLucid was the first interpreter for Lucid.
+
+[edit] Examples
+
+[edit] Total of a Sequence
+
+total
+  where
+     total = 0 fby total + x
+  end;
+
+
+[edit] Running Average
+
+running_avg
+  where 
+     sum = first(input) fby sum + next(input);
+     n = 1 fby n + 1;
+     running_avg = sum / n;
+  end;
+
+
+[edit] Prime Numbers
+[2]
+
+prime
+  where
+     prime = 2 fby (n whenever isprime(n));
+     n = 3 fby n+2;
+     isprime(n) = not(divs) asa divs or prime*prime > N
+                     where
+                       N is current n;
+                       divs = N mod prime eq 0;
+                     end;
+  end
+
+
+[edit] Dataflow Diagram
+
+ ---+1<--- -->isprime----
+ |         |              |
+ |         |              V
+  ->fby--------------->whenever--->
+     ^
+     |
+     2
+
+
+[edit] Quick Sort
+[3]
+
+qsort(a) = if eof(first a) then a else follow(qsort(b0),qsort(b1)) fi
+  where
+     p = first a < a;
+     b0 = a whenever p;
+     b1 = a whenever not p;
+     follow(x,y) = if xdone then y upon xdone else x fi
+                     where
+                        xdone = iseod x fby xdone or iseod x; 
+                     end
+  end
+
+
+[edit] Data flow Diagram
+
+    --------> whenever -----> qsort ---------
+   |             ^                           |
+   |             |                           |
+   |            not                          |
+   |             ^                           |
+   |---> first   |                           |
+   |       |     |                           |
+   |       V     |                           |
+   |---> less ---                            |
+   |             |                           |
+   |             V                           V
+---+--------> whenever -----> qsort -----> conc -------> ifthenelse ----->
+   |                                                       ^   ^
+   |                                                       |   |
+    --------> next ----> first ------> iseod --------------    |
+   |                                                           |
+    -----------------------------------------------------------
+
+
+[edit] Square Root
+
+sqroot(avg(square(a)))
+  where
+     square(x) = x*x;
+     avg(y)    = mean
+        where
+          n = 1 fby n+1;
+          mean = first y fby mean + d;
+          d = (next y - mean)/(n+1);
+        end;
+     sqroot(z) = approx asa  err < 0.0001
+        where
+          Z is current z;
+          approx = Z/2 fby (approx + Z/approx)/2;
+          err    = abs(square(approx)-Z);
+        end;
+   end
+
+
+[edit] Hamming Problem
+[4]
+
+h
+   where
+     h = 1 fby merge(merge(2 * h, 3 * h), 5 * h);
+     merge(x,y) = if xx <= yy then xx else yy fi
+        where 
+          xx = x upon xx <= yy;
+          yy = y upon yy <= xx;
+        end;
+   end;
+
+
+[edit] Dataflow Diagram
+
+  --------------------*2---------
+ |       -------------*3---------|
+ |      |           --*5---------|
+ |      |          |             |
+ |      V          V             |
+  --->merge----->merge----->fby-------->
+                             ^
+                             |
+                             1
+
+
+[edit] External links
+
+pLucid
+Language overview
+Evolution of Lucid
+Bill Wadge's home page
+Fluid Programming in Lucid
+Lucid page of HaskellWiki
+Programming in Lucid
+An Eductive Interpreter
+Lucid Primer
+GIPSY
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Lucid_(programming_language)"
+Categories: Declarative programming languages | Query languages | Concurrent programming languages | Reactive programming languages | Intensional programming languages 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 13:34 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

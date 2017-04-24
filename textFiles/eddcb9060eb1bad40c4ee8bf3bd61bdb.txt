@@ -1,0 +1,454 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Particle filter - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Particle_filter";
+		var wgTitle = "Particle filter";
+		var wgAction = "view";
+		var wgArticleId = "1396948";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284201886;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Particle filter
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about the statistical method. For the pollution control device, see diesel particulate filter.
+
+
+
+
+Result of particle filtering (red line) based on observed data generated from the blue line (Much larger image)
+
+
+Particle filters, also known as sequential Monte Carlo methods (SMC), are sophisticated model estimation techniques based on simulation.
+They are usually used to estimate Bayesian models and are the sequential ('on-line') analogue of Markov chain Monte Carlo (MCMC) batch methods and are often similar to importance sampling methods. If well-designed, particle filters can be much faster than MCMC. They are often an alternative to the Extended Kalman filter (EKF) or Unscented Kalman filter (UKF) with the advantage that, with sufficient samples, they approach the Bayesian optimal estimate, so they can be made more accurate than either the EKF or UKF. The approaches can also be combined by using a version of the Kalman filter as a proposal distribution for the particle filter.
+
+
+
+
+Contents
+
+
+1 Goal
+2 Model
+3 Monte Carlo approximation
+4 Sampling Importance Resampling (SIR)
+5 Sequential Importance Sampling (SIS)
+6 "Direct version" algorithm
+7 Other Particle Filters
+8 See also
+9 References
+10 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Goal
+The particle filter aims to estimate the sequence of hidden parameters, xk for , based only on the observed data yk for . All Bayesian estimates of xk follow from the posterior distribution . In contrast, the MCMC or importance sampling approach would model the full posterior .
+
+[edit] Model
+Particle methods assume xk and the observations yk can be modeled in this form:
+
+ is a first order Markov process such that
+
+
+
+
+
+and with an initial distribution p(x0).
+
+The observations  are conditionally independent provided that  are known
+
+
+In other words, each yk only depends on xk
+
+
+
+
+
+One example form of this scenario is
+
+
+
+
+where both wk and vk are mutually independent and identically distributed sequences with known probability density functions and  and  are known functions. These two equations can be viewed as state space equations and look similar to the state space equations for the Kalman filter. If the functions  and  are linear, and if both wk and vk are Gaussian, the Kalman filter finds the exact Bayesian filtering distribution. If not, Kalman filter based methods are a first-order approximation. Particle filters are also an approximation, but with enough particles they can be much more accurate.
+
+[edit] Monte Carlo approximation
+Particle methods, like all sampling-based approaches (e.g., MCMC), generate a set of samples that approximate the filtering distribution . So, with P samples, expectations with respect to the filtering distribution are approximated by
+
+
+
+and , in the usual way for Monte Carlo, can give all the moments etc. of the distribution up to some degree of approximation.
+
+[edit] Sampling Importance Resampling (SIR)
+Sampling importance resampling (SIR) is a very commonly used particle filtering algorithm, which approximates the filtering distribution  by a weighted set of P particles
+
+.
+
+The importance weights  are approximations to the relative posterior probabilities (or densities) of the particles such that .
+SIR is a sequential (i.e., recursive) version of importance sampling. As in importance sampling, the expectation of a function  can be approximated as a weighted average
+
+
+
+For a finite set of particles, the algorithm performance is dependent on the choice of the proposal distribution
+
+.
+
+The optimal proposal distribution is given as the target distribution
+
+
+
+However, the transition prior is often used as importance function, since it is easier to draw particles (or samples) and perform subsequent importance weight calculations:
+
+
+
+Sampling Importance Resampling (SIR) filters with transition prior as importance function are commonly known as bootstrap filter and condensation algorithm.
+Resampling is used to avoid the problem of degeneracy of the algorithm, that is, avoiding the situation that all but one of the importance weights are close to zero. The performance of the algorithm can be also affected by proper choice of resampling method. The stratified resampling proposed by Kitagawa (1996) is optimal in terms of variance.
+A single step of sequential importance resampling is as follows:
+
+1) For  draw samples from the proposal distribution
+
+
+
+
+
+
+
+
+
+2) For  update the importance weights up to a normalizing constant:
+
+
+
+
+
+
+
+
+
+3) For  compute the normalized importance weights:
+
+
+
+
+
+
+
+
+
+4) Compute an estimate of the effective number of particles as
+
+
+
+
+
+
+
+
+
+5) If the effective number of particles is less than a given threshold , then perform resampling:
+
+
+
+
+a) Draw P particles from the current particle set with probabilities proportional to their weights. Replace the current particle set with this new one.
+
+
+
+
+
+
+b) For  set 
+
+
+
+The term Sequential Importance Resampling is also sometimes used when referring to SIR filters.
+
+[edit] Sequential Importance Sampling (SIS)
+
+Is the same as Sampling Importance Resampling, but without the resampling stage.
+
+
+[edit] "Direct version" algorithm
+The "direct version" algorithm is rather simple (compared to other particle filtering algorithms) and it uses composition and rejection. To generate a single sample x at k from :
+
+1) Set p=1
+
+
+2) Uniformly generate L from {1,...,P}
+
+
+3) Generate a test  from its distribution 
+
+
+4) Generate the probability of  using  from  where yk is the measured value
+
+
+5) Generate another uniform u from [0,mk]
+
+
+6) Compare u and 
+
+
+
+
+6a) If u is larger then repeat from step 2
+
+
+
+
+
+
+6b) If u is smaller then save  as  and increment p
+
+
+
+
+7) If p > P then quit
+
+The goal is to generate P "particles" at k using only the particles from k − 1. This requires that a Markov equation can be written (and computed) to generate a xk based only upon xk − 1. This algorithm uses composition of the P particles from k − 1 to generate a particle at k and repeats (steps 2-6) until P particles are generated at k.
+This can be more easily visualized if x is viewed as a two-dimensional array. One dimension is k and the other dimensions is the particle number. For example, x(k,L) would be the Lth particle at k and can also be written  (as done above in the algorithm). Step 3 generates a potential xk based on a randomly chosen particle () at time k − 1 and rejects or accepts it in step 6. In other words, the xk values are generated using the previously generated xk − 1.
+
+[edit] Other Particle Filters
+
+Auxiliary particle filter
+Gaussian particle filter
+Unscented particle filter
+Monte Carlo particle filter
+Gauss-Hermite particle filter
+Cost Reference particle filter
+Rao-Blackwellized particle filter
+
+
+[edit] See also
+
+Ensemble Kalman filter
+Recursive Bayesian estimation
+
+
+[edit] References
+
+Doucet, A.; De Freitas, N.; Gordon, N.J. (2001). Sequential Monte Carlo Methods in Practice. Springer. 
+
+
+Cappe, O.; Moulines, E.; Ryden, T. (2005). Inference in Hidden Markov Models. Springer. 
+
+
+Liu, J. (2001). Monte Carlo strategies in Scientific Computing. Springer. 
+
+
+Ristic, B.; Arulampalam, S.; Gordon, N. (2004). Beyond the Kalman Filter: Particle Filters for Tracking Applications. Artech House. 
+
+
+Doucet, A.; Johansen, A.M.; (December 2008). "A tutorial on particle filtering and smoothing: fifteen years later". Technical report, Department of Statistics, University of British Columbia. http://www.cs.ubc.ca/%7Earnaud/doucet_johansen_tutorialPF.pdf. 
+
+
+Doucet, A.; Godsill, S.; Andrieu, C.; (2000). "On Sequential Monte Carlo Methods for Bayesian Filtering". Statistics and Computing 10 (3): 197-208. http://www.springerlink.com/content/q6452k2x37357l3r/. 
+
+
+Arulampalam, M.S.; Maskell, S.; Gordon, N.; Clapp, T.; (2002). "A tutorial on particle filters for online nonlinear/non-Gaussian Bayesian tracking". IEEE Transactions on Signal Processing 50 (2): 174–188. doi:10.1109/78.978374. http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=978374. 
+
+
+Cappe, O.; Godsill, S.; Moulines, E.; (2007). "An overview of existing methods and recent advances in sequential Monte Carlo". Proceedings of IEEE 95 (5): 899. doi:10.1109/JPROC.2007.893250. 
+
+
+KItagawa, G. (1996). "Monte carlo filter and smoother for non-Gaussian nonlinear state space models". Journal of Computational and Graphical Statistics 5 (1): 1-25. 
+
+
+Kotecha, J.H.; Djuric, P.; (2003). "Gaussian Particle filtering". IEEE Transactions Signal Processing 51 (10). 
+
+
+Haug, A.J. (2005). "A Tutorial on Bayesian Estimation and Tracking Techniques Applicable to Nonlinear and Non-Gaussian Processes". The MITRE Corporation, USA, Tech. Rep., Feb. http://www.mitre-corporation.net/work/tech_papers/tech_papers_05/05_0211/05_0211.pdf. Retrieved on 2008-05-06. 
+
+
+Pitt, M.K.; Shephard, N. (1999). "Filtering Via Simulation: Auxiliary Particle Filters". Journal of the American Statistical Association 94 (446): 590–591. doi:10.2307/2670179. http://www.questia.com/PM.qst?a=o&se=gglsc&d=5002321997. Retrieved on 2008-05-06. 
+
+
+[edit] External links
+
+Sequential Monte Carlo Methods (Particle Filtering) homepage on University of Cambridge
+Dieter Fox's MCL Animations
+Rob Hess' free software
+Tutorial on particle filtering with the MRPT C++ library, and a mobile robot localization video.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Particle_filter"
+Categories: Estimation theory | Monte Carlo methods | Computational statistics | Control theory | Non-linear filters | Robotics 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+한국어
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 April 2009, at 12:53 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,293 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bit blit - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Bit_blit";
+		var wgTitle = "Bit blit";
+		var wgAction = "view";
+		var wgArticleId = "145476";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 277900643;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Bit blit
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+BitBlt (which stands for Bit-Block Transfer but is pronounced Bit Blit) is a computer graphics operation in which several bitmaps are combined into one using a "raster operator".
+The operation usually involves two bitmaps, a source and destination. The source and destination are combined bitwise according to the specified raster operation (ROP) and the result is then written to the destination. The ROP is essentially a boolean formula. The most obvious ROP overwrites the destination with the source. Other ROPs may involve AND, OR, XOR, and NOT operations.
+In the Microsoft Windows GDI a third monochrome pattern (with 1 bpp) can be referenced in the ROP.
+
+
+
+
+Contents
+
+
+1 Origins
+2 Masked Blit Implementation
+
+2.1 Example of a masked blit
+2.2 Technique
+
+
+3 Blitting vs. hardware sprites
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Origins
+The name derives from the BitBLT routine for the Xerox Alto computer, standing for "Bit Block Transfer". This operation was created by Dan Ingalls, Larry Tesler, Bob Sproull, and Diana Merry at Xerox PARC in November 1975 for the Smalltalk-72 system. For the Smalltalk-74 system, Dan Ingalls later implemented a redesigned version in microcode.
+The development of fast methods for various bit blit operations was key in the evolution of computer displays from using character graphics, to using bitmap graphics for everything. Machines that rely heavily on the performance of 2D graphics (such as video game consoles) often have special-purpose circuitry called a blitter.
+
+[edit] Masked Blit Implementation
+A classic use for blitting is to render transparent sprites onto a background. This operation is called a masked blit, and can be implemented with two regular BitBlt operations using the AND and OR raster operations. The technique will be explained shortly.
+It is usually not feasible to implement a masked blit by looping through every pixel and conditionally drawing it only if it needs to be displayed, due to considerations of speed.
+
+[edit] Example of a masked blit
+Here is an example of a masked blit to show what we are trying to achieve. We have a background image, a sprite, and a 1-bit mask. As the mask is 1-bit there is no possibility for partial transparency via alpha blending.
+
+
+Background Image
+Sprite (Left) and Mask (Right)
+
+
+
+
+
+
+We wish to draw the sprite in various positions over the image to produce this:
+
+
+Intended Result
+
+
+
+
+
+
+
+
+[edit] Technique
+When preparing the sprite and mask, the colours are very important. The mask pixels are 0 (black) wherever the corresponding sprite pixel is to be displayed, and 1 (white) wherever the background needs to be preserved. The sprite must be 0 (black) anywhere where it is supposed to be transparent, but note that black can be used in the non-transparent regions.
+In the first blit, we blit the mask onto the background using the raster operator of AND. Because any value ANDed with 0 equals 0, and any value ANDed with 1 is unchanged, we can create black areas where the actual sprites will appear, and leave the rest of the background alone.
+
+
+Result of the first blit
+
+
+
+
+
+
+
+In the second blit, we blit the sprite onto the newly altered background using the raster operator of OR. Because any value OR'd with 0 is unchanged, the background is unaffected and the black areas are filled with the actual sprite image.
+
+
+Final result
+
+
+
+
+
+
+
+It is also possible to achieve the same effect using a sprite with a white background and a white-on-black mask. In this case, the mask would be ORed first, and the sprite ANDed next.
+
+[edit] Blitting vs. hardware sprites
+Blitting is similar to hardware-sprite drawing, in that both systems reproduce a pattern, typically a square area, at different locations on the screen. Hardware sprites have the advantage of being stored in separate memory, and therefore don't disturb the main display memory. This allows them to be moved about the display, covering the "background", with no effect on it.
+Blitting moves the same types of patterns about the screen, but does so by writing into the same memory as the rest of the display. This means every time the pattern is placed on the screen, the display "under" it is overwritten, or "damaged". It is up to the software to clean this damage up by blitting twice, once to remove the damage, and then again to place the bit in its new location. However, there are several ways to optimize this. If large areas of the screen are taken over by the patterns, it may be more efficient to blit the background to the screen instead of erasing each pattern individually. A variation involves dividing the screen into segments and erasing only the segments where patterns have been drawn on. This technique is known as dirty rectangles.
+As one might imagine, this makes blitting significantly slower than sprite manipulation. However blitting has one very big advantage: there's no physical limit to the number of patterns you can blit, or to the size of the patterns. Thus you can use blitting to display anything on the screen, including simulating sprites (through the double-write pattern noted above), or even text.
+
+[edit] See also
+
+Block-transfer instruction
+Blitter
+
+
+[edit] External links
+
+Xerox Inter-Office Memorandum 19 November 1975
+Bit Blt Game
+Squeak: A BitBlt explanation
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Bit_blit"
+Categories: Computer graphics algorithms 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+فارسی
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 17 March 2009, at 17:09 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

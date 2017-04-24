@@ -1,0 +1,739 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Golomb coding - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Golomb_coding";
+		var wgTitle = "Golomb coding";
+		var wgAction = "view";
+		var wgArticleId = "147230";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278751368;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-cpp {line-height: normal;}
+.source-cpp li, .source-cpp pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for cpp
+ * CSS class: source-cpp, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-cpp .de1, .source-cpp .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-cpp  {}
+.source-cpp .head {}
+.source-cpp .foot {}
+.source-cpp .imp {font-weight: bold; color: red;}
+.source-cpp .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-cpp li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-cpp li.li2 {font-weight: bold;}
+.source-cpp .kw1 {color: #0000ff;}
+.source-cpp .kw2 {color: #0000ff;}
+.source-cpp .kw3 {color: #0000dd;}
+.source-cpp .kw4 {color: #0000ff;}
+.source-cpp .co1 {color: #ff0000;}
+.source-cpp .co2 {color: #339900;}
+.source-cpp .coMULTI {color: #ff0000; font-style: italic;}
+.source-cpp .es0 {color: #666666; font-weight: bold;}
+.source-cpp .br0 {color: #000000;}
+.source-cpp .st0 {color: #666666;}
+.source-cpp .nu0 {color: #0000dd;}
+.source-cpp .me1 {color: #00eeff;}
+.source-cpp .me2 {color: #00eeff;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Golomb coding
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+The introduction to this article provides insufficient context for those unfamiliar with the subject.
+Please help improve the article with a good introductory style.
+
+
+Golomb coding is a lossless data compression method using a family of data compression codes invented by Solomon W. Golomb in the 1960s. Alphabets following a geometric distribution will have a Golomb code as an optimal prefix code, making Golomb coding highly suitable for situations in which the occurrence of small values in the input stream is significantly more likely than large values.
+Rice coding (invented by Robert F. Rice) denotes using a subset of the family of Golomb codes to produce a simpler (but possibly suboptimal) prefix code; Rice used this in an adaptive coding scheme, although "Rice coding" can refer to either that scheme or merely using that subset of Golomb codes. Whereas a Golomb code has a tunable parameter that can be any positive value, Rice codes are those in which the tunable parameter is a power of two. This makes Rice codes convenient for use on a computer, since multiplication and division by 2 can be implemented more efficiently.
+Rice coding is used as the entropy encoding stage in a number of lossless image compression and audio data compression methods.
+
+
+
+
+Contents
+
+
+1 Overview
+
+1.1 Use with signed integers
+1.2 Construction of codes
+
+
+2 Simple algorithm
+3 Example
+4 Example code
+
+4.1 Encoding
+4.2 Decoding
+
+
+5 Use for run-length encoding
+6 Applications
+7 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+
+[edit] Use with signed integers
+Golomb's scheme was designed to encode sequences of non-negative numbers. However it is easily extended to accept sequences containing negative numbers using an overlap and interleave scheme, in which all values are re-assigned to some positive number in a unique and reversible way. The sequence begins: 0, -1, 1, -2, 2, -3, 3, -4, 4 ... The nth negative value (ie -n) is mapped to the nth odd number (2n-1), and the mth positive value is mapped to the mth even number (2m). This may be expressed mathematically as follows: a positive value x is mapped to (), and a negative value y is mapped to ().
+
+[edit] Construction of codes
+Golomb coding uses a tunable parameter M to divide an input value into two parts: q, the result of a division by M, and r, the remainder. The quotient is sent in unary coding, followed by the remainder in truncated binary encoding. When M = 1 Golomb coding is equivalent to unary coding.
+
+Golomb-Rice codes can be thought of as codes that indicate a number by the position of the bin (q), and the offset within the bin (r). The above figure shows the position q, and offset r for the encoding of integer N using Golomb-Rice parameter M.
+Formally, the two parts are given by the following expression, where x is the number being encoded:  and r = x − qM − 1 The final result looks like: 
+Note that r can be of a varying number of bits, and is specifically only b bits for Rice code, and switches between b-1 and b bits for Golomb code (i.e M is not a power of 2): Let . If , then use b-1 bits to encode r. If , then use b bits to encode r. Clearly, b = log2(M) if M is a power of 2 and we can encode all values of r with b bits.
+The parameter M is a function of the corresponding Bernoulli process, which is parameterized by p = P(X = 0) the probability of success in a given Bernoulli trial. M and p are related by these inequalities:
+
+
+
+The Golomb code for this distribution is equivalent to the Huffman code for the same probabilities, if it were possible to compute the Huffman code.
+
+[edit] Simple algorithm
+Note below that this is the Rice-Golomb encoding, where the remainder code uses simple truncated binary encoding, also named "Rice coding" (other varying-length binary encodings, like arithmetic or Huffman encodings, are possible for the remainder codes, if the statistic distribution of remainder codes is not flat, and notably when not all possible remainders after the division are used). In this algorithm, if the M parameter is a power of 2, it becomes equivalent to the simpler Rice encoding.
+
+Fix the parameter M to an integer value.
+For N, the number to be encoded, find
+
+quotient = q = int[N/M]
+remainder = r = N%M
+
+
+Generate Codeword
+
+The Code format : <Quotient Code><Remainder Code>, where
+Quotient Code (in unary coding)
+
+Write a q-length string of 1 bits
+Write a 0 bit
+
+
+Remainder Code (in truncated binary encoding)
+
+If M is power of 2, code remainder as binary format. So log2(M) bits are needed. (Rice code)
+If M is not a power of 2, set 
+
+If r < 2b − M code r as plain binary using b-1 bits.
+If  code the number r + 2b − M in plain binary representation using b bits.
+
+
+
+
+
+
+
+
+[edit] Example
+Set M = 10. Thus . The cutoff is 2b − M = 16 − 10 = 6
+
+
+
+
+
+Encoding of quotient part
+
+
+q
+output bits
+
+
+0
+0
+
+
+1
+10
+
+
+2
+110
+
+
+3
+1110
+
+
+4
+11110
+
+
+5
+111110
+
+
+6
+1111110
+
+
+...
+111...10
+
+
+
+
+
+
+Encoding of remainder part
+
+
+r
+offset
+binary
+output bits
+
+
+0
+0
+0000
+000
+
+
+1
+1
+0001
+001
+
+
+2
+2
+0010
+010
+
+
+3
+3
+0011
+011
+
+
+4
+4
+0100
+100
+
+
+5
+5
+0101
+101
+
+
+6
+12
+1100
+1100
+
+
+7
+13
+1101
+1101
+
+
+8
+14
+1110
+1110
+
+
+9
+15
+1111
+1111
+
+
+
+
+
+For example, with a Rice-Golomb encoding of parameter M=10, the decimal number 42 would first be split into q=4,r=2, and would be encoded as qcode(q),rcode(r) = qcode(4),rcode(2) = 11110,010 (you don't need to encode the separating comma in the output stream, because the 0 at the end of the q code is enough to say when q ends and r begins ; both the qcode and rcode are self-delimited).
+
+[edit] Example code
+Note: this basic code assumes that the M parameter is a power of 2; it does not implement the case where truncated bit encoding of division remainders will be preferable (when M is not a power of 2, like in the previous example).
+
+[edit] Encoding
+
+
+ void golombEncode(char* source, char* dest, int M)
+ {
+     IntReader intreader(source);
+     BitWriter bitwriter(dest);
+     while(intreader.hasLeft())
+     {
+         int num = intreader.getInt();
+         int q = num / M;
+         for (int i = 0 ; i < q; i++)
+             bitwriter.putBit(true);   // write q ones
+         bitwriter.putBit(false);      // write one zero
+         int v = 1;
+         for (int i = 0 ; i < log2(M); i++)
+         {            
+             bitwriter.putBit( v & num );  
+             v = v << 1;         
+         }
+     }
+     bitwriter.close();
+     intreader.close();
+ }
+
+
+[edit] Decoding
+
+
+ void golombDecode(char* source, char* dest, int M)
+ {
+     BitReader bitreader(source);
+     IntWriter intwriter(dest);
+     int q = 0;
+     int nr = 0;
+     while (bitreader.hasLeft())
+     {
+         nr = 0;
+         q = 0;
+         while (bitreader.getBit()) q++;     // potentially dangerous with malformed files.
+         for (int a = 0; a < log2(M); a++)   // read out the sequential log2(M) bits
+             if (bitreader.getBit())
+                 nr += 1 << a;
+         nr += q*M;                          // add the bits and the multiple of M
+         intwriter.putInt(nr);               // write out the value
+     }
+     bitreader.close();
+     intwriter.close();
+ }
+
+
+[edit] Use for run-length encoding
+
+
+
+
+This image shows the redundancy of the Golombcode, when M is choosen optimally for p ≥ 1/2.
+
+
+Given an alphabet of two symbols, or a set of two events, P and Q, with probabilities p and (1 − p) respectively, where p ≥ 1/2, Golomb coding can be used to encode runs of zero or more P's separated by single Q's. In this application, the best setting of the parameter M is the nearest integer to . When p = 1/2, M = 1, and the Golomb code corresponds to binary (n ≥ 0 ones followed by a zero codes for n P's followed by a Q).
+
+[edit] Applications
+Numerous signal codecs use a Rice code for prediction residues. In predictive algorithms, such residues tend to fall into a two-sided geometric distribution, with small residues being more frequent than large residues, and the Rice code closely approximates the Huffman code for such a distribution without the overhead of having to transmit the Huffman table. One signal that does not match a geometric distribution is a sine wave, because the differential residues create a sinusoidal signal whose values are not creating a geometric distribution (the highest and lowest residue values have similar high frequency of occurrences, only the median positive and negative residues occur less often).
+Several lossless audio codecs, such as Shorten,[1], FLAC,[2] Apple Lossless, and MPEG-4 ALS, use a Rice code after the linear prediction step (called "adaptive FIR filter" in Apple Lossless). Rice coding is also used in the FELICS lossless image codec.
+The Golomb-Rice coder is used in the entropy coding stage of Rice Algorithm based lossless image codecs. One such experiment yields a compression ratio graph given below. See other entries in this category at the bottom of this page. in those compression, the progressive space differential data yields an alternating suite of positive and negative values around 0, which are remapped to positive-only integers (by doubling the absolute value and adding one if the input is negative), and then Rice-Golomb coding is applied by varying the divisor which remains small.[citation needed]
+
+Note that in those results, the Rice coding may create very long sequences of one-bits for the quotient; for practical reasons, it is often necessary to limit the total run-length of one-bits, so a modified version of the Rice-Golomb encoding consists of replacing the long string of one-bits by encoding its length with a recursive Rice-Golomb encoding; this requires reserving some values in addition to the initial divisor k to allow the necessary distinction.
+
+[edit] References
+
+Golomb, S.W. (1966). , Run-length encodings. IEEE Transactions on Information Theory, IT--12(3):399--401
+R. F. Rice (1971) and R. Plaunt, "Adaptive Variable-Length Coding for Efficient Compression of Spacecraft Television Data, " IEEE Transactions on Communications, vol. 16(9), pp. 889-897, Dec. 1971.
+R. F. Rice (1979), "Some Practical Universal Noiseless Coding Techniques, " Jet Propulsion Laboratory, Pasadena, California, JPL Publication 79--22, Mar. 1979.
+Witten, Ian Moffat, Alistair Bell, Timothy. "Managing Gigabytes: Compressing and Indexing Documents and Images." Second Edition. Morgan Kaufmann Publishers, San Francisco CA. 1999 ISBN 1-55860-570-3
+David Salomon. "Data Compression",ISBN 0-387-95045-1.
+
+
+
+^ man shorten
+^ FLAC documentation: format overview
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Data compression methods
+
+
+
+
+
+Lossless
+
+
+
+
+
+Theory
+
+
+Entropy · Complexity · Redundancy
+
+
+
+
+
+
+
+Entropy encoding
+
+
+Huffman · Adaptive Huffman · Arithmetic (Shannon-Fano · Range) · Golomb · Exp-Golomb · Universal (Elias · Fibonacci)
+
+
+
+
+
+
+
+Dictionary
+
+
+RLE · Byte pair encoding · DEFLATE · LZ Family (LZ77/78 · LZSS · LZW · LZWL · LZO · LZMA · LZX · LZRW · LZJB · LZT)
+
+
+
+
+
+
+
+Others
+
+
+CTW · BWT · PPM · DMC
+
+
+
+
+
+
+
+
+
+Audio
+
+
+
+
+
+Theory
+
+
+Convolution · Sampling · Nyquist–Shannon theorem
+
+
+
+
+
+
+
+Audio codec parts
+
+
+LPC (LAR · LSP) · WLPC · CELP · ACELP · A-law · μ-law · MDCT · Fourier transform · Psychoacoustic model
+
+
+
+
+
+
+
+Others
+
+
+Dynamic range compression · Speech compression · Sub-band coding
+
+
+
+
+
+
+
+
+
+Image
+
+
+
+
+
+Terms
+
+
+Color space · Pixel · Chroma subsampling · Compression artifact
+
+
+
+
+
+
+
+Methods
+
+
+RLE · DPCM · Fractal · Wavelet · EZW · SPIHT · LP · DCT · KLT
+
+
+
+
+
+
+
+Others
+
+
+Bit rate · Test images · PSNR quality measure · Quantization
+
+
+
+
+
+
+
+
+
+Video
+
+
+
+
+
+Terms
+
+
+Video Characteristics · Frame · Frame types · Video quality
+
+
+
+
+
+
+
+Video codec parts
+
+
+Motion compensation · DCT · Quantization
+
+
+
+
+
+
+
+Others
+
+
+Video codecs · Rate distortion theory (CBR · ABR · VBR)
+
+
+
+
+
+
+
+
+
+
+Timeline of information theory, data compression, and error-correcting codes
+
+
+
+
+
+
+See Compression Formats and Standards for formats and Compression Software Implementations for codecs
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Golomb_coding"
+Categories: Lossless compression algorithmsHidden categories: Wikipedia articles needing context | Wikipedia introduction cleanup | All articles with unsourced statements | Articles with unsourced statements since December 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+日本語
+Polski
+Português
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 21 March 2009, at 15:55 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

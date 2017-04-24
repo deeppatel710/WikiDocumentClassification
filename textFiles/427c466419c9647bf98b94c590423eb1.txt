@@ -1,0 +1,272 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SECD machine - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "SECD_machine";
+		var wgTitle = "SECD machine";
+		var wgAction = "view";
+		var wgArticleId = "28970";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281454605;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); SECD machine
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The SECD machine is a highly influential virtual machine intended as a target for functional programming language compilers. The letters stand for Stack, Environment, Code, Dump, the internal registers of the machine. These registers point to linked lists in memory.
+The machine was the first to be specifically designed to evaluate lambda calculus expressions. It was originally described by Peter J. Landin as part of his ISWIM programming language definition in 1963. The description published by Landin was fairly abstract, and left many implementation choices open (like an operational semantics). Hence the SECD machine is often presented in a more detailed form, such as Peter Henderson's Lispkit Lisp compiler, which has been distributed since 1980. Since then it has been used as the target for several other experimental compilers.
+In 1989 researchers at the University of Calgary worked on a hardware implementation of the machine[1].
+
+
+
+
+Contents
+
+
+1 Registers and memory
+2 Instructions
+3 References
+4 Further reading
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Registers and memory
+The SECD machine is stack-based, functions taking their parameters from the stack. By contrast, arguments to an instruction follow the instruction.
+Like all internal data-structures, the stack is a list, with the S register pointing at the list's head or beginning. Due to the list structure, the stack need not be a continuous block of memory, so stack space is available as long as there is a single free memory cell. Even when all cells have been used, garbage collection may yield additional free memory.
+The C register points at the head of the code or instruction list that will be evaluated. Once the instruction there has been executed, the C is pointed at the next instruction in the list—it is similar to an instruction pointer (or program counter) in conventional machines, except that subsequent instructions need not be in subsequent memory locations.
+The current variable environment is managed by the E register, which points at a list of lists. Each individual list represents one environment level: the parameters of the current function are in the head of the list, variables that are free in the current function, but bound by a surrounding function, are in other elements of E.
+The dump, at whose head the D register points, is used as temporary storage for values of the other registers, for example during function calls. It can be likened to the return stack of other machines.
+The memory organization of the SECD machine is similar to the model used by most functional language interpreters: a number of memory cells, each of which can hold either an atom (a simple value, for example 13), or represent an empty or non-empty list. In the latter case, the cell holds two pointers to other cells, one representing the first element, the other representing the list except for the first element. The two pointers are traditionally named car and cdr respectively—but the more modern terms head and tail are often used instead. The different types of values that a cell can hold are distinguished by a tag. Often different types of atoms (integers, strings, etc.) are distinguished as well.
+So a list holding the numbers 1, 2, and 3, usually written as "(1 2 3)", could be represented as follows:
+
+Address   Tag       Content (value for integers, car & cdr for lists)
+
+
+      9 [ integer |     2 ]
+      8 [ integer |     3 ]
+      7 [ list    | 8 | 0 ]
+      6 [ list    | 9 | 7 ]
+      ...
+      2 [ list    | 1 | 6 ]
+      1 [ integer |     1 ]
+      0 [ nil             ]
+
+The memory cells 3 to 5 do not belong to our list, the cells of which can be distributed randomly over the memory. Cell 2 is the head of the list, it points to cell 1 which holds the first element's value, and the list containing only 2 and 3 (beginning at cell 6). Cell 6 points at a cell holding 2 and at cell 7, which represents the list containing only 3. It does so by pointing at cell 8 containing the value 3, and pointing at an empty list (nil) as cdr. In the SECD machine, cell 0 always implicitly represents the empty list, so no special tag value is needed to signal an empty list (everything needing that can simply point to cell 0).
+The principle that the cdr in a list cell must point at another list is just a convention. If both car and cdr point at atoms, that will yield a pair, usually written like "(1 . 2)"
+
+[edit] Instructions
+
+nil pushes a nil pointer onto the stack
+ldc pushes a constant argument onto the stack
+ld pushes the value of a variable onto the stack. The variable is indicated by the argument, a pair. The pair's car specifies the level, the cdr the position. So "(1 . 3)" gives the current function's (level 1) third parameter.
+sel expects two list arguments, and pops a value from the stack. The first list is executed if the popped value was non-nil, the second list otherwise. Before one of these list pointers is made the new C, a pointer to the instruction following sel is saved on the dump.
+join pops a list reference from the dump and makes this the new value of C. This instruction occurs at the end of both alternatives of a sel.
+ldf takes one list argument representing a function. It constructs a closure (a pair containing the function and the current environment) and pushes that onto the stack.
+ap pops a closure and a list of parameter values from the stack. The closure is applied to the parameters by installing its environment as the current one, pushing the parameter list in front of that, clearing the stack, and setting C to the closure's function pointer. The previous values of S, E, and the next value of C are saved on the dump.
+ret pops one return value from the stack, restores S, E, and C from the dump, and pushes the return value onto the now-current stack.
+dum pushes a "dummy", an empty list, in front of the environment list.
+rap works like ap, only that it replaces an occurrence of a dummy environment with the current one, thus making recursive functions possible
+
+A number of additional instructions for basic functions like car, cdr, list construction, integer addition, I/O, etc. exist. They all take any necessary parameters from the stack.
+
+[edit] References
+
+
+^ A paper on the design, SECD: DESIGN ISSUES is available.
+
+
+
+[edit] Further reading
+
+Danvy, Olivier. A Rational Deconstruction of Landin's SECD Machine. BRICS research report RS-04-30, 2004. ISSN 0909-0878
+Field, Anthony J. Field and Peter G. Harrison. 1988 Functional Programming. Addison-Wesley. ISBN 0-201-19249-7
+Graham, Brian T. 1992 "The SECD Microprocessor: A Verification Case Study". Springer. ISBN 0792392450
+Henderson, Peter. 1980 Functional Programming: Application and Implementation. Prentice Hall. ISBN 0-13-331579-7
+Kogge, Peter M. The Architecture of Symbolic Computers. ISBN 0-07-035596-7
+Landin, Peter J. 1964. The mechanical evaluation of expressions. Comput. J. 6, 4, 308-320.
+Landin, Peter J. 1966. The next 700 programming languages. Commun. ACM 9, 3, 157-166.
+
+
+[edit] External links
+
+SECD collection
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/SECD_machine"
+Categories: Functional programming | Virtual machines 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+日本語
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 April 2009, at 06:57 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

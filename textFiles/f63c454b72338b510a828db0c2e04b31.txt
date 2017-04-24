@@ -1,0 +1,322 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CSS filter - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "CSS_filter";
+		var wgTitle = "CSS filter";
+		var wgAction = "view";
+		var wgArticleId = "4943817";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279125901;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); CSS filter
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+This article is about a CSS hacking technique. Not to be confused with the discontinued Microsoft-specific CSS property.
+
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (March 2008)
+
+
+A CSS filter or hack is a coding technique used to hide or show CSS markup depending on the browser, version number, or capabilities. Browsers have different interpretations of CSS behaviour and different levels of support for the W3C standards. CSS filters are sometimes used to achieve consistent layout appearance in multiple browsers that do not have compatible rendering.
+
+
+
+
+Contents
+
+
+1 Commented backslash
+2 Box model hack
+3 Underscore hack
+4 Star HTML hack
+5 Child selector hack
+6 Negation pseudo-class hack
+7 Dynamic properties
+8 Criticism
+9 See also
+10 Notes
+11 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Commented backslash
+This hack exploits a bug in Internet Explorer for Mac related to comment parsing. A comment ending in \*/ is not properly closed in IE Mac, so rules that need to be ignored in IE Mac can be placed after such a comment. Another comment is needed after the rule to close the comment for IE Mac.
+
+/* Ignore the next rule in IE mac \*/
+selector { ...styles... }
+/* Stop ignoring in IE mac */
+
+
+[edit] Box model hack
+Called the "box model hack" because the bug it is most often used to work around is the Internet Explorer box model bug, this hack provides a different set of properties to Internet Explorer and other browsers. As of version 6, IE has corrected the box model bug in documents which include certain Document Type Declarations (required by the HTML specifications) in certain ways.
+
+#elem { 
+ width: [IE width]; 
+ voice-family: "\"}\""; 
+ voice-family:inherit;
+ width: [Other browser width];
+}
+html>body #elem {
+ width:[Other browser width];
+} 
+
+The first voice-family statement is set to the string "}", but an IE parser bug will interpret it as a string with a single backslash followed by a closing brace for the end of the rule. voice-family is chosen because it will not affect rendering on a screen style sheet. The second rule uses the html>body hack for browsers such as Opera 5 that have the parsing bug but do not have the box model bug (and, additionally, which support the child selector).
+
+[edit] Underscore hack
+Versions 6 and below of Internet Explorer recognise properties which are preceded by an underscore. All other browsers ignore such properties as invalid. The underscore hack was used before Internet Explorer 6 to compensate for the box model bug:
+
+#elem {
+ width: [W3C Model Width];
+ _width: [BorderBox Model];
+}
+
+As Internet Explorer 6 remedied the box model bug, and it is the last version of Internet Explorer to support this hack, the underscore hack is mostly used today to compensate for deficiencies in IE6's CSS support (see Dynamic properties).
+
+[edit] Star HTML hack
+The html element is the root element of the W3C standard DOM, but Internet Explorer versions 5.5 and 6 include a mysterious parent element. Fully-compliant browsers will ignore the * html selector, while IE5.5 and 6 will process it normally. This enables rules to be specified for these versions of Internet Explorer which will be ignored by all other browsers. For example, this rule specifies text size in Internet Explorer 5.5 and 6, but not in any other browsers.
+
+* html p {font-size: 5em; }
+
+Similarly, only IE7 will catch this rule:
+
+*:first-child+html p { font-size: 5em; }
+
+Note that the "star plus" hack that filters rules for Internet Explorer 7 only works in standards mode. If IE7 is using quirks mode, the filter will be ignored. The * html hack will most likely also be ignored since the Internet Explorer developers fixed this particular bug in version 7[1].
+
+[edit] Child selector hack
+Versions of Internet Explorer below 7 do not support the "child selector" (>), allowing rules to be specified for all other browsers. For example, this rule will turn paragraph text blue in Firefox, but not in IE before version 7.
+
+html > body p { color: blue; }
+
+
+[edit] Negation pseudo-class hack
+No version of Internet Explorer supports the CSS3 :not() pseudo-class.[2] A variation of this hack uses the :root pseudo-class, which is also unrecognised by Internet Explorer.
+
+.yourSelector {
+color: black;
+} /* values for IE */
+
+html:not([dummy]) .yourSelector {
+color: red;
+} /* values for Safari, Opera and Firefox */
+
+The negation selector accepts as a parameter any type, attribute, universal, class or ID selector, or pseudo-class (excluding the negation selector itself). It then applies the following properties to all elements which do not match this argument.
+
+[edit] Dynamic properties
+Between versions 5 and 7, Internet Explorer has supported a proprietary syntax for applying CSS properties which change dynamically, sometimes referred to as CSS expressions.[3] Dynamic properties are typically combined with other hacks to compensate for unsupported properties in older versions of Internet Explorer.
+
+div {
+ min-height: 300px;
+
+ /* simulates min-height in IE6 */
+ _height: expression(document.body.clientHeight ? "300px" : "auto");
+}
+
+
+[edit] Criticism
+Hiding code using hacks often leads to pages being incorrectly displayed when browsers are updated. Many hacks that used to hide CSS from Internet Explorer 6 and lower no longer work in version 7 due to its improved support for CSS standards. The Microsoft Internet Explorer development team have asked that people use conditional comments instead of hacks.[4]
+
+[edit] See also
+
+Comparison of layout engines (Cascading Style Sheets)
+Conditional comments
+
+
+[edit] Notes
+
+^ The IEBlog
+^ "Sitepoint CSS Reference". SitePoint. http://reference.sitepoint.com/css/pseudoclass-not. Retrieved on 2009-01-07. 
+^ About Dynamic Properties
+^ IEBlog – Call to action: The demise of CSS hacks and broken pages
+
+
+[edit] External links
+
+CSS Filters – A fairly complete table of CSS hacks which show and hide rules from specific browsers.
+CSS Filters – CSS-only Filters Summary – More CSS filters.
+Filters and Cross-Over – CSS filters. Parsing errors marked red.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/CSS_filter"
+Categories: Stylesheet languages | Cascading Style SheetsHidden categories: Articles needing additional references from March 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 23 March 2009, at 11:05 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

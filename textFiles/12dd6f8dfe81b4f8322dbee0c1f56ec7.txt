@@ -1,0 +1,454 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Oz (programming language) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Oz_(programming_language)";
+		var wgTitle = "Oz (programming language)";
+		var wgAction = "view";
+		var wgArticleId = "256916";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282205183;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Oz (programming language)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+Oz
+
+Paradigm
+multi-paradigm: logic, functional, imperative, object-oriented, constraint, distributed, concurrent
+
+
+Appeared in
+1991
+
+
+Designed by
+Gert Smolka & his students
+
+
+Developer
+Mozart Consortium
+
+
+Latest release
+1.4.0/ July 3, 2008
+
+
+Typing discipline
+dynamic
+
+
+Major implementations
+Mozart Programming System
+
+
+Influenced by
+Prolog
+
+
+Influenced
+Alice
+
+
+Website
+www.mozart-oz.org
+
+
+Oz is a multiparadigm programming language, developed in the Programming Systems Lab at Saarland University, for programming language education. It has a canonical textbook: Concepts, Techniques, and Models of Computer Programming.
+Oz was first designed by Gert Smolka and his students in 1991. In 1996 the development of Oz continued in cooperation with the research group of Seif Haridi at the Swedish Institute of Computer Science. Since 1999, Oz has been continually developed by an international group, the Mozart Consortium, which originally consisted of Saarland University, the Swedish Institute of Computer Science, and the Université catholique de Louvain. In 2005, the responsibility for managing Mozart development was transferred to a core group, the Mozart Board, with the express purpose of opening Mozart development to a larger community.
+The Mozart Programming System is the primary implementation of Oz. It is released with an open source license by the Mozart Consortium. Mozart has been ported to different flavors of Unix, FreeBSD, Linux, Microsoft Windows, and Mac OS X.
+
+
+
+
+Contents
+
+
+1 Language features
+2 Language overview
+
+2.1 Data structures
+2.2 Functions
+2.3 Dataflow variables and declarative concurrency
+2.4 Example: Sieve of Eratosthenes
+2.5 Laziness
+2.6 Message passing concurrency
+2.7 State and objects
+
+
+3 References
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Language features
+Oz contains most of the concepts of the major programming paradigms, including logic, functional (both lazy and eager), imperative, object-oriented, constraint, distributed, and concurrent programming. Oz has both a simple formal semantics (see chapter 13 of the book mentioned below) and an efficient implementation[citation needed]. Oz is a concurrency-oriented language, as the term was introduced by Joe Armstrong, the main designer of the Erlang language. A concurrency-oriented language makes concurrency both easy to use and efficient. Oz supports a canonical GUI language QTk, discussed in chapter 10 of Concepts.
+In addition to multi-paradigm programming, the major strengths of Oz are in constraint programming and distributed programming. Due to its factored design, Oz is able to successfully implement a network-transparent distributed programming model. This model makes it easy to program open, fault-tolerant applications within the language. For constraint programming, Oz introduces the idea of "computation spaces"; these allow user-defined search and distribution strategies orthogonal to the constraint domain.
+
+[edit] Language overview
+
+[edit] Data structures
+Oz is based on a core language with very few datatypes that can be extended into more practical ones through syntactic sugar.
+Basic data structures:
+
+Numbers: floating points or integer (real integer).
+Records: for grouping data : circle(x:0 y:1 radius:3 color:blue style:dots)
+Lists: a simple linear structure,
+
+
+'|'(2 '|'(4 '|'(6 '|'(8 nil))))
+2|(4|(6|(8|nil))) % syntactic sugar
+2|4|6|8|nil % more syntactic sugar
+[2 4 6 8] % even more syntactic sugar
+
+Those data structures are values (constant), first class and dynamically type checked.
+
+[edit] Functions
+Functions are first class values, allowing higher order functional programming:
+
+fun {Fact N}
+   if N =< 0 then 1 else N*{Fact N-1} end
+end
+
+fun {Comb N K}
+   {Fact N} div ({Fact K} * {Fact N-K}) % integers can't overflow in Oz
+end
+
+fun {SumList List}
+   case List of nil then 0
+   [] H|T then H+{SumList T} % pattern matching on lists
+   end
+end
+
+
+[edit] Dataflow variables and declarative concurrency
+When the program encounters an unbound variable it waits for a value:
+
+thread 
+   Z = X+Y     % will wait until both X and Y are bound to a value.
+   {Browse Z}  % shows the value of Z.
+end
+thread X = 40 end
+thread Y = 2 end
+
+It is not possible to change the value of a dataflow variable once it is bound:
+
+X = 1
+X = 2 % error
+
+Dataflow variables makes it easy to create concurrent stream agents:
+
+fun {Ints N Max}
+   if N == Max then nil
+   else 
+      {Delay 1000}
+      N|{Ints N+1 Max}
+   end
+end
+
+fun {Sum S Stream}
+   case Stream of nil then S
+   [] H|T then S|{Sum H+S T} end
+end
+
+local X Y in
+   thread X = {Ints 0 1000} end
+   thread Y = {Sum 0 X} end
+   {Browse Y}
+end
+
+Because of the way dataflow variables works it is possible to put threads anywhere in the program and it is guaranteed that it will have the same result. This makes concurrent programming very easy. Threads are very cheap, it is possible to have a hundred thousand threads running at once.[1]
+
+[edit] Example: Sieve of Eratosthenes
+This example computes a stream of prime numbers using the Sieve of Eratosthenes algorithm by recursively creating concurrent stream agents that filter out non-prime numbers:
+
+fun {Sieve Xs}
+   case Xs of nil then nil
+   [] X|Xr then Ys in
+      thread Ys = {Filter Xr fun {$ Y} Y mod X \= 0 end} end
+      X|{Sieve Ys}
+   end
+end
+
+
+[edit] Laziness
+Oz uses eager evaluation by default, but lazy evaluation is possible:
+
+fun lazy {Fact N}
+   if N =< 0 then 1 else N*{Fact N-1} end
+end
+local X Y in
+  X = {Fact 100} 
+  Y = X + 1 % the value of X is needed and fact is computed
+end
+
+
+[edit] Message passing concurrency
+The declarative concurrent model can be extended with message passing through simple semantics:
+
+declare
+local Stream Port in
+   Port = {NewPort Stream}
+   {Send Port 1} % Stream is now 1|_ ('_' indicates an unbound and unnamed variable)
+   {Send Port 2} % Stream is now 1|2|_ 
+   ...
+   {Send Port n} % Stream is now 1|2| .. |n|_
+end 
+
+With a port and a thread the programmer can define asynchronous agents:
+
+fun {NewAgent Init Fun}
+   Msg Out in
+   thread {FoldL Msg Fun Init Out} end
+   {NewPort Msg}
+end
+
+
+[edit] State and objects
+It is again possible to extend the declarative model to support state and object-oriented programming with very simple semantics; we create a new mutable data structure called Cells:
+
+local A X in
+   A = {NewCell 0}
+   A := 1  % changes the value of A to 1
+   X = @A  % @ is used to access the value of A
+end
+
+With these simple semantic changes we can support the whole object-oriented paradigm. With a little syntactic sugar OOP becomes well integrated in Oz.
+
+class Counter
+   attr val
+   meth init(Value)
+      val:=Value
+   end
+   meth browse
+      {Browse @val}
+   end
+   meth inc(Value)
+      val :=@val+Value
+   end
+end
+
+local C in
+   C = {New Counter init(0)}
+   {C inc(6)}
+   {C browse}
+end
+
+
+[edit] References
+
+Peter Van Roy and Seif Haridi (2004). Concepts, Techniques, and Models of Computer Programming. MIT Press. There is online supporting material for this book. The book, an introduction to the principles of programming languages, uses Oz as its preferred idiom for examples.
+
+
+
+^ http://www.mozart-oz.org/documentation/tutorial/node8.html#chapter.concurrency
+
+
+
+[edit] See also
+
+Alice, the concurrent functional constraint programming language from Saarland University
+Curry, a functional logic programming language
+Mercury, a functional logic programming language
+Dataflow programming
+
+
+[edit] External links
+
+The Mozart Programming System
+A quick Oz overview
+Tutorial of Oz
+Oz Mozart Tutorial in a blog format
+Oz at the Open Directory Project
+Programming Language Research at UCL: One of the core developers of Mozart/Oz, this group does research using Mozart/Oz as the vehicle
+Multiparadigm Programming in Mozart/Oz: Proceedings of MOZ 2004: Conference which gives a snapshot of the work being done with Mozart/Oz
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Oz_(programming_language)"
+Categories: Multi-paradigm programming languages | Functional logic programming languages | Logic programming languages | Dynamically-typed programming languages | Prototype-based programming languages | Concurrent programming languages | Educational programming languages | Programming languages created in 1991Hidden categories: All articles with unsourced statements | Articles with unsourced statements since June 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+한국어
+Nederlands
+日本語
+Português
+Русский
+Тоҷикӣ
+吴语
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 April 2009, at 21:57.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

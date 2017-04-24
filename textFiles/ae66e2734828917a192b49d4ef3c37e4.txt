@@ -1,0 +1,496 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nemerle - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Nemerle";
+		var wgTitle = "Nemerle";
+		var wgAction = "view";
+		var wgArticleId = "493708";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281617735;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Nemerle
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article may not meet the general notability guideline. Please help to establish notability by adding reliable, secondary sources about the topic. If notability cannot be established, the article is likely to be merged or deleted. (April 2009)
+
+
+
+Nemerle
+
+Paradigm
+multi-paradigm: functional, object-oriented, imperative
+
+
+Designed by
+Kamil Skalski, Michał Moskal, Prof. Leszek Pacholski and Paweł Olszta at Wrocław University
+
+
+Typing discipline
+static, strong, inferred
+
+
+Major implementations
+Nemerle
+
+
+Influenced by
+C#, ML
+
+
+Nemerle is a high-level statically-typed programming language for the .NET (see also Mono) platform. It offers functional, object-oriented and imperative features. It has a simple C#-like syntax and a powerful metaprogramming system.
+It has been named after the archmage Nemmerle from "A Wizard of Earthsea" by Ursula K. Le Guin (spelling with a single m is a design decision).
+
+
+
+
+Contents
+
+
+1 Features
+2 IDE
+3 Examples
+
+3.1 Hello, World!
+3.2 Examples of macros
+
+3.2.1 Database accessibility
+3.2.2 New language constructs
+
+
+3.3 Nemerle with ASP.NET
+3.4 PInvoke
+
+
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Features
+Probably the most important feature of Nemerle is the ability to mix object oriented and functional programming styles. The top-level program structure is object oriented, while in the body of methods one can (but is not forced to) use functional style. This is very handy in some programming problems. The feature set includes functional values, variants and pattern matching.
+Another very important feature is taking a high-level approach in all aspects of the language—trying to lift as much of the burden from the programmer as possible. Features like macros and type inference fit here.
+Features that come from the functional land are variants (aka algebraic data types), pattern matching, type inference and parameter polymorphism (aka generics). The metaprogramming system allows great compiler extensibility, embedding domain specific languages, partial evaluation and aspect-oriented programming.
+Last but not least, the usage of more mundane library functionality from .NET is as easy as (or easier than) in C#.
+
+[edit] IDE
+Nemerle can be integrated into Visual Studio 2005 or Visual Studio 2008. Also it has completely free IDE based on Visual Studio 2008 Shell (like Visual Studio Express Editions).
+
+[edit] Examples
+
+[edit] Hello, World!
+The traditional "Hello World!" can be implemented in a more C#-like fashion:
+
+class Hello {
+  static Main () : void {
+    System.Console.WriteLine ("Hello, world!");
+  }
+}
+
+or more simply:
+
+System.Console.WriteLine("Hello, world!");
+
+
+[edit] Examples of macros
+Macros allow you to have boilerplate code generated for you under the hood, with additional static checks performed by the compiler. They give you the power to programatically generate code.
+
+[edit] Database accessibility
+For example, using Nemerle macros for SQL you can write:
+
+ExecuteReaderLoop (
+  "SELECT firstname, lastname FROM employee WHERE firstname = $myparm",
+  dbcon,
+  {
+    System.Console.WriteLine ("Name: {0} {1}", firstname, lastname) 
+  });
+
+instead of
+
+string sql = "SELECT firstname, lastname FROM employee WHERE firstname = :a";
+NpgsqlCommand dbcmd = new NpgsqlCommand (sql, dbcon, dbtran);
+dbcmd.Parameters.Add("a", myparm);
+
+NpgsqlReader reader = dbcmd.ExecuteReader();
+
+while(reader.Read()) {
+  string firstname = reader.GetString (0);
+  string lastname = reader.GetString (1);
+  System.Console.WriteLine ("Name: {0} {1}", firstname, lastname) 
+}
+reader.Close();
+dbcmd.Dispose();
+
+and this is not just hiding some operations in a library, but additional work performed by the compiler to understand the query string, the variables used there, and the columns returned from the database. The ExecuteReaderLoop macro will generate code roughly equivalent to what you would have to type manually. Moreover, it connects to the database at compilation time to check that your SQL query really makes sense.
+
+[edit] New language constructs
+With Nemerle macros you can also introduce some new syntax into the language:
+
+macro ReverseFor (i, begin, body) 
+syntax ("ford", "(", i, ";", begin, ")", body)
+{
+  <[ for ($i = $begin; $i >= 0; $i--) $body ]>
+}
+
+defines a macro introducing the ford (EXPR ; EXPR) EXPR syntax and can be used like
+
+ford (i ; n) print (i);
+
+
+[edit] Nemerle with ASP.NET
+Nemerle can be either embedded directly into ASP.NET:
+
+<%@ Page Language="Nemerle" %>
+ <script runat="server">
+ 
+     Page_Load(_ : object, _ : EventArgs) : void {
+         Message.Text = $"You last accessed this page at: $(DateTime.Now)";
+     }
+ 
+     EnterBtn_Click(_ : object, _ : EventArgs) : void {
+         Message.Text = $"Hi $(Name.Text), welcome to ASP.NET!";
+     }
+ 
+ </script>
+ 
+ <html>
+     <body>
+         <form runat="server">
+             Please enter your name: <asp:TextBox ID="Name" runat="server" />
+             <asp:Button OnClick="EnterBtn_Click" Text="Enter" runat="server" />
+ 
+             <p><asp:Label ID="Message" runat="server" /></p>
+         </form>
+     </body>
+ </html>
+
+...Or stored in a separate file and entered with a single line:
+
+<%@ Page Language="Nemerle" Src="test.n" Inherits="Test" %>
+
+
+[edit] PInvoke
+Nemerle can take advantage of native platform libraries. The syntax is very similar to C#'s and other .NET languages. Here is the simplest example:
+
+using System;
+using System.Runtime.InteropServices;
+
+class PlatformInvokeTest
+{
+    [DllImport("msvcrt.dll")]
+    public extern static puts(c : string) : int;
+ 
+    [DllImport("msvcrt.dll")]
+    internal extern static _flushall() : int;
+    
+    public static Main() : void
+    {
+        _ = puts("Test");
+        _ = _flushall();
+    }
+}
+
+
+[edit] External links
+
+Language Homepage
+The official documentation
+Nemerle Forum
+Nemerle at 99 Bottles of Beer
+Interesting entries about Nemerle from akiramei's diary (in Japanese)
+
+
+
+
+
+
+
+
+v • d • e
+
+.NET Framework
+
+
+
+
+
+Architecture
+
+Base Class Library · Common Language Runtime · Code Access Security · Assembly · Metadata · COM Interop
+
+
+
+
+
+
+Common Language
+Infrastructure (CLI)
+
+Common Language Infrastructure · Common Type System · Common Intermediate Language · Virtual Execution System
+
+
+
+
+
+
+CLI Languages
+
+
+
+
+
+Common1
+
+
+C# · Visual Basic .NET · C++/CLI (Managed) · F#  · J#  · JScript .NET · Windows PowerShell
+
+
+
+
+
+
+
+Other2
+
+
+A# · Boo · M · Oxygene  · IronLisp · IronPython · IronRuby · IronScheme · Nemerle · Phalanger · P#
+
+
+
+
+
+
+
+
+
+Components
+
+ADO.NET (Entity Framework · Data Services) · ASP.NET (AJAX · MVC · Dynamic Data) · Language Integrated Query · CardSpace · ClickOnce · Communication Foundation · Dynamic Language Runtime · Forms · Presentation Foundation · Remoting · Workflow Foundation  · XAML
+
+
+
+
+
+
+Other implementations
+
+Mono · Compact Framework · XNA Framework · Micro Framework · Portable.NET · Silverlight · SSCLI
+
+
+
+
+
+
+Comparisons
+
+Java and C# · C# and Visual Basic .NET · Java and .NET platforms
+
+
+
+
+
+
+Upcoming
+
+"Acropolis" · "Jasper" · Parallel Extensions
+
+
+
+
+
+
+1 Languages that are, will be, or have been included with Visual Studio or Microsoft Windows.
+2 Non-academic or research languages with relatively large user-bases.
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Nemerle"
+Categories: Procedural programming languages | .NET programming languages | Object-oriented programming languages | ML programming language family | Curly bracket programming languages | Programming languages created in 2003Hidden categories: Articles with topics of unclear notability from April 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+日本語
+Polski
+Русский
+Тоҷикӣ
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 April 2009, at 01:58.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

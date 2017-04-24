@@ -1,0 +1,308 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Word wrap - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Word_wrap";
+		var wgTitle = "Word wrap";
+		var wgAction = "view";
+		var wgArticleId = "2446313";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279640733;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Word wrap
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For word wrap handling on Wikipedia, see Wikipedia:Line break handling.
+In text display, line wrap is the feature of continuing on a new line when a line is full, such that each line fits in the viewable window, allowing text to be read from top to bottom without any horizontal scrolling.
+Word wrap is the additional feature of most text editors, word processors, and web browsers, of breaking lines between and not within words, except when a single word is longer than a line.
+It is usually done on the fly when viewing or printing a document, so no line break code is manually entered, or stored. If the user changes the margins, the editor will either automatically reposition the line breaks to ensure that all the text will "flow" within the margins and remain visible, or provide the typist some convenient way to reposition the line breaks.
+Compare soft return and hard return.
+
+
+
+
+Contents
+
+
+1 Word boundaries, hyphenation, and hard spaces
+2 Word wrapping in text containing Chinese, Japanese, and Korean
+3 Algorithm
+
+3.1 Minimum length
+3.2 Minimum raggedness
+
+
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Word boundaries, hyphenation, and hard spaces
+The soft returns are usually placed after the end of complete words, or after the punctuation that follows complete words. However, word wrap may also occur following a hyphen.
+Word wrap following hyphens is sometimes not desired, and can be avoided by using a so-called non-breaking hyphen instead of a regular hyphen. On the other hand, when using word processors, invisible hyphens, called soft hyphens, can also be inserted inside words so that word wrap can occur following the soft hyphens.
+Sometimes, word wrap is not desirable between words. In such cases, word wrap can usually be avoided by using a hard space or non-breaking space between the words, instead of regular spaces.
+
+[edit] Word wrapping in text containing Chinese, Japanese, and Korean
+In Chinese, Japanese, and Korean, each Han character is normally considered a word, and therefore word wrapping can usually occur before and after any Han character.
+Under certain circumstances, however, word wrapping is not desired. For instance,
+
+word wrapping might not be desired within personal names, and
+word wrapping might not be desired within any compound words (when the text is flush left but only in some styles).
+
+Most existing word processors and typesetting software cannot handle either of the above scenarios.
+CJK punctuation may or may not follow rules similar to the above-mentioned special circumstances; such rules are usually referred to by the Japanese term kinsoku shori (禁則処理, literally “prohibition rule handling”).
+A special case of kinsoku shori, however, always applies: line wrap must never occur inside the CJK dash and ellipsis. Even though each of these punctuation marks must be represented by two characters due to a limitation of all existing character encodings, each of these are intrinsically a single punctuation mark that is two ems wide, not two one-em-wide punctuation marks.
+
+[edit] Algorithm
+Word wrapping is an optimization problem. Depending on what needs to be optimized for, different algorithms are used.
+
+[edit] Minimum length
+A simple way to do word wrapping is to use a greedy algorithm that puts as many words on a line as possible, then moving on to the next line to do the same until there are no more words left to place. This method is used by many modern word processors, such as Microsoft Word and Open Office. This algorithm is optimal in that it always puts the text on the minimum number of lines. The following pseudocode implements this algorithm:
+
+SpaceLeft := LineWidth
+for each Word in Text
+    if Width(Word) > SpaceLeft
+        insert line break before Word in Text
+        SpaceLeft := LineWidth - Width(Word)
+    else
+        SpaceLeft := SpaceLeft - (Width(Word) + SpaceWidth)
+
+Where LineWidth is the width of a line, SpaceLeft is the remaining width of space on the line to fill, SpaceWidth is the width of a single space character, Text is the input text to iterate over and Word is a word in this text.
+
+[edit] Minimum raggedness
+A different algorithm, used in TeX, minimizes square of the the space at the end of lines to produce a more aesthetically pleasing result. The algorithm above is not optimal with respect to this, as the following example demonstrates:
+
+aaa bb cc ddddd 
+
+If the cost function of a line is defined by the remaining space squared, the greedy algorithm would yield a sub-optimal solution for the problem (for simplicity, consider a fixed-width font):
+
+------    Line width: 6
+aaa bb    Remaining space: 0 (cost = 0 squared = 0)
+cc        Remaining space: 4 (cost = 4 squared = 16)
+ddddd     Remaining space: 1 (cost = 1 squared = 1)
+
+Summing to a total cost of 17, while an optimal solution would look like this:
+
+------    Line width: 6
+aaa       Remaining space: 3 (cost = 3 squared = 9)
+bb cc     Remaining space: 1 (cost = 1 squared = 1)
+ddddd     Remaining space: 1 (cost = 1 squared = 1)
+
+The difference here is that the first line is broken before bb instead of after it, yielding a better right margin and a lower cost 11.
+To solve the problem we need to define a cost function c(i,j) that computes the cost of a line consisting of the words Word[i] to Word[j] from the text:
+
+
+
+Where P typically is 2 or 3. There are some special cases to consider: If the result is negative (that is, the sequence of words cannot fit on a line), the cost needs to reflect the cost of tracking or condensing the text to fit; if that is not possible, it needs to return .
+The cost of the optimal solution can be defined as a recurrence:
+
+
+
+This can be efficiently implemented using dynamic programming, for a time and space complexity of O(j2).
+
+[edit] See also
+
+Word divider
+Non-breaking space
+Zero-width space
+
+
+[edit] External links
+Knuth's algorithm:
+
+"Knuth & Plass line-breaking Revisited"
+"tex_wrap": "Implements TeX's algorithm for breaking paragraphs into lines." Reference: "Breaking Paragraphs into Lines", D.E. Knuth and M.F. Plass, chapter 3 of _Digital Typography_, CSLI Lecture Notes #78.
+Text::Reflow - Perl module for reflowing text files using Knuth's paragraphing algorithm. "The reflow algorithm tries to keep the lines the same length but also tries to break at punctuation, and avoid breaking within a proper name or after certain connectives ("a", "the", etc.). The result is a file with a more "ragged" right margin than is produced by fmt or Text::Wrap but it is easier to read since fewer phrases are broken across line breaks."
+adjusting the Knuth algorithm to recognize the "soft hyphen".
+Knuth's breaking algorithm. "The detailed description of the model and the algorithm can be found on the paper "Breaking Paragraphs into Lines" by Donald E. Knuth, published in the book "Digital Typography" (Stanford, California: Center for the Study of Language and Information, 1999), (CSLI Lecture Notes, no. 78.)" ; part of Google Summer Of Code 2006
+"Bridging the Algorithm Gap: A Linear-time Functional Program for Paragraph Formatting" by Oege de Moor, Jeremy Gibbons, 1999
+
+Other word-wrap links:
+
+circular word wrap
+the reverse problem -- picking columns just wide enough to fit (wrapped) text
+KWordWrap Class Reference used in the KDE GUI
+"Knuth linebreaking elements for Formatting Objects" by Simon Pepping 2006. Extends the Knuth model to handle a few enhancements.
+"Page breaking strategies" Extends the Knuth model to handle a few enhancements.
+"a Knuth-Plass-like linebreaking algorithm ... The *really* interesting thing is how Adobe's algorithm differs from the Knuth-Plass algorithm. It must differ, since Adobe has managed to patent its algorithm (6,510,441)."[1]
+"Murray Sargent: Math in Office"
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Word_wrap"
+Categories: Text editor features | Typography | Dynamic programming 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Dansk
+한국어
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 March 2009, at 18:59 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

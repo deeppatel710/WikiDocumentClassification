@@ -1,0 +1,469 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Real-time Transport Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Real-time_Transport_Protocol";
+		var wgTitle = "Real-time Transport Protocol";
+		var wgAction = "view";
+		var wgArticleId = "26163";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278706895;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Real-time Transport Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Real-time Transport Protocol (RTP) defines a standardized packet format for delivering audio and video over the Internet. It was developed by the Audio-Video Transport Working Group of the IETF and first published in 1996 as RFC 1889, and superseded by RFC 3550 in 2003.
+RTP is used extensively in communication and entertainment systems that involve streaming media, such as telephony, video teleconference applications and web-based push to talk features. For these it carries media streams controlled by H.323, MGCP, Megaco, SCCP, or Session Initiation Protocol (SIP) signaling protocols, making it one of the technical foundations of the Voice over IP industry.
+RTP is usually used in conjunction with the RTP Control Protocol (RTCP). While RTP carries the media streams (e.g., audio and video) or out-of-band signaling (DTMF), RTCP is used to monitor transmission statistics and quality of service (QoS) information. When both protocols are used in conjunction, RTP is usually originated and received on even port numbers, whereas RTCP uses the next higher odd port number.
+
+
+The Internet Protocol Suite
+
+
+Application Layer
+
+
+BGP · DHCP · DNS · FTP · GTP · HTTP · IMAP · IRC · Megaco · MGCP · NNTP · NTP · POP · RIP · RPC · RTP · RTSP · SDP · SIP · SMTP · SNMP · SOAP · SSH · Telnet · TLS/SSL · XMPP · (more)
+
+
+Transport Layer
+
+
+TCP · UDP · DCCP · SCTP · RSVP · ECN · (more)
+
+
+Internet Layer
+
+
+IP (IPv4, IPv6) · ICMP · ICMPv6 · IGMP · IPsec · (more)
+
+
+Link Layer
+
+
+ARP · RARP · NDP · OSPF · Tunnels (L2TP) · Media Access Control (Ethernet, MPLS, DSL, ISDN, FDDI) · Device Drivers · (more)
+
+
+
+This box: view • talk • edit
+
+
+
+
+
+
+
+Contents
+
+
+1 Overview
+
+1.1 Protocol components
+1.2 Sessions
+
+
+2 Profiles and Payload formats
+3 Packet header
+4 RTP-based systems
+5 RFC references
+6 See also
+7 External links
+8 Notes
+9 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+RTP was developed by the Audio/Video Transport working group of the IETF standards organization, and it has since been adopted by several other standards organization, including by ITU as part of its H.323 standard.[1] The RTP standard defines a pair of protocols, RTP and the Real-time Transport Control Protocol (RTCP). The former is used for exchange of multimedia data, while the latter is used to periodically send control information and Quality of service parameters.[2]
+RTP protocol is designed for end-to-end, real-time, audio or video data flow transport.[3] It allows the recipient to compensate for the jitter and breaks in sequence that may occur during the transfer on an IP network. RTP supports data transfer to multiple destination by using multicast.[3] RTP provides no guarantee of the delivery, but sequencing of the data makes it possible to detect missing packets.[3] RTP is regarded as the primary standard for audio/video transport in IP networks and is used with an associated profile and payload format.[1]
+Multimedia applications need timely delivery and can tolerate some loss in packets. For example, loss of a packet in audio application results may result in loss of a fraction of a second of audio data, which, with suitable error concealment can be made unnoticeable.[4] Multimedia applications require timeliness over reliability. The Transmission Control Protocol (TCP), although standardized for RTP use (RFC 4571), is not often used by RTP because of inherent latency introduced by connection establishment and error correction, instead the majority of the RTP implementations are based on the User Datagram Protocol (UDP).[4] Other transport protocols specifically designed for multimedia sessions are SCTP and DCCP, although they are not in widespread use yet.
+The design of RTP was based on an architectural principle known as Application Level Framing (ALF). ALF principle is seen as a way to design protocols for emerging multimedia applications. ALF is based on the belief that applications understand their own needs better, and the intelligence should be placed in applications and the network layer should be kept simple.[5] RTP Profiles and Payload formats are used to describe Application specific details.(explained below)[6]
+
+[edit] Protocol components
+There are two parts to RTP: Data Transfer Protocol and an associated Control Protocol. The RTP data transfer protocol manages delivery of real-time data (audio and video), between end systems. It defines the media payload, incorporating sequence numbers for loss detection, timestamps to enable timing recovery, payload type and source identifiers, and a marker for significant events. Depending on the profile and payload format in use, rules for timestamp and sequence number usage are specified.[7]
+The RTP Control Protocol (RTCP) provides reception quality feedback, participant identification and synchronization between media streams. RTCP runs alongside RTP, providing periodic reporting of this information.[7] While the RTP data packets are sent every few milliseconds, the control protocol operates on the scale of seconds. The information in RTCP may be used for synchronization (e.g. lip sync)[7] The RTCP traffic is small when compared to the RTP traffic, typically around 5%.[8]
+
+[edit] Sessions
+To setup an RTP session, an application defines a pair of destination ports (an IP address with a pair of ports for RTP and RTCP). In a multimedia session, each media stream is carried in a separate RTP session, with its own RTCP packets reporting the reception quality for that session. For example, audio and video would travel in separate RTP session, enabling a receiver to select whether or not to receive a particular stream.[9] An RTP port should be even and the RTCP port should be the next higher port number if possible. Deviations from this rule can be signaled via RTP session descriptions in other protocols (SDP). RTP and RTCP typically use unprivileged UDP ports (1024 to 65535),[10] but may use other transport protocols (most notably, SCTP and DCCP) as well, as the protocol design is transport independent.
+Voice over Internet Protocol (VoIP) systems most often use the Session Description Protocol (SDP)[11] to define RTP sessions and negotiate the parameters involved with other peers. The Real Time Streaming Protocol (RTSP) may be also be used to setup and control media session on remote media servers.
+
+[edit] Profiles and Payload formats
+See also: RTP Audio Video Profiles
+One of the design considerations of the RTP was to support a wide variety of applications and to provide a flexible mechanism by which new applications can incorporate RTP without repeatedly revising the RTP protocol standard. For each class of application (e.g., audio, video), RTP defines a profile and one or more associated payload formats.[6] The profile provides a range of information that is used to interpret the fields in the RTP header for that application class.[6] The format is used to interpret the payload that follows the RTP header.[6]
+Each profile is accompanied by several payload format specifications, each of which describes the transport of a particular media format.[1] For example, The RTP profile for Audio and video conferences with minimal control (RFC 3551) defines a set of static payload type assignments, and a mechanism for mapping between a payload format, and a payload type identifier (in header) using Session Description Protocol (SDP).[12] Payload format specification may define an additional payload header (to be placed after main RTP header).[13] Some of the audio payload formats are: G.711, G.723, G.726, G.729, GSM, QCELP, MP3, DTMF etc.,[13] Some of the video payload formats are: H.261, H.263, MPEG etc.,[13][14]
+
+[edit] Packet header
+
+
+bit offset
+0-1
+2
+3
+4-7
+8
+9-15
+16-31
+
+
+0
+Ver.
+P
+X
+CC
+M
+PT
+Sequence Number
+
+
+32
+Timestamp
+
+
+64
+SSRC identifier
+
+
+96
+CSRC identifiers (optional)
+...
+
+
+The RTP header has a minimum size of 12 bytes. After the header, optional header extensions may be present. This is followed by the RTP payload, the format of which is determined by the particular class of application.[15]. The fields in the header are as follows:
+
+Ver.: (2 bits) Indicates the version of the protocol. Current version is 2.[16]
+P (Padding): (1 bit) Used to indicate if there are extra padding bytes at the end of the RTP packet. A padding might be used to fill up the a block of certain size, for example as required by an encryption algorithm.[16]
+X (Extension): (1 bit) Indicates presence of an Extension header between standard header and payload data. This is application / profile specific.[16]
+CC (CSRC Count): (4 bits) Contains the number of CSRC identifiers (defined below) that follow the fixed header.[17]
+M (Marker): (1 bit) Used at the application level and is defined by a profile. If it is set, it means that the current data has some special relevance for the application.[17]
+PT (Payload Type): (7 bits) Indicates the format of the payload and determines its interpretation by the application. This is specified by an RTP profile. For example, see RTP Profile for audio and video conferences with minimal control (RFC 3551).[18]
+Sequence Number : (16 bits) The sequence number is incremented by one for each RTP data packet sent and is to be used by the receiver to detect packet loss and to restore packet sequence. The RTP does not take any action when it sees a packet loss, but it is left to the application to take the desired action. For example, video applications may play the last known frame in place of the missing frame.[19] According to the RFC 3550, The initial value of the sequence number should be random to make known-plaintext attacks on encryption more difficult.[17]
+Timestamp : (32 bits) Used to enable the receiver to playback the received samples at appropriate intervals. When several media streams are present, the timestamps are independent in each stream, and may not be relied upon for media synchronization. The granularity of the timing is application specific. Fo example, an audio application that samples data once every 125 µs could use that value as its clock resolution. The clock granularity is one of the details that is specified in the RTP profile or payload format for an application.[19]
+SSRC : (32 bits) Synchronization source identifier uniquely identifies the source of a stream. The synchronization sources within the same RTP session will be unique.[17]
+CSRC : Contributing source IDs enumerate contributing sources to a stream which has been generated from multiple sources.[17]
+Extension header : (optional) The first 32-bit word contains a profile specific identifier (16 bits) and a length specifier (16 bits) that indicates the length of the extension (EHL=extension header length) in 32-bit units, excluding the 32 bits of the extension header.[17]
+
+
+[edit] RTP-based systems
+
+
+
+
+IETF Multimedia protocol stack[20]
+
+Call Control
+Lightweight
+Sessions
+Media
+Codecs
+
+
+Media Negotiation
+
+
+RTSP
+SIP
+SAP
+RTP
+
+
+TCP
+UDP
+
+
+IP
+
+
+
+
+
+
+
+ITU Teleconferencing Protocols[20]
+
+Media
+Codecs
+Registration Admission
+Call Control
+
+
+Media
+negotiation
+
+
+RTP
+H.225
+H.245
+
+
+TCP
+UDP
+
+
+IP
+
+
+
+
+
+In addition to RTP, a complete system typically uses other protocols and standards for session announcement, initiation, and control (like the Session Initiation Protocol, Real Time Streaming Protocol, H.225 and H.245) as well as codecs (like H.263, G.711, MPEG-4) for media compression.[20] RTP provides a common media transport layer, independent of signaling protocol and application.[20]
+An RTP sender is responsible for capturing audio/video data and compressing them as frames using a suitable encoder. The encoded frames are then transmitted as RTP packets. The sender may occasionally perform error correction and congestion control.[20] If the compressed frames are large, they may be fragmented into several RTP packets, and if small, several frames may be bundled into a single RTP packet.[21] The sender may make changes to the transmission, depending on the quality feedback received on RTCP.[21]
+The RTP receiver collects the RTP packets from the network, correcting any losses, recovering the timing, decoding the media data and presenting it to the user. It also sends reception quality to the sender via RTCP.[22]
+
+[edit] RFC references
+
+RFC 4103, RTP Payload Format for Text Conversation
+RFC 3984, RTP Payload Format for H.264 Video
+RFC 3640, RTP Payload Format for Transport of MPEG-4 Elementary Streams
+RFC 3016, RTP Payload Format for MPEG-4 Audio/Visual Streams
+RFC 3551, Standard 65, RTP Profile for Audio and Video Conferences with Minimal Control
+RFC 3550, Standard 64, RTP : A Transport Protocol for Real-Time Applications
+RFC 2250, Proposed Standard, RTP Payload Format for MPEG1/MPEG2 Video
+
+
+[edit] See also
+
+Secure Real-time Transport Protocol
+Stream Control Transmission Protocol
+ZRTP
+
+
+[edit] External links
+
+oRTP, RTP library from Linphone written in C
+Henning Schulzrinne's RTP page (including FAQ)
+GNU ccRTP
+JRTPLIB, a C++ RTP library
+
+
+[edit] Notes
+
+
+^ a b c Colin Perkins, p.55
+^ Larry L. Peterson (2007). Computer Networks. Morgan Kaufmann. p. 430. 
+^ a b c Daniel Hardy (2002). Network. De Boeck Université. p. 298. 
+^ a b Colin Perkins, p.46
+^ Zurawski, Richard (2004). "RTP, RTCP and RTSP Protocols". The industrial information technology handbook. CRC Press. pp. 28-4. http://books.google.co.in/books?id=rcLH2hQNe8UC&pg=PT226. 
+^ a b c d Larry L. Peterson (2007). Computer Networks. Morgan Kaufmann. p. 430. 
+^ a b c Colin Perkins, p.56
+^ Peterson, p.435
+^ Zurawski, Richard (2004). "RTP, RTCP and RTSP protocols". The industrial information technology handbook. CRC Press. pp. 28-7. http://books.google.com/books?id=MwMDUBKZ3wwC. 
+^ Collins, Daniel (2002). "Transporting Voice by using IP". Carrier grade voice over IP. McGraw-Hill Professional. pp. 47. 
+^ RFC 4566: SDP: Session Description Protocol, M. Handley, V. Jacobson, C. Perkins, IETF (July 2006)
+^ Colin Perkins, p.59
+^ a b c Colin Perkins, p.60
+^ For examples of H.263, MPEG-4 packet formats see, Chou, Philip A.; Mihaela van der Schaar (2007). Multimedia over IP and wireless networks. Academic Press. pp. 514. 
+^ Peterson, p.430
+^ a b c Peterson, p.431
+^ a b c d e f "RTP Data Transfer Protocol". RFC-Ref. http://rfc-ref.org/RFC-TEXTS/3550/chapter4.html. Retrieved on 2009-03-18. 
+^ Colin Perkins, p.59
+^ a b Peterson, p.432
+^ a b c d e Colin Perkins, p.11
+^ a b Colin Perkins, p.12
+^ Colin Perkins, p.13
+
+
+
+[edit] References
+
+Perkins, Colin (2003). RTP. Addison-Wesley. pp. 414. ISBN 9780672322495. http://books.google.com/books?id=OM7YJAy9_m8C. 
+Peterson, Larry L.; Bruce S. Davie (2007). Computer Networks (4 ed.). Morgan Kaufmann. pp. 806. ISBN 9780123740137. http://books.google.com/books?id=zGVVuO-6w3IC. 
+"RTP". Network Protocols Handbook. Javvin Technologies. 2005. ISBN 9780974094526. 
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Real-time_Transport_Protocol"
+Categories: Streaming | Application layer protocols | VoIP terminology & concepts | VoIP protocols 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Български
+Català
+Česky
+Dansk
+Deutsch
+Español
+Euskara
+Français
+Italiano
+עברית
+Nederlands
+日本語
+Polski
+Português
+Română
+Русский
+Slovenčina
+Suomi
+Svenska
+Türkçe
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 21 March 2009, at 09:34.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

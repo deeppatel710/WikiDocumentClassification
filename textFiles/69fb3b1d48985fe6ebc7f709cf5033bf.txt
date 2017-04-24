@@ -1,0 +1,317 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lock (computer science) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Lock_(computer_science)";
+		var wgTitle = "Lock (computer science)";
+		var wgAction = "view";
+		var wgArticleId = "244593";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274867084;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Lock (computer science)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (June 2007)
+
+
+In computer science, a lock is a synchronization mechanism for enforcing limits on access to a resource in an environment where there are many threads of execution. Locks are one way of enforcing concurrency control policies.
+
+
+
+
+Contents
+
+
+1 Types
+2 Granularity
+3 Database locks
+4 The problems with locks
+5 Language support
+6 References
+7 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Types
+Generally, locks are advisory locks, where each thread cooperates by acquiring the lock before accessing the corresponding data. Some systems also implement mandatory locks, where attempting unauthorized access to a locked resource will force an exception in the entity attempting to make the access.
+A (binary) semaphore is the simplest type of lock. In terms of access to the data, no distinction is made between shared (read only) or exclusive (read and write) modes. Other schemes provide for a shared mode, where several threads can acquire a shared lock for read-only access to the data. Other modes such as exclusive, intend-to-exclude and intend-to-upgrade are also widely implemented.
+Independent of the type of lock chosen above, locks can be classified by what happens when the lock strategy prevents progress of a thread. Most locking designs block the execution of the thread requesting the lock until it is allowed to access the locked resource. A spinlock is a lock where the thread simply waits ("spins") until the lock becomes available. It is very efficient if threads are only likely to be blocked for a short period of time, as it avoids the overhead of operating system process re-scheduling. It is wasteful if the lock is held for a long period of time.
+Locks typically require hardware support for efficient implementation. This usually takes the form of one or more atomic instructions such as "test-and-set", "fetch-and-add" or "compare-and-swap". These instructions allow a single process to test if the lock is free, and if free, acquire the lock in a single atomic operation.
+Uniprocessor architectures have the option of using uninterruptable sequences of instructions, using special instructions or instruction prefixes to disable interrupts temporarily, but this technique does not work for multiprocessor shared-memory machines. Proper support for locks in a multiprocessor environment can require quite complex hardware and/or software support, with substantial synchronization issues.
+The reason an atomic operation is required is because of concurrency, where more than one task executes the same logic. For example, consider the following C code:
+
+ if (lock == 0) lock = myPID; /* lock free - set it */
+
+The above example does not guarantee that the task has the lock, since more than one task can be testing the lock at the same time. Since both tasks will detect that the lock is free, both tasks will attempt to set the lock, not knowing that the other task is also setting the lock. Dekker's or Peterson's algorithm are possible substitutes if atomic locking operations are not available.
+Careless use of locks can result in deadlock or livelock. Deadlock occurs when a process holds a lock and then attempts to acquire a second lock. If the second lock is already held by another process, the first process will be blocked. If the second process then attempts to acquire the lock held by the first process, the system has "deadlocked": no progress will ever be made. A number of strategies can be used to avoid or recover from deadlocks, both at design-time and at run-time. (The most common is to standardize the lock acquisition sequences so that combinations of inter-dependent locks are always acquired and released in a specifically defined "cascade" order).
+
+[edit] Granularity
+Before introducing lock granularity, one needs to understand three concepts about locks.
+
+lock overhead: The extra resources for using locks, like the memory space allocated for locks, the CPU time to initialize and destroy locks, and the time for acquiring or releasing locks. The more locks a program uses, the more overhead associated with the usage.
+lock contention: This occurs whenever one process or thread attempts to acquire a lock held by another process or thread. The more granular the available locks, the less likely one process/thread will request a lock held by the other. (For example, locking a row rather than the entire table, or locking a cell rather than the entire row.)
+deadlock: The situation when two tasks that are waiting on locks, each holding a lock that the other is waiting for. Unless something is done, the two tasks will wait forever.
+
+So there is a tradeoff between decreasing lock overhead and decreasing lock contention when choosing the number of locks in synchronization.
+An important property of a lock is its granularity. The granularity is a measure of the amount of data the lock is protecting. In general, choosing a coarse granularity (a small number of locks, each protecting a large segment of data) results in less lock overhead when a single process is accessing the protected data, but worse performance when multiple processes are running concurrently. This is because of increased lock contention the more coarse the lock, the higher the likelihood that the lock will stop an unrelated process from proceeding. Conversely, using a fine granularity (a larger number of locks, each protecting a fairly small amount of data) increases the overhead of the locks themselves but reduces lock contention. More locks also increase the risk of deadlock.[citation needed]
+In a database management system, for example, a lock could protect, in order of increasing granularity, a record, a data page, or an entire table. Coarse granularity, such as using table locks, tends to give the best performance for a single user, whereas fine granularity, such as record locks, tends to give the best performance for multiple users.
+
+[edit] Database locks
+Database locks can be used as a means of ensuring transaction synchronicity. i.e. when making transaction processing concurrent (interleaving transactions), using 2-phased locks ensures that the concurrent execution of the transaction turns out equivalent to some serial ordering of the transaction. However, deadlocks become an unfortunate side-effect of locking in databases. Deadlocks are either prevented by pre-determining the locking order between transactions or are detected using waits-for graphs. An alternate to locking for database synchronicity while avoiding deadlocks involves the use of totally ordered global timestamps.
+There are mechanisms employed to manage the actions of multiple concurrent users on a database - the purpose is to prevent lost updates and dirty reads. The two types of locking are Pessimistic and Optimistic Locking.
+
+Pessimistic Locking: this is whereby a user who reads a record with the intention of updating it, places an exclusive lock on the record to prevent other users from manipulating it. This means no one else can manipulate that record until the user releases the lock. The downside is that users can be locked out for a very long time thereby causing frustration.
+
+Where To Use Pessimistic Locking: This is mainly used in environments where data-contention (the degree of users request to the database system at any one time) is heavy; where the cost of protecting data through locks is less than the cost of rolling back transactions if concurrency conflicts occur. Pessimistic concurrency is best implemented when lock times will be short, as in programmatic processing of records. Pessimistic concurrency requires a persistent connection to the database and is not a scalable option when users are interacting with data, because records might be locked for relatively large periods of time. It is not appropriate for use in web application development.
+
+
+
+
+Optimistic Locking: this allows multiple concurrent users access to the database whilst the system keeps a copy of the initial-read made by each user. When a user wants to update a record, the application determines whether another user has changed the record since it was last read. The application does this by comparing the initial-read held in memory to the database record to verify any changes made to the record. Any discrepancies between the initial-read and the database record violates concurrency rules and hence causes the system to disregard any update request. An error message is generated and the user is asked to start the update process again. It improves database performance by reducing the amount of locking required, thereby reducing the load on the database server. It works efficiently with tables that require limited updates since no users are locked out. However, some updates may fail. The downside is constant update failures due to high volumes of update requests from multiple concurrent users - it can be frustrating for users.
+
+Where To Use Optimistic Locking: This is appropriate in environments where there is low contention for data, or where read-only access to data is required. Optimistic concurrency is used extensively in .NET to address the needs of mobile and disconnected applications[1], where locking data rows for prolonged periods of time would be infeasible. Also, maintaining record locks requires a persistent connection to the database server, which is not possible in disconnected applications.
+
+
+
+
+[edit] The problems with locks
+Lock-based resource protection and thread/process synchronization has many disadvantages:
+
+They cause blocking, which means some threads/processes have to wait until a lock (or a whole set of locks) is released.
+Lock handling adds overhead for all access to a resource, even when the chances for collision are very rare. (However, any chance for such collisions is a race condition).
+Locks can be vulnerable to failures and faults. If one thread holding a lock dies, stalls/blocks or goes into any sort of infinite loop, other threads waiting for the lock may wait forever.
+Programming using locks is extremely error-prone, like the notorious deadlock. Bugs are often very subtle and may be almost impossible to reliably reproduce. (See: race condition).
+Lock contention limits scalability and adds complexity.
+Balances between lock overhead and contention can be unique to given problem domains (applications) as well as sensitive to design, implementation, and even low-level system architectural changes. These balances may change over the life cycle of any given application/implementation and may entail tremendous changes to update (re-balance).
+Locks are only composable (i.e., managing multiple concurrent locks in order to atomically delete Item X from Table A and insert X into Table B) with relatively elaborate (overhead) software support and perfect adherence by applications programming to rigorous conventions.
+Priority inversion. High priority threads/processes cannot proceed if a low priority thread/process is holding the common lock.
+Convoying. All other threads have to wait if a thread holding a lock is descheduled due to a time-slice interrupt or page fault (See lock convoy)
+Hard to debug: Bugs associated with locks are time dependent. They are extremely hard to repeat.
+
+One strategy is to avoid locks entirely by using non-blocking synchronization methods, like lock-free programming techniques and transactional memory but note that many of the above disadvantages have analogues with these alternative synchronization methods.
+
+[edit] Language support
+See also: Barrier (computer science)
+Language support for locking depends on the language used:
+
+There is no standard C or C++ API to handle mutexes. However, the POSIX pthread API provides lock support, but its use is not straightforward[2]. Visual C++ allows adding the synchronize attribute in the code to mark methods that must be synchronized, but this is specific to the Windows architecture and Visual C++ compiler[3].
+The Java (programming language) provide the keyword synchronized to put locks on blocks of code, methods or objects[4] and libraries featuring concurrency-safe data structures.
+In the C# programming language, the lock keyword can be used to ensure that a thread has exclusive access to a certain resource.
+Python does not provide a lock keyword, but it is possible to use a lower level mutex mechanism to acquire or release a lock[5].
+Ruby also doesn't provide a keyword for synchronization, but it is possible to use an explicit low level mutex object[6].
+In x86 Assembly, the LOCK prefix prevents another processor from doing anything in the middle of certain operations: it guarantees atomicity.
+
+
+[edit] References
+
+
+^ "Designing Data Tier Components and Passing Data Through Tiers". Microsoft. August 2002. http://msdn.microsoft.com/en-us/library/ms978496.aspx. Retrieved on 2008-05-30. 
+^ Marshall, Dave (March 1999). "Mutual Exclusion Locks". http://www.cs.cf.ac.uk/Dave/C/node31.html#SECTION003110000000000000000. Retrieved on 2008-05-30. 
+^ "Synchronize". msdn.microsoft.com. http://msdn.microsoft.com/en-us/library/34d2s8k3(VS.80).aspx. Retrieved on 2008-05-30. 
+^ "Synchronization". Sun Microsystems. http://java.sun.com/docs/books/tutorial/essential/concurrency/sync.html. Retrieved on 2008-05-30. 
+^ Lundh, Fredrik (July 2007). "Thread Synchronization Mechanisms in Python". http://effbot.org/zone/thread-synchronization.htm. Retrieved on 2008-05-30. 
+^ "Programming Ruby: Threads and Processes". 2001. http://www.ruby-doc.org/docs/ProgrammingRuby/html/tut_threads.html. Retrieved on 2008-05-30. 
+
+
+
+[edit] See also
+
+Semaphore (programming)
+Monitor (synchronization)
+Mutual exclusion
+Critical section
+Double-checked locking
+Lock-free and wait-free algorithms
+File locking
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Lock_(computer_science)"
+Categories: Concurrency controlHidden categories: Articles lacking sources from June 2007 | All articles lacking sources | All articles with unsourced statements | Articles with unsourced statements since June 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+עברית
+Italiano
+Lietuvių
+日本語
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 March 2009, at 06:29 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

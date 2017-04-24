@@ -1,0 +1,322 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Column-oriented DBMS - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Column-oriented_DBMS";
+		var wgTitle = "Column-oriented DBMS";
+		var wgAction = "view";
+		var wgArticleId = "6870132";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 287803295;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Column-oriented DBMS
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources. Unverifiable material may be challenged and removed. (October 2008)
+
+
+A column-oriented DBMS is a database management system (DBMS) which stores its content by column rather than by row. This has advantages for databases such as data warehouses and library catalogues, where aggregates are computed over large numbers of similar data items. [1] This approach is contrasted with row-oriented databases and with correlation databases, which use a value-based storage structure.
+
+
+
+
+Contents
+
+
+1 Description
+2 Benefits
+
+2.1 Storage efficiency vs. Random Access
+
+
+3 Implementations
+4 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Description
+Simplified greatly, DBMS systems are challenged with storing tabular data made up of rows and columns. Further, the set of columns is generally fixed by program design, while the number of rows is variable through use of the program. In one simple example, DBMS data might contain the following table.
+
+
+EmpId
+Lastname
+Firstname
+Salary
+
+
+1
+Smith
+Joe
+40000
+
+
+2
+Jones
+Mary
+50000
+
+
+3
+Johnson
+Cathy
+44000
+
+
+This simple table includes an employee identifier (EmpId), name fields (Lastname and Firstname) and a salary (Salary).
+Modern computer systems simplify the details of underlying storage down to a one-dimensional storage space, using a single numerical address to refer to a location. This is true for random access memory, hard disk drives, and most other computer storage media. DBMS systems therefore must orient their data by flattening it onto a one-dimensional address space. Combine the common expectation for a fixed number of columns and a variable number of rows with the mapping from two dimensions to one, and we arrive at a column or row oriented classification.
+A row-oriented implementation of a DBMS would store every attribute of a given row in sequence, with the last entry of one row followed by the first entry of the next.
+
+      1,Smith,Joe,40000;2,Jones,Mary,50000;3,Johnson,Cathy,44000;
+
+
+A column-oriented implementation of a DBMS would store every attribute of a given column in sequence, with the column values for the same column stored in sequence, with the end of one column followed by the beginning of the next.
+
+      1,2,3;Smith,Jones,Johnson;Joe,Mary,Cathy;40000,50000,44000;
+
+It is important to recognize that modern DBMS are not so simply column-oriented or row-oriented as in the simple example above, since partitioning, indexing, caching, materializing views, OLAP cubes, and transactional systems such as write ahead logging or multiversion concurrency control all dramatically affect physical organization of DBMS data. That said, online transaction processing (OLTP)-focused RDBMS systems are more row-oriented, while online analytical processing (OLAP)-focused systems are a balance of row-oriented and column-oriented.
+
+[edit] Benefits
+Comparisons between row-oriented and column-oriented systems are typically concerned with the efficiency of hard-disk access for a given workload, as seek time is incredibly long compared to the other delays in computers. Further, because seek time is improving at a slow rate relative to CPU power (see Moore's Law), this focus will likely continue on systems reliant on hard-disks for storage. Following is a set of over-simplified observations which attempt to paint a picture of the trade-offs between column and row oriented organizations.
+
+Column-oriented systems are more efficient when an aggregate needs to be computed over many rows but only for a notably smaller subset of all columns of data, because reading that smaller subset of data can be faster than reading all data.
+Column-oriented systems are more efficient when new values of a column are supplied for all rows at once, because that column data can be written efficiently and replace old column data without touching any other columns for the rows.
+Row-oriented systems are more efficient when many columns of a single row are required at the same time, and when row-size is relatively small, as the entire row can be retrieved with a single disk seek.
+Row-oriented systems are more efficient when writing a new row if all of the column data is supplied at the same time, as the entire row can be written with a single disk seek.
+
+In practice, row oriented architectures are well-suited for OLTP-like workloads which are more heavily loaded with interactive transactions. Column stores are well-suited for OLAP-like workloads (e.g., data warehouses) which typically involve a smaller number of highly complex queries over all data (possibly terabytes).
+
+[edit] Storage efficiency vs. Random Access
+Column data is of uniform type; therefore, there are some opportunities for storage size optimizations available in column oriented data that are not available in row oriented data. For example, many popular modern compression schemes, such as LZW, make use of the similarity of adjacent data to compress. While the same techniques may be used on row-oriented data, a typical implementation will achieve less effective results. Further, this behavior becomes more dramatic when a large percentage of adjacent column data is either the same or not-present, such as in a sparse column (similar to a sparse matrix). The opposing tradeoff is Random Access. Retrieving all data from a single row is more efficient when that data is located in a single location, such as in a row-oriented architecture. Further, the greater adjacent compression achieved, the more difficult random-access may become, as data might need to be uncompressed to be read. Therefore, column-oriented architectures are sometimes enriched by additional mechanisms aimed at minimizing the need of access to compressed data[2].
+
+[edit] Implementations
+For many years, only the Sybase IQ product was commonly available in the column-oriented DBMS class. However, that has changed rapidly in the last few years with many open source and commercial implementations.
+Current examples of column-oriented DBMSs include:
+
+Commercial
+
+Sybase IQ
+Vertica and its academic open-source cousin C-Store
+Valentina Database
+Vectornova/Vectorstar High-speed Data Engine
+KDB
+Addamark, now the Sensage Scalable Log Server
+1010data's Tenbase database
+DataProbe
+BigTable
+EXASolution
+Skytide XOLAP Server
+SuperSTAR from Space-Time Research
+ParAccel Analytic Database
+
+
+Commercial open-source
+
+Infobright (formerly Brighthouse) data engine, integrates with MySQL
+RC21 commercial open source project
+Xplain Semantic Database (called transposed files). "The latest release was version 5.8 (1999)"
+
+
+Open-source
+
+C-Store No new release since Oct 2006
+FastBit open source
+Infobright Community Edition, regular updates
+LucidDB open source
+MonetDB academic open source project
+Metakit open source
+The S programming language and GNU R incorporate column-oriented data structures for statistical analyses
+HBase structured storage for Hadoop HDFS inspired by Bigtable
+HyperTable Bigtable-like structured storage written in C++
+The Cassandra Project Facebook's distributed storage system based on a Bigtable-like data model.
+
+
+
+
+[edit] References
+
+^ C-Store: A column-oriented DBMS, Stonebraker et al, Proceedings of the 31st VLDB Conference, Trondheim, Norway, 2005
+^ Brighthouse: an analytic data warehouse for ad-hoc queries, Slezak et al, Proceedings of the 34th VLDB Conference, Auckland, New Zealand, 2008
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Column-oriented_DBMS"
+Categories: Database management systemsHidden categories: Articles lacking sources from October 2008 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 May 2009, at 07:56 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

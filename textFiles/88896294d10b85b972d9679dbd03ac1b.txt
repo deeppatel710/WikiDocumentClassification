@@ -1,0 +1,476 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hungarian algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Hungarian_algorithm";
+		var wgTitle = "Hungarian algorithm";
+		var wgAction = "view";
+		var wgArticleId = "2609001";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283726795;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Hungarian algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Hungarian method is a combinatorial optimization algorithm which solves the assignment problem in polynomial time and which anticipated later primal-dual methods. It was developed and published by Harold Kuhn in 1955, who gave the name "Hungarian method" because the algorithm was largely based on the earlier works of two Hungarian mathematicians: Dénes Kőnig and Jenő Egerváry.
+James Munkres reviewed the algorithm in 1957 and observed that it is (strongly) polynomial. Since then the algorithm has been known also as Kuhn-Munkres algorithm or Munkres assignment algorithm. The time complexity of the original algorithm was O(n4), however Edmonds and Karp, and independently Tomizawa noticed that it can be modified to achieve an O(n3) running time. Ford and Fulkerson extended the method to general transportation problems. In 2006, it was discovered that Carl Gustav Jacobi had solved the assignment problem in the 19th century, and published posthumously in 1890 in Latin.[1]
+
+
+
+
+Contents
+
+
+1 Laymen’s Explanation
+2 Setting
+3 The algorithm in terms of bipartite graphs
+4 Matrix interpretation
+5 Bibliography
+6 References
+7 External links
+
+7.1 Implementations
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Laymen’s Explanation
+Say you have three workers: Jim, Steve & Alan. You need to have one of them clean the bathroom, another sweep the floors & the third wash the windows. What’s the best (minimum-cost) way to assign the jobs? First we need a matrix of the costs of the workers doing the jobs.
+
+
+
+Clean bathroom
+Sweep floors
+Wash Windows
+
+
+Jim
+$1
+$2
+$3
+
+
+Steve
+$3
+$3
+$3
+
+
+Alan
+$3
+$3
+$2
+
+
+Then the Hungarian algorithm, when applied to the above table would give us the minimum cost it can be done with: Jim cleans the bathroom, Steve sweeps the floors and Allan washes the windows.
+
+[edit] Setting
+We are given a nonnegative n×n matrix, where the element in the i-th row and j-th column represents the cost of assigning the i-th job to the j-th worker. We have to find an assignment of the jobs to the workers that has minimum cost.
+The algorithm is easier to describe if we formulate the problem using a bipartite graph. We have a complete bipartite graph G=(S, T; E) with n worker vertices (S) and n job vertices (T), and each edge has a nonnegative cost c(i,j). We want to find a perfect matching with minimum cost.
+Let us call a function  a potential if  for each . The value of potential y is . It can be seen that the cost of each perfect matching is at least the value of each potential. The Hungarian method finds a perfect matching and a potential with equal cost/value which proves the optimality of both. In fact it finds a perfect matching of tight edges: an edge ij is called tight for a potential y if y(i) + y(j) = c(i,j). Let us denote the subgraph of tight edges by Gy. The cost of a perfect matching in Gy (if there is one) equals the value of y.
+
+[edit] The algorithm in terms of bipartite graphs
+During the algorithm we maintain a potential y and an orientation of Gy (denoted by ) which has the property that the edges oriented from T to S form a matching M. Initially, y is 0 everywhere, and all edges are oriented from S to T (so M is empty). In each step, either we modify y so that its value increases, or modify the orientation to obtain a matching with more edges. We maintain the invariant that all the edges of M are tight. We are done if M is a perfect matching.
+In a general step, let  and  be the vertices not covered by M (so RS consists of the vertices in S with no incoming edge and RT consists of the vertices in T with no outgoing edge). Let Z be the set of vertices reachable in  from RS by a directed path only following edges that are tight. This can be computed by breadth-first search.
+If  is nonempty, then reverse the orientation of a directed path in  from RS to RT. Thus the size of the corresponding matching increases by 1.
+If  is empty, then let . Δ is positive because there are no tight edges between  and . Increase y by Δ on the vertices of  and decrease y by Δ on the vertices of . The resulting y is still a potential. The graph Gy changes, but it still contains M. We orient the new edges from S to T. By the definition of Δ the set Z of vertices reachable from RS increases (note that the number of tight edges does not necessarily increase).
+We repeat these steps until M is a perfect matching, in which case it gives a minimum cost assignment. The running time of this version of the method is O(n4): M is augmented n times, and in a phase where M is unchanged, there are at most n potential changes (since Z increases every time). The time needed for a potential change is O(n2).
+
+[edit] Matrix interpretation
+Given n workers and tasks, and an n×n matrix containing the cost of assigning each worker to a task, find the cost minimizing assignment.
+First the problem is written in the form of a matrix as given below
+
+
+
+where a, b, c and d are the workers who have to perform tasks 1, 2, 3 and 4. a1, a2, a3, a4 denote the penalties incurred when worker "a" does task 1, 2, 3, 4 respectively. The same holds true for the other symbols as well. The matrix is square, so each worker can perform only one task.
+Then we perform row operations on the matrix. To do this, the lowest of all ai (i belonging to 1-4) is taken and is subtracted from the other elements in that row. This will lead to at least one zero in that row (We get multiple zeros when there are two equal elements which also happen to be the lowest in that row). This procedure is repeated for all rows. We now have a matrix with at least one zero per row. Now we try to assign tasks to agents such that each agent is doing only one task and the penalty incurred in each case is zero. This is illustrated below.
+
+
+0
+a2'
+0'
+a4'
+
+
+b1'
+b2'
+b3'
+0'
+
+
+0'
+c2'
+c3'
+c4'
+
+
+d1'
+0'
+d3'
+d4'
+
+
+The zeros that are indicated as 0' are the assigned tasks.
+Sometimes it may turn out that the matrix at this stage cannot be used for assigning, as is the case in for the matrix below.
+
+
+0
+a2'
+a3'
+a4'
+
+
+b1'
+b2'
+b3'
+0'
+
+
+0
+c2'
+c3'
+c4'
+
+
+d1'
+0
+d3'
+d4'
+
+
+In the above case, no assignment can be made. Note that task 1 is done efficiently by both agent a and c. Both can't be assigned the same task. Also note that no one does task 3 efficiently. To overcome this, we repeat the above procedure for all columns (i.e. the minimum element in each column is subtracted from all the elements in that column) and then check if an assignment is possible. In most situations this will give the result, but if it is still not possible to assign then the procedure described below must be followed.
+Initially assign as many tasks as possible then do the following (assign tasks in rows 2, 3 and 4)
+
+
+0
+a2'
+a3'
+a4'
+
+
+b1'
+b2'
+b3'
+0'
+
+
+0'
+c2'
+c3'
+c4'
+
+
+d1'
+0'
+d3'
+d4'
+
+
+Mark all rows having no assignments (row 1). Then mark all columns having zeros in that row (column 1). Then mark all rows having assignments in the given column (row 3). Repeat this till a closed loop is obtained.
+
+
+×
+
+
+
+
+
+
+0
+a2'
+a3'
+a4'
+×
+
+
+b1'
+b2'
+b3'
+0'
+
+
+
+0'
+c2'
+c3'
+c4'
+×
+
+
+d1'
+0'
+d3'
+d4'
+
+
+
+Now draw lines through all marked columns and unmarked rows.
+
+
+×
+
+
+
+
+
+
+0
+a2'
+a3'
+a4'
+×
+
+
+b1'
+b2'
+b3'
+0'
+
+
+0'
+c2'
+c3'
+c4'
+×
+
+
+d1'
+0'
+d3'
+d4'
+
+
+From the elements that are left, find the lowest value. Subtract this from all elements that are not struck. Add this to elements that are present at the intersection of two lines. Leave other elements unchanged. Now assign the tasks using above rules. Repeat the procedure till an assignment is possible.
+Basically you find the second minimum cost among the two rows. The procedure is repeated until you are able to distinguish among the workers in terms of least cost.
+
+[edit] Bibliography
+
+Harold W. Kuhn, "The Hungarian Method for the assignment problem", Naval Research Logistics Quarterly, 2:83–97, 1955. Kuhn's original publication.
+Harold W. Kuhn, "Variants of the Hungarian method for assignment problems", Naval Research Logistics Quarterly, 3: 253–258, 1956.
+J. Munkres, "Algorithms for the Assignment and Transportation Problems", Journal of the Society of Industrial and Applied Mathematics, 5(1):32–38, 1957 March.
+
+
+M. Fischetti, "Lezioni di Ricerca Operativa", Edizioni Libreria Progetto Padova, Italia, 1995.
+
+
+R. Ahuja, T. Magnanti, J. Orlin, "Network Flows", Prentice Hall, 1993.
+
+
+[edit] References
+
+
+^ http://www.lix.polytechnique.fr/~ollivier/JACOBI/jacobiEngl.htm
+
+
+
+[edit] External links
+
+Mordecai J. Golin, Bipartite Matching and the Hungarian Method, Course Notes, Hong Kong University of Science and Technology.
+R. A. Pilgrim, Munkres' Assignment Algorithm. Modified for Rectangular Matrices, Course notes, Murray State University.
+
+Or: Step-by-step description of algorithm
+
+
+Mike Dawes, The Optimal Assignment Problem, Course notes, University of Western Ontario.
+On Kuhn's Hungarian Method - A tribute from Hungary, Andras Frank, Egervary Research Group, Pazmany P. setany 1/C, H1117, Budapest, Hungary.
+
+
+[edit] Implementations
+(Note that not all of these satisfy the O(n3) time constraint.)
+
+Python implementation
+Ruby implementation with unit tests
+Online interactive implementation Please note that this implements a variant of the algorithm as described above.
+Graphical implementation with options (Java applet)
+Serial and parallel implementations.
+Implementation in Matlab and C
+Perl implementation
+Lisp implementation
+C++ implementation
+Another C++ implementation with unit tests
+Java implementation (GPLv3)
+Another Java implementation with JUnit tests (Apache 2.0)
+Serial and parallel implementations.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Hungarian_algorithm"
+Categories: Matching | Combinatorial optimization 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Nederlands
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 14 April 2009, at 05:24 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

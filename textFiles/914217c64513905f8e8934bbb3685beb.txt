@@ -1,0 +1,533 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ZFS - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "ZFS";
+		var wgTitle = "ZFS";
+		var wgAction = "view";
+		var wgArticleId = "1205693";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281899256;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); ZFS
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For other uses, see ZFS (disambiguation).
+
+ZFS
+
+Developer
+Sun Microsystems
+
+
+Full name
+ZFS
+
+
+Introduced
+November 2005 (OpenSolaris)
+
+
+Structures
+
+
+Directory contents
+Extensible hash table
+
+
+Limits
+
+
+Max file size
+16 EiB
+
+
+Max number of files
+248
+
+
+Max filename length
+255 bytes
+
+
+Max volume size
+16 EiB
+
+
+Features
+
+
+Forks
+Yes (called Extended Attributes)
+
+
+Attributes
+POSIX
+
+
+File system permissions
+POSIX, NFSv4 ACLs
+
+
+Transparent compression
+Yes
+
+
+Transparent encryption
+Yes (currently beta)[1]
+
+
+Supported operating systems
+Sun Solaris, Apple Mac OS X Server 10.5, FreeBSD, Linux via FUSE
+
+
+In computing, ZFS is a file system designed by Sun Microsystems for the Solaris Operating System. The features of ZFS include support for high storage capacities, integration of the concepts of filesystem and volume management, snapshots and copy-on-write clones, continuous integrity checking and automatic repair, RAID-Z and native NFSv4 ACLs. ZFS is implemented as open-source software, licensed under the Common Development and Distribution License (CDDL).
+
+
+
+
+Contents
+
+
+1 History
+2 Features
+
+2.1 Storage pools
+2.2 Capacity
+2.3 Copy-on-write transactional model
+2.4 Snapshots and clones
+2.5 Dynamic striping
+2.6 Variable block sizes
+2.7 Lightweight filesystem creation
+2.8 Additional capabilities
+2.9 Cache management
+2.10 Adaptive Endianness
+
+
+3 Limitations
+4 Platforms
+
+4.1 OpenSolaris
+4.2 BSD
+4.3 Mac OS X
+4.4 Linux
+
+
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+ZFS was designed and implemented by a team at Sun led by Jeff Bonwick. It was announced on September 14, 2004.[2] Source code for ZFS was integrated into the main trunk of Solaris development on October 31, 2005[3] and released as part of build 27 of OpenSolaris on November 16, 2005. Sun announced that ZFS was included in the 6/06 update to Solaris 10 in June 2006, one year after the opening of the OpenSolaris community.[4]
+The name originally stood for "Zettabyte File System", but is now an orphan acronym.[5]
+
+[edit] Features
+
+[edit] Storage pools
+Unlike traditional file systems, which reside on single devices and thus require a volume manager to use more than one device, ZFS filesystems are built on top of virtual storage pools called zpools. A zpool is constructed of virtual devices (vdevs), which are themselves constructed of block devices: files, hard drive partitions, or entire drives, with the last being the recommended usage.[6] Block devices within a vdev may be configured in different ways, depending on needs and space available: non-redundantly (similar to RAID 0), as a mirror (RAID 1) of two or more devices, as a RAID-Z group of three or more devices, or as a RAID-Z2 group of four or more devices.[7] Besides standard storage, devices can be designated as volatile read cache (ARC), nonvolatile write cache, or as a spare disk for use only in the case of a failure. Finally, when mirroring, block devices can be grouped according to physical chassis, so that the filesystem can continue in the face of the failure of an entire chassis.
+Storage pool composition is not limited to similar devices but can consist of ad-hoc, heterogenous collections of devices, which ZFS seamlessly pools together, subsequently doling out space to diverse filesystems as needed. Arbitrary storage device types can be added to existing pools to expand their size at any time. If high-speed solid-state drives (SSDs) are included in a pool, ZFS will transparently utilize the SSDs as cache within the pool, directing frequently used data to the fast SSDs and less-frequently used data to slower, less expensive mechanical disks. [8]
+The storage capacity of all vdevs is available to all of the file system instances in the zpool. A quota can be set to limit the amount of space a file system instance can occupy, and a reservation can be set to guarantee that space will be available to a file system instance.
+
+[edit] Capacity
+ZFS is a 128-bit file system, so it can address 18 billion billion (1.84 × 1019) times more data than current 64-bit systems. The limitations of ZFS are designed to be so large that they would never be encountered, given the known limits of physics. Some theoretical limits in ZFS are:
+
+264 — Number of snapshots of any file system[9]
+248 — Number of entries in any individual directory[10]
+16 EiB (264 bytes) — Maximum size of a file system
+16 EiB — Maximum size of a single file
+16 EiB — Maximum size of any attribute
+256 ZiB (278 bytes) — Maximum size of any zpool
+256 — Number of attributes of a file (actually constrained to 248 for the number of files in a ZFS file system)
+256 — Number of files in a directory (actually constrained to 248 for the number of files in a ZFS file system)
+264 — Number of devices in any zpool
+264 — Number of zpools in a system
+264 — Number of file systems in a zpool
+
+
+[edit] Copy-on-write transactional model
+ZFS uses a copy-on-write transactional object model. All block pointers within the filesystem contain a 256-bit checksum (fletcher2, fletcher4, or SHA-256)[11] of the target block which is verified when the block is read. Blocks containing active data are never overwritten in place; instead, a new block is allocated, modified data is written to it, and then any metadata blocks referencing it are similarly read, reallocated, and written. To reduce the overhead of this process, multiple updates are grouped into transaction groups, and an intent log is used when synchronous write semantics are required.
+
+[edit] Snapshots and clones
+An advantage of copy-on-write is that when ZFS writes new data, the blocks containing the old data can be retained, allowing a snapshot version of the file system to be maintained. ZFS snapshots are created very quickly, since all the data composing the snapshot is already stored; they are also space efficient, since any unchanged data is shared among the file system and its snapshots.
+Writeable snapshots ("clones") can also be created, resulting in two independent file systems that share a set of blocks. As changes are made to any of the clone file systems, new data blocks are created to reflect those changes, but any unchanged blocks continue to be shared, no matter how many clones exist.
+
+[edit] Dynamic striping
+Dynamic striping across all devices to maximize throughput means that as additional devices are added to the zpool, the stripe width automatically expands to include them; thus all disks in a pool are used, which balances the write load across them.
+
+[edit] Variable block sizes
+ZFS uses variable-sized blocks of up to 128 kilobytes. The currently available code allows the administrator to tune the maximum block size used as certain workloads do not perform well with large blocks. Automatic tuning to match workload characteristics is contemplated.[citation needed]
+If data compression (LZJB) is enabled, variable block sizes are used. If a block can be compressed to fit into a smaller block size, the smaller size is used on the disk to use less storage and improve IO throughput (though at the cost of increased CPU use for the compression and decompression operations).
+
+[edit] Lightweight filesystem creation
+In ZFS, filesystem manipulation within a storage pool is easier than volume manipulation within a traditional filesystem; the time and effort required to create or resize a ZFS filesystem is closer to that of making a new directory than it is to volume manipulation in some other systems.
+
+[edit] Additional capabilities
+
+Explicit I/O priority with deadline scheduling.
+Claimed globally optimal I/O sorting and aggregation.
+Multiple independent prefetch streams with automatic length and stride detection.
+Parallel, constant-time directory operations.
+End-to-end checksumming, using a kind of "Data Integrity Field", allowing data corruption detection (and recovery if you have redundancy in the pool).
+Transparent filesystem compression. Supports LZJB and gzip.[12]
+Intelligent scrubbing and resilvering.[13]
+Load and space usage sharing between disks in the pool.[14]
+Ditto blocks: Metadata is replicated inside the pool, two or three times (according to metadata importance).[15] If the pool has several devices, ZFS tries to replicate over different devices. So a pool without redundancy can lose data if you find bad sectors, but metadata should be fairly safe even in this scenario.
+ZFS design (copy-on-write + superblocks) is safe when using disks with write cache enabled, if they support the cache flush commands issued by ZFS. This feature provides safety and a performance boost compared with some other filesystems.
+When entire disks are added to a ZFS pool, ZFS automatically enables their write cache. This is not done when ZFS only manages discrete slices of the disk, since it doesn't know if other slices are managed by non-write-cache safe filesystems, like UFS.
+Filesystem encryption is supported, though is currently in a beta stage.[1]
+
+
+[edit] Cache management
+ZFS also uses the ARC, a new method for cache management, instead of the traditional Solaris virtual memory page cache.
+
+[edit] Adaptive Endianness
+Pools and their associated ZFS file systems can be moved between different platform architectures, including systems implementing different byte orders. The ZFS block pointer format stores filesystem metadata in an endian-adaptive way; individual metadata blocks are written with the native byte order of the system writing the block. When reading, if the stored endianness doesn't match the endianness of the system, the metadata is byte-swapped in memory.
+This does not affect the stored data itself; as is usual in POSIX systems, files appear to applications as simple arrays of bytes, so applications creating and reading data remain responsible for doing so in a way independent of the underlying system's endianness.
+
+[edit] Limitations
+
+ZFS doesn't support per-user or per-group quotas as a separate mechanism as of March 2009, but this functionality is planned.[16] In the meantime, due to the fact that filesystems are lightweight, one creates user-owned filesystems, each with its own size limit. Intrinsically, there is no practical quota solution for the file systems shared among several users (such as team projects, for example), where the data cannot be separated per user, although it could be implemented on top of the ZFS stack.
+
+
+Capacity expansion is normally achieved by adding groups of disks as a vdev (stripe, RAID-Z, RAID-Z2, or mirrored). Newly written data will dynamically start to use all available vdevs. It is also possible to expand the array by iteratively swapping each drive in the array with a bigger drive and waiting for ZFS to heal itself — the heal time will depend on amount of stored information, not the disk size. The new free space will not be available until all the disks have been swapped.
+
+
+It is currently not possible to reduce the number of vdevs in a pool nor otherwise reduce pool capacity.[17] However, it is currently being worked on[18]by the ZFS team. Still not available as of Solaris 10 10/08 (AKA update 6).
+
+
+It is not possible to add a disk to a RAID-Z or RAID-Z2 vdev. This feature appears very difficult to implement. You can however create a new RAID-Z vdev and add it to the zpool.
+
+
+You cannot mix vdev types in a zpool. For example, if you had a striped ZFS pool consisting of disks on a SAN, you cannot add the local-disks as a mirrored vdev.
+
+
+Reconfiguring storage requires copying data offline, destroying the pool, and recreating the pool with the new policy.
+
+
+ZFS is not a native cluster, distributed, or parallel file system and cannot provide concurrent access from multiple hosts as ZFS is a local file system. Sun's Lustre distributed filesystem will adapt ZFS as back-end storage for both data and metadata in version 3.0, which is scheduled to be released in 2010.[19]
+
+
+[edit] Platforms
+ZFS is part of Sun's own Solaris operating system and is thus available on both SPARC and x86-based systems. Since the code for ZFS is open source, a port to other operating systems and platforms can be produced without Sun's involvement.
+
+[edit] OpenSolaris
+OpenSolaris 2008.05 uses ZFS as its default filesystem. There are a half dozen 3rd party distributions.
+Nexenta OS, a complete GNU-based open source operating system built on top of the OpenSolaris kernel and runtime, includes a ZFS implementation, added in version alpha1. More recently, Nexenta Systems announced NexentaStor, their ZFS storage appliance providing NAS/SAN/iSCSI capabilities and based on Nexenta OS. NexentaStor includes a GUI that simplifies the process of utilizing ZFS.
+
+[edit] BSD
+Pawel Jakub Dawidek has ported ZFS to FreeBSD. It is part of FreeBSD 7.x as an experimental feature.[20] In the current development branch exists an updated version of the port (ZFS version 13) which will be part of FreeBSD 8.0.
+As a part of the 2007 Google Summer of Code a ZFS port was started for NetBSD.[21]
+
+[edit] Mac OS X
+An April 2006 post on the opensolaris.org zfs-discuss mailing list, was the first indication of Apple Inc.'s interest in ZFS, where an Apple employee is mentioned as being interested in porting ZFS to their Mac OS X operating system.[22]
+In the release version of Mac OS X 10.5, ZFS is available in read-only mode from the command line, which lacks the possibility to create zpools or write to them.[23] Before the 10.5 release, Apple released the "ZFS Beta Seed v1.1", which allowed read-write access and the creation of zpools,[24] however the installer for the "ZFS Beta Seed v1.1" has been reported to only work on version 10.5.0, and has not been updated for version 10.5.1 and above.[25]
+In August 2007, Apple opened a ZFS project on their Mac OS Forge site. On that site, Apple provide the source code and binaries of their port of ZFS which includes read-write access, but don't provide an installer.[26] An installer has been made available by a third-party developer.[27]
+The current Mac OS Forge release of the Mac OS X ZFS project is version 119 and synchronized with the OpenSolaris ZFS SNV version 72[28]
+Complete ZFS support is one of the advertised features of Apple's upcoming 10.6 version of Mac OS X Server.[29]
+
+[edit] Linux
+Porting ZFS to Linux is complicated by the fact that the GNU General Public License, which governs the Linux kernel, prohibits linking with code under certain licenses, such as CDDL, the license ZFS is released under.[30] One solution to this problem is to port ZFS to Linux's FUSE system so the filesystem runs in userspace instead. A project to do this was sponsored by Google's Summer of Code program in 2006, and is in a bugfix-only state as of March 2009.[31] The ZFS on FUSE project is available here. Running a file system outside the kernel on traditional Unix-like systems can have a significant performance impact. However, NTFS-3G (another file system driver built on FUSE) performs well when compared to other traditional file system drivers.[32] This shows that reasonable performance is possible with ZFS on Linux after proper optimization. Sun Microsystems has stated that a Linux port is being investigated.[33] It is also possible to run Linux in a Zone on Solaris and thus the underlying filesystem would be ZFS (though Linux would not have 'ZFS commands').[34] It is also possible to run the GNU userland on top of an OpenSolaris kernel, as done by Nexenta.
+It would also be possible to reimplement ZFS under GPL as has been done to support other filesystems (e.g. HFS and FAT) in Linux.
+The BTRFS project, which aims to implement a filesystem with a similar feature set to ZFS, was merged into Linux kernel 2.6.29 in Jan 2009.
+
+[edit] See also
+
+
+
+
+Free software portal
+
+
+
+
+List of file systems
+Comparison of file systems
+Veritas File System and Veritas Volume Manager — similar to ZFS
+Write Anywhere File Layout — a similar file system by NetApp
+Btrfs — for Linux
+NILFS — a Linux filesystem with checksumming (but not scrubbing), also supporting snapshots
+LZJB — data compression algorithm used in ZFS
+Versioning file systems - List of versioning file systems
+
+
+[edit] References
+
+
+^ a b "OpenSolaris.org". Sun Microsystems. http://opensolaris.org/os/project/zfs-crypto. Retrieved on 2007-10-21. 
+^ "ZFS: the last word in file systems". Sun Microsystems. September 14, 2004. http://www.sun.com/2004-0914/feature/. Retrieved on 2006-04-30. 
+^ Jeff Bonwick (October 31, 2005). "ZFS: The Last Word in Filesystems". Jeff Bonwick's Blog. http://blogs.sun.com/roller/page/bonwick?entry=zfs_the_last_word_in. Retrieved on 2006-04-30. 
+^ "Sun Celebrates Successful One-Year Anniversary of OpenSolaris". Sun Microsystems. June 20, 2006. http://www.sun.com/smi/Press/sunflash/2006-06/sunflash.20060620.1.xml. 
+^ "ZFS FAQ at OpenSolaris.org". Sun Microsystems. http://opensolaris.org/os/community/zfs/faq/#whatstandfor. Retrieved on 2009-03-03. 
+^ "Solaris ZFS Administration Guide". Sun Microsystems. http://docs.sun.com/app/docs/doc/819-5461/6n7ht6qrr?a=view#gazdp. Retrieved on 2007-10-02. 
+^ "ZFS Best Practices Guide". Solaris Performance Wiki. http://www.solarisinternals.com/wiki/index.php/ZFS_Best_Practices_Guide#RAID-Z_Configuration_Requirements_and_Recommendations. Retrieved on 2007-10-02. 
+^ "Solaris™ ZFS™ Enables Hybrid Storage Pools—Shatters Economic and Performance Barriers"
+^ "Solaris ZFS Administration Guide". Sun Microsystems. http://docs.sun.com/app/docs/doc/819-5461/6n7ht6qsb?a=view. Retrieved on 2007-10-05. 
+^ "Solaris ZFS Administration Guide". Sun Microsystems. http://docs.sun.com/app/docs/doc/819-5461/6n7ht6qr0?a=view. Retrieved on 2007-10-05. 
+^ "ZFS On-Disk Specification". Sun Microsystems, Inc.. 2006. http://opensolaris.org/os/community/zfs/docs/ondiskformat0822.pdf.  See section 2.4.
+^ "Solaris ZFS Administration Guide". Chapter 6 Managing ZFS File Systems. http://docs.sun.com/app/docs/doc/819-5461/gavwq?a=view. Retrieved on 2009-03-17. 
+^ "Smokin' Mirrors". Jeff Bonwick's Weblog. 2006-05-02. http://blogs.sun.com/bonwick/entry/smokin_mirrors. Retrieved on 2007-02-23. 
+^ "ZFS Block Allocation". Jeff Bonwick's Weblog. 2006-11-04. http://blogs.sun.com/bonwick/entry/zfs_block_allocation. Retrieved on 2007-02-23. 
+^ "Ditto Blocks - The Amazing Tape Repellent". Flippin' off bits Weblog. 2006-05-12. http://blogs.sun.com/bill/entry/ditto_blocks_the_amazing_tape. Retrieved on 2007-03-01. 
+^ 6501037 "Bug ID 6501037: want user/group quotas on ZFS". OpenSolaris Project. http://bugs.opensolaris.org/view_bug.do?bug_id= 6501037. Retrieved on 2009-03-28. 
+^ "Bug ID 4852783: reduce pool capacity". OpenSolaris Project. http://bugs.opensolaris.org/view_bug.do?bug_id=4852783. Retrieved on 2009-03-28. 
+^ Goebbels, Mario (2007-04-19). "Permanently removing vdevs from a pool". zfs-discuss mailing list. http://mail.opensolaris.org/pipermail/zfs-discuss/2007-April/010384.html. 
+^ ""Lustre Roadmap"". http://wiki.lustre.org/index.php?title=Lustre_Roadmap. 
+^ Dawidek, Pawel (April 6, 2007). "ZFS committed to the FreeBSD base". http://lists.freebsd.org/pipermail/freebsd-current/2007-April/070544.html. Retrieved on 2007-04-06. 
+^ "NetBSD Google Summer of Code projects: ZFS". http://www.netbsd.org/contrib/soc-projects.html#zfs-port. 
+^ "Porting ZFS to OSX". zfs-discuss. April 27, 2006. http://mail.opensolaris.org/pipermail/zfs-discuss/2006-April/002119.html. Retrieved on 2006-04-30. 
+^ "Apple: Leopard offers limited ZFS read-only". MacNN. June 12, 2007. http://www.macnn.com/articles/07/06/12/leopard.uses.hfs.not.zfs/. Retrieved on 2007-06-23. 
+^ "Apple delivers ZFS Read/Write Developer Preview 1.1 for Leopard". Ars Technica. October 7, 2007. http://arstechnica.com/journals/apple.ars/2007/10/07/apple-delivers-zfs-readwrite-developer-preview-1-1-for-leopard. Retrieved on 2007-10-07. 
+^ Ché Kristo (November 18, 2007). "ZFS Beta Seed v1.1 will not install on Leopard.1 (10.5.1) « ideas are free". http://synesius.wordpress.com/2007/11/18/zfs-beta-seed-v11-will-not-install-on-leopard1-1051/. Retrieved on 2007-12-30. 
+^ http://zfs.macosforge.org
+^ http://alblue.blogspot.com/2008/11/zfs-119-on-mac-os-x.html
+^ "Mac OS Forge ZFS Project". May 23, 2008. http://zfs.macosforge.org/trac/wiki/downloads. Retrieved on 2008-05-23. 
+^ "Snow Leopard". June 10, 2008. http://www.apple.com/server/macosx/snowleopard/. Retrieved on 2008-06-10. 
+^ Jeremy Andrews (April 19, 2007). "Linux: ZFS, Licenses and Patents". http://kerneltrap.org/node/8066. Retrieved on 2007-04-21. 
+^ Ricardo Correia (March 16, 2009). "ZFS on FUSE/Linux". http://zfs-on-fuse.blogspot.com/. Retrieved on 2009-03-16. 
+^ Szabolcs Szakacsits (November 28, 2007). "NTFS-3G Read/Write Driver Performance". http://ntfs-3g.org/performance.html. Retrieved on 2008-01-20. 
+^ "Fast Track to Solaris 10 Adoption: ZFS Technology". Solaris 10 Technical Knowledge Base. Sun Microsystems. http://www.sun.com/emrkt/campaign_docs/expertexchange/knowledge/solaris_zfs_gen.html#10. Retrieved on 2006-04-24. 
+^ HowTo: Install Lenny - Debian Linux ZFS using Solaris Zones
+
+
+
+[edit] External links
+
+ZFS Development Community and detailed ZFS Documentation
+ZFS Best Practices Guide
+ZFS The Last word in File Systems
+ZFS Boot Project
+ZFS Encryption Project
+Sun's ZFS Learning Center Presentations on ZFS by Bill Moore
+
+
+
+
+
+
+
+
+v • d • e
+
+Solaris
+
+
+
+
+
+Technologies
+
+Doors · DTrace · IPMP · MPxIO · SMF · snoop · Solaris Containers · Crossbow · Solaris Cluster · Trusted Solaris · ZFS
+
+
+
+
+
+
+OpenSolaris
+
+BeleniX · Nexenta OS · SchilliX · MilaX · OpenSolaris for System z
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/ZFS"
+Categories: 2005 software | Disk file systems | Sun Microsystems software | Compression file systems | RAIDHidden categories: All articles with unsourced statements | Articles with unsourced statements since May 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Česky
+Deutsch
+Español
+Euskara
+Français
+Italiano
+עברית
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Simple English
+Slovenčina
+Svenska
+ไทย
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 April 2009, at 14:30.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

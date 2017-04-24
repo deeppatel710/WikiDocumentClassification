@@ -1,0 +1,258 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Log-structured file system - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Log-structured_file_system";
+		var wgTitle = "Log-structured file system";
+		var wgAction = "view";
+		var wgArticleId = "359096";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 288598786;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Log-structured file system
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about the general concept of log-structured file systems.  For the NetBSD file system, see Log-structured File System (BSD).  For the Linux log-structured Flash file system, see LogFS.
+A log-structured filesystem is a file system design first proposed by John K. Ousterhout and Fred Douglis. Designed for high write throughput, all updates to data and metadata are written sequentially to a continuous stream, called a log.
+
+
+
+
+Contents
+
+
+1 Rationale
+2 Implementations
+3 Disadvantages
+4 References
+5 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Rationale
+Conventional file systems tend to lay out files with great care for spatial locality and make in-place changes to their data structures in order to perform well on magnetic disks, which tend to seek relatively slowly.
+The design of log-structured file systems is based on the hypothesis that this will no longer be effective because ever-increasing memory sizes on modern computers would lead to I/O becoming write-heavy because reads would be almost always satisfied from memory cache. A log-structured file system thus treats its storage as a circular log and writes sequentially to the head of the log. This maximizes write throughput on magnetic media by avoiding costly seeks.
+Keeping a log has several important side effects:
+
+Writes create multiple, chronologically-advancing versions of both file data and meta-data. Some implementations make these old file versions nameable and accessible, a feature sometimes called time-travel or snapshotting. This is very similar to a versioning file system.
+Recovery from crashes is simpler. Upon its next mount, the file system does not need to walk all its data structures to fix any inconsistencies, but can reconstruct its state from the last consistent point in the log.
+Free space must be constantly reclaimed from the tail of the log to prevent the file system from becoming full when the head of the log wraps around to meet it. The tail itself can skip forward over data for which newer versions exist farther ahead in the log; the remainder is simply moved out of the way by appending it back to the head. To minimize the overhead incurred by this garbage collection, most implementations avoid purely circular logs and divide up their storage into segments or extents. The head of the log can then advance onto non-adjacent segments which are already free or which are less full than at the tail, thus reducing the amount of garbage collection I/O needed to reclaim space.
+
+
+[edit] Implementations
+
+John K. Ousterhout and Mendel Rosenblum implemented the first log-structured file system for the Sprite operating system in 1992.[1][2]
+BSD-LFS, an implementation by Margo Seltzer was added to 4.4BSD, and was later ported to 386BSD. It lacked support for snapshots. It was removed from FreeBSD and OpenBSD, but still lives on in NetBSD.
+Plan 9's Fossil file system is also log-structured and supports snapshots.
+NILFS is a log-structured file system implementation for Linux by NTT/Verio which supports snapshots.
+LinLogFS (formerly dtfs) and LFS (http://logfs.sourceforge.net/) are log-structured file system implementations for Linux. The latter was part of Google Summer of Code 2005. Both projects have been abandoned.
+LFS is another log-structured file system for Linux developed by Charles University, Prague. It was to include support for snapshots and indexed directories, but development has since ceased.
+LogFS is a scalable flash filesystem for Linux, intended to replace JFFS2 (in development).
+UBIFS for Linux, also intended to replace JFFS2 (in development).
+ULFS is a User-Level Log-structured File System(http://ulfs.sf.net) Using FUSE(http://fuse.sf.net).
+
+Some kinds of storage media, such as flash memory and CD-RW, slowly degrade as they are written to and have a limited number of erase/write cycles at any one location. Log-structured file systems are sometimes used on these media because they make fewer in-place writes and thus prolong the life of the device by wear levelling. The more common such file systems include:
+
+UDF is a file system commonly used on optical discs.
+JFFS and its successor JFFS2 are simple Linux file systems intended for flash-based devices.
+YAFFS is a NAND flash-specific file system for many operating systems (including Linux).
+
+
+[edit] Disadvantages
+
+The design rationale for log-structured file systems assumes that most reads will be optimized away by ever-enlarging memory caches. This assumption does not always hold:
+
+On magnetic media—where seeks are relatively expensive—the log structure may actually make reads much slower, since it fragments files that conventional file systems normally keep contiguous with in-place writes.
+On flash memory—where seek times are usually negligible—the log structure may not confer a worthwhile performance gain because write fragmentation has much less of an impact on write throughput[citation needed]. However many flash based devices can only write a complete block at a time because they must first perform a (slow) erase cycle before being able to write, so by putting all the writes in one block this can help performance vs writes scattered into various blocks, each one of which must be copied into a buffer, erased, and written back.
+
+
+
+
+[edit] References
+
+^ Rosenblum, Mendel and Ousterhout, John K. (June 1990) - "The LFS Storage Manager". Proceedings of the 1990 Summer Usenix. pp315-324.
+^ Rosenblum, Mendel and Ousterhout, John K. (February 1992) - "The Design and Implementation of a Log-Structured File System". ACM Transactions on Computer Systems, Vol. 10 Issue 1. pp26-52.
+
+
+[edit] See also
+
+Comparison of file systems
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Log-structured_file_system"
+Categories: Computer file systems | Computer storage | Unix | Bell LabsHidden categories: All articles with unsourced statements | Articles with unsourced statements since November 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Italiano
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 May 2009, at 02:28 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

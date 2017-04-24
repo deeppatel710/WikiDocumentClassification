@@ -1,0 +1,374 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cryptographically secure pseudorandom number generator - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Cryptographically_secure_pseudorandom_number_generator";
+		var wgTitle = "Cryptographically secure pseudorandom number generator";
+		var wgAction = "view";
+		var wgArticleId = "182249";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280250504;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Cryptographically secure pseudorandom number generator
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A cryptographically secure pseudo-random number generator (CSPRNG) is a pseudo-random number generator (PRNG) with properties that make it suitable for use in cryptography.
+Many aspects of cryptography require random numbers, for example:
+
+Key generation
+Nonces
+Salts in certain signature schemes, including ECDSA, RSASSA-PSS.
+One-time pads
+
+The "quality" of the randomness required for these applications varies. For example creating a nonce in some protocols needs only uniqueness. On the other hand, generation of a master key requires a higher quality, such as more entropy. And in the case of one-time pads, the information-theoretic guarantee of perfect secrecy only holds if the key material is obtained from a true random source with high entropy.
+Ideally, the generation of random numbers in CSPRNGs uses entropy obtained from a high quality source, which might be a hardware random number generator or perhaps unpredictable system processes — though unexpected correlations have been found in several such ostensibly independent processes. From an information theoretic point of view, the amount of randomness, the entropy that can be generated is equal to the entropy provided by the system. But sometimes, in practical situations, more random numbers are needed than there is entropy available. Also the processes to extract randomness from a running system are slow in actual practice. In such instances, a CSPRNG can sometimes be used. A CSPRNG can "stretch" the available entropy over more bits.
+When all the entropy we have is available before algorithm execution begins, we really have a stream cipher. However some crypto system designs allow for the addition of entropy during execution, in which case it is not a stream cipher equivalent and cannot be used as one. Stream cipher and CSPRNG design is thus closely related.
+
+
+
+
+Contents
+
+
+1 Requirements
+2 Some background
+3 Designs
+
+3.1 Designs based on cryptographic primitives
+3.2 Number theoretic designs
+3.3 Special designs
+
+
+4 Standards
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Requirements
+The requirements of an ordinary PRNG are also satisfied by a cryptographically secure PRNG, but the reverse is not true. CSPRNG requirements fall into two groups: first, that they pass statistical randomness tests; and secondly, that they hold up well under serious attack, even when part of their initial or running state becomes available to an attacker.
+
+Every CSPRNG should satisfy the "next-bit test". The next-bit test is as follows: Given the first k bits of a random sequence, there is no polynomial-time algorithm that can predict the (k+1)th bit with probability of success higher than 50%. Andrew Yao proved in 1982 that a generator passing the next-bit test will pass all other polynomial-time statistical tests for randomness.
+
+
+Every CSPRNG should withstand 'state compromise extensions'. In the event that part or all of its state has been revealed (or guessed correctly), it should be impossible to reconstruct the stream of random numbers prior to the revelation. Additionally, if there is an entropy input while running, it should be infeasible to use knowledge of the input's state to predict future conditions of the CSPRNG state.
+
+
+
+
+Example: If the CSPRNG under consideration produces output by computing bits of π in sequence, starting from some unknown point in the binary expansion, it may well satisfy the next-bit test and thus be statistically random, as π appears to be a random sequence. (This would be guaranteed if pi is a normal number, for example.) However, this algorithm is not cryptographically secure; an attacker who determines which bit of pi (i.e. the state of the algorithm) is currently in use will be able to calculate all preceding bits as well.
+
+
+
+Most PRNGs are not suitable for use as CSPRNGs and will fail on both counts. First, while most PRNGs outputs appear random to assorted statistical tests, they do not resist determined reverse engineering. Specialized statistical tests may be found specially tuned to such a PRNG that shows the random numbers not to be truly random. Second, for most PRNGs, when their state has been revealed, all past random numbers can be retrodicted, allowing an attacker to read all past messages, as well as future ones.
+CSPRNGs are designed explicitly to resist this type of cryptanalysis.
+
+[edit] Some background
+Santha and Vazirani proved that several bit streams with weak randomness can be combined to produce a higher-quality quasi-random bit stream.[1] Even earlier, John von Neumann proved that a simple algorithm can remove a considerable amount of the bias in any bit stream[2] which should be applied to each bit stream before using any variation of the Santha-Vazirani design. The field is termed entropy extraction and is the subject of active research (e.g., N Nisan, S Safra, R Shaltiel, A Ta-Shma, C Umans, D Zuckerman).
+
+[edit] Designs
+In the discussion below, CSPRNG designs are divided into three classes: 1) those based on cryptographic primitives such as ciphers and cryptographic hashes, 2) those based upon mathematical problems thought to be hard, and 3) special-purpose designs. The last often introduce additional entropy when available and, strictly speaking, are not "pure" pseudorandom number generators, as their output is not completely determined by their initial state. This addition can prevent attacks even if the initial state is compromised.
+
+[edit] Designs based on cryptographic primitives
+
+A secure block cipher can be converted into a CSPRNG by running it in counter mode. This is done by choosing a random key and encrypting a zero, then encrypting a 1, then encrypting a 2, etc. The counter can also be started at an arbitrary number other than zero. Obviously, the period will be 2n for an n-bit block cipher; equally obviously, the initial values (ie, key and "plaintext") must not become known to an attacker lest, however good this CSPRNG construction might be otherwise, all security be lost.
+
+
+A cryptographically secure hash of a counter might also act as a good CSPRNG in some cases. In this case also, it is necessary that the initial value of this counter is random and secret. If the counter is a bignum, then the CSPRNG could have an infinite period.[citation needed] However, there has been little study of these algorithms for use in this manner, and at least some authors warn against this use (Young and Yung, Malicious Cryptography, Wiley, 2004, sect 3.2).
+
+
+Most stream ciphers work by generating a pseudorandom stream of bits that are combined (almost always XORed) with the plaintext; running the cipher on a counter will return a new pseudorandom stream, possibly with a longer period. The cipher is only secure if the original stream is a good CSPRNG (this is not always the case: see RC4 cipher). Again, the initial state must be kept secret.
+
+
+[edit] Number theoretic designs
+
+Blum Blum Shub has a strong, though conditional, security proof, based on the presumed difficulty of integer factorization. However, implementations are slow compared to some other designs.
+
+
+[edit] Special designs
+There are a number of practical PRNGs that have been designed to be cryptographically secure, including
+
+the Yarrow algorithm which attempts to evaluate the entropic quality of its inputs, and an updated version, Fortuna, which does not. Yarrow is used in OpenBSD and Mac OS X
+the UNIX special file /dev/random, particularly the /dev/urandom variant as implemented on Linux.
+the function CryptGenRandom provided in Microsoft's Cryptographic Application Programming Interface
+the Python function urandom in the os module, which uses /dev/urandom on Unix-based systems, including OS X, and CryptGenRandom on Windows-based systems.[1]
+ISAAC based on a variant of the RC4 cipher
+ANSI X9.17 standard (Financial Institution Key Management (wholesale)), which has been adopted as a FIPS standard as well. It takes as input a 64 bit random seed s, and a DES key k. Each time a random number is required it:
+
+computes I = DESk(D), where D is the current date/time information (in the maximum resolution available),
+outputs x = DESk(I ⊕ s)
+updates the seed s to DESk(x ⊕ I), where ⊕ denotes bitwise exclusive or.
+
+
+
+
+It has been suggested that the X9.17 algorithm would be improved by using AES instead of DES (Young and Yung, op cit, sect 3.5.1).
+
+
+[edit] Standards
+Several CSPRNGs have been standardized. For example,
+
+FIPS 186-2
+NIST SP 800-90: Hash_DRBG, HMAC_DRBG, CTR_DRBG and Dual EC DRBG.
+ANSI X9.17-1985 Appendix C
+ANSI X9.31-1998 Appendix A.2.4
+ANSI X9.62-1998 Annex A.4, obsoleted by ANSI X9.62-2005, Annex D (HMAC_DRBG)
+
+A good reference is maintained by NIST.
+There are also standards for statistical testing of new CSPRNG designs:
+
+A Statistical Test Suite for Random and Pseudorandom Number Generators, NIST Special Publication 800-22.
+
+
+[edit] References
+
+
+^ Miklos Santha, Umesh V. Vazirani (1984-10-24). "Generating quasi-random sequences from slightly-random sources". Proceedings of the 25th IEEE Symposium on Foundations of Computer Science: pages 434–440, University of California. ISBN 0-8186-0591-X. Retrieved on 2006-11-29. 
+^ John von Neumann (1963-03-01). "Various techniques for use in connection with random digits". The Collected Works of John von Neumann. Pergamon Press. pp.  768–770. ISBN 0-08-009566-6. 
+
+
+
+[edit] External links
+
+
+
+The Wikibook Cryptography has a page on the topic of
+Random number generation
+
+
+
+
+RFC 4086, Randomness Requirements for Security
+Java "entropy pool" for cryptographically-secure unpredictable random numbers.
+Java standard class providing a cryptographically strong pseudo-random number generator (PRNG).
+Cryptographically Secure Random number on Windows without using CryptoAPI
+Conjectured Security of the ANSI-NIST Elliptic Curve RNG, Daniel R. L. Brown, IACR ePrint 2006/117.
+A Security Analysis of the NIST SP 800-90 Elliptic Curve Random Number Generator, Daniel R. L. Brown and Kristian Gjosteen, IACR ePrint 2007/048. To appear in CRYPTO 2007.
+Cryptanalysis of the Dual Elliptic Curve Pseudorandom Generator, Berry Schoenmakers and Andrey Sidorenko, IACR ePrint 2006/190.
+Efficient Pseudorandom Generators Based on the DDH Assumption, Reza Rezaeian Farashahi and Berry Schoenmakers and Andrey Sidorenko, IACR ePrint 2006/321.
+Analysis of the Linux Random Number Generator, Zvi Gutterman and Benny Pinkas and Tzachy Reinman.
+An implementation of a cryptographically safe shrinking pseudorandom number generator.
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+ 
+Cryptography
+
+
+
+
+
+
+History of cryptography · Cryptanalysis · Cryptography portal · Topics in cryptography
+
+
+
+
+
+
+
+Symmetric-key algorithm · Block cipher · Stream cipher · Public-key cryptography · Cryptographic hash function · Message authentication code · Random numbers · Steganography
+
+
+
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator"
+Categories: Cryptographic algorithms | Pseudorandom number generators | Cryptographically secure pseudorandom number generators | Cryptographic primitivesHidden categories: All articles with unsourced statements | Articles with unsourced statements since March 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Italiano
+עברית
+日本語
+Português
+
+
+
+
+
+
+
+
+
+ This page was last modified on 28 March 2009, at 17:51.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

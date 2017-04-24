@@ -1,0 +1,317 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Virtual inheritance - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Virtual_inheritance";
+		var wgTitle = "Virtual inheritance";
+		var wgAction = "view";
+		var wgArticleId = "1907963";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278506305;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-cpp {line-height: normal;}
+.source-cpp li, .source-cpp pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for cpp
+ * CSS class: source-cpp, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-cpp .de1, .source-cpp .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-cpp  {}
+.source-cpp .head {}
+.source-cpp .foot {}
+.source-cpp .imp {font-weight: bold; color: red;}
+.source-cpp .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-cpp li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-cpp li.li2 {font-weight: bold;}
+.source-cpp .kw1 {color: #0000ff;}
+.source-cpp .kw2 {color: #0000ff;}
+.source-cpp .kw3 {color: #0000dd;}
+.source-cpp .kw4 {color: #0000ff;}
+.source-cpp .co1 {color: #ff0000;}
+.source-cpp .co2 {color: #339900;}
+.source-cpp .coMULTI {color: #ff0000; font-style: italic;}
+.source-cpp .es0 {color: #666666; font-weight: bold;}
+.source-cpp .br0 {color: #000000;}
+.source-cpp .st0 {color: #666666;}
+.source-cpp .nu0 {color: #0000dd;}
+.source-cpp .me1 {color: #00eeff;}
+.source-cpp .me2 {color: #00eeff;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Virtual inheritance
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+For inheritance of virtual functions, see virtual function.
+
+In the C++ programming language, virtual inheritance is a kind of inheritance that solves some of the problems caused by multiple inheritance (particularly the "diamond problem") by clarifying ambiguity over which ancestor class members to use. It is used when inheritance is representing restrictions of a set rather than composition of parts. A multiply-inherited base class is denoted as virtual with the virtual keyword.
+
+
+
+
+Contents
+
+
+1 The problem
+2 Class representation
+3 Solution
+4 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] The problem
+Consider the following class hierarchy.
+
+
+class Animal 
+{
+ public:
+  virtual void eat();
+};
+ 
+class Mammal : public Animal 
+{
+ public:
+  virtual Color getHairColor();
+};
+ 
+class WingedAnimal : public Animal 
+{
+ public:
+  virtual void flap();
+};
+ 
+// A bat is a winged mammal
+class Bat : public Mammal, public WingedAnimal {};
+ 
+Bat bat;
+
+But how does bat eat()? As declared above, a call to bat.eat() is ambiguous. One would have to call either bat.WingedAnimal::Animal::eat() or bat.Mammal::Animal::eat().
+This situation is sometimes referred to as diamond inheritance because the inheritance diagram is in the shape of a diamond. Virtual inheritance can help to solve this problem.
+
+[edit] Class representation
+Before going further it is helpful to consider how classes are represented in C++. In particular, inheritance is simply a matter of putting parent and child class one after the other in memory. Thus Bat is really (Animal,Mammal,Animal,WingedAnimal,Bat) which makes Animal duplicated, causing the ambiguity.
+
+[edit] Solution
+We can redeclare our classes as follows:
+
+
+class Animal 
+{
+ public:
+  virtual void eat();
+};
+ 
+// Two classes virtually inheriting Animal:
+class Mammal : public virtual Animal 
+{
+ public:
+  virtual Color getHairColor();
+};
+ 
+class WingedAnimal : public virtual Animal 
+{
+ public:
+  virtual void flap();
+};
+ 
+// A bat is still a winged mammal
+class Bat : public Mammal, public WingedAnimal {};
+
+Now the Animal portion of Bat::WingedAnimal is the same Animal as the one used by Bat::Mammal, which is to say that a Bat has only one Animal in its representation and so a call to Bat::eat() is unambiguous.
+This is implemented by providing Mammal and WingedAnimal with a vtable pointer since, e.g., the memory offset between the beginning of a Mammal and of its Animal part is unknown until runtime. Thus Bat becomes (vtable*,Mammal,vtable*,WingedAnimal,Bat,Animal). Two vtable pointers per object, so the object size increased by two pointers, but now there is only one Animal and no ambiguity. There are two vtables pointers: one per inheritance hierarchy that virtually inherits Animal: One for Mammal and one for WingedAnimal. All objects of type Bat will have the same vtable *'s, but each Bat object will contain its own unique Animal object. If another class inherits Mammal, such as Squirrel, then the vtable* in the Mammal object in a Squirrel will be different from the vtable* in the Mammal object in a Bat, although they can still be essentially the same in the special case that the squirrel part of the object has the same size as the Bat part, because then the distance from the Mammal to the Animal part is the same. The vtables are not really the same, but all essential information in them (the distance) is.
+
+[edit] See also
+
+Object association
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Virtual_inheritance"
+Categories: Object-oriented programming | C++ 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Español
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 20 March 2009, at 10:12 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

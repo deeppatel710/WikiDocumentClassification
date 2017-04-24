@@ -1,0 +1,430 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Polygon mesh - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Polygon_mesh";
+		var wgTitle = "Polygon mesh";
+		var wgAction = "view";
+		var wgArticleId = "988191";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279805465;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Polygon mesh
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+Example of a triangle mesh representing a dolphin.
+
+
+A polygon mesh or unstructured grid is a collection of vertices, edges and faces that defines the shape of a polyhedral object in 3D computer graphics and solid modeling. The faces usually consist of triangles, quadrilaterals or other simple convex polygons, since this simplifies rendering, but may also be composed of more general concave polygons, or polygons with holes.
+The study of polygon meshes is a large sub-field of computer graphics and geometric modeling. Different representations of polygon meshes are used for different applications and goals. The variety of operations performed on meshes may include Boolean logic, smoothing, simplification, and many others. Network representations, "streaming" and "progressive" meshes, are used to transmit polygon meshes over a network. Volumetric meshes are distinct from polygon meshes in that they explicitly represent both the surface and volume of a structure, while polygon meshes only explicitly represent the surface (the volume is implicit). As polygonal meshes are extensively used in computer graphics, algorithms also exist for ray tracing, collision detection, and rigid-body dynamics of polygon meshes.
+
+
+
+
+Contents
+
+
+1 Elements of Mesh Modeling
+2 Representations
+
+2.1 Vertex-Vertex Meshes
+2.2 Face-Vertex Meshes
+2.3 Winged-Edge Meshes
+2.4 Render Dynamic Meshes
+
+
+3 Summary of Mesh Representation
+4 Other representations
+5 File formats
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Elements of Mesh Modeling
+
+
+
+Objects created with polygon meshes must store different types of elements. These include vertices, edges, faces, polygons and surfaces. In many applications, only vertices, edges and faces are stored. However, a complete solution for polygonal modeling requires polygons and surfaces as well. A renderer may support only 3-sided faces, so polygons must be constructed of many of these, as shown in the Figure 1. Also, in certain applications like head modeling, it is desirable to be able to create both 3 and 4-sided polygons.
+A vertex is a position along with other information such as color, normal vector and texture coordinates. An edge is a connection between two vertices. A face is a closed set of edges, in which a triangle face has three edges, and a quad face has four edges. A polygon is a set of faces. In systems that support multi-sided faces, polygons and faces are equivalent. However, most rendering hardware supports only 3 or 4-sided faces, so polygons are represented as multiple faces. Mathematically a polygonal mesh may be considered an unstructured grid, or undirected graph, with addition properties of geometry, shape and topology.
+Surfaces are required to group smooth regions. Consider modeling a cylinder with caps, such as a soda can. Figure 1 is a simplified cylinder, with 4 sides. For smooth shading of the sides, all surface normals must point horizontally away from the center, while the normals of the caps must point in the +/-(0,0,1) directions. Rendered as a single, Phong shaded surface, the crease vertices would have incorrect normals. Thus, surfaces are needed to group smooth parts of a mesh just as polygons group 3-sided faces.
+
+[edit] Representations
+Polygon meshes may be represented in a variety of ways, using different methods to store the vertex, edge and face data. These include:
+
+Face-Vertex Meshes - A simple list of vertices, and a set of polygons that point to the vertices it uses.
+Winged-Edge Meshes - In which each edge points to two vertices, two faces, and the four (clockwise and counterclockwise) edges that touch it. Winged-Edge meshes allow constant time traversal of the surface, but with higher storage requirements.
+Half-Edge Meshes - Similar to Winged-Edge meshes except that only half the edge traversal information is used.
+Quad-Edge Meshes - A quad-edge mesh stores edges, half-edges, and vertices without any reference to polygons. The polygons are implicit in the representation, and may be found by traversing the structure. Memory requirements are similar to half-edge meshes.
+Corner-Table - A corner-table stores vertices in a predefined table, such that traversing the table implicitly defines polygons. This is in essence the "triangle fan" used in hardware graphics rendering. The representation is more compact, and more efficient to retrieve polygons, but operations to change polygons are slow. Furthermore, Corner-Tables do not represent meshes completely. Multiple corner-tables (triangle fans) are needed to represent most meshes.
+Vertex-Vertex Meshes - A vv mesh represents only vertices, which point to other vertices. Both the edge and face information is implicit in the representation. However, the simplicity of the representation allows for many efficient operations to be performed on meshes.
+
+The representations above each have particular advantages and drawbacks, further discussed in [2]
+The choice of the data structure is governed by the application, the performance required, size of the data, and the operations to be performed. For example, it's easier to deal with triangles than general polygons, especially in computational geometry. For certain operations it is necessary to have a fast access to topological information such as edges or neighboring faces; this requires more complex structures such as the winged-edge representation. For hardware rendering, compact, simple structures are needed; thus the corner-table (triangle fan) is commonly incorporated into low-level rendering APIs such as DirectX and OpenGL.
+
+[edit] Vertex-Vertex Meshes
+
+
+
+Vertex-Vertex meshes represent an object as a set of vertices connected to other vertices. This is the simplest representation, but not widely used since the face and edge information is implicit. Thus, it is necessary to traverse the data in order to generate a list of faces for rendering. In addition, operations on edges and faces are not easily accomplished.
+However, VV meshes benefit from small storage space and efficient morphing of shape. Figure 1 shows the 4-sided cylinder example represented using VV meshes. Each vertex indexes its neighboring vertices. Notice that the last two vertices, 8 and 9 at the top and bottom center of the "box-cylinder", have four connected vertices rather than five. A general system must be able to handle an arbitrary number of vertices connected to any given vertex.
+For a complete description of VV meshes see Smith 2006.[1]
+
+[edit] Face-Vertex Meshes
+
+
+
+Face-Vertex meshes represent an object as a set of faces and a set of vertices, and are the most widely used mesh representation due to the fact that this is the input typically accepted by modern graphics hardware.
+Face-Vertex meshes improve on VV-mesh for modeling in that they allow explicit lookup of the vertices of a face, and the faces surrounding a vertex. Figure 3 shows the "box-cylinder" example as a FV mesh. Vertex v5 is highlighted to show the faces that surround it. Notice in this example, every face is required to have exactly 3 vertices. However, this does not mean every vertex has the same number of surrounding faces.
+For rendering, the face list is usually trasmitted to the GPU as a set of indices to vertices, and the vertices are sent as position/color/normal structures (in the figure, only position is given). This has the benefit that changes in shape, but not geometry, can be dynamically updated by simply resending the vertex data without updating the face connectivity.
+Modeling requires easy traversal of all structures. With Face-Vertex meshes it is easy to find the vertices of a face. Also, the Vertex List contains a list of faces connected to each vertex. Unlike VV meshes, both faces and vertices are explicit, so locating neighboring faces and vertices is constant time. However, the edges are implicit, so a search is still needed to find all the faces surrounding a given face. Other dynamic operations, such as splitting or merging a face, are also difficult with Face-Vertex meshes.
+
+[edit] Winged-Edge Meshes
+
+
+
+Introduced by Baumgart 1975, Winged-Edge meshes explicitly represent the vertices, faces, and edges of a mesh. This representation is widely used in modeling programs to provide the greatest flexibility in dynamically changing the mesh geometry, due to the fact that split and merge operations can be done quickly. Their primary drawback is large storage requirements and increased complexity due to maintaining many indices. A good discussion of implementation issues of Winged-Edge meshes may be found in the book Graphics Gems II.
+Winged-Edge meshes address the issue of traversing from edge to edge, and providing an ordered set of faces around an edge. For any given edge, the number of outgoing edges may be arbitrary. To simplify this, Winged-Edge meshes provide only four, the nearest clockwise and counter-clockwise edges at each end. The other edges may be traversed incrementally. The information for each edge therefore resembles a butterfly, hence "winged-edge" meshes. Figure 4 shows the "box-cylinder" as a Winged-Edge mesh. The total data for an edge consists of 2 vertices (endpoints), 2 faces (on each side), and 4 edges (winged-edge).
+Rendering of Winged-Edge meshes for graphics hardware requires generating a Face index list. This is usually done only when the geometry changes. Winged-Edge meshes are ideally suited for dynamic geometry, such as subdivision surfaces and interactive modeling, since changes to the mesh can occur locally. Traversal across the mesh, as might be needed for collision detection, can be accomplished efficiently.
+See Baumgart 1975 for details. [2]
+
+[edit] Render Dynamic Meshes
+
+
+
+Winged-Edge meshes are not the only representation which allows for dynamic changes to geometry. A new representation which combines Winged-Edge meshes and Face-Vertex meshes is the Renderable Dynamic Mesh, which explicitly stores the vertices of a face (like FV meshes), the faces of a vertex (like FV meshes), and the faces and verts of an edge (like Winged-Edge).
+Render Dynamic meshes require slightly less storage space than standard WE meshes, and can be directly rendered by graphics hardware since the Face list contains an index of vertices. In addition, traversal from vertex to face is implicit (constant time), as is from face to vertex. RD meshes do not require the 4 outgoing edges since these can be found by traversing from edge to face, then face to neighboring edge.
+RD meshes benefit from the features of Winged-Edge meshes by allowing for geometry to be dynamically updated.
+See Tobler & Maierhofer (WSCG 2006) for more details. [3]
+
+[edit] Summary of Mesh Representation
+
+
+Operation
+Vertex-vertex
+Face-vertex
+Winged-edge
+Render winged-edge
+
+
+V-V
+All vertices around vertex
+Explicit
+V → f1, f2, f3, ... → v1, v2, v3, ...
+V → e1, e2, e3, ... → v1, v2, v3, ...
+V → e1, e2, e3, ... → v1, v2, v3, ...
+
+
+E-F
+All edges of a face
+F(a,b,c) → {a,b}, {b,c}, {a,c}
+F → {a,b}, {b,c}, {a,c}
+Explicit
+Explicit
+
+
+V-F
+All vertices of a face
+F(a,b,c) → {a,b,c}
+Explicit
+F → e1, e2, e3 → a, b, c
+Explicit
+
+
+F-V
+All faces around a vertex
+Pair search
+Explicit
+V → e1, e2, e3 → f1, f2, f3, ...
+Explicit
+
+
+E-V
+All edges around a vertex
+V → {v,v1}, {v,v2}, {v,v3}, ...
+V → f1, f2, f3, ... → v1, v2, v3, ...
+Explicit
+Explicit
+
+
+F-E
+Both faces of an edge
+List compare
+List compare
+Explicit
+Explicit
+
+
+V-E
+Both vertices of an edge
+E(a,b) → {a,b}
+E(a,b) → {a,b}
+Explicit
+Explicit
+
+
+Flook
+Find face with given vertices
+F(a,b,c) → {a,b,c}
+Set intersection of v1,v2,v3
+Set intersection of v1,v2,v3
+Set intersection of v1,v2,v3
+
+
+Storage size
+V*ave(V,V)
+3F + V*ave(F,V)
+3F + 8E + V*ave(E,V)
+6F + 4E + V*ave(E,V)
+
+
+Example with 10 vertices, 16 faces, 24 edges:
+
+
+10 * 5 = 50
+3*16 + 10*5 = 98
+3*16 + 8*24 + 10*5 = 290
+6*16 + 4*24 + 10*5 = 242
+
+
+Figure 6: summary of mesh representation operations
+
+
+In the above table, explicit indicates that the operation can be performed in constant time, as the data is directly stored; list compare indicates that a list comparison between two lists must be performed to accomplish the operation; and pair search indicates a search must be done on two indices. The notation ave(V,V) means the average number of vertices connected to a given vertex; ave(E,V) means the average number of edges connected to a given vertex, and ave(F,V) is the average number of faces connected to a given vertex.
+The notation "V → f1, f2, f3, ... → v1, v2, v3, ..." describes that a traversal across multiple elements is required to perform the operation. For example, to get "all vertices around a given vertex V" using the Face-Vertex mesh, it is necessary to first find the faces around the given vertex V using the Vertex List. Then, from those faces, use the Face List to find the vertices around them. Notice that Winged-Edge meshes explicitly store nearly all information, and other operations always traverse to the edge first to get additional info. Vertex-Vertex meshes are the only representation that explicitly stores the neighboring vertices of a given vertex.
+
+
+
+As the mesh representations become more complex (from left to right in the summary), the amount of information explicitly stored increases. This gives more direct, constant time, access to traversal and topology of various elements but at the cost of increased overhead and space in maintaining indices properly.
+Figure 7 shows the connectivity information for each of the four technique described in this article. Other representations also exist, such as Half-Edge and Corner Tables. These are all variants of how vertices, faces and edges index one another.
+As a general rule, Face-Vertex meshes are used whenever an object must be rendered on graphics hardware that does not change geometry (connectivity), but may deform or morph shape (vertex positions) such as real-time rendering of static or morphing objects. Winged-Edge or Render Dynamic meshes are used when the geometry changes, such as in interactive modeling packages or for computing subdivison surfaces. Vertex-Vertex meshes are ideal for efficient, complex changes in geometry or topology so long as hardware rendering is not of concern.
+
+[edit] Other representations
+Streaming meshes store faces in an ordered, yet independent, way so that the mesh can be transmitted in pieces. The order of faces may be spatial, spectral, or based on other properties of the mesh. Streaming meshes allow a very large mesh to be rendered even while it is still being loaded.
+Progressive meshes transmit the vertex and face data with increasing levels of detail. Unlike streaming meshes, progressive meshes give the overall shape of the entire object, but at a low level of detail. Additional data, new edges and faces, progressively increase the detail of the mesh.
+Normal meshes transmit progressive changes to a mesh as a set of normal displacements from a base mesh. With this technique, a series of textures represent the desired incremental modifications. Normal meshes are compact, since only a single scalar value is needed to express displacement. However, the technique requires a complex series of transformations to create the displacement textures.
+
+[edit] File formats
+Polygonal meshes can be stored in a number of file formats:
+
+Collada
+DXF
+Obj
+PLY
+STL
+VRML
+X3D
+
+
+[edit] See also
+
+Wire-frame model
+Euler operator
+B-rep
+Simplex
+Triangulation (advanced geometry)
+Manifold (a mesh can be manifold or non-manifold)
+
+
+[edit] References
+
+
+^ Colin Smith, On Vertex-Vertex Meshes and Their Use in Geometric and Biological Modeling, http://algorithmicbotany.org/papers/smithco.dis2006.pdf
+^ Bruce Baumgart, Winged-Edge Polyhedron Representation for Computer Vision. National Computer Conference, May 1975. http://www.baumgart.org/winged-edge/winged-edge.html
+^ Tobler & Maierhofer, A Mesh Data Structure for Rendering and Subdivision. 2006. [1]
+
+
+
+[edit] External links
+
+Eric W. Weisstein, Simplicial complex at MathWorld.
+Eric W. Weisstein, Triangulation at MathWorld.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Polygon_mesh"
+Categories: 3D computer graphics | Virtual reality | Computer graphics data structures 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+한국어
+Português
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 14:41 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

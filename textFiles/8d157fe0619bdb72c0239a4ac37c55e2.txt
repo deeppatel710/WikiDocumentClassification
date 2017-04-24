@@ -1,0 +1,326 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Earley parser - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Earley_parser";
+		var wgTitle = "Earley parser";
+		var wgAction = "view";
+		var wgArticleId = "9685";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278691949;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Earley parser
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Earley parser is a type of chart parser mainly used for parsing in computational linguistics, named after its inventor, Jay Earley. The algorithm uses dynamic programming.
+Earley parsers are appealing because they can parse all context-free languages. The Earley parser executes in cubic time (O(n3), where n is the length of the parsed string) in the general case, quadratic time (O(n2)) for unambiguous grammars, and linear time for almost all LR(k) grammars. It performs particularly well when the rules are written left-recursively.
+
+
+
+
+Contents
+
+
+1 The algorithm
+2 Example
+3 See also
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] The algorithm
+In the following descriptions, α, β, and γ represent any string of terminals/nonterminals (including the empty string), X and Y represent single nonterminals, and a represents a terminal symbol.
+Earley's algorithm is a top-down dynamic programming algorithm. In the following, we use Earley's dot notation: given a production X → αβ, the notation X → α • β represents a condition in which α has already been parsed and β is expected.
+For every input position (which represents a position between tokens), the parser generates an ordered state set. Each state is a tuple (X → α • β, i), consisting of
+
+the production currently being matched (X → α β)
+our current position in that production (represented by the dot)
+the position i in the input at which the matching of this production began: the origin position
+
+(Earley's original algorithm included a look-ahead in the state; later research showed this to have little practical effect on the parsing efficiency, and it has subsequently been dropped from most implementations.)
+The state set at input position k is called S(k). The parser is seeded with S(0) consisting of only the top-level rule. The parser then iteratively operates in three stages: prediction, scanning, and completion.
+
+Prediction: For every state in S(k) of the form (X → α • Y β, j) (where j is the origin position as above), add (Y → • γ, k) to S(k) for every production with Y on the left-hand side.
+
+
+Scanning: If a is the next symbol in the input stream, for every state in S(k) of the form (X → α • a β, j), add (X → α a • β, j) to S(k+1).
+
+
+Completion: For every state in S(k) of the form (X → γ •, j), find states in S(j) of the form (Y → α • X β, i) and add (Y → α X • β, i) to S(k).
+
+These steps are repeated until no more states can be added to the set. The set is generally implemented as a queue of states to process (though a given state must appear in one place only), and performing the corresponding operation depending on what kind of state it is.
+
+[edit] Example
+Consider the following simple grammar for arithmetic expressions:
+
+ P → S      # the start rule
+ S → S + M
+    | M
+ M → M * T
+    | T
+ T → number
+
+With the input:
+
+ 2 + 3 * 4
+
+This is the sequence of state sets:
+
+ (state no.) Production          (Origin) # Comment
+ ---------------------------------
+ == S(0): • 2 + 3 * 4 ==
+ (1)  P → • S         (0)    # start rule
+ (2)  S → • S + M     (0)    # predict from (1)
+ (3)  S → • M         (0)    # predict from (1)
+ (4)  M → • M * T     (0)    # predict from (3)
+ (5)  M → • T         (0)    # predict from (3)
+ (6)  T → • number    (0)    # predict from (5)
+ 
+ == S(1): 2 • + 3 * 4 ==
+ (1)  T → number •    (0)    # scan from S(0)(6)
+ (2)  M → T •         (0)    # complete from S(0)(5)
+ (3)  M → M • * T     (0)    # complete from S(0)(4)
+ (4)  S → M •         (0)    # complete from S(0)(3)
+ (5)  S → S • + M     (0)    # complete from S(0)(2)
+ (6)  P → S •         (0)    # complete from S(0)(1)
+ 
+ == S(2): 2 + • 3 * 4 ==
+ (1)  S → S + • M     (0)    # scan from S(1)(5)
+ (2)  M → • M * T     (2)    # predict from (1)
+ (3)  M → • T         (2)    # predict from (1)
+ (4)  T → • number    (2)    # predict from (3)
+ 
+ == S(3): 2 + 3 • * 4 ==
+ (1)  T → number •    (2)    # scan from S(2)(4)
+ (2)  M → T •         (2)    # complete from S(2)(3)
+ (3)  M → M • * T     (2)    # complete from S(2)(2)
+ (4)  S → S + M •     (0)    # complete from S(2)(1)
+ (5)  S → S • + M     (0)    # complete from S(0)(2)
+ (6)  P → S •         (0)    # complete from S(0)(1)
+ 
+ == S(4): 2 + 3 * • 4 ==
+ (1)  M → M * • T     (2)    # scan from S(3)(3)
+ (2)  T → • number    (4)    # predict from (1)
+ 
+ == S(5): 2 + 3 * 4 • ==
+ (1)  T → number •    (4)    # scan from S(4)(2)
+ (2)  M → M * T •     (2)    # complete from S(4)(1)
+ (3)  M → M • * T     (2)    # complete from S(2)(2)
+ (4)  S → S + M •     (0)    # complete from S(2)(1)
+ (5)  S → S • + M     (0)    # complete from S(0)(2)
+ (6)  P → S •         (0)    # complete from S(0)(1)
+
+The state (P → S •, 0) represents a completed parse. This state also appears in S(3) and S(1), which are complete sentences.
+
+[edit] See also
+
+CYK algorithm
+Context-free grammar
+Parsing Algorithms
+
+
+[edit] References
+
+J. Earley, "An efficient context-free parsing algorithm", Communications of the Association for Computing Machinery, 13:2:94-102, 1970.
+
+
+J. Aycock and R.N. Horspool. Practical Earley Parsing. The Computer Journal, 45:6:620-630, 2002.
+
+
+[edit] External links
+
+Parse::Earley An Earley parser Perl module.
+Parse::Marpa Another Perl module implementing an Earley parser, this one based on the work by Aycock and Horspool.
+'early' An Earley parser C -library.
+Spark an Object Oriented "little language framework" for Python that implements an Earley parser.
+NLTK a Python toolkit that has an Earley parser.
+Pep A Java library that implements the Earley algorithm and provides charts and parse trees as parsing artifacts.
+PEN A Java library that implements the Earley.
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Earley_parser"
+Categories: Parsing algorithms | Dynamic programming 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+日本語
+Polski
+Српски / Srpski
+Български
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 21 March 2009, at 06:53.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

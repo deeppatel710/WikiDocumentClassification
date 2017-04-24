@@ -1,0 +1,398 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Expect - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Expect";
+		var wgTitle = "Expect";
+		var wgAction = "view";
+		var wgArticleId = "1161030";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 271538359;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Expect
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+Expect
+
+Design by
+Don Libes
+
+
+Latest release
+5.44.1 / January 31, 2006
+
+
+Written in
+Tcl
+
+
+Operating system
+POSIX, Windows
+
+
+License
+Public domain[1]
+
+
+Website
+http://expect.nist.gov/
+
+
+This article is about the Unix tool. For a definition of the word "expect", see the Wiktionary entry expect.
+Expect is a Unix automation and testing tool, written by Don Libes as an extension to the Tcl scripting language, for interactive applications such as telnet, ftp, passwd, fsck, rlogin, tip, ssh, and others. It uses Unix pseudo terminals to wrap up subprocesses transparently, allowing the automation of arbitrary applications that are accessed over a terminal. With Tk, interactive applications can be wrapped in X11 GUIs.
+
+
+
+
+Software Testing portal
+
+
+
+
+
+
+
+Contents
+
+
+1 Basics
+2 Examples
+3 Usage
+4 Opinion
+
+4.1 Pros
+4.2 Cons
+
+
+5 References
+6 Further reading
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Basics
+Expect has regular expression pattern matching and general program capabilities, allowing simple scripts to intelligently control programs such as telnet, ftp, and ssh, all of which lack a programming language, macros, or any other program mechanism. The result is that Expect scripts provide old tools with significant new power and flexibility.
+
+[edit] Examples
+A simple example is a script that automates a telnet session:
+
+  # Assume $remote_server, $my_user_id, $my_password, and $my_command were read in earlier 
+  # in the script.  # Open a telnet session to a remote server, and wait for a username prompt.
+  spawn telnet $remote_server
+  expect "username:"  # Send the username, and then wait for a password prompt.
+  send "$my_user_id\r"
+  expect "password:"  # Send the password, and then wait for a shell prompt.
+  send "$my_password\r"
+  expect "%"  # Send the prebuilt command, and then wait for another shell prompt.
+  send "$my_command\r"
+  expect "%"  # Capture the results of the command into a variable. This can be displayed, or written to disk.
+  set results $expect_out(buffer)  # Exit the telnet session, and wait for a special end-of-file character.
+  send "exit\r"
+  expect eof
+
+Another example is a script that automates ftp:
+
+  # Open an ftp session to a remote server, and wait for a username prompt.
+  spawn ftp $remote_server
+  expect "username:"  # Send the username, and then wait for a password prompt.
+  send "$my_user_id\r"
+  expect "password:"  # Send the password, and then wait for an ftp prompt.
+  send "$my_password\r"
+  expect "ftp>"  # Switch to binary mode, and then wait for an ftp prompt.
+  send "bin\r"
+  expect "ftp>"  # Turn off prompting.
+  send "prompt\r"
+  expect "ftp>"  # Get all the files
+  send "mget *\r"
+  expect "ftp>"  # Exit the ftp session, and wait for a special end-of-file character.
+  send "bye\r"
+  expect eof
+
+Below is an example that automates sftp, with password:
+
+ #!/usr/local/bin/expect -f #<---insert here your expect program location
+ 
+ # procedure to attempt connecting; result 0 if OK, 1 elsewhere
+ proc connect {passw} {
+  expect {
+    "Password:" { 
+        send "$passw\r"
+ 	expect {
+ 	   "sftp*" {
+ 		return 0
+ 	    }  
+ 	}
+     }
+  }
+  # timed out
+  return 1
+ }
+ 
+ #read the input parameters
+ set user [lindex $argv 0]
+ set passw [lindex $argv 1]
+ set host [lindex $argv 2]
+ set location [lindex $argv 3]
+ set file1 [lindex $argv 4]
+ set file2 [lindex $argv 5]
+ 
+ #puts "Am citit:\n";
+ #puts "user: $user";
+ #puts "passw: $passw";
+ #puts "host: $host";
+ #puts "location: $location";
+ #puts "file1: $file1";
+ #puts "file2: $file2";
+ 
+ #check if all were provided
+ if { $user == "" || $passw == "" || $host == "" || $location == "" || $file1 == "" || $file2 == "" }  {
+   puts "Usage: <user> <passw> <host> <location> <file1 to send> <file2 to send>\n"
+   exit 1
+ }
+ 
+ #sftp to specified host and send the files
+ spawn sftp $user@$host
+ 
+ set rez [connect $passw]
+ if { $rez == 0 } {
+   send "cd $location\r"
+   set timeout -1
+   send "put $file2\r"
+   send "put $file1\r"
+   send "ls -l\r"
+   send "quit\r"
+   expect eof
+   exit 0
+ }
+ puts "\nError connecting to server: $host, user: $user and password: $passw!\n"
+ exit 1
+
+
+[edit] Usage
+Expect serves as a "glue" to link existing utilities together. The general idea is to try to figure out how to make Expect utilize the system's existing tools rather than figure out how to solve a problem inside of Expect.
+A key usage of Expect involves commercial software products. Many of these products provide some type of command-line interface, but these usually lack the power needed to write scripts. They were built to service the users administering the product, but the company often doesn't spend the resources to implement a fully robust scripting language. An Expect script can spawn a shell, look up environmental variables, perform some Unix commands to retrieve more information, and then enter into the product's command-line interface armed with the necessary information to achieve the user's goal. After looking up information inside the product's command-line interface, the script can make an intelligent decision about what action to take, if any.
+Every time an Expect operation is completed, the results are stored in a local variable called $expect_out. This allows the script to harvest information to feedback to the user, and it also allows conditional behavior of what to send next based on the circumstances.
+A common use of Expect is to set up a testing suite, whether it be for programs, utilities or embedded systems. DejaGnu is a testing suite written using Expect for use in testing. It has been used extensively for testing gcc and is very well suited to testing remote targets such as embedded development.
+You can automate the generation of an expect script using a tool called 'autoexpect'. This tool observes your actions and generates an expect script using heuristics. Though generated code may be large and somewhat cryptic, you can always tweak the generated script to get the exact code.
+
+[edit] Opinion
+
+[edit] Pros
+Expect can be run at regular intervals through the use of cron to encapsulate system administration tasks. This works because Expect merely uses system administration tools already located on the host computer. No extra tools need to be learned. If the programmer has already learned Tcl, then migrating to Expect is a relatively easy transition. The same programming structures and syntax exist, but with additional features built in.
+There is large support in the industry for using Expect for many in-house administration tasks. It is widely used by companies such as Silicon Graphics, IBM, HP, Sun, Xerox, Amdahl, Tektronix, AT&T, ComputerVision and the World Bank to run in-house automated testing for development projects, file transfers, account administration, and network testing.
+Expect has been ported to Python and Perl languages in various add-on module projects. A subset of Expect commands has been ported to Java and is embedded within SwitchTermJ (java-based Terminal Emulator). Subroutines generally are an interpretation of the original version - with equivalent functionality. Once one understands the concept, one can trivially move to other languages as needed.
+
+[edit] Cons
+Expect inherits the same syntax convention as Tcl, which may seem unfamiliar if accustomed to other script languages. Compared to languages such as bash, csh, and Perl, Expect has a different twist. It is sometimes challenging to remember when a variable must be prefixed with a "$", and when it must not. There are versions of Expect available for Perl and Python for those familiar with their syntax.
+Another limitation is the difficulty in porting Expect scripts between platforms. For example, an Expect script that was written to use several Unix-based tools, might not be suitable if migrated to a Windows platform. If possible, the programmer must find counterpart command-line applications that provide the same information, and this will probably require changing the send/expect's, which can be a major part of the script. This is not an issue if you load tcl, perl or python on the machines in question, and use those languages' native POSIX interfaces for accessing files, and standard POSIX utilities (telnet, ftp etc.) for remote interaction.
+A less obvious argument against Expect is that it can enable sub-optimal solutions. For example, a systems administrator needing to log into multiple servers for automated changes might use Expect with stored passwords, rather than the better solution of ssh agent keys. The ability to automate interactive tools is attractive, but there are frequently other options that can accomplish the same tasks in a more robust manner.
+Expect cannot automate GUI based tools. This is generally only a problem on Windows where for many tasks a GUI based interface is the only option. In these situations tools like Autohotkey or AutoIt can be used instead.
+
+[edit] References
+
+
+^ "Expect FAQ: Our company policy requires a license to use Expect. Where can we get a license?". http://expect.nist.gov/FAQ.html#q6. 
+
+
+
+[edit] Further reading
+
+
+Libes, Don (1995). Exploring Expect: A Tcl-Based Tool for Automating Interactive Programs. O'Reilly & Associates, Inc. ISBN 1-56592-090-2. 
+
+
+
+[edit] External links
+
+Expect on SourceForge (current)
+Official homepage (very outdated!)
+The Tcler's Wiki -- Expect page
+Perl Expect.pm module
+Pexpect a Pure Python Expect-like module
+Expect Scripting Tutorial
+Empty - expectlike tool to run command-line interactive programs in UNIX shell-scripts
+Expect-lite -- a wrapper for expect, making automation easy, quick, and fun
+Bulletproof: Reliable CLI interface using Expect
+ExpectJ - a Java implementation of the Unix expect utility
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Expect"
+Categories: Scripting languages | Free software programmed in Tcl 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+中文
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 18 February 2009, at 09:27 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

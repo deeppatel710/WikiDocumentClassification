@@ -1,0 +1,430 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Coroutine - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Coroutine";
+		var wgTitle = "Coroutine";
+		var wgAction = "view";
+		var wgArticleId = "243800";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281465614;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Coroutine
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, coroutines are program components that generalize subroutines to allow multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, iterators, infinite lists and pipes.
+The term "coroutine" was originated by Melvin Conway in his seminal 1963 paper.[1]
+
+
+
+
+Contents
+
+
+1 Comparison with subroutines
+
+1.1 Detailed comparison
+
+
+2 Coroutines and generators
+3 Common uses of coroutines
+4 Programming languages supporting coroutines
+5 Coroutine alternatives and implementations
+
+5.1 Implementation in the .NET Framework as fibers
+5.2 Implementations for C
+5.3 Implementations for Python
+5.4 Implementations for Ruby
+5.5 Implementations for Perl
+5.6 Implementations for Smalltalk
+5.7 Implementations for Delphi
+5.8 Implementations in assembly languages
+
+
+6 References
+7 See also
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Comparison with subroutines
+Coroutines are more generic than subroutines. The lifespan of subroutines is dictated by last in, first out (the last subroutine called is the first to return); in contrast, the lifespan of coroutines is dictated entirely by their use and need.
+The start of a subroutine is the only point of entry. Subroutines can return only once; in contrast, coroutines can return (yield) several times. The start of a coroutine is the first point of entry and subsequent points of entry are following yield commands. Practically, yielding returns the result to the calling coroutine and gives it back control, like a usual subroutine. However, the next time the coroutine is called, the execution does not start at the beginning of the coroutine but just after the yield call.
+Here is a simple example of how coroutines can be useful. Suppose you have a consumer-producer relationship where one routine creates items and adds them to a queue and another removes items from the queue and uses them. For reasons of efficiency, you want to add and remove several items at once. The code might look like this:
+
+var q := new queue
+
+coroutine produce
+    loop
+        while q is not full
+            create some new items
+            add the items to q
+        yield to consume
+
+coroutine consume
+    loop
+        while q is not empty
+            remove some items from q
+            use the items
+        yield to produce
+
+The queue is then completely filled or emptied before yielding control to the other coroutine using the yield command. The further coroutines calls are starting right after the yield, in the inner coroutine loop.
+Although this example is often used to introduce multithreading, it is not necessary to have two threads to achieve this: the yield statement can be implemented by a branch directly from one routine into the other.
+
+[edit] Detailed comparison
+Since coroutines can have more points of entry and exit than subroutines, it is possible to implement any subroutine as a coroutine. "Subroutines are special cases of ... coroutines." —Donald Knuth[2]
+Each time a subroutine is called (invoked), execution starts at the beginning of the invoked subroutine. Likewise, the first time a coroutine is invoked, execution starts at the beginning of the coroutine; however, each subsequent time a coroutine is invoked, execution resumes following the place where the coroutine last returned (yielded).
+A subroutine returns only once. In contrast, a coroutine can return multiple times, making it possible to return additional values upon subsequent calls to the coroutine. Coroutines in which subsequent calls yield additional results are often known as generators.
+Subroutines only require a single stack that can be preallocated at the beginning of program execution. In contrast, coroutines, able to call on other coroutines as peers, are best implemented using continuations. Continuations may require allocation of additional stacks and therefore are more commonly implemented in garbage-collected high-level languages. Coroutine creation can be done cheaply by preallocating stacks or caching previously allocated stacks.
+
+[edit] Coroutines and generators
+Generators are also a generalisation of subroutines, but with at first sight less expressive power than coroutines; since generators are primarily used to simplify the writing of iterators, the yield statement in a generator does not specify a coroutine to jump to, but rather passes a value back to a parent routine. However, it is still possible to implement coroutines on top of a generator facility, with the aid of a top-level dispatcher routine that passes control explicitly to child generators identified by tokens passed back from the generators:
+
+var q := new queue
+
+generator produce
+    loop
+        while q is not full
+            create some new items
+            add the items to q
+        yield consume
+
+generator consume
+    loop
+        while q is not empty
+            remove some items from q
+            use the items
+        yield produce
+
+subroutine dispatcher
+    var d := new dictionary〈generator → iterator〉
+    d[produce] := start produce
+    d[consume] := start consume
+    var current := produce
+    loop
+        current := next d[current]
+
+A number of implementations of coroutines for languages with generator support but no native coroutines (e.g. Python[3] prior to 2.5) use this or a similar model.
+
+[edit] Common uses of coroutines
+Coroutines are useful to implement the following:
+
+State machines within a single subroutine, where the state is determined by the current entry/exit point of the procedure; this can result in more readable code.
+Actor model of concurrency, for instance in computer games. Each actor has its own procedures (this again logically separates the code), but they voluntarily give up control to central scheduler, which executes them sequentially (this is a form of cooperative multitasking).
+Generators, and these are useful for input/output and for generic traversal of data structures.
+
+
+[edit] Programming languages supporting coroutines
+
+Aikido
+BETA
+ChucK
+Dynamic C
+Factor
+Haskell[4]
+High Level Assembly[5]
+JavaScript (since 1.7)[6]
+Icon
+Io
+Limbo
+Lua
+Lucid
+µC++
+MiniD
+Modula-2
+Perl (Perl 5 with Coro, Perl 6 native)
+Python (since 2.5)
+Ruby (since 1.9, using Fibers)
+Scheme
+Self
+Simula-67
+Squirrel
+Stackless Python
+SuperCollider[citation needed]
+Tcl (since 8.6)
+
+Since continuations can be used to implement coroutines, programming languages that support them can also quite easily support coroutines.
+
+[edit] Coroutine alternatives and implementations
+Coroutines originated as an assembly-language technique, but are supported in some high-level languages, Simula and Modula-2 being two early examples.
+As of 2003[update], many of the most popular programming languages, including C and its derivatives, do not have direct support for coroutines within the language or their standard libraries. (This is, in large part, due to the limitations of stack-based subroutine implementation).
+In situations where a coroutine would be the natural implementation of a mechanism, but is not available, the typical response is to create a subroutine that uses an ad-hoc assemblage of boolean flags and other state variables to maintain an internal state between calls. Conditionals within the code result in the execution of different code paths on successive calls, based on the values of the state variables. Another typical response is to implement an explicit state machine in the form of a large and complex switch statement. Such implementations are difficult to understand and maintain.
+Threads (and to a lesser extent fibers) are an alternative to coroutines in mainstream programming environments today. Threads provide facilities for managing the realtime cooperative interaction of "simultaneously" executing pieces of code. Threads are widely available in environments that support C (and are supported natively in many other modern languages), are familiar to many programmers, and are usually well-implemented, well-documented and well-supported. However, as they solve a large and difficult problem they include many powerful and complex facilities and have a correspondingly difficult learning curve. As such, when a coroutine is all that is needed, using a thread can be overkill.
+One important difference between threads and coroutines is that threads are typically preemptively scheduled while coroutines are not. Because threads can be rescheduled at any instant and can execute concurrently, programs using threads must be careful about locking. In contrast, because coroutines can only be rescheduled at specific points in the program and do not execute concurrently, programs using coroutines can often avoid locking entirely. (This property is also cited as a benefit of event-driven or asynchronous programming.)
+Since fibers are cooperatively scheduled, they provide an ideal base for implementing coroutines above.[7] However, system support for fibers is often lacking compared to that for threads.
+
+[edit] Implementation in the .NET Framework as fibers
+During the development of the .NET Framework 2.0, Microsoft extended the design of the CLR hosting APIs to handle fiber-based scheduling with an eye towards its used in fiber-mode for SQL server. [8] Prior to release, support for the task switching hook ICLRTask::SwitchOut was removed due to time constraints. [9] Consequently the use of the fiber API to switch tasks is currently not a viable option in the .NET framework.
+
+[edit] Implementations for C
+Several attempts have been made, with varying degrees of success, to implement coroutines in C with combinations of subroutines and macros. Simon Tatham's contribution[10] is a good example of the genre, and his own comments provide a good evaluation of the limitations of this approach. The use of such a device truly can improve the writability, readability and maintainability of a piece of code, but is likely to prove controversial. In Tatham's words: "Of course, this trick violates every coding standard in the book... [but] any coding standard which insists on syntactic clarity at the expense of algorithmic clarity should be rewritten. If your employer fires you for using this trick, tell them that repeatedly as the security staff drag you out of the building."
+A more reliable approach to implementing coroutines in C is to give up on absolute portability and write processor-family-specific implementations, in assembly, of functions to save and restore a coroutine context. The standard C library includes functions named setjmp and longjmp which can be used to implement a form of coroutine. Unfortunately, as Harbison and Steele note, "the setjmp and longjmp functions are notoriously difficult to implement, and the programmer would do well to make minimal assumptions about them."[11] What this means is if Harbison and Steele's many cautions and caveats are not carefully heeded, uses of setjmp and longjmp that appear to work in one environment may not work in another. Worse yet, faulty implementations of these routines are not rare.[citation needed] Indeed, setjmp/longjmp, because it only countenances a single stack, cannot be used to implement natural coroutines, as variables located on the stack will be overwritten as another coroutine uses the same stack space.[12]
+Thus for stack-based coroutines in C, functions are needed to create and jump between alternate stacks. A third function, which can usually be written in machine-specific C, is needed to create the context for a new coroutine. C libraries complying to POSIX or the Single Unix Specification provide such routines as getcontext, setcontext, makecontext and swapcontext. The setcontext family of functions is thus considerably more powerful than setjmp/longjmp, but conforming implementations are as rare if not rarer. The main shortcoming of this approach is that the coroutine's stack is a fixed size and cannot be grown during execution. Thus, programs tend to allocate much more stack than they actually need in order to avoid the potential for stack overflow.
+Due to the limitations of standard libraries, some authors have written their own libraries for coroutines. Russ Cox's libtask library[13] is a good example of this genre. It uses the context functions if they are provided by the native C library; otherwise it provides its own implementations for ARM, PowerPC, Sparc, and x86. Other notable implementations include libpcl[14], coro[15], libCoroutine[16] and libcoro[17].
+
+[edit] Implementations for Python
+
+PEP 342 - better support for coroutine-like functionality, based on extended generators (implemented in Python 2.5)
+Greenlets
+kiwi tasklets
+multitask
+chiral
+cogen
+Kamaelia
+
+
+[edit] Implementations for Ruby
+
+Coroutines in Ruby (with commentary in Japanese language)
+An implementation by Marc De Scheemaecker
+
+
+[edit] Implementations for Perl
+
+Coro
+
+Coroutines will also be a part of Perl 6.
+
+[edit] Implementations for Smalltalk
+Since in most Smalltalk environments the execution stack is a first-class citizen, Coroutine can be implemented without additional library or VM support.
+
+[edit] Implementations for Delphi
+
+Cool little Coroutines function Coroutine implementation by Bart van der Werf
+C# Yield implementation in Delphi by Sergey Antonov
+
+
+[edit] Implementations in assembly languages
+Machine-dependent assembly languages often provide direct methods for coroutine execution. For example, in MACRO-11, the assembly language of the PDP_11 family of minicomputers, the “classic” coroutine switch is effected by the instruction "JSR PC,@(SP)+" (which assembles as octal "004736") which jumps to the address popped from the stack and pushes the current (i.e that of the next) instruction address onto the stack. On VAXen (in Macro-32) the comparable instruction is "JSB @(SP)+" (which assembles as hex "9E 16" as the assembler shows it (with in effect bytes reversed). Even on a Motorola 6809 there is the instruction "JSR [,S++]", which assembles as (hex) "AD F1"; note the "++", as 2 bytes (of address) are popped from the stack. This instruction is much used in the (standard) 'monitor' Assist_09.
+Simply calling back the routine whose address is on the top of the stack, does not, of course, exhaust the possibilities in assembly language(s)!
+
+[edit] References
+
+^ M.E. Conway, Design of a separable transition-diagram compiler, Communications of the ACM, Vol. 6, No. 7, July 1963
+^ Donald Knuth, Fundamental Algorithms, Third Edition. Addison-Wesley, 1997. ISBN 0-201-89683-4. Section 1.4.2: Coroutines, pp.193–200
+^ Charming Python: Generator-based state machines, David Mertz, IBM developerWorks
+^ "Coroutine: Type-safe coroutines using lightweight session types". http://hackage.haskell.org/cgi-bin/hackage-scripts/package/Coroutine. 
+^ "The Coroutines Module (coroutines.hhf)". HLA Standard Library Manual. http://webster.cs.ucr.edu/AsmTools/HLA/HLADoc/HLAstdlib/hlastdliba12.html. 
+^ "New in JavaScript 1.7". http://developer.mozilla.org/en/docs/New_in_JavaScript_1.7. 
+^ Implementing Coroutines for .NET by Wrapping the Unmanaged Fiber API, Ajai Shankar, MSDN Magazine
+^ [1], Chris Brumme, cbrumme's WebLog
+^ [2], Dino Viehland, Dino's Blog
+^ Simon Tatham's implementation of coroutines in C.
+^ C: A Reference Manual. Samuel P. Harbison and Guy L. Steele, Jr. Third edition; Prentice-Hall, 1991, ISBN 0-13-110933-2
+^ Building coroutines. Dr. C.-K. Shene, Michigan Technical University
+^ [3] - Russ Cox's libtask coroutine library for FreeBSD, Linux, Mac OS X, and SunOS
+^ Portable Coroutine Library - C library using POSIX/SUSv3 facilities
+^ [4] - Edgar Toernig's coro library for x86, Linux & FreeBSD
+^ [5] - libCoroutine for FreeBSD, Linux, OS X PPC and x86, SunOS, Symbian and others.
+^ [6] - portable coroutines in C, used as the basis for the Coro perl module.
+
+
+[edit] See also
+
+Cooperative multitasking
+Iterator
+Fibers
+Generator (computer science)
+Lazy evaluation
+Pipe (computing)
+Protothreads
+Subroutine
+
+
+[edit] External links
+
+Simon Tatham's C oriented comprehensive introduction to coroutines
+
+
+Dan Sugalski's less formal explanation of coroutines, including a discussion of how to handle resumption with different parameters.
+
+
+Softpanorama coroutine page Contains extensive assembler coroutines links.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Coroutine"
+Categories: Control flow | Concurrent computingHidden categories: All articles with unsourced statements | Articles with unsourced statements since April 2007 | Articles containing potentially dated statements from 2003 | All articles containing potentially dated statements | Articles with unsourced statements since October 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Français
+한국어
+日本語
+Polski
+Русский
+Svenska
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 April 2009, at 08:49.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

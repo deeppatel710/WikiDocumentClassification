@@ -1,0 +1,422 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Bellman-Ford algorithm,A* search algorithm,Autonomous system (Internet),B* search algorithm,Best-first search,Bidirectional search,Big O notation,Breadth-first search,C (programming language),Charles E. Leiserson,Clifford Stein" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Bellman-Ford algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Bellman-Ford_algorithm";
+		var wgTitle = "Bellman-Ford algorithm";
+		var wgAction = "view";
+		var wgArticleId = "221244";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279317238;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Bellman-Ford_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Bellman-Ford algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table align="right" class="toccolours" style="padding: 0px; width: 170px; margin: 0 0 1em 1em;">
+<tr>
+<th style="background: #ccf;"><a href="/wiki/Graph_traversal" title="Graph traversal">Graph search algorithms</a></th>
+</tr>
+<tr>
+<td><b>Search</b>
+<ul>
+<li><a href="/wiki/A*_search_algorithm" title="A* search algorithm">A*</a></li>
+<li><a href="/wiki/B*_search_algorithm" title="B* search algorithm">B*</a></li>
+<li><strong class="selflink">Bellman-Ford algorithm</strong></li>
+<li><a href="/wiki/Best-first_search" title="Best-first search">Best-first search</a></li>
+<li><a href="/wiki/Bidirectional_search" title="Bidirectional search">Bidirectional search</a></li>
+<li><a href="/wiki/Breadth-first_search" title="Breadth-first search">Breadth-first search</a></li>
+<li><a href="/wiki/D*_search_algorithm" title="D* search algorithm">D*</a></li>
+<li><a href="/wiki/Depth-first_search" title="Depth-first search">Depth-first search</a></li>
+<li><a href="/wiki/Depth-limited_search" title="Depth-limited search">Depth-limited search</a></li>
+<li><a href="/wiki/Dijkstra%27s_algorithm" title="Dijkstra's algorithm">Dijkstra's algorithm</a></li>
+<li><a href="/wiki/Floyd%E2%80%93Warshall_algorithm" title="Floyd–Warshall algorithm">Floyd–Warshall algorithm</a></li>
+<li><a href="/wiki/Hill_climbing" title="Hill climbing">Hill climbing</a></li>
+<li><a href="/wiki/Iterative_deepening_depth-first_search" title="Iterative deepening depth-first search">Iterative deepening depth-first search</a></li>
+<li><a href="/wiki/Johnson%27s_algorithm" title="Johnson's algorithm">Johnson's algorithm</a></li>
+<li><a href="/wiki/Uniform-cost_search" title="Uniform-cost search">Uniform-cost search</a></li>
+</ul>
+</td>
+</tr>
+</table>
+<p>The <b>Bellman–Ford algorithm</b>, a label correcting algorithm<sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup>, computes single-source <a href="/wiki/Shortest_path" title="Shortest path" class="mw-redirect">shortest paths</a> in a <a href="/wiki/Weighted_digraph" title="Weighted digraph" class="mw-redirect">weighted digraph</a> (where some of the <a href="/wiki/Edge_(graph_theory)" title="Edge (graph theory)" class="mw-redirect">edge</a> weights may be negative). <a href="/wiki/Dijkstra%27s_algorithm" title="Dijkstra's algorithm">Dijkstra's algorithm</a> solves the same problem with a lower running time, but requires edge weights to be non-negative. Thus, Bellman–Ford is usually used only when there are negative edge weights. The algorithm was developed by <a href="/wiki/Richard_Bellman" title="Richard Bellman" class="mw-redirect">Richard Bellman</a> and <a href="/wiki/L._R._Ford,_Jr." title="L. R. Ford, Jr.">Lester Ford, Jr.</a>.</p>
+<p>According to <a href="/wiki/Robert_Sedgewick_(computer_scientist)" title="Robert Sedgewick (computer scientist)">Robert Sedgewick</a>, "Negative weights are not merely a mathematical curiosity; [...] [they] arise in a natural way when we reduce other problems to shortest-paths problems"<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup>, and he gives the specific example of a <a href="/wiki/Reduction_(complexity)" title="Reduction (complexity)">reduction</a> from the <a href="/wiki/NP-complete" title="NP-complete">NP-complete</a> <a href="/wiki/Hamilton_path_problem" title="Hamilton path problem" class="mw-redirect">Hamilton path problem</a> to the shortest paths problem with general weights. If a graph contains a cycle of total negative weight then arbitrarily low weights are achievable and so there's no solution; Bellman-Ford detects this case.</p>
+<p>If the graph does contain a cycle of negative weights, Bellman-Ford can only detect this; Bellman-Ford cannot find the shortest path that does not repeat any vertex in such a graph. This problem is at least as hard as the NP-complete <a href="/wiki/Longest_path_problem" title="Longest path problem">longest path problem</a>.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Algorithm"><span class="tocnumber">1</span> <span class="toctext">Algorithm</span></a></li>
+<li class="toclevel-1"><a href="#Proof_of_correctness"><span class="tocnumber">2</span> <span class="toctext">Proof of correctness</span></a></li>
+<li class="toclevel-1"><a href="#Applications_in_routing"><span class="tocnumber">3</span> <span class="toctext">Applications in routing</span></a></li>
+<li class="toclevel-1"><a href="#Implementation"><span class="tocnumber">4</span> <span class="toctext">Implementation</span></a></li>
+<li class="toclevel-1"><a href="#Yen.27s_improvement"><span class="tocnumber">5</span> <span class="toctext">Yen's improvement</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">6</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">7</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Algorithm" id="Algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit&amp;section=1" title="Edit section: Algorithm">edit</a>]</span> <span class="mw-headline">Algorithm</span></h2>
+<p>Bellman–Ford is in its basic structure very similar to <a href="/wiki/Dijkstra%27s_algorithm" title="Dijkstra's algorithm">Dijkstra's algorithm</a>, but instead of greedily selecting the minimum-weight node not yet processed to relax, it simply relaxes <i>all</i> the edges, and does this |<i>V</i>|&#160;−&#160;1 times, where |<i>V</i>| is the number of vertices in the graph. The repetitions allow minimum distances to accurately propagate throughout the graph, since, in the absence of negative cycles, the shortest path can only visit each node at most once. Unlike the greedy approach, which depends on certain structural assumptions derived from positive weights, this straightforward approach extends to the general case.</p>
+<p>Bellman–Ford runs in <i><a href="/wiki/Big_O_notation" title="Big O notation">O</a></i>(|<i>V</i>|·|<i>E</i>|) time, where |<i>V</i>| and |<i>E</i>| are the number of vertices and edges respectively.</p>
+<pre>
+<b>procedure</b> BellmanFord(<i>list</i> vertices, <i>list</i> edges, <i>vertex</i> source)
+   <i>// This implementation takes in a graph, represented as lists of vertices</i>
+   <i>// and edges, and modifies the vertices so that their </i>distance<i> and</i>
+   <i>//</i> predecessor <i>attributes store the shortest paths.</i>
+
+   <i>// Step 1: Initialize graph</i>
+   <b>for each</b> vertex v in vertices:
+       <b>if</b> v <b>is</b> source <b>then</b> v.distance := 0
+       <b>else</b> v.distance := <b>infinity</b>
+       v.predecessor := <b>null</b>
+   
+   <i>// Step 2: relax edges repeatedly</i>
+   <b>for</b> i <b>from</b> 1 <b>to</b> size(vertices)-1:       
+       <b>for each</b> edge uv in edges: <i>// uv is the edge from u to v</i>
+           u := uv.source
+           v := uv.destination             
+           <b>if</b> v.distance &gt; u.distance + uv.weight:
+               v.distance := u.distance + uv.weight
+               v.predecessor := u
+
+   <i>// Step 3: check for negative-weight cycles</i>
+   <b>for each</b> edge uv in edges:
+       u := uv.source
+       v := uv.destination
+       <b>if</b> v.distance &gt; u.distance + uv.weight:
+           <b>error</b> "Graph contains a negative-weight cycle"
+</pre>
+<p><a name="Proof_of_correctness" id="Proof_of_correctness"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit&amp;section=2" title="Edit section: Proof of correctness">edit</a>]</span> <span class="mw-headline">Proof of correctness</span></h2>
+<p>The correctness of the algorithm can be shown by <a href="/wiki/Mathematical_induction" title="Mathematical induction">induction</a>. The precise statement shown by induction is:</p>
+<p><b>Lemma</b>. After <i>i</i> repetitions of <i>for</i> cycle:</p>
+<ul>
+<li>If Distance(u) is not infinity, it is equal to the length of some path from <i>s</i> to <i>u</i>;</li>
+<li>If there is a path from <i>s</i> to <i>u</i> with at most <i>i</i> edges, then Distance(u) is at most the length of the shortest path from <i>s</i> to <i>u</i> with at most <i>i</i> edges.</li>
+</ul>
+<p><b>Proof</b>. For the base case of induction, consider <code>i=0</code> and the moment before <i>for</i> cycle is executed for the first time. Then, for the source vertex, <code>source.distance = 0</code>, which is correct. For other vertices <i>u</i>, <code>u.distance = <b>infinity</b></code>, which is also correct because there is no path from <i>source</i> to <i>u</i> with 0 edges.</p>
+<p>For the inductive case, we first prove the first part. Consider a moment when a vertex's distance is updated by <code>v.distance&#160;:= u.distance + uv.weight</code>. By inductive assumption, <code>u.distance</code> is the length of some path from <i>source</i> to <i>u</i>. Then <code>u.distance + uv.weight</code> is the length of the path from <i>source</i> to <i>v</i> that follows the path from <i>source</i> to <i>u</i> and then goes to <i>v</i>.</p>
+<p>For the second part, consider the shortest path from <i>source</i> to <i>u</i> with at most <i>i</i> edges. Let <i>v</i> be the last vertex before <i>u</i> on this path. Then, the part of the path from <i>source</i> to <i>v</i> is the shortest path from <i>source</i> to <i>v</i> with at most <i>i-1</i> edges. By inductive assumption, <code>v.distance</code> after <i>i-1</i> cycles is at most the length of this path. Therefore, <code>uv.weight + v.distance</code> is at most the length of the path from <i>s</i> to <i>u</i>. In the <i>i<sup>th</sup></i> cycle, <code>u.distance</code> gets compared with <code>uv.weight + v.distance</code>, and is set equal to it if <code>uv.weight + v.distance</code> was smaller. Therefore, after <i>i</i> cycles, <code>u.distance</code> is at most the length of the shortest path from <i>source</i> to <i>u</i> that uses at most <i>i</i> edges.</p>
+<p>If there are no negative-weight cycles, then every shortest path visits each vertex at most once, so at step 3 no further improvements can be made. Conversely, suppose no improvement can be made. Then for any cycle with vertices v[0],..,v[k-1],</p>
+<p><code>v[i].distance &lt;= v[i-1 (mod k)].distance + v[i-1 (mod k)]v[i].weight</code></p>
+<p>Summing around the cycle, the v[i].distance terms and the v[i-1 (mod k)] distance terms cancel, leaving</p>
+<p><code>0 &lt;= sum from 1 to k of v[i-1 (mod k)]v[i].weight</code></p>
+<p>I.e., every cycle has nonnegative weight.</p>
+<p><a name="Applications_in_routing" id="Applications_in_routing"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit&amp;section=3" title="Edit section: Applications in routing">edit</a>]</span> <span class="mw-headline">Applications in routing</span></h2>
+<p>A distributed variant of the Bellman–Ford algorithm is used in <a href="/wiki/Distance-vector_routing_protocol" title="Distance-vector routing protocol">distance-vector routing protocols</a>, for example the <a href="/wiki/Routing_Information_Protocol" title="Routing Information Protocol">Routing Information Protocol</a> (RIP). The algorithm is distributed because it involves a number of nodes (routers) within an <a href="/wiki/Autonomous_system_(Internet)" title="Autonomous system (Internet)">Autonomous system</a>, a collection of IP networks typically owned by an ISP. It consists of the following steps:</p>
+<ol>
+<li>Each node calculates the distances between itself and all other nodes within the AS and stores this information as a table.</li>
+<li>Each node sends its table to all neighboring nodes.</li>
+<li>When a node receives distance tables from its neighbors, it calculates the shortest routes to all other nodes and updates its own table to reflect any changes.</li>
+</ol>
+<p>The main disadvantages of the Bellman–Ford algorithm in this setting are</p>
+<ul>
+<li>Does not scale well</li>
+<li>Changes in <a href="/wiki/Network_topology" title="Network topology">network topology</a> are not reflected quickly since updates are spread node-by-node.</li>
+<li>Counting to <a href="/wiki/Infinity" title="Infinity">infinity</a> (if link or node failures render a node unreachable from some set of other nodes, those nodes may spend forever gradually increasing their estimates of the distance to it, and in the meantime there may be routing loops)</li>
+</ul>
+<p><a name="Implementation" id="Implementation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit&amp;section=4" title="Edit section: Implementation">edit</a>]</span> <span class="mw-headline">Implementation</span></h2>
+<p>The following program implements the Bellman–Ford algorithm in <a href="/wiki/C_(programming_language)" title="C (programming language)">C</a>.</p>
+<pre>
+<code lang="c" xml:lang="c">#include &lt;limits.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+/* Let INFINITY be an integer value not likely to be
+   confused with a real weight, even a negative one. */
+#define INFINITY ((1 &lt;&lt; 14)-1)
+
+typedef struct {
+    int source;
+    int dest;
+    int weight;
+} Edge;
+
+void BellmanFord(Edge edges[], int edgecount, int nodecount, int source)
+{
+    int *distance = malloc(nodecount * sizeof *distance);
+    int i, j;
+
+    for (i=0; i &lt; nodecount; ++i)
+      distance[i] = INFINITY;
+    distance[source] = 0;
+
+    for (i=0; i &lt; nodecount; ++i) {
+       int somethingchanged = 0; 
+       for (j=0; j &lt; edgecount; ++j) {
+            if (distance[edges[j].source] != INFINITY) {
+                int new_distance = distance[edges[j].source] + edges[j].weight;
+                if (new_distance &lt; distance[edges[j].dest]) {
+                  distance[edges[j].dest] = new_distance;
+                  somethingchanged = 1;
+                } 
+            }
+        }
+        /* if one iteration had no effect, further iterations will have no effect either */
+        if (!somethingchanged) break;
+    }
+
+    for (i=0; i &lt; edgecount; ++i) {
+        if (distance[edges[i].dest] &gt; distance[edges[i].source] + edges[i].weight) {
+            puts("Negative edge weight cycles detected!");
+            free(distance);
+            return;
+        }
+    }
+
+    for (i=0; i &lt; nodecount; ++i) {
+        printf("The shortest distance between nodes %d and %d is %d\n",
+            source, i, distance[i]);
+    }
+
+    free(distance);
+    return;
+}
+
+int main(void)
+{
+    /* This test case should produce the distances 2, 4, 7, -2, and 0. */
+    Edge edges[10] = {{0,1, 5}, {0,2, 8}, {0,3, -4}, {1,0, -2},
+                      {2,1, -3}, {2,3, 9}, {3,1, 7}, {3,4, 2},
+                      {4,0, 6}, {4,2, 7}};
+    BellmanFord(edges, 10, 5, 4);
+    return 0;
+}
+</code>
+</pre>
+<p><a name="Yen.27s_improvement" id="Yen.27s_improvement"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit&amp;section=5" title="Edit section: Yen's improvement">edit</a>]</span> <span class="mw-headline">Yen's improvement</span></h2>
+<p>In a 1970 publication, Yen<sup id="cite_ref-2" class="reference"><a href="#cite_note-2" title=""><span>[</span>3<span>]</span></a></sup> described an improvement to the Bellman–Ford algorithm for a graph without negative-weight cycles. Yen's improvement first assigns some arbitrary linear order on all vertices and then partitions the set of all edges into one of two subsets. The first subset, E<sub>f</sub>, contains all edges (v<sub>i</sub>, v<sub>j</sub>) such that i &lt; j; the second, E<sub>b</sub>, contains edges (v<sub>i</sub>, v<sub>j</sub>) such that i &gt; j. Each vertex is visited in the order v<sub>1</sub>, v<sub>2</sub>,...,v<sub>|V|</sub>, relaxing each outgoing edge from that vertex in E<sub>f</sub>. Each vertex is then visited in the order v<sub>|V|</sub>, v<sub>|V|-1</sub>,...,v<sub>1</sub>, relaxing each outgoing edge from that vertex in E<sub>b</sub>. Yen's improvement effectively halves the number of "passes" required for the single-source-shortest-path solution.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit&amp;section=6" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="web" id="CITEREFDimitri_P._Bertsekas1992">Dimitri P. Bertsekas (March 1992). <a href="http://www.mit.edu/people/dimitrib/SLF.pdf" class="external text" title="http://www.mit.edu/people/dimitrib/SLF.pdf" rel="nofollow">"A Simple and Fast Label Correcting Algorithm for Shortest Paths"</a> (PDF). <i>Networks, Vol. 23, pp. 703-709, 1993</i><span class="printonly">. <a href="http://www.mit.edu/people/dimitrib/SLF.pdf" class="external free" title="http://www.mit.edu/people/dimitrib/SLF.pdf" rel="nofollow">http://www.mit.edu/people/dimitrib/SLF.pdf</a></span><span class="reference-accessdate">. Retrieved on 2008-10-01</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=A+Simple+and+Fast+Label+Correcting+Algorithm+for+Shortest+Paths&amp;rft.atitle=Networks%2C+Vol.+23%2C+pp.+703-709%2C+1993&amp;rft.aulast=Dimitri+P.+Bertsekas&amp;rft.au=Dimitri+P.+Bertsekas&amp;rft.date=March+1992&amp;rft_id=http%3A%2F%2Fwww.mit.edu%2Fpeople%2Fdimitrib%2FSLF.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Bellman-Ford_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> Robert Sedgewick. Algorithms in Java. Third Edition. <a href="/wiki/Special:BookSources/0201361213" class="internal">ISBN 0-201-36121-3</a>. Section 21.7: Negative Edge Weights. <a href="http://safari.oreilly.com/0201361213/ch21lev1sec7" class="external free" title="http://safari.oreilly.com/0201361213/ch21lev1sec7" rel="nofollow">http://safari.oreilly.com/0201361213/ch21lev1sec7</a></li>
+<li id="cite_note-2"><b><a href="#cite_ref-2" title="">^</a></b> Jin Y. Yen. "An algorithm for Finding Shortest Routes from all Source Nodes to a Given Destination in General Network", Quart. Appl. Math., 27, 1970, 526–530.</li>
+</ol>
+</div>
+<ul>
+<li><a href="/wiki/Richard_Bellman" title="Richard Bellman" class="mw-redirect">Richard Bellman</a>: <i>On a Routing Problem</i>, in Quarterly of Applied Mathematics, 16(1), pp.87-90, 1958.</li>
+<li><a href="/wiki/L._R._Ford,_Jr." title="L. R. Ford, Jr.">L. R. Ford, Jr.</a>, <a href="/wiki/D._R._Fulkerson" title="D. R. Fulkerson">D. R. Fulkerson</a>: <i>Flows in Networks</i>, Princeton University Press, 1962.</li>
+<li><a href="/wiki/Thomas_H._Cormen" title="Thomas H. Cormen">Thomas H. Cormen</a>, <a href="/wiki/Charles_E._Leiserson" title="Charles E. Leiserson">Charles E. Leiserson</a>, <a href="/wiki/Ronald_L._Rivest" title="Ronald L. Rivest" class="mw-redirect">Ronald L. Rivest</a>, and <a href="/wiki/Clifford_Stein" title="Clifford Stein">Clifford Stein</a>. <i><a href="/wiki/Introduction_to_Algorithms" title="Introduction to Algorithms">Introduction to Algorithms</a></i>, Second Edition. MIT Press and McGraw-Hill, 2001. <a href="/wiki/Special:BookSources/0262032937" class="internal">ISBN 0-262-03293-7</a>. Section 24.1: The Bellman-Ford algorithm, pp.588–592. Problem 24-1, pp.614–615.</li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit&amp;section=7" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://links.math.rpi.edu/applets/appindex/graphtheory.html" class="external text" title="http://links.math.rpi.edu/applets/appindex/graphtheory.html" rel="nofollow">Interactive Java-Applet demonstration</a></li>
+<li><a href="http://snippets.dzone.com/posts/show/4828" class="external text" title="http://snippets.dzone.com/posts/show/4828" rel="nofollow">C code example</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 512/1000000
+Post-expand include size: 4733/2048000 bytes
+Template argument size: 1734/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:221244-0!1!0!default!!en!2 and timestamp 20090402193318 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Bellman-Ford_algorithm">http://en.wikipedia.org/wiki/Bellman-Ford_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Graph_algorithms" title="Category:Graph algorithms">Graph algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Polynomial-time_problems" title="Category:Polynomial-time problems">Polynomial-time problems</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_example_C_code" title="Category:Articles with example C code">Articles with example C code</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_example_pseudocode" title="Category:Articles with example pseudocode">Articles with example pseudocode</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Bellman-Ford_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Bellman-Ford_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Bellman-Ford_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Bellman-Ford_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Bellman-Ford_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Bellman-Ford_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Bellman-Ford_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Bellman-Ford_algorithm&amp;oldid=279317238" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Bellman-Ford_algorithm&amp;id=279317238">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-cs"><a href="http://cs.wikipedia.org/wiki/Bellman-Ford%C5%AFv_algoritmus">Česky</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Bellman-Ford-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_de_Bellman-Ford">Español</a></li>
+				<li class="interwiki-fa"><a href="http://fa.wikipedia.org/wiki/%D8%A7%D9%84%DA%AF%D9%88%D8%B1%DB%8C%D8%AA%D9%85_%D8%A8%D9%84%D9%85%D9%86-%D9%81%D9%88%D8%B1%D8%AF">فارسی</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_de_Ford-Bellman">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%EB%B2%A8%EB%A7%8C-%ED%8F%AC%EB%93%9C_%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98">한국어</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Algoritmo_di_Bellman-Ford">Italiano</a></li>
+				<li class="interwiki-he"><a href="http://he.wikipedia.org/wiki/%D7%90%D7%9C%D7%92%D7%95%D7%A8%D7%99%D7%AA%D7%9D_%D7%91%D7%9C%D7%9E%D7%9F-%D7%A4%D7%95%D7%A8%D7%93">עברית</a></li>
+				<li class="interwiki-ka"><a href="http://ka.wikipedia.org/wiki/%E1%83%91%E1%83%94%E1%83%9A%E1%83%9B%E1%83%90%E1%83%9C-%E1%83%A4%E1%83%9D%E1%83%A0%E1%83%93%E1%83%98%E1%83%A1_%E1%83%90%E1%83%9A%E1%83%92%E1%83%9D%E1%83%A0%E1%83%98%E1%83%97%E1%83%9B%E1%83%98">ქართული</a></li>
+				<li class="interwiki-lv"><a href="http://lv.wikipedia.org/wiki/Bellmana-Forda_algoritms">Latviešu</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_Bellmana-Forda">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Algoritmo_de_Bellman-Ford">Português</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC_%D0%91%D0%B5%D0%BB%D0%BB%D0%BC%D0%B0%D0%BD%D0%B0_%E2%80%94_%D0%A4%D0%BE%D1%80%D0%B4%D0%B0">Русский</a></li>
+				<li class="interwiki-vi"><a href="http://vi.wikipedia.org/wiki/Thu%E1%BA%ADt_to%C3%A1n_Bellman-Ford">Tiếng Việt</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/%E8%B4%9D%E5%B0%94%E6%9B%BC-%E7%A6%8F%E7%89%B9%E7%AE%97%E6%B3%95">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 24 March 2009, at 06:37.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv177 in 0.070 secs. --></body></html>

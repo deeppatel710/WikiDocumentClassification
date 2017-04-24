@@ -1,0 +1,654 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+G-code - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "G-code";
+		var wgTitle = "G-code";
+		var wgAction = "view";
+		var wgArticleId = "1027403";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274697951;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); G-code
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about the machine tool programming language.  For the video recorder programming system, see Video recorder scheduling code.
+
+G-Code, or preparatory code or function, are functions in the Numerical control programming language. The G-codes are the codes that position the tool and do the actual work, as opposed to M-codes, that manages the machine; T for tool-related codes. S and F are tool-Speed and tool-Feed, and finally D-codes for tool compensation.
+The programming language of Numerical Control (NC) is sometimes informally called G-code. But in actuality, G-codes are only a part of the NC-programming language that controls NC and CNC machine tools. The term Numerical Control was coined at the MIT Servomechanisms Laboratory, and several versions of NC were and are still developed independently by CNC-machine manufacturers. The main standardized version used in the United States was settled by the Electronic Industries Alliance in the early 1960s. A final revision was approved in February 1980 as RS274D. In Europe, the standard DIN 66025 / ISO 6983 is often used instead.
+Due to the lack of further development, the immense variety of machine tool configurations, and little demand for interoperability, few machine tool controllers (CNCs) adhere to this standard. Extensions and variations have been added independently by manufacturers, and operators of a specific controller must be aware of differences of each manufacturers' product. When initially introduced, CAM systems were limited in the configurations of tools supported.
+Today, the main manufacturers of CNC control systems are GE Fanuc Automation (joint venture of General Electric and Fanuc), Siemens, Mitsubishi, and Heidenhain, but there still exist many smaller and/or older controller systems.
+Some CNC machine manufacturers attempted to overcome compatibility difficulties by standardizing on a machine tool controller built by Fanuc. Unfortunately, Fanuc does not remain consistent with RS-274 or its own previous versions, and has been slow at adding new features, as well as exploiting increases in computing power. For example, they changed G70/G71 to G20/G21; they used parentheses for comments which caused difficulty when they introduced mathematical calculations so they use square parentheses for macro calculations; they now have nano technology recently in 32-bit mode but in the Fanuc 15MB control they introduced HPCC (high-precision contour control) which uses a 64-bit RISC (reduced instruction set computer) processor and this now has a 500 block buffer for look-ahead for correct shape contouring and surfacing of small block programs and 5-axis continuous machining.
+This is also used for NURBS to be able to work closely with industrial designers and the systems that are used to design flowing surfaces. The NURBS has its origins from the ship building industry and is described by using a knot and a weight as for bending steamed wooden planks and beams.
+
+
+
+
+Contents
+
+
+1 Common Codes
+2 Example Program
+3 Basic ISO CNC Code
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Common Codes
+G-codes are also called preparatory codes, and are any word in a CNC program that begins with the letter 'G'. Generally it is a code telling the machine tool what type of action to perform, such as:
+
+rapid move
+controlled feed move in a straight line or arc
+series of controlled feed moves that would result in a hole being bored, a workpiece cut (routed) to a specific dimension, or a decorative profile shape added to the edge of a workpiece.
+change a pallet
+set tool information such as offset.
+
+There are other codes; the type codes can be thought of like registers in a computer
+
+X absolute position
+Y absolute position
+Z absolute position
+A position (rotary around X)
+B position (rotary around Y)
+C position (rotary around Z)
+U Relative axis parallel to X
+V Relative axis parallel to Y
+W Relative axis parallel to Z
+M code (another "action" register or Machine code(*)) (otherwise referred to as a "Miscellaneous" function")
+F feed rate
+S spindle speed
+N line number
+R Arc radius or optional word passed to a subprogram/canned cycle
+P Dwell time or optional word passed to a subprogram/canned cycle
+T Tool selection
+I Arc data X axis
+J Arc data Y axis.
+K Arc data Z axis, or optional word passed to a subprogram/canned cycle
+D Cutter diameter/radius offset
+H Tool length offset
+
+(*) M codes control the overall machine, causing it to stop, start, turn on coolant, etc., whereas other codes pertain to the path traversed by cutting tools. Different machine tools may use the same code to perform different functions; even machines that use the same CNC control.
+
+Partial list of M-Codes
+
+
+M0=Program Stop (non-optional)
+M1=Optional Stop, machine will only stop if operator selects this option
+M2=End of Program
+M3=Spindle on (CW rotation)
+M4=Spindle on (CCW rotation)
+M5=Spindle off
+M6=Tool Change
+M7=Coolant on (flood)
+M8=Coolant on (mist)
+M9=Coolant off
+M10=Pallet clamp
+M11=Pallet un-clamp
+M30=End of program/rewind tape (may still be required for older CNC machines)
+
+
+
+Common FANUC G Codes for Mill
+
+Code
+Description
+
+
+G00
+Rapid positioning
+
+
+G01
+Linear interpolation
+
+
+G02
+CW circular interpolation
+
+
+G03
+CCW circular interpolation
+
+
+G04
+Dwell
+
+
+G05.1 Q1.
+Ai Nano contour control
+
+
+G05 P10000
+HPCC
+
+
+G10/G11
+Programmable Data input/Data write cancel
+
+
+G17
+X-Y plane selection
+
+
+G18
+X-Z plane selection
+
+
+G19
+Y-Z plane selection
+
+
+G20
+Programming in inches
+
+
+G21
+Programming in mm
+
+
+G28
+Return to home position
+
+
+G30
+2nd reference point return
+
+
+G31
+Skip function (used for probes and tool length measurement systems)
+
+
+G33
+Constant pitch threading
+
+
+G34
+Variable pitch threading
+
+
+G40
+Tool radius compensation off
+
+
+G41
+Tool radius compensation left
+
+
+G42
+Tool radius compensation right
+
+
+G43
+Tool offset compensation negative
+
+
+G44
+Tool offset compensation positive
+
+
+G45
+Axis offset single increase
+
+
+G46
+Axis offset single decrease
+
+
+G47
+Axis offset double increase
+
+
+G48
+Axis offset double decrease
+
+
+G49
+Tool offset compensation cancel
+
+
+G53
+Machine coordinate system
+
+
+G54 to G59
+Work coordinate systems
+
+
+G54.1 P1 to P48
+Extended work coordinate systems
+
+
+G73
+High speed drilling canned cycle
+
+
+G74
+Left hand tapping canned cycle
+
+
+G76
+Fine boring canned cycle
+
+
+G80
+Cancel canned cycle
+
+
+G81
+Simple drilling cycle
+
+
+G82
+Drilling cycle with dwell
+
+
+G83
+Peck drilling cycle
+
+
+G84
+Tapping cycle
+
+
+G84.2
+Direct right hand tapping canned cycle
+
+
+G90
+Absolute programming (type B and C systems)
+
+
+G91
+Incremental programming (type B and C systems)
+
+
+G92
+Programming of absolute zero point
+
+
+G94/G95
+Inch per minute/Inch per revolution feed (type A system)
+
+
+G98/G99
+Return to Initial Z plane/R plane in canned cycle
+
+
+G96/G97
+Constant cutting speed (Constant surface speed)/Constant rotation speed (constant RPM)
+
+
+A standardized version of G-code known as BCL is used, but only on very few machines.
+G-code files may be generated by CAM software. Those applications typically use translators called post-processors to output code optimized for a particular machine type or family. Post-processors are often user-editable to enable further customization, if necessary. G-code is also output by specialized CAD systems used to design printed circuit boards. Such software must be customized for each type of machine tool that it will be used to program. Some G-code is written by hand for volume production jobs. In this environment, the inherent inefficiency of CAM-generated G-code is unacceptable.
+Some CNC machines use "conversational" programming, which is a wizard-like programming mode that either hides G-code or completely bypasses the use of G-code. Some popular examples are Southwestern Industries' ProtoTRAK, Mazak's Mazatrol, Hurco's Ultimax and Mori Seiki's CAPS conversational software.
+
+[edit] Example Program
+This is a generic program that demonstrates the use of G-Code to turn a 1" diameter X 1" long part. Assume that a bar of material is in the machine and that the bar is slightly oversized in length and diameter and that the bar protrudes by more than 1" from the face of the chuck. (Caution: This is generic, it might not work on any real machine! Pay particular attention to point 5 below.)
+
+
+
+
+Tool Path for program
+
+
+
+Sample
+
+Line
+Code
+Description
+
+
+N01
+M216
+Turn on load monitor
+
+
+N02
+G00 X20 Z20
+Rapid move away from the part, to ensure the starting position of the tool
+
+
+N03
+G50 S2000
+Set Maximum spindle speed
+
+
+N04
+M01
+Optional stop
+
+
+N05
+T0303 M6
+Select tool #3 from the carousel, use tool offset values located in line 3 of the program table, index the turret to select new tool
+
+
+N06
+G96 S854 M42 M03 M08
+Variable speed cutting, 854 ft/min, High spindle gear, Start spindle CW rotation, Turn the mist coolant on
+
+
+N07
+G00 X1.1 Z1.1
+Rapid feed to a point 0.1" from the end of the bar and 0.05" from the side
+
+
+N08
+G01 Z1.0 F.05
+Feed in horizontally until the tool is standing 1" from the datum
+
+
+N09
+X0.0
+Feed down until the tool is on center - Face the end of the bar
+
+
+N10
+G00 Z1.1
+Rapid feed 0.1" away from the end of the bar
+
+
+N11
+X1.0
+Rapid feed up until the tool is standing at the finished OD
+
+
+N12
+G01 Z0.0 F.05
+Feed in horizontally cutting the bar to 1" diameter all the way to the datum
+
+
+N13
+M05 M09
+Stop the spindle, Turn off the coolant
+
+
+N14
+G28 G91 X0
+Home X axis in the machine coordinate system, then home all other axes
+
+
+N15
+M215
+Turn the load monitor off
+
+
+N16
+M30
+Program stop, pallet change if applicable, rewind to beginning of the program
+
+
+Several points to note:
+
+There is room for some programming style, even in this short program. The grouping of codes in line N06 could have been put on multiple lines. Doing so may have made it easier to follow program execution.
+Many codes are "Modal" meaning that they stay in effect until they are cancelled or replaced by a contradictory code. For example, once variable speed cutting had been selected (G96), it stayed in effect until the end of the program. In operation, the spindle speed would increase as the tool neared the center of the work in order to maintain a constant cutting speed. Similarly, once rapid feed was selected (G00) all tool movements would be rapid until a feed rate code (G01, G02, G03) was selected.
+It is common practice to use a load monitor with CNC machinery. The load monitor will stop the machine if the spindle or feed loads exceed a preset value that is set during the set-up operation. The job of the load monitor is to prevent machine damage in the event of tool breakage or a programming mistake. On small or hobby machines, it can warn of a tool that is becoming dull and needs to be replaced or sharpened.
+It is common practice to bring the tool in rapidly to a "safe" point that is close to the part - in this case 0.1" away - and then start feeding the tool. How close that "safe" distance is, depends on the skill of the programmer and maximum material condition for the raw stock.
+If the program is wrong, there is a high probability that the machine will crash, or ram the tool into the part under high power. This can be costly, especially in newer machining centers. It is possible to intersperse the program with optional stops (M01 code) which allow the program to be run piecemeal for testing purposes. The optional stops remain in the program but they are skipped during the normal running of the machine. Thankfully, most CAD/CAM software ships with CNC simulators that will display the movement of the tool as the program executes. Many modern CNC machines also allow programmers to execute the program in a simulation mode and observe the operating parameters of the machine at a particular execution point. This enables programmers to discover semantic errors (as opposed to syntax errors) before losing material or tools to an incorrect program. Depending on the size of the part, wax blocks may be used for testing purposes as well.
+For pedagogical purposes, line numbers have been included in the program above. They are usually not necessary for operation of a machine, so they are seldom used in industry. However, if branching or looping statements are used in the code, then line numbers may well be included as the target of those statements (e.g. GOTO N99).
+
+
+[edit] Basic ISO CNC Code
+
+|
+M03, M04, M05 Spindle CW, Spindle CCW, Spindle Stop
+|
+M08, M09 Coolant/lubricant On, Coolant/lubricant Off
+M02 Program Stop(Is most commonly used)
+M30 Program end, rewind
+M98 Subprogram call
+M99 Return to call program
+M00, M01 Program stop, optional stop
+|
+G96, G97 Constant surface speed, Constant Spindle speed
+G50 Maximum spindle speed
+G95, G94 Feed mm per revolution, feed mm/min
+G00, G01 rapid movement, Linear Interpolation (cutting in a straight line)
+|
+F Feed
+S Spindle Speed
+|
+direction Coordinates X Y Z A B C U V W
+
+
+[edit] See also
+
+Direct Numerical Control
+Gerber file
+STEP-NC
+
+
+[edit] External links
+
+Tutorial for G-code
+Free Machinist Information, Calculators, and Forums
+The NIST RS274NGC Standard - Version 3 Aug 2000 also available as a PDF
+
+
+
+
+
+
+
+
+
+v • d • e
+
+ Metalworking - Computing
+
+
+
+
+
+CNC, CAD, and CAM
+
+
+
+2.5D · CAD · CAE · CAM · CNC · G-code · Numerical control · Stewart platform
+
+
+
+
+
+
+
+
+Metalworking topics
+
+
+
+Casting · CNC · Cutting tools · Drilling and threading · Fabrication · Forging · Grinding · Jewellery · Lathe · Machining · Machine tools and associated tooling · Measuring · Metalworking · Hand tools · Metallurgy · Milling · NC · Occupations · Press tools · Pipe and tube bending · Smithing · Turning · General terminology · Welding
+
+
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/G-code"
+Categories: CNC, CAD, and CAM | CAD file formats | Domain-specific programming languages | Encodings 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Français
+Nederlands
+Polski
+Português
+Русский
+Српски / Srpski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 March 2009, at 15:15 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,324 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Fixed-point arithmetic - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Fixed-point_arithmetic";
+		var wgTitle = "Fixed-point arithmetic";
+		var wgAction = "view";
+		var wgArticleId = "449736";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282636352;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Fixed-point arithmetic
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+It has been suggested that binary scaling be merged into this article or section. (Discuss)
+
+
+
+
+
+
+
+It has been suggested that Q (number format) be merged into this article or section. (Discuss)
+
+
+This article is about a form of limited-precision arithmetic in computing. For the fixed points of a mathematical function, see fixed point (mathematics).
+In computing, a fixed-point number representation is a real data type for a number that has a fixed number of digits after (and sometimes also before) the radix point (e.g., after the decimal point '.' in English decimal notation). Fixed-point number representation can be compared to the more complicated (and more computationally demanding) floating point number representation.
+Fixed-point numbers are useful for representing fractional values, usually in base 2 or base 10, when the executing processor has no floating point unit (FPU) or if fixed-point provides improved performance or accuracy for the application at hand. Most low-cost embedded microprocessors and microcontrollers do not have an FPU.
+
+
+
+
+Contents
+
+
+1 Definition
+2 Binary vs. decimal
+3 Notation
+4 Precision loss and overflow
+5 Implementations
+
+5.1 Other
+
+
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Definition
+A fixed-point number is essentially an integer that is scaled by a certain factor. For example, the real number 1.23 can be seen as 123/100; here, the scaling factor is 100. It is important to note that the scaling factor is determined by the type; it is the same for all values of a certain fixed-point type. Floating-point types, on the other hand, store the scaling factor as part of the value, which allows them to have a wider range of values.
+The upper bound of a fixed-point type is simply the upper bound of the underlying integer type, divided by the scaling factor. Similarly, the lower bound is the lower bound of the integer type, divided by the scaling factor. For example, a binary fixed-point type in two's complement format, with f fractional bits and a total of b bits, has a lower bound of − 2b − f − 1 and an upper bound of (2b − 1 − 1) / 2f.
+To add or subtract two fixed-point numbers, it is sufficient to add or subtract the underlying integers. When the same is done for multiplication or division, the result needs to be rescaled—for multiplication the result needs to be divided by the scaling factor, for division it needs to be multiplied. To see this, suppose we want to multiply two real numbers a and b, stored as fixed-point numbers with scaling factor S. If we multiply the underlying integers, we obtain aS · bS = abS2. However, the value we want is abS, so we need to divide by S.
+
+[edit] Binary vs. decimal
+The two most common fixed-point types are decimal and binary. Decimal fixed-point types have a scaling factor that is a power of ten, for binary fixed-point types it is a power of two.
+Binary fixed-point types are most commonly used, because the rescaling operations can be implemented as fast bit shifts. Binary fixed-point numbers can represent fractional powers of two exactly, but, like binary floating-point numbers, cannot exactly represent fractional powers of ten. If exact fractional powers of ten are desired, then a decimal format should be used. For example, one-tenth (0.1) and one-hundredth (0.01) can be represented only approximately by binary fixed-point or binary floating-point representations, while they can be represented exactly in decimal fixed-point or decimal floating-point representations. These representations may be encoded in many ways, including BCD.
+
+[edit] Notation
+There are various notations used to represent word length and radix point in a binary fixed-point number. In the following list, f represents the number of fractional bits, m the number of magnitude or integer bits, s the number of sign bits, and b the total number of bits.
+
+Qf: The "Q" prefix. For example, Q15 represents a number with 15 fractional bits. This notation is ambiguous since it does not specify the word length, however it is usually assumed that the word length is either 16 or 32 bits depending on the target processor in use.[1]
+
+
+Qm.f: The unambiguous form of the "Q" notation. Since the entire word is a 2's complement integer, a sign bit is implied. For example, Q1.30 describes a number with 1 integer bit and 30 fractional bits stored as a 32-bit 2's complement integer.[1][2]
+
+
+fxm.b: The "fx" prefix is similar to the above, but uses the word length as the second item in the dotted pair. For example, fx1.16 describes a number with 1 magnitude bit and 15 fractional bits in a 16 bit word.
+
+
+s:m:f: Yet other notations include a sign bit, such as this one used in the PS2 GS User's Guide.[3] It also differs from conventional usage by using a colon instead of a period as the separator. For example, in this notation, 0:8:0 represents an unsigned 8-bit integer.
+
+
+[edit] Precision loss and overflow
+Because fixed point operations can produce results that have more bits than the operands, there is opportunity for information loss. For instance, the result of fixed point multiplication could potentially have as many bits as the sum of the number of bits in the two operands. In order to fit the result into the same number of bits as the operands, the answer must be rounded or truncated. If this is the case, the choice of which bits to keep is very important. When multiplying two fixed point numbers with the same format, for instance with I integer bits, and Q fractional bits, the answer could have up to 2I integer bits, and 2Q fractional bits.
+For simplicity, many coders of fixed-point multiply procedures use the same result format as the operands. This has the effect of keeping the middle bits; the I-number of least significant integer bits, and the Q-number of most significant fractional bits. Fractional bits lost below this value represent a precision loss which is common in fractional multiplication. If any integer bits are lost, however, the value will be radically inaccurate. This is considered to be an overflow, and needs to be avoided in embedded calculations. It is recommended that a model based operator simulation tool such as VisSim be used to detect and avoid such overflows by use of appropriate result word size and radix point, proper scaling gains, and magnitude limiting of intermediate results.
+Some operations, like divide, often have built-in result limiting so that any positive overflow results in the largest possible number that can be represented by the current format. Likewise, negative overflow results in the largest negative number represented by the current format. This built in limiting is often referred to as saturation.
+Some processors support a hardware overflow flag that can generate an exception on the occurrence of an overflow, but it is usually too late to salvage the proper result at this point.
+
+[edit] Implementations
+Very few computer languages include built-in support for fixed point values, because for most applications, binary or decimal floating-point representations are usually simpler to use and accurate enough. Floating-point representations are easier to use than fixed-point representations, because they can handle a wider dynamic range and do not require programmers to specify the number of digits after the radix point. However, if they are needed, fixed-point numbers can be implemented even in programming languages like C and C++, which do not commonly include such support.
+A common use of fixed-point BCD numbers is for storing monetary values, where the inexact values of binary floating-point numbers are often a liability. Historically, fixed-point representations were the norm for decimal data types; for example, in PL/I or COBOL. The Ada programming language includes built-in support for both fixed-point (binary and decimal) and floating-point. JOVIAL and Coral 66 also provide both floating- and fixed-point types.
+ISO/IEC TR 18037[4] specifies fixed-point data types for the C programming language; vendors are expected to implement the language extensions for fixed point arithmetic in coming years. Fixed-point support is implemented in GCC.[5][6]
+Almost all relational databases, and the SQL query language, support fixed-point decimal arithmetic and storage of numbers. PostgreSQL has a special numeric type for exact storage of numbers with up to 1000 digits.[7]
+
+[edit] Other
+
+GnuCash is an application for tracking money. It is written in C and switched from a floating-point representation of money to a fixed-point implementation as of version 1.6. This change was made to trade the less predictable rounding errors of floating-point representations for more control over rounding (for example, to the nearest cent).
+Tremor and Toast are software libraries that decode the Ogg Vorbis and GSM Full Rate audio formats respectively. These codecs use fixed-point arithmetic because many audio decoding hardware devices do not have an FPU (partly to save money, but primarily to save power - integer units are much smaller in silicon area than an FPU) and audio decoding requires enough performance that a software implementation of floating-point on low-speed devices would not produce output in real time.
+All 3D graphics engines on Sony's original PlayStation, Sega's Saturn, Nintendo's Game Boy Advance (only 2D), Nintendo DS (2D and 3D) and GP2X Wiz video game systems use fixed-point arithmetic for the same reason as Tremor and Toast: to gain throughput on an architecture without an FPU.
+The OpenGL ES 1.x specification includes a fixed point profile, as it's an API aimed for embedded systems, which not always have an FPU.
+TeX font metric files use 32-bit signed fixed-point numbers, with 12 bits to the left of the decimal, extensively.
+The dc and bc programs are arbitrary precision calculators, but only keep track of a (user-specified) fixed number of fractional digits.
+VisSim A visually programmed block diagram language that supports a fixed-point block set to allow simulation and automatic code generation of fixed-point operations. Both word size and radix point can be specified on an operator basis.
+Fractint represents numbers as Q3.29 fixed-point numbers,[8] to speed up drawing on old PCs with 386 or 486SX processors, which lacked an FPU.
+
+
+[edit] See also
+
+Binary scaling
+Q (number format)
+
+
+[edit] References
+
+
+^ a b Texas Instruments, TMS320C64x DSP Library Programmer's Reference, Appendix A.2
+^ The MathWorks
+^ PS2 GS User's Guide, Chapter 7.1 "Explanatory Notes"
+^ JTC1/SC22/WG14, status of TR 18037: Embedded C
+^ GCC wiki, Fixed-Point Arithmetic Support
+^ Using GCC, section 5.13 Fixed-Point Types
+^ PostgreSQL manual, section 8.1.2. Arbitrary Precision Numbers
+^ Fractint, A Little Code
+
+
+
+[edit] External links
+
+
+
+The Wikibook Embedded Systems has a page on the topic of
+Embedded System Basics/Fixed-Point Arithmetic
+
+
+
+
+Fixed-Point Arithmetic - An Introduction Representing and implementing fixed-point arithmetic in digital signal processing, by Randy Yates
+A Calculated Look at Fixed-Point Arithmetic
+Working with floating point parameters in an integer world How to represent floating point values in a fixed point processor, by Dinu Madau
+Fixed Point Representation And Fractional Math
+Wikibooks Embedded Systems-Embedded System Basics-Fixed-Point Arithmetic
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Fixed-point_arithmetic"
+Categories: Computer arithmetic | Data typesHidden categories: Articles to be merged since March 2008 | All articles to be merged 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+Français
+עברית
+日本語
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 April 2009, at 21:36 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

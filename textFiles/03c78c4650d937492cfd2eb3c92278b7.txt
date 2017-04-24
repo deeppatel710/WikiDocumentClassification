@@ -1,0 +1,542 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Calculating the day of the week - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Calculating_the_day_of_the_week";
+		var wgTitle = "Calculating the day of the week";
+		var wgAction = "view";
+		var wgArticleId = "443439";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282873443;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Calculating the day of the week
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article details various mathematical algorithms to calculate the day of the week for any particular date in the past or future.
+A typical application is to calculate the day of the week on which someone was born or some other special event occurred.
+
+
+
+
+Contents
+
+
+1 Introduction
+2 Useful concepts
+
+2.1 Corresponding months
+2.2 Corresponding years
+
+
+3 An algorithm to calculate the day of the week
+
+3.1 Examples
+3.2 Centuries table
+3.3 Months table
+3.4 Days table
+
+
+4 Mental calculation
+
+4.1 Finding day 0 for a given year
+4.2 Example
+
+
+5 Babwani's formula
+6 Zeller’s algorithm
+7 Dominical letters
+8 See also
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Introduction
+The basis of nearly all the algorithms to calculate the day of the week is:
+
+Use arithmetic modulo 7 to add the number of days elapsed since the start of a known period (usually in practice a century). If we number the days of the week from 0 to 6 the result is some modulo value; if we use the range from 1 to 7, then 7 replaces 0.
+To look up or calculate using a known rule what day the given century started on.
+To look up or calculate what day the given year in that century started on.
+To look up or calculate what day the given month in that year in that century started on.
+To then add on the day of the month - this of course being the days elapsed since the month started.
+
+Put simply, using arithmetic modulo 7 means ignoring multiples of 7 during calculations. Thus we can treat 7 as 0, 8 as 1, 9 as 2, 18 as 4 and so on; the interpretation of this being that if we signify Sunday as day 0, then 7 days later (i.e. day 7) is also a Sunday, and day 18 will be the same as day 4, which is a Thursday since this falls 4 days after Sunday. Some algorithms do all the additions first and then cast out sevens whereas others cast them out at each step. Either way is quite permissible; the former is better when using calculators and in computer algorithms, the latter for mental calculation (it is quite possible to do all the calculations in one's head with a little practice).
+
+[edit] Useful concepts
+
+[edit] Corresponding months
+"Corresponding months" are those months within the calendar year that start on the same day. For example, September and December correspond, because September 1 falls on the same day as December 1. Months can only correspond if the number of days between their first days is divisible by 7, or in other words, if their first days are a whole number of weeks apart. For example, February corresponds to March because February has 28 days, a number divisible by 7, 28 days being exactly four weeks. In a leap year, January and February correspond to different months than in a common year, since February 29 means each subsequent month starts a day later.
+Here's how the months correspond:
+
+Common year
+
+January and October.
+February, March and November.
+April and July.
+No month corresponds to August.
+
+
+Leap year
+
+January, April and July.
+February and August.
+March and November.
+No month corresponds to October.
+
+
+All years
+
+September and December.
+No month corresponds to May or June.
+
+
+
+Note that in the months table below, corresponding months have the same number, a fact which follows directly from the definition.
+
+[edit] Corresponding years
+There are 7 possible days that a year can start on, and leap years will alter the day of the week after February 29. This means that there are 14 configurations that a year can have. All the configurations are referenced in the article on Dominical letter. For example, 2007 is a common year starting on Monday, meaning that 2007 corresponds to the 2001 calendar year. 2008, on the other hand, is a leap year starting on Tuesday, meaning that the year starts off corresponding to 2002, but after February, corresponds to 2003.
+
+[edit] An algorithm to calculate the day of the week
+The algorithm is valid for the Gregorian calendar. This began in Britain and its colonies on September 14, 1752. The area now forming the United States changed at different times depending on the colonial power; Spain, France, Italy, and others had changed in 1582 and Russia had not changed by 1867 when Alaska was purchased by the U.S. from Russia.
+This algorithm shows how to come up with four numbers. Find the sum of these four and using modulus to restrict the result to 0 through 6, the day of the week can be determined. Since this algorithm uses the "zeroth" day, we can add the day of the month directly (without subtracting 1). Examples of the evaluation of this algorithm are below. The four numbers are:
+
+Centuries: First, we can either refer to the centuries table below or use the rule: Where century is the first two digits of the year, define 
+Years: Because there are 365 days in a common year, which is 52 weeks plus 1 day, each year will start on the day of the week after that starting the preceding year. Each leap year has of course one more day than a common year. Assuming we know on which day a century starts (from above), if we add the number of years elapsed since the start of the century, plus the number of leap years that have elapsed since the start of the century, we get the day of the week on which the year starts. Where year is the last two digits of the year, define 
+Months: We refer to the months table below to work out on which day of the week a month starts. Notice that January starts on day 0, which is simply another way of saying that the year and January of that year start on the same day. The months table shown allows for leap years; other algorithms leave the correction to the end and then deduct 1 from the final figure if the month is a January or February of a leap year.
+Day of the Month: Once we know on which day of the week the month starts, we simply add the day of the month to find the final result (noting that as mentioned above, we've been working with the "zeroth" day of the month as the start).
+
+
+[edit] Examples
+Now for an example of the complete algorithm, let's use April 24, 1982.
+
+Look up the 1900s in the centuries table: 0
+Note the last two digits of the year: 82
+Divide the 82 by 4: 82/4 = 20.5 and drop the fractional part: 20
+Look up April in the months table: 6
+Add all numbers from steps 1-4 to the day of the month (in this case, 24): 0+82+20+6+24=132.
+Divide the sum from step 5 by 7 and find the remainder: 132/7=18 remainder 6
+Find the remainder in the days table: 6=Saturday.
+
+
+Now let's try September 18, 1783.
+
+Look up the 1700s in the centuries table: 4
+Note the last two digits of the year: 83
+Divide the 83 by 4: 83/4 = 20.75 and drop the fractional part: 20
+Look up September in the months table: 5
+Add all numbers from steps 1-4 to the day of the month (in this case, 18): 4+83+20+5+18=130.
+Divide the sum from step 5 by 7 and find the remainder: 130/7=18 remainder 4
+Find the remainder in the days table: 4=Thursday.
+
+
+Finally, let's try June 19, 2054
+
+Look up the 2000s in the centuries table: 6
+Note the last two digits of the year: 54
+Divide the 54 by 4: 54/4 = 13.5 and drop the fractional part: 13
+Look up June in the months table: 4
+Add all numbers from steps 1-4 to the day of the month (in this case, 19): 6+54+13+4+19=96.
+Divide the sum from step 5 by 7 and find the remainder: 96/7=13 remainder 5
+Find the remainder in the days table: 5=Friday.
+
+
+[edit] Centuries table
+
+1700-1799     4     (Still Julian Calendar in Great Britain and its colonies until 1752)    
+1800-1899     2
+1900-1999     0
+2000-2099     6
+2100-2199     4
+2200-2299     2
+2300-2399     0
+2400-2499     6
+2500-2599     4
+2600-2699     2
+
+
+[edit] Months table
+
+January      0 (in leap year 6)
+February     3 (in leap year 2)
+March        3
+April        6
+May          1
+June         4
+July         6
+August       2
+September    5
+October      0
+November     3
+December     5
+
+
+[edit] Days table
+
+Sunday    0
+Monday    1
+Tuesday   2
+Wednesday 3
+Thursday  4
+Friday    5
+Saturday  6
+
+One can add constants (modulo 7) to these three tables provided the constant you add to the day table is equal to the sum of the constants you add to the centuries table and the months table modulo 7.
+
+[edit] Mental calculation
+A method useful for mental calculation imagines the year starts on March 1 rather than January 1 (as it did in Roman times), so that the extra day in a leap year is the last day, rather than occurring in the middle of the year. This removes the need to do different calculations for a leap year. It leads to, "day 0" described above being the last day of February.
+April 4, June 6, August 8, October 10 and December 12 all occur on the same day as day 0 (note that April is the 4th month, June the 6th, August the 8th, etc).
+May 9 and September 5 are also the same day as day 0 (May is the 5th month and September the 9th — think of the Dolly Parton song "9 to 5": the 9th day of the 5th month and the 5th day of the 9th month).
+July 11 and November 7 are the same day as day 0 (the 7th and 11th months, respectively -- think of the 7-Eleven shops).
+These days of the week are called Doomsdays in the Doomsday algorithm, which uses these very same mnemonics.
+However, if one regards the new year as beginning on March 1 one has a simpler situation for February and January. Day 0 occurs on January 16 and February 6, which are the same day of the week as the previous last day of February (i.e. last year's Doomsday) for every year.
+Also within each year beginning March 1, five months is always exactly 153 days and hence one day short of a whole number of weeks. This gives rise to the following dates for day 0:
+
+Month       +5 months    -5 months   +10 Months
+April 4     September 5              February 6
+June 6      November 7 
+August 8    January 9     March 7
+October 10                May 9
+December 12               July 11
+
+
+So if you can figure out what day "day 0" is, you can quickly find a date in any month that falls on the same day, and you only have to add or subtract a few days to get to any other day in the month.
+
+[edit] Finding day 0 for a given year
+First memorize this: in 2000, day 0 was a Tuesday. Every century, day 0 changes according to the following pattern: Tuesday, Sunday, Friday, Wednesday every 100 years; i.e., in 2100 day 0 will be Sunday; in 1900 it was Wednesday.
+Every common year, day 0 moves forward one day, and two days every leap year.
+The following also apply within any century beginning with a year ending with 00:
+
+Every four years, day 0 moves two days earlier. Thus, February 29, 2004 is a Sunday; February 29, 2008 is a Friday; February 29, 2012 is a Wednesday, etc.
+Every twelve years, day 0 moves one day later. Thus February 29, 2012 is a Wednesday, February 29, 2024 is a Thursday etc.
+Every twenty-eight years the calendar returns to the same day Thus, February 29, 1972, 2000, 2028, 2056, 2084 are all Tuesdays
+The Previous does not apply if a century year (year ending with "00", such as 1900 or 2100) is within that 28 year period, unless that year is divisble by 400, such as 2000, which is why that year is listed. Since the last time a leap year was skipped was 1900, and it will not be skipped again until 2100, this last part can be ignored for most purposes.
+Every 400 years, the calendar returns to the same day, regardless of skipped leap years
+
+
+[edit] Example
+So let's say it is desired to know what day June 3, 2017 will be. Day 0 for 2000 was a Tuesday, in 2012 it will be Wednesday, 2013 will be Thursday, 2014 Friday, 2015 Saturday, 2016 (a leap year) Monday, and 2017 Tuesday; June is the 6th month, so the 6 June is a Tuesday. Three days earlier is Saturday.
+
+[edit] Babwani's formula
+Sohael S. Babwani's [1] method of finding the weekday was published in The Mathematical Gazette, London in November 2004. He developed alternative formulae which are easier to use and also allow one to find the date, month and year when the other information is given. The other known methods cannot find the other way round and are too complex to understand.
+
+[edit] Zeller’s algorithm
+In Zeller’s algorithm the months are numbered from 3 for March to 14 for February. The year is assumed to begin in March; this means, for example, that January 1995 is to be treated as month 13 of 1994. But in Babwani's method of finding the weekday, the months are numbered properly 1 for January to 12 for December. See "An extended approach to the Julian and the Gregorian calendar" for a lot of details to do various calculations.
+
+[edit] Dominical letters
+The system of dominical letters assigns a letter from A through G to each day of the year. In a leap year, February 24, the bissextile[clarification needed] day, does not have a distinct letter. This causes all subsequent Sundays to be associated with a different dominical letter than those in the beginning of the year, so all leap years get two dominical letters. In this system, the "dominical letter" for a year is the letter which corresponds to the Sundays of that year.
+
+[edit] See also
+
+ISO 8601
+Doomsday rule
+Zeller's congruence
+Perpetual calendar
+Julian day#Calculation
+Perpetual Calendar of 800 Years
+
+
+[edit] External links
+
+Compact formula for memorization, also for the Julian Calendar
+Another formula and when countries changed from the Julian Calendar
+
+
+
+
+
+
+
+
+v • d • e
+
+Time measurement and standards
+
+
+
+
+
+Major subjects
+
+Time · Chronometry · Orders of magnitude · Units of time · Metrology
+
+
+Time Portal
+
+
+
+
+
+International standards
+
+UTC · UT · TAI · ISO 31-1 · Second · DUT1 · Leap second · IERS
+Terrestrial Time · Geocentric Coordinate Time · Barycentric Coordinate Time
+Civil time · Minute · Hour · 12-hour clock · 24-hour clock · ISO 8601
+International Date Line · Solar time · Time zone · Daylight saving time · Time offset
+
+
+
+
+
+
+Obsolete standards
+
+Ephemeris time · Barycentric Dynamical Time · Greenwich Mean Time · Prime Meridian
+
+
+
+
+
+
+Time in physics
+
+Spacetime · Chronon · Cosmological decade · Planck epoch · Planck time · T-symmetry
+Theory of relativity · Time dilation · Gravitational time dilation · Coordinate time · Proper time
+Time domain · Continuous time · Discrete time · Absolute time and space
+
+
+
+
+
+
+Horology
+
+Clock · Astrarium · Atomic clock · Hourglass · Marine chronometer · Radio clock · Sundial · Watch · Water clock
+History of timekeeping devices · Equation of time · Complication
+
+
+
+
+
+
+Calendar
+
+Day · Week · Month · Year · Decade · Century · Millennium
+Astronomical · Julian · Gregorian · Islamic · Lunisolar · Solar · Lunar · Epact · Intercalation · Leap year
+Tropical year · Equinox · Solstice · Seven-day week · Week-day names · Calculating the day of the week · Dominical letter
+
+
+
+
+
+
+Archaeology & geology
+
+International Commission on Stratigraphy · Geologic Time · Archaeological dating
+
+
+
+
+
+
+Astronomical chronology
+
+Nuclear time scale · Precession · Sidereal time · Galactic year
+
+
+
+
+
+
+Unusual units
+
+Fortnight · Jiffy · Lustrum · Saeculum · Shake · Tide
+
+
+
+
+
+
+Related topics
+
+Chronology · Duration · System time · Metric time · Mental chronometry · Time value of money · Timekeeper
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Calculating_the_day_of_the_week"
+Categories: Days of the week | Gregorian calendar | Julian calendar | Calendar algorithmsHidden categories: All pages needing cleanup | Wikipedia articles needing clarification from February 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Česky
+Deutsch
+Español
+Nederlands
+Русский
+Slovenčina
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 23:38 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

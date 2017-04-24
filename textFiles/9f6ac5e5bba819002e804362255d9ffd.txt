@@ -1,0 +1,300 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Disjoint-set data structure - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Disjoint-set_data_structure";
+		var wgTitle = "Disjoint-set data structure";
+		var wgAction = "view";
+		var wgArticleId = "1037551";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282052040;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Disjoint-set data structure
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Given a set of elements, it is often useful to break them up or partition them into a number of separate, nonoverlapping sets. A disjoint-set data structure is a data structure that keeps track of such a partitioning. A union-find algorithm is an algorithm that performs two useful operations on such a data structure:
+
+Find: Determine which set a particular element is in. Also useful for determining if two elements are in the same set.
+Union: Combine or merge two sets into a single set.
+
+Because it supports these two operations, a disjoint-set data structure is sometimes called a union-find data structure or merge-find set. The other important operation, MakeSet, which makes a set containing only a given element (a singleton), is generally trivial. With these three operations, many practical partitioning problems can be solved (see the Applications section).
+In order to define these operations more precisely, some way of representing the sets is needed. One common approach is to select a fixed element of each set, called its representative, to represent the set as a whole. Then, Find(x) returns the representative of the set that x belongs to, and Union takes two set representatives as its arguments.
+
+
+
+
+Contents
+
+
+1 Disjoint-set linked lists
+2 Disjoint-set forests
+3 Applications
+4 History
+5 External links
+6 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Disjoint-set linked lists
+A simple approach to creating a disjoint-set data structure is to create a linked list for each set. The element at the head of each list is chosen as its representative.
+MakeSet creates a list of one element. Union appends the two lists, a constant-time operation. The drawback of this implementation is that Find requires Ω(n) or linear time.
+This can be avoided by including in each linked list node a pointer to the head of the list; then Find takes constant time. However, Union now has to update each element of the list being appended to make it point to the head of the new combined list, requiring Ω(n) time.
+When the length of each list is tracked, the required time can be improved by always appending the smaller list to the longer. Using this weighted-union heuristic, a sequence of m MakeSet, Union, and Find operations on n elements requires O(m + nlog n) time.[1] For asymptotically faster operations, a different data structure is needed.
+
+[edit] Disjoint-set forests
+Disjoint-set forests are a data structure where each set is represented by a tree data structure, in which each node holds a reference to its parent node (see spaghetti stack). They were first described by Bernard A. Galler and Michael J. Fischer in 1964[2], although their precise analysis took years.
+In a disjoint-set forest, the representative of each set is the root of that set's tree. Find follows parent nodes until it reaches the root. Union combines two trees into one by attaching the root of one to the root of the other. One way of implementing these might be:
+
+ function MakeSet(x)
+     x.parent := x
+ 
+ function Find(x)
+     if x.parent == x
+        return x
+     else   
+        return Find(x.parent)
+ 
+ function Union(x, y)
+     xRoot := Find(x)
+     yRoot := Find(y)
+     xRoot.parent := yRoot
+
+In this naive form, this approach is no better than the linked-list approach, because the tree it creates can be highly unbalanced; however, it can be enhanced in two ways.
+The first way, called union by rank, is to always attach the smaller tree to the root of the larger tree, rather than vice versa. To evaluate which tree is larger, a simple heuristic called rank is used: one-element trees have a rank of zero, and whenever two trees of the same rank r are united, the rank of the result is r+1. Just applying this technique alone yields an amortized running-time of O(logn) per MakeSet, Union, or Find operation. Pseudocode for the improved MakeSet and Union:
+
+ function MakeSet(x)
+     x.parent := x
+     x.rank   := 0
+ 
+ function Union(x, y)
+     xRoot := Find(x)
+     yRoot := Find(y)
+     if xRoot.rank > yRoot.rank
+         yRoot.parent := xRoot
+     else if xRoot.rank < yRoot.rank
+         xRoot.parent := yRoot
+     else if xRoot != yRoot // Unless x and y are already in same set, merge them
+         yRoot.parent := xRoot
+         xRoot.rank := xRoot.rank + 1
+
+The second improvement, called path compression, is a way of flattening the structure of the tree whenever Find is used on it. The idea is that each node visited on the way to a root node may as well be attached directly to the root node; they all share the same representative. To effect this, as Find recursively traverses up the tree, it changes each node's parent reference to point to the root that it found. The resulting tree is much flatter, speeding up future operations not only on these elements but on those referencing them, directly or indirectly. Here is the improved Find:
+
+ function Find(x)
+     if x.parent == x
+        return x
+     else
+        x.parent := Find(x.parent)
+        return x.parent
+
+These two techniques complement each other; applied together, the amortized time per operation is only O(α(n)), where α(n) is the inverse of the function f(n) = A(n,n), and A is the extremely quickly-growing Ackermann function. Since α(n) is the inverse of this function, α(n) is less than 5 for all remotely practical values of n. Thus, the amortized running time per operation is effectively a small constant.
+In fact, this is asymptotically optimal: Fredman and Saks showed in 1989 that Ω(α(n)) words must be accessed by any disjoint-set data structure per operation on average.[3]
+
+[edit] Applications
+Disjoint-set data structures model the partitioning of a set, for example to keep track of the connected components of an undirected graph. This model can then be used to determine whether two vertices belong to the same component, or whether adding an edge between them would result in a cycle.
+This data structure is used by the Boost Graph Library to implement its Incremental Connected Components functionality. It is also used for implementing Kruskal's algorithm to find the minimum spanning tree of a graph.
+Note that the implementation as disjoint-set forests doesn't allow deletion of edges — even without path compression or the rank heuristic, this is not as easy, although more complex schemes have been designed[4] that can deal with this type of incremental update.
+
+[edit] History
+While the ideas used in disjoint-set forests have long been familiar, Robert Tarjan was the first to prove the upper bound (and a restricted version of the lower bound) in terms of the inverse Ackermann function. Until this time the best bound on the time per operation, proven by Hopcroft and Ullman, was O(log* n), the iterated logarithm of n, another slowly-growing function (but not quite as slow as the inverse Ackermann function). Tarjan and van Leeuwen also developed one-pass Find algorithms that are more efficient in practice.
+In 2007, as part of the Workshop on ML, Sylvain Conchon and Jean-Christophe Filliâtre developed a persistent version of the disjoint-set forest data structure, allowing previous versions of the structure to be efficiently retained, and formalized its correctness using the proof assistant Coq.[5]
+
+[edit] External links
+
+Union/Find Algorithm Visualization, An easy-to-follow visualization of the algorithm with examples.
+Compaq Research: Zeus: Animation of Union-Find Algorithms
+C++ and C# implementations, by Emil Stefanov
+Java applet: A Graphical Union-Find Implementation, by Rory L. P. McGuire
+Wait-free Parallel Algorithms for the Union-Find Problem, a 1994 paper by Richard J. Anderson and Heather Woll describing a parallelized version of Union-Find that never needs to block
+
+
+[edit] References
+
+^ Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Chapter 21: Data structures for Disjoint Sets, pp.498–524.
+^ Bernard A. Galler and Michael J. Fischer. An improved equivalence algorithm. Communications of the ACM, Volume 7, Issue 5 (May 1964), pages 301-303. The paper originating disjoint-set forests. ACM Digital Library
+^ M. Fredman and M. Saks. The cell probe complexity of dynamic data structures. Proceedings of the Twenty-First Annual ACM Symposium on Theory of Computing, pages 345–354. May 1989. "Theorem 5: Any CPROBE(log n) implementation of the set union problem requires Ω(m α(m, n)) time to execute m Find's and n−1 Union's, beginning with n singleton sets."
+^ Zvi Galil and Giuseppe F. Italiano. Data structures and algorithms for disjoint set union problems, ACM Computing Surveys, Volume 23, Issue 3 (September 1991), pages 319-344. ACM Digital Library
+^ Sylvain Conchon and Jean-Christophe Filliâtre. A Persistent Union-Find Data Structure. In ACM SIGPLAN Workshop on ML, Freiburg, Germany, October 2007.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Disjoint-set_data_structure"
+Categories: Data structures 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+Italiano
+Polski
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 April 2009, at 06:24 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,368 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Double-checked locking - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Double-checked_locking";
+		var wgTitle = "Double-checked locking";
+		var wgAction = "view";
+		var wgArticleId = "164874";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283486557;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-java {line-height: normal;}
+.source-java li, .source-java pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for java
+ * CSS class: source-java, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-java .de1, .source-java .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-java  {}
+.source-java .head {}
+.source-java .foot {}
+.source-java .imp {font-weight: bold; color: red;}
+.source-java .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-java li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-java li.li2 {font-weight: bold;}
+.source-java .kw1 {color: #b1b100;}
+.source-java .kw2 {color: #000000; font-weight: bold;}
+.source-java .kw3 {color: #aaaadd; font-weight: bold;}
+.source-java .kw4 {color: #993333;}
+.source-java .co1 {color: #808080; font-style: italic;}
+.source-java .co2 {color: #a1a100;}
+.source-java .coMULTI {color: #808080; font-style: italic;}
+.source-java .es0 {color: #000099; font-weight: bold;}
+.source-java .br0 {color: #66cc66;}
+.source-java .st0 {color: #ff0000;}
+.source-java .nu0 {color: #cc66cc;}
+.source-java .me1 {color: #006600;}
+.source-java .me2 {color: #006600;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Double-checked locking
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In software engineering, double-checked locking is a software design pattern also known as "double-checked locking optimization[1]". The pattern is designed to reduce the overhead of acquiring a lock by first testing the locking criterion (the 'lock hint') in an unsafe manner; only if that succeeds does the actual lock proceed.
+The pattern, when implemented in some language/hardware combinations, can be unsafe. It can therefore sometimes be considered to be an anti-pattern.
+It is typically used to reduce locking overhead when implementing "lazy initialization" in a multi-threaded environment, especially as part of the Singleton pattern. Lazy initialization avoids initializing a value until the first time it is accessed.
+
+
+
+
+Contents
+
+
+1 Usage in Java
+2 Usage in Microsoft Visual C++
+3 See also
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Usage in Java
+Consider, for example, this code segment in the Java programming language as given by [1] (as well as all other Java code segments):
+
+
+// Single threaded version
+class Foo {
+    private Helper helper = null;
+    public Helper getHelper() {
+        if (helper == null)
+            helper = new Helper();
+        return helper;
+    }
+ 
+    // other functions and members...
+}
+
+The problem is that this does not work when using multiple threads. A lock must be obtained in case two threads call getHelper() simultaneously. Otherwise, either they may both try to create the object at the same time, or one may wind up getting a reference to an incompletely initialized object. This is done by synchronizing, as is shown in the following example.
+
+
+// Correct but possibly expensive multithreaded version
+class Foo { 
+    private Helper helper = null;
+    public synchronized Helper getHelper() {
+        if (helper == null)
+            helper = new Helper();
+        return helper;
+    }
+ 
+    // other functions and members...
+}
+
+However, the first call to getHelper() will create the object and only the few threads trying to access it during that time need to be synchronized; after that all calls just get a reference to the member variable. Since synchronizing a method can decrease performance by a factor of 100 or higher[2], the overhead of acquiring and releasing a lock every time this method is called seems unnecessary: once the initialization has been completed, acquiring and releasing the locks would appear unnecessary. Many programmers have attempted to optimize this situation in the following manner:
+
+Check that the variable is initialized (without obtaining the lock). If it is initialized, return it immediately.
+Obtain the lock.
+Double-check whether the variable has already been initialized: if another thread acquired the lock first, it may have already done the initialization. If so, return the initialized variable.
+Otherwise, initialize and return the variable.
+
+
+
+// Broken multithreaded version
+// "Double-Checked Locking" idiom
+class Foo {
+    private Helper helper = null;
+    public Helper getHelper() {
+        if (helper == null) {
+            synchronized(this) {
+                if (helper == null) {
+                    helper = new Helper();
+                }
+            }
+        }
+        return helper;
+    }
+ 
+    // other functions and members...
+}
+
+Intuitively, this algorithm seems like an efficient solution to the problem. However, this technique has many subtle problems and should usually be avoided. For example, consider the following sequence of events:
+
+Thread A notices that the value is not initialized, so it obtains the lock and begins to initialize the value.
+Due to the semantics of some programming languages, the code generated by the compiler is allowed to update the shared variable to point to a partially constructed object before A has finished performing the initialization.
+Thread B notices that the shared variable has been initialized (or so it appears), and returns its value. Because thread B believes the value is already initialized, it does not acquire the lock. If the variable is used before A finishes initializing it, the program will likely crash.
+
+One of the dangers of using double-checked locking in J2SE 1.4 (and earlier versions) is that it will often appear to work: it is not easy to distinguish between a correct implementation of the technique and one that has subtle problems. Depending on the compiler, the interleaving of threads by the scheduler and the nature of other concurrent system activity, failures resulting from an incorrect implementation of double-checked locking may only occur intermittently. Reproducing the failures can be difficult.
+As of J2SE 5.0, this problem has been fixed. The volatile keyword now ensures that multiple threads handle the singleton instance correctly. This new idiom is described in [2]:
+
+
+// Works with acquire/release semantics for volatile
+// Broken under Java 1.4 and earlier semantics for volatile
+class Foo {
+    private volatile Helper helper = null;
+    public Helper getHelper() {
+        if (helper == null) {
+            synchronized(this) {
+                if (helper == null)
+                    helper = new Helper();
+            }
+        }
+        return helper;
+    }
+ 
+    // other functions and members...
+}
+
+Many versions of the double-checked locking idiom that do not use explicit methods such as volatile or synchronization to communicate the construction of the object have been proposed, and all of them are wrong[3][4].
+
+[edit] Usage in Microsoft Visual C++
+Double-checked locking can be implemented in Visual C++ 2005 if the pointer to the resource is declared with the C++ keyword volatile. Visual C++ 2005 guarantees that volatile variables will behave as fences, as in J2SE 5.0, preventing both compiler and CPU arrangement of reads and writes. There is no such guarantee in previous versions of Visual C++. However, marking the pointer to the resource as volatile may harm performance elsewhere, if the pointer declaration is visible elsewhere in code, by forcing the compiler to treat it as a fence elsewhere, even when it is not necessary.
+
+[edit] See also
+
+The Test and Test-and-set idiom for a low-level locking mechanism.
+Initialization on demand holder idiom for a thread-safe replacement in Java.
+
+
+[edit] References
+
+^ Schmidt, D et al Pattern-Oriented Software Architecture Vol 2, 2000 pp353-363
+^ Boehm, Hans-J. "Threads Cannot Be Implemented As a Library", ACM 2005, p265
+
+
+[edit] External links
+
+Issues with the double checked locking mechanism captured in Jeu George's Blogs Pure Virtuals
+Implementation of Various Singleton Patterns including the Double Checked Locking Mechanism at TEKPOOL
+"Double Checked Locking" Description from the Portland Pattern Repository
+"Double Checked Locking is Broken" Description from the Portland Pattern Repository
+Paper "C++ and the Perils of Double-Checked Locking" (475 KB) by Scott Meyers and Andrei Alexandrescu
+Article "Double-checked locking: Clever, but broken" by Brian Goetz
+The "Double-Checked Locking is Broken" Declaration; David Bacon et al.
+Double-checked locking and the Singleton pattern
+Singleton Pattern and Thread Safety
+volatile keyword in VC++ 2005
+Java Examples and timing of double check locking solutions
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Double-checked_locking"
+Categories: Anti-patterns | Concurrency control | Programming constructs | Software design patterns 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Italiano
+Lietuvių
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 13 April 2009, at 02:46 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

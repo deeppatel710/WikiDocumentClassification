@@ -1,0 +1,335 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kahan summation algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Kahan_summation_algorithm";
+		var wgTitle = "Kahan summation algorithm";
+		var wgAction = "view";
+		var wgArticleId = "373216";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 271198071;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Kahan summation algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In numerical analysis, the Kahan summation algorithm (also known as compensated summation) significantly reduces the numerical error in the total obtained by adding a sequence of finite precision floating point numbers, compared to the obvious approach. This algorithm is attributed to William Kahan.[1]
+
+
+
+
+Contents
+
+
+1 The algorithm
+
+1.1 Example Working
+
+
+2 Alternatives
+3 Optimising compilers
+4 Computer language features
+5 When all else fails
+6 External links
+7 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] The algorithm
+In pseudocode, the algorithm is:
+
+function kahanSum(input, n)
+ var sum = input[1]
+ var c = 0.0          //A running compensation for lost low-order bits.
+ for i = 2 to n
+  y = input[i] - c    //So far, so good: c is zero.
+  t = sum + y         //Alas, sum is big, y small, so low-order digits of y are lost.
+  c = (t - sum) - y   //(t - sum) recovers the high-order part of y; subtracting y recovers -(low part of y)
+  sum = t             //Algebraically, c should always be zero. Beware eagerly optimising compilers!
+ next i               //Next time around, the lost low part will be added to y in a fresh attempt.
+return sum
+
+
+[edit] Example Working
+Suppose sum has attained the value 100000 and the next two values of input(i) are 3.14159 and 2.71820; all are six-digit decimal floating point numbers. With a plain summation, each incoming value would be aligned with sum and many low order digits lost (by truncation or rounding) so that both values would be 3. However, with compensated summation, not so. Suppose that c has the value zero.
+
+  y = 3.14159 - 0                 y = input[i] - c
+  t = 100000 + 3.14159
+    = 100003                      Many digits have been lost!
+  c = (100003 - 100000) - 3.14159 This must be evaluated as written! 
+    = 3.00000 - 3.14159           The assimilated part of y recovered, vs. the original full y.
+    = -0.141590                   The trailing zero because this is six-digit arithmetic.
+sum = 100003                      Thus, few digits from input(i) met those of sum.
+
+The sum is so large that only the high-order digits of the input numbers are being accumulated. But on the next step, c is not zero...
+
+  y = 2.71828 - -0.141590         The shortfall from the previous stage has another chance.
+    = 2.85987                     It is of a size similar to y: most digits meet.
+  t = 100003 + 2.85987            But few meet the digits of sum.
+    = 100006                      Rounding is good, but even with truncation,
+  c = (100006 - 100003) - 2.85987 This extracts whatever went in.
+    = 3.00000 - 2.85987           In this case, too much.
+    = .140130                     But no matter, the excess will be subtracted off next time.
+sum = 100006                      (instead of 100005.85987)
+
+Suppose that instead of 2.71828 the next value was 2.3, and c is -0.141590 as before.
+
+  y = 2.30000 - -0.141590
+    = 2.44159
+  t = 100003 + 2.44159            This time not rounding up.
+    = 100005
+  c = (100005 - 100003) - 2.44159
+    = 2.00000 - 2.44159
+    = -.441590
+sum = 100005                      (instead of 100005.44159)
+
+So the summation is performed with two accumulators: sum holds the sum, and c accumulates the parts not assimilated into sum, to nudge the low-order part of sum the next time around. Thus the summation proceeds with "guard digits" in c which is better than not having any but is not as good as performing the calculations with double the precision of the input. However, if input is already in double precision, few systems supply quadruple precision, and if they did, what if input were quadruple precision...
+
+[edit] Alternatives
+Another approach is to perform the summation on differences from a working mean (in the hope that the value of sum never becomes much larger than individual differences), except that some of the values might be quite different from the working mean and thus suffer significant truncation. Alternatively, sort the values and pair positive and negative values so that the accumulated sum remains as close to zero as possible, at great cost in computational effort. Even less practical might be to perform the summation using some sort of multi-precision arithmetic - perhaps as a part of checking the behaviour of another method.
+Remember that if data are available to limited precision, say six digits, then although 100000 + 2.71828 + 0.00000123456 = 100002.71828123456, the six-digit precision sum of 100003 is a more valid representation of their sum in that it does not present a spurious implication of seventeen-digit precision.
+
+[edit] Optimising compilers
+One of the optimizations performed by some compilers is to attempt to spot and remove redundant code. A sophisticated optimizer might perform symbolic expression simplification and given the code
+
+ t:=sum + y;
+ c:=(t - sum) - y;
+
+deduce that
+
+ c = 0
+
+which is constant and need not be computed within the loop; further, since it is initialised to zero, the statement
+
+ y:=input[i] - c;
+
+can be contracted so that the loop becomes
+
+ y:=input[i];
+ t:=sum + y;
+ sum:=t;
+
+and finally, the variables y and t are just waystations, so the loop content is reduced to
+
+ sum:=sum + input[i];
+
+Which has entirely removed the desired features. Some optimising compilers might carry their analyses so far as to deduce that a summation of input is intended, and then generate code employing maximum precision. It is far more likely that their workings will result in code that ruins the algorithm.
+The algorithm's execution can also be affected by non-mathematical optimisations. For instance, it is quite common for the floating-point computations to be carried out in machine registers that have a precision higher than that of the variables held in main storage, as in the IBM-PC and clones where some of the floating-point registers hold 80-bit floating-point numbers while in main storage they might be held only as 32-bit, or 64-bit as well as 80-bit. The sequence
+
+ y:=input[i] - c;
+ t:=sum + y;
+ c:=(t - sum) - y;
+
+might be compiled without any of the unwanted mathematical transformations, but, notice that after the code for the first statement is executed, the register holding the result that was stored in y still has (or could still have: the registers might be organised as a stack with overflow to memory) that result and as the next statement refers to y, perhaps the code for it could be arranged so that the value of y need not be fetched from memory; similarly for t in the third statement. If the stored values are held to the same precision as the registers, then there will be no problem: the registers and main storage are thus equivalent except for the speed of access. But if not, the working of the algorithm will be ruined. Optimisation options helpful for some parts of the program will not necessarily be good for all parts of a program.
+
+[edit] Computer language features
+Some computer languages offer summation features:
+
+ +/input       APL (read this as "Plus, over input")
+ SUM(input)    Fortran, a semi-function SUM supplied as a compiler intrinsic.
+
+And it might be that the implementation will indeed use the best method. Alas, the Fortran manual to hand offers no details of its internal workings, merely that the result will be in the same precision as input. Inspection of the code generated by the Compaq Visual Fortran v6.6 compiler for a simple usage reveals the equivalent of
+
+ Load sum
+ Add  input(i)
+ Store sum
+
+There is no attempt to hold the value of sum in a register, therefore, even if the addition were performed with a precision greater than that of sum, that will be lost when the result is stored into sum and later retrieved. So there is nothing beyond a straight summation.
+In some programming languages (C,C++,D), there exist a "volatile" keyword which ensures that all registers are written/read again to/from memory, so one can use this to disable optimisations for particular section of code.
+
+[edit] When all else fails
+Via careful testing and scrutiny of the code generated, it may be found that no rearrangement of the algorithm nor selection of compiler options delivers good results. In this situation the final word may be obtained through the manual preparation of embedded assembler-like statements to ensure the generation of exactly the machine code desired, if this facility is offered by the compiler, or of course the invocation of a utility routine written separately in machine code.
+
+[edit] External links
+
+Floating-point Summation, Dr. Dobb's Journal September, 1996
+
+
+[edit] References
+
+^ Kahan, William (January 1965), "Further remarks on reducing truncation errors", Communications of the ACM 8 (1): 40, doi:10.1145/363707.363723 
+
+
+Higham, Nicholas J. (1993), "The accuracy of floating point summation", SIAM Journal of Scientific Computing 14 (4): 783-799, doi:10.1137/0914050 
+Goldberg, David (March 1991), "What every computer scientist should know about floating-point arithmetic" (PDF), ACM Computing Surveys 23 (1): 5-48, doi:10.1145/103162.103163, http://www.validlab.com/goldberg/paper.pdf 
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Kahan_summation_algorithm"
+Categories: Computer arithmetic | Numerical analysis 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Français
+Lietuvių
+日本語
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 February 2009, at 21:29.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

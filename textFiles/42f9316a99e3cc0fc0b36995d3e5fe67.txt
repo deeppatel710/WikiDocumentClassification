@@ -1,0 +1,312 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Service Location Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Service_Location_Protocol";
+		var wgTitle = "Service Location Protocol";
+		var wgAction = "view";
+		var wgArticleId = "427439";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 271647207;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Service Location Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Service Location Protocol (SLP, srvloc) is a service discovery protocol that allows computers and other devices to find services in a local area network without prior configuration. SLP has been designed to scale from small, unmanaged networks to large enterprise networks. It has been defined in RFC 2608 as Standards Track document.
+
+
+
+
+Contents
+
+
+1 Logical overview
+2 SLP roles
+3 Network protocol
+4 Security
+5 Adoption
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Logical overview
+In the sense of the definitions given there in the RFC 2608 specification, a location is a topologically specific and named entity on a local network of any extension, and that is not any geographic or otherwise topographic or geometric location.
+SLP is used by devices to announce services on a local network. Each service must have a URL that is used to locate the service. Additionally it may have an unlimited number of name/value pairs, called attributes. Each device must always be in one or more scopes. Scopes are simple strings and are used to group services, comparable to the network neighborhood in other systems. A device cannot see services that are in different scopes.
+The URL of a printer could look like:
+
+service:printer:lpr://myprinter/myqueue
+
+This URL describes a queue called "myqueue" on a printer with the host name "myprinter". The protocol used by the printer is LPR. Note that a special URL scheme "service:" is used by the printer. "service:" URLs are not required: any URL scheme can be used, but they allow you to search for all services of the same type (e.g. all printers) regardless of the protocol that they use. The first three components of the "service:" URL type ("service:printer:lpr") are also called service type. The first two components ("service:printer") are called abstract service type. In a non-"service:" URL the schema name is the service type (for instance "http" in "http://www.wikipedia.org").
+The attributes of the printer could look like:
+
+(printer-name=Hugo),
+(printer-natural-language-configured=en-us),
+(printer-location=In my home office),
+(printer-document-format-supported=application/postscript),
+(printer-color-supported=false),
+(printer-compression-supported=deflate, gzip)
+
+The example uses the standard syntax for attributes in SLP, only newlines have been added to improve readability.
+The definition of a "service:" URL and the allowed attributes for the URL are specified by a service template, a formalized description of the URL syntax and the attributes. Service templates are defined in RFC 2609.
+SLP allows several query types to locate services and obtain information about them:
+
+It can search for all services with the same service type or abstract service type
+The query can be combined with a query for attributes, using LDAP's query language.
+Given its URL, the attributes of a service can be requested. In standard SLP the attributes are not returned in the query result and must be fetched separately. The Attribute List Extension (RFC 3059) fixes this problem.
+A list of all service types can be obtained
+A list of all existing scopes can be requested.
+
+
+[edit] SLP roles
+SLP has three different roles for devices. A device can also have two or all three roles at the same time.
+
+User Agents (UA) are devices that search for services
+Service Agents (SA) are devices that announce one or more services
+Directory Agents (DA) are devices that cache services. They are used in larger networks to reduce the amount of traffic and allow SLP to scale. The existence of DAs in a network is optional, but if a DA is present, UAs and SAs are required to use it instead of communicating directly.
+
+Today most implementations are daemons that can act both as UA and SA. Usually they can be configured to become a DA as well.
+
+[edit] Network protocol
+SLP is a packet-oriented protocol. Most packets are transmitted using UDP, but TCP can also be used for the transmission of longer packets. Because of the potential unreliability of UDP, SLP repeats all multicasts several times in increasing intervals until an answer has been received. All devices are required to listen on port 427 for UDP packets, SAs and DAs should also listen for TCP on the same port. Multicasting is used extensively by SLP, especially by devices that join a network and need to find other devices.
+The operation of SLP differs considerably, depending on whether a Directory Agent (DA) is in the network or not. When a client first joins a network it multicasts a query for DAs on the network. If no DA answers it will assume that is in a network without DAs. It is also possible to add DAs later, as they multicast a 'heartbeat' packet in a predefined interval that will be received by all other devices. When an SA discovers a DA, it is required to register all services at the DA. When a service disappears the SA should notify the DA and unregister it.
+In order to send a query in a network without a DA, the UA sends a multicast UDP packet that contains the query. All SAs that contain matches will send a UDP answer to the UA. If the answer is too large to fit into a single UDP packet, the packet will be marked as "overflown" and the UA is free to send the query directly to the SA using TCP, which can transmit packets of any size.
+In order to send a query in a network with a DA, the UA will send the query packet to the DA using either UDP or TCP. As every SA must register all services with the DA, the DA is able to fulfill the request completely and simply sends the result back to the UA.
+
+[edit] Security
+SLP contains a public-key cryptography based security mechanism that allows signing of service announcements. In practice it is rarely used:
+
+The public keys of every service provider must be installed on every UA. This requirement defeats the original purpose of SLP, being able to locate services without prior configuration.
+Protecting only the services is not enough. Service URLs contain host names or IP addresses, and in a local network it is almost impossible to prevent IP or DNS spoofing. Thus only guaranteeing the authenticity of the URL is not enough if any device can respond to the address.
+As addresses can be spoofed, the authenticity of the device must be proven at a different level anyway, e.g. in the application protocol (e.g. with SSL) or in the packet layer (IPsec). Doing it additionally in SLP does not provide much additional security.
+
+
+[edit] Adoption
+
+SLP is frequently used for locating printers and supported by printing systems such as CUPS.
+SLP is often found in LAN-enabled printers, so that they are discoverable out of the box. Some client print drivers can use this for printer discovery.
+ACN, a protocol being developed for entertainment control, uses SLP to find different devices such as dimmers and intelligent lights.
+Mac OS and Mac OS X up to version 10.1 used SLP to locate file shares and other services. However, features introduced with Mac OS X (version 10.2 onwards) use Zeroconf.
+Novell NetWare clients in a pure IP environment use SLP to locate servers.
+SUSE Linux supports SLP for a variety of services since version 9.1.
+DMTF has standardized discovery of WBEM Services via SLP.
+SNIA has mandated the use of SLP for services discovery in the Storage Management Initiative - Specification.
+
+
+[edit] See also
+
+Universal Plug and Play (UPnP)
+Jini
+Zero Configuration Networking (Zeroconf)
+Bonjour
+OSGi Alliance
+Salutation
+Dynamic Host Configuration Protocol
+WS-Discovery
+
+
+[edit] References
+
+Silvia Hagen, Guide to Service Location Protocol, Podbooks.Com LLC, ISBN 1-893939-35-9
+James Kempf, Robert St. Pierre, Pete St. Pierre: Service Location Protocol for Enterprise Networks: Implementing and Deploying a Dynamic Service Finder, John Wiley & Sons, ISBN 0-471-31587-7
+Golden G. Richard: Service and Device Discovery : Protocols and Programming, McGraw-Hill Professional, ISBN 0-07-137959-2
+Johan Hjelm: Creating Location Services for the Wireless Web, John Wiley & Sons, ISBN 0-471-40261-3
+Anna Hac: Mobile Telecommunications Protocols for Data Networks, John Wiley & Sons, ISBN 0-470-85056-6
+
+
+[edit] External links
+
+The LiveTribe SLP/OSGi Module
+Service Location Protocol Project
+Service Location Protocol Enhancements
+OpenSLP
+jSLP - A pure Java SLP implementation.
+SBLIM CIM Client for Java - includes an RFC 2614 compliant SLP implementation in Java.
+A Comparison Of Service Discovery Protocols And Implementation Of The Service Location Protocol
+http://www.ietf.org/html.charters/svrloc-charter.html -- IETF SRVLOC working group, which created the SLP standard
+WBEM Discovery Using SLP by DMTF
+WBEM SLP Template by DMTF
+Automate Client Management with the Service Location Protocol a developerWorks article by M. Tim Jones
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Service_Location_Protocol"
+Categories: Internet protocols | Internet standards 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Magyar
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 18 February 2009, at 20:26 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

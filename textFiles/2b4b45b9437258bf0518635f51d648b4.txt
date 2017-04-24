@@ -1,0 +1,423 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hyper-V - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Hyper-V";
+		var wgTitle = "Hyper-V";
+		var wgAction = "view";
+		var wgArticleId = "11168084";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284214559;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Hyper-V
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Microsoft Hyper-V, codenamed Viridian,[1] formerly known as Windows Server Virtualization, is a hypervisor-based virtualization system for x64 systems.[2] A beta version of Hyper-V ships in certain x64 editions of Windows Server 2008, and the finalized version for these editions was released on 26 June 2008.[3]
+A free stand-alone version of Hyper-V, called "Microsoft Hyper-V Server 2008" was released on October 1, 2008, which is a variant of Windows Server 2008 "Core" that includes full Hyper-V functionality; other Windows 2008 Server Roles are disabled, and there are limited Windows Services.[4] The free 64 bit Hyper-V "Core" version is limited to a command line interface (CLI), where configuration of the actual OS, physical hardware and software is done using shell commands. A new menu driven interface does simplify initial configuration, and some freely downloadable script files extend this concept. Administration and configuration of the virtual server (or guest OSes) is done using software installed on a Windows Vista PC, or another Windows 2008 Server, with the Hyper-V administration MMC program plug-in. Other administration / configuration of Windows 2008 Core server can be done on a remote Windows Desktop or Server by redirecting (certain) Microsoft Management Console (MMC) pointing at the Core Server. This allows easier point and click configuration.
+
+
+
+
+
+Contents
+
+
+1 Architecture
+2 System requirements / Specifications
+3 Supported guests
+4 VHD Compatibility with Virtual Server 2005 and Virtual PC 2004/2007
+5 Limitations
+6 References
+7 Books
+8 See also
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Architecture
+
+
+
+
+Hyper-V architecture
+
+
+Hyper-V supports isolation in terms of a partition. A partition is a logical unit of isolation, supported by the hypervisor, in which operating systems execute. A hypervisor instance has to have at least one parent partition, running Windows Server 2008. The virtualization stack runs in the parent partition and has direct access to the hardware devices. The parent partition then creates the child partitions which host the guest OSs. A parent partition creates child partitions using the hypercall API, which is the application programming interface exposed by Hyper-V.
+A virtualized partition does not have access to the physical processor, nor does it handle its real interrupts. Instead, it has a virtual view of the processor and runs in Guest Virtual Address, which (depending on the configuration of the hypervisor) might not necessarily be the entire virtual address space. A hypervisor could choose to expose only a subset of the processors to each partition. The hypervisor handles the interrupts to the processor, and redirects them to the respective partition using a logical Synthetic Interrupt Controller (SynIC). Hyper-V can hardware accelerate the address translation between various Guest Virtual Address-spaces by using an IOMMU (I/O Memory Management Unit) which operates independent of the memory management hardware used by the CPU.
+Child partitions do not have direct access to hardware resources, but instead have a virtual view of the resources, in terms of virtual devices. Any request to the virtual devices is redirected via the VMBus to the devices in the parent partition, which will manage the requests. The VMBus is a logical channel which enables inter-partition communication. The response is also redirected via the VMBus. If the devices in the parent partition are also virtual devices, it will be redirected further until it reaches the parent partition, where it will gain access to the physical devices. Parent partitions run a Virtualization Service Provider (VSP), which connects to the VMBus and handles device access requests from child partitions. Child partition virtual devices internally run a Virtualization Service Client (VSC), which redirect the request to VSPs in the parent partition via the VMBus. This entire process is transparent to the guest OS.
+Virtual Devices can also take advantage of a Windows Server Virtualization feature, named Enlightened I/O, for storage, networking and graphics subsystems, among others. Enlightened I/O is specialized virtualization-aware implementation of high level communication protocols like SCSI to take advantage of VMBus directly, that allows bypassing any device emulation layer. This makes the communication more efficient, but requires the guest OS to support Enlightened I/O. Windows 2008 and Windows Vista and SUSE Linux are currently the only operating systems that support Enlightened I/O, allowing them therefore to run faster as guest operating systems under Hyper-V than other operating systems that need to use slower emulated hardware.
+
+[edit] System requirements / Specifications
+
+An x64-based processor running an x64 version of Windows Server 2008 Standard, Windows Server 2008 Enterprise or Windows Server 2008 Datacenter.
+Hardware-assisted virtualization. This is available in processors that include a virtualization option; specifically, Intel VT or AMD Virtualization (AMD-V, formerly code-named "Pacifica").
+NX bit-compatible CPU must be available and Hardware Data Execution Prevention (DEP) must be enabled.
+Memory minimum 2 GB. (Each virtual OS requires its own memory, and so realistically much more.)
+Windows 2008 Standard (64 Bit) Hyper-V Core requires approximately 3 GB of disk space (installed size)
+Windows 2008 Standard (64 Bit) Hyper-V full GUI product requires approximately 8 GB of disk space (installed size)
+Windows 2008 Standard (64 Bit) Hyper-V full GUI or Core supports up to 31 GB of memory for running VMs, plus 1 GB for Hyper-V Parent OS. [1]
+Windows 2008 Standard (64 Bit) Hyper-V full GUI or Core supports up to 4 processors with 1, 2 or 4 cores
+Windows 2008 Standard (64 Bit) Hyper-V full GUI or Core supports up to 128 "Guest OSes" [2]
+Windows 2008 Standard (64 Bit) Hyper-V full GUI or Core supports 32-bit (x86) and 64-bit (x64) Guest VMs
+
+The stand-alone Hyper-V Server does not require an existing installation of Windows Server 2008 and has a minimum memory requirement of 1Gb and disk space requirement of 2Gb.
+
+[edit] Supported guests
+The supported/tested list of guest operating systems includes x86 and x64 editions of Windows Server 2008, Windows Server 2003, Windows 2000 Server SP4 and Advanced Server SP4,[5] Windows HPC Server 2008, SUSE Linux Enterprise Server 10 SP1/SP2, Windows Vista SP1 (except Home editions) and Windows XP Professional SP2/SP3/x64.[6] Windows Server 2008 guests and Windows HPC Server 2008 can be configured for 1-, 2-, or 4-way SMP, Windows Server 2003 and Windows Vista VMs for 1- or 2-way SMP, and all other VMs as 1-way only.[6] Other guest operating systems such as Ubuntu Linux 6.06/6.10/7.10 or Fedora 8/9 are unsupported however they have been reported to run.[7][8][9]
+Desktop virtualization (VDI) products are available from third-party companies, Citrix XenDesktop and Ericom PowerTerm WebConnect, that provide the ability to host and centrally manage desktop virtual machines in the data center while giving end users a full PC desktop experience.
+Guest operating systems with Enlightened I/O and a hypervisor-aware kernel such as Windows Server 2008, Windows Vista SP1 and planned offerings from Citrix XenServer and Novell will be able to use the host resources better since VSC drivers in these guests communicate directly with the VSPs directly over VMbus.[10] Non-enlightened operating systems will run with emulated I/O;[11] however, integration components (which include the VSC drivers) are available for Windows Server 2003 SP2, Windows XP SP3, Windows Vista SP1 and Linux to achieve better performance. Xen-enabled Linux guest distributions can also be paravirtualized in Hyper-V. Currently, only SUSE Linux Enterprise Server 10 SP1/SP2 x86 and x64 Editions are officially supported by Microsoft in this way,[12] though any Xen-enabled Linux should be able to run. In February 2008, Red Hat and Microsoft signed a virtualization pact for hypervisor interoperability with their respective server operating systems, to enable Red Hat Enterprise Linux 5 to be officially supported on Hyper-V. [13]
+
+[edit] VHD Compatibility with Virtual Server 2005 and Virtual PC 2004/2007
+Hyper-V, like Virtual Server 2005 and Virtual PC 2004/2007, saves each Guest OS to a single file with the extension .VHD. This file contains the entire Guest OS, though other files can also be configured to allow "undo information" etc.
+Older .vhd files from Virtual Server 2005 and Virtual PC 2004/2007 can be copied and used by Windows 2008 Hyper-V server, but slight changes to the "virtual hardware" (Video and Network Card) will mean that Guest OSes require driver updates, and consequently, if later versions of Windows, may require re-activation.
+
+[edit] Limitations
+As of December 2008, Hyper-V does not currently support access to USB devices or sound support in Guest VMs. However, a workaround to access USB drives in windows guest VMs involves using the Microsoft Remote Desktop Client to 'share' host drives with guests over a Remote Desktop Connection.[14] Sound can be enabled through a similar workaround.[15]
+When manufacturer supplied Vista-compatible (WDDM) display drivers are installed, most systems will experience a dramatic drop in graphic performance, including 'page flipping' like effects when viewing high definition content or scrolling in applications. Users may install XP/2003-compatible (Non-WDDM) display drivers but may have compatibility problems and will be unable to use Aero. This occurs regardless if a VM actually exists or whether any Hyper-V services are running.[16]
+Also, Hyper-V does not support 'live migration' of guest VMs, where 'live migration' is defined as maintaining network connections and uninterrupted services during VM migration. Instead, Hyper-V on Server 2008 Enterprise and Datacenter Editions supports 'quick migration', during which a guest VM is suspended on one host and resumed on another host. This operation happens in the time it takes to transfer the active memory of the Guest VM over the network from the first host to the second host.[17]
+Live Migration is supported with Windows Server 2008 R2 (currently a public beta is available) which will be available in the second half of 2009. See also Cluster Shared Volumes
+
+[edit] References
+
+
+^ "Microsoft to ship Windows Server 2008, over time, in eight flavors". http://blogs.zdnet.com/microsoft/?p=935. Retrieved on 2007-11-13. 
+^ Paul Thurrott. "Windows Server Virtualization Preview". http://www.winsupersite.com/showcase/viridian_preview.asp. Retrieved on 2007-09-25. 
+^ "http://www.microsoft.com/presspass/features/2008/jun08/06-26hyperv.mspx". http://blogs.technet.com/jhoward/archive/2008/06/26/hyper-v-rtm-announcement-available-today-from-the-microsoft-download-centre.aspx. Retrieved on 2008-06-26. 
+^ Microsoft (October 1, 2008). Microsoft Helps Customers Overcome Barriers to Virtualization and Get Virtual Now. Press release. http://www.microsoft.com/presspass/press/2008/oct08/10-01HyperVRTM08PR.mspx. Retrieved on 2008-10-02. 
+^ Microsoft releases Hyper-V RC1
+^ a b Supported Guest OS on Windows Server 2008 Hyper-V
+^ Installing Fedora Core 8 on Hyper-V
+^ First Look: Fedora 9 Alpha, Running in Hyper-V Beta: CRN
+^ Install Ubuntu 7.10 on Hyper-V
+^ Hyper-V solution overview
+^ Microsoft's Hyper-V: why all the fuss?
+^ Microsoft Hyper-V To Flaunt Advanced Virtualization Features
+^ Microsoft and Red Hat sign virtualization pact
+^ Accessing USB devices from within Microsoft virtual machines
+^ Providing audio playback from a Hyper-V VM
+^ Poor Host System Performance after RC1 Update (RTM as Well)
+^ Hyper-V Live Migration vs. Quick Migration
+
+
+
+[edit] Books
+
+Morimoto, Rand; Jeff Guillet. Windows Server 2008 Hyper-V Unleashed. ISBN 0672330288. 
+
+
+[edit] See also
+
+Comparison of platform virtual machines
+Microsoft Open Specification Promise
+
+
+[edit] External links
+
+Microsoft Hyper-V Server 2008
+Hyper-V Functional Specification
+WinHEC 2006 Presentation Slides
+Core Scenarios and Key features of Hyper-V
+Official x64 Hyper-V Download
+Windows Virtualization team blog
+Windows Server 2008 Evaluation Software
+Windows Server 2008 Hyper-V FAQ
+Dutch Windows Virtualization and Hyper-V team blog
+Virtualization and Security: What does it mean for me? - Microsoft TechNet Video
+Hyper-V Architecture (Turkish)
+
+
+
+
+
+
+
+
+v • d • e
+
+Windows components
+
+
+
+
+
+Core
+
+Aero · AutoRun · ClearType · Desktop Window Manager · DirectX · Explorer · Taskbar · Start menu · Shell (namespace · Special Folders · File associations) · Search (Saved search · iFilters) · Graphics Device Interface · Imaging Format · .NET Framework · Server Message Block  · XML Paper Specification · Active Scripting (WSH · VBScript · JScript) · COM (OLE · OLE Automation · DCOM · ActiveX · ActiveX Document · Structured storage · Transaction Server) · Previous Versions · Win32 console
+
+
+
+
+
+
+Management
+tools
+
+Backup and Restore Center · command.com · cmd.exe · Control Panel (Applets) · Device Manager · Disk Cleanup · Disk Defragmenter · Driver Verifier · Event Viewer · Management Console · Netsh · Problem Reports and Solutions · Sysprep · System Policy Editor · System Configuration · Task Manager · System File Checker · System Restore · Windows Installer · PowerShell · Windows Update · WAIK · WinSAT · Windows Easy Transfer
+
+
+
+
+
+
+Applications
+
+Calculator · Calendar · Character Map · Contacts · DVD Maker · Fax and Scan · Internet Explorer · Journal · Mail · Magnifier · Media Center · Media Player · Meeting Space · Mobile Device Center · Mobility Center · Movie Maker · Narrator · Notepad · Paint · Photo Gallery · Private Character Editor · Remote Assistance · Sidebar · Snipping Tool · Sound Recorder · Speech Recognition · WordPad
+
+
+
+
+
+
+Games
+
+Chess Titans · FreeCell · Hearts · Hold 'Em · InkBall · Mahjong Titans · Minesweeper · Purble Place · Solitaire · Spider Solitaire  · Tinker
+
+
+
+
+
+
+Kernel
+
+Ntoskrnl.exe · hal.dll · System Idle Process · Svchost.exe · Registry · Windows service · Service Control Manager · DLL · EXE · NTLDR / Boot Manager · Winlogon · Recovery Console · I/O · WinRE · WinPE · Kernel Patch Protection
+
+
+
+
+
+
+Services
+
+BITS · Task Scheduler · Wireless Zero Configuration · Shadow Copy · Error Reporting · Multimedia Class Scheduler · CLFS
+
+
+
+
+
+
+File systems
+
+NTFS (Hard link · Junction point · Mount Point · Reparse point · Symbolic link · TxF · EFS) · FAT32·FAT16·FAT12 · exFAT · CDFS · UDF · DFS · IFS
+
+
+
+
+
+
+Server
+
+Domains · Active Directory · DNS · Group Policy · Roaming user profiles · Folder redirection · Distributed Transaction Coordinator · MSMQ · Windows Media Services · Rights Management Services · IIS · Terminal Services · WSUS · Windows SharePoint Services · Network Access Protection · DFS Replication · Remote Differential Compression · Print Services for UNIX · Remote Installation Services · Windows Deployment Services · System Resource Manager · Hyper-V
+
+
+
+
+
+
+Architecture
+
+NT series architecture · Object Manager · Startup process (Vista) · I/O request packets · Kernel Transaction Manager · Logical Disk Manager · Security Accounts Manager · Windows Resource Protection · LSASS · CSRSS · SMSS · MinWin
+
+
+
+
+
+
+Security
+
+UAC · BitLocker · Defender · DEP · Protected Media Path · Mandatory Integrity Control · UIPI · Windows Firewall · Security Center
+
+
+
+
+
+
+Compatibility
+
+Unix subsystem (Microsoft POSIX  · Interix) · Virtual DOS machine · Windows on Windows · WOW64
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Hyper-V"
+Categories: Windows components | Virtualization software | Windows Server 2008 | Windows Virtualization 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+Português
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 April 2009, at 14:23 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

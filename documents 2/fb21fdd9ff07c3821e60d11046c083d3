@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Two-phase commit protocol,Atomic commit,Cohort (computer science),Commit,Commit (data management),Computer networking,Concurrency control,Database,Database transaction,Digital object identifier,Distributed algorithm" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Two-phase commit protocol - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Two-phase_commit_protocol";
+		var wgTitle = "Two-phase commit protocol";
+		var wgAction = "view";
+		var wgArticleId = "787850";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283480667;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Two-phase_commit_protocol skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Two-phase commit protocol</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>In <a href="/wiki/Computer_networking" title="Computer networking">computer networking</a> and <a href="/wiki/Database" title="Database">databases</a>, the <b>two-phase commit protocol</b> (2PC) is a <a href="/wiki/Distributed_algorithm" title="Distributed algorithm" class="mw-redirect">distributed algorithm</a> that lets all nodes in a <a href="/wiki/Distributed_system" title="Distributed system" class="mw-redirect">distributed system</a> agree to <a href="/wiki/Commit" title="Commit" class="mw-redirect">commit</a> a <a href="/wiki/Database_transaction" title="Database transaction">transaction</a>. The protocol results in either all nodes committing the transaction or aborting, even in the case of network failures or node failures. However, the protocol will not handle more than one random site failure at a time <sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup>. The two phases of the algorithm are the <i>commit-request phase</i>, in which the <i>coordinator</i> attempts to prepare all the <a href="/wiki/Cohort_(computer_science)" title="Cohort (computer science)">cohorts</a>, and the <i>commit phase</i>, in which the coordinator completes the transactions.</p>
+<p>Note that the two-phase commit protocol shouldn't be confused with <a href="/wiki/Two-phase_locking" title="Two-phase locking">two-phase locking</a>, a <a href="/wiki/Concurrency_control" title="Concurrency control">concurrency control</a> locking protocol.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Assumptions"><span class="tocnumber">1</span> <span class="toctext">Assumptions</span></a></li>
+<li class="toclevel-1"><a href="#Basic_algorithm"><span class="tocnumber">2</span> <span class="toctext">Basic algorithm</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Commit-request_phase"><span class="tocnumber">2.1</span> <span class="toctext">Commit-request phase</span></a></li>
+<li class="toclevel-2"><a href="#Commit_phase"><span class="tocnumber">2.2</span> <span class="toctext">Commit phase</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Success"><span class="tocnumber">2.2.1</span> <span class="toctext">Success</span></a></li>
+<li class="toclevel-3"><a href="#Failure"><span class="tocnumber">2.2.2</span> <span class="toctext">Failure</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Disadvantages"><span class="tocnumber">3</span> <span class="toctext">Disadvantages</span></a></li>
+<li class="toclevel-1"><a href="#Distributed_two-phase_commit_protocol"><span class="tocnumber">4</span> <span class="toctext">Distributed two-phase commit protocol</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Common_architecture"><span class="tocnumber">4.1</span> <span class="toctext">Common architecture</span></a></li>
+<li class="toclevel-2"><a href="#Tree_two-phase_commit_protocol"><span class="tocnumber">4.2</span> <span class="toctext">Tree two-phase commit protocol</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">6</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">7</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Assumptions" id="Assumptions"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=1" title="Edit section: Assumptions">edit</a>]</span> <span class="mw-headline">Assumptions</span></h2>
+<p>The protocol works in the following manner: one node is designated the <b>coordinator</b>, which is the master site, and the rest of the nodes in the network are designated the <b>cohorts</b>. The protocol assumes that there is stable storage at each node with a <a href="/wiki/Write_ahead_logging" title="Write ahead logging">write-ahead log</a>, that no node crashes forever, that the data in the write-ahead log is never lost or corrupted in a crash, and that any two nodes can communicate with each other. The last assumption is not too restrictive, as network communication can typically be rerouted. The first two assumptions are much stronger; if a node is totally destroyed then data can be lost.</p>
+<p>The protocol is initiated by the coordinator after the last step of the transaction has been reached. The cohorts then respond with an <b>agreement</b> message or an <b>abort</b> message depending on whether the transaction has been processed successfully at the cohort.</p>
+<p><a name="Basic_algorithm" id="Basic_algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=2" title="Edit section: Basic algorithm">edit</a>]</span> <span class="mw-headline">Basic algorithm</span></h2>
+<p><a name="Commit-request_phase" id="Commit-request_phase"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=3" title="Edit section: Commit-request phase">edit</a>]</span> <span class="mw-headline">Commit-request phase</span></h3>
+<ol>
+<li>The coordinator sends a <b>query to commit</b> message to all cohorts and waits until it has received a reply from all cohorts.</li>
+<li>The cohorts execute the transaction up to the point where they will be asked to commit. They each write an entry to their <i>undo log</i> and an entry to their <a href="/wiki/Redo_log" title="Redo log"><i>redo log</i></a>.</li>
+<li>Each cohort replies with an <b>agreement</b> message (cohort votes <b>Yes</b> to commit), if the transaction succeeded, or an <b>abort</b> message (cohort votes <b>No</b>, not to commit), if the transaction failed.</li>
+</ol>
+<p><a name="Commit_phase" id="Commit_phase"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=4" title="Edit section: Commit phase">edit</a>]</span> <span class="mw-headline">Commit phase</span></h3>
+<p><a name="Success" id="Success"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=5" title="Edit section: Success">edit</a>]</span> <span class="mw-headline">Success</span></h4>
+<p>If the coordinator received an <b>agreement</b> message from <i>all</i> cohorts during the commit-request phase:</p>
+<ol>
+<li>The coordinator sends a <b>commit</b> message to all the cohorts.</li>
+<li>Each cohort completes the operation, and releases all the locks and resources held during the transaction.</li>
+<li>Each cohort sends an <b>acknowledgment</b> to the coordinator.</li>
+<li>The coordinator completes the transaction when acknowledgments have been received.</li>
+</ol>
+<p><a name="Failure" id="Failure"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=6" title="Edit section: Failure">edit</a>]</span> <span class="mw-headline">Failure</span></h4>
+<p>If <i>any</i> cohort sent an <b>abort</b> message during the commit-request phase:</p>
+<ol>
+<li>The coordinator sends a <b>rollback</b> message to all the cohorts.</li>
+<li>Each cohort undoes the transaction using the undo log, and releases the resources and locks held during the transaction.</li>
+<li>Each cohort sends an <b>acknowledgement</b> to the coordinator.</li>
+<li>The coordinator undoes the transaction when all acknowledgements have been received.</li>
+</ol>
+<p><a name="Disadvantages" id="Disadvantages"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=7" title="Edit section: Disadvantages">edit</a>]</span> <span class="mw-headline">Disadvantages</span></h2>
+<p>The greatest disadvantage of the two-phase commit protocol is the fact that it is a blocking protocol. A node will block while it is waiting for a message. This means that other processes competing for resource locks held by the blocked processes will have to wait for the locks to be released. A single node will continue to wait even if all other sites have failed. If the coordinator fails permanently, some cohorts will never resolve their transactions. This has the effect that resources are tied up forever. The algorithm can block indefinitely in the following way: if a cohort has sent an <b>agreement</b> message to the coordinator, it will block until a <b>commit</b> or <b>rollback</b> is received. If the coordinator is permanently down, the cohort will block indefinitely, unless it can obtain the global commit/abort decision from some other cohort. When the coordinator has sent "Query-to-commit" to the cohorts, it will block until all cohorts have sent their local decision. Yet, if a cohort is permanently down, the coordinator will not block indefinitely: Since the coordinator is the one to decide whether the decision is 'commit' or 'abort' permanent blocking can be avoided by introducing a timeout: If the coordinator has not received all awaited messages when the timeout is over it will decide for 'abort'. This conservative behaviour of the protocol is another disadvantage: It is biased to the abort case rather than the complete case.<br /></p>
+<p>A lot of <a href="/wiki/Database" title="Database">database</a> research has been done on ways to get most of the benefits of the two-phase commit protocol without the costs.</p>
+<p><a name="Distributed_two-phase_commit_protocol" id="Distributed_two-phase_commit_protocol"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=8" title="Edit section: Distributed two-phase commit protocol">edit</a>]</span> <span class="mw-headline">Distributed two-phase commit protocol</span></h2>
+<p><a name="Common_architecture" id="Common_architecture"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=9" title="Edit section: Common architecture">edit</a>]</span> <span class="mw-headline">Common architecture</span></h3>
+<p>In many cases the 2PC protocol is utilized in distributed environments. The protocol is easily distributed in a network by implementing multiple dedicated 2PC components similar to each other, typically named <i>Transaction Managers</i> (TMs; also referred to as <i>2PC agents</i>), that carry out the protocol's execution for each transaction. The databases involved with a distributed transaction, the <i>participants</i>, both the coordinator and cohorts, <i>register</i> to close TMs (typically residing on respective same network nodes as the participants) for terminating that transaction using 2PC. Each distributed transaction has an ad hoc set of TMs, the TMs to which the transaction participants register. A leader, the coordinator TM exists for each transaction to coordinate 2PC for it, typically the TM of the coordinator database. However, the coordinator role can be transferred to another TM for performance or reliability reasons. Rather than exchanging 2PC messages among themselves, the participants exchange the messages with their respective TMs. The relevant TMs communicate among themselves to execute the 2PC protocol schema above, "representing" the respective participants, for terminating that transaction. With this architecture the protocol is fully distributed (does not need any central processing component or data structure), and scales up with number of network nodes (network size) effectively.</p>
+<p>This common architecture is also effective for the distribution of other <a href="/w/index.php?title=Atomic_commitment&amp;action=edit&amp;redlink=1" class="new" title="Atomic commitment (page does not exist)">atomic commitment</a> protocols besides 2PC.</p>
+<p><a name="Tree_two-phase_commit_protocol" id="Tree_two-phase_commit_protocol"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=10" title="Edit section: Tree two-phase commit protocol">edit</a>]</span> <span class="mw-headline">Tree two-phase commit protocol</span></h3>
+<p>A common variant of 2PC in a distributed system, which better utilizes the underlying communication infrastructure, is the <b>Tree 2PC protocol</b>. In this variant the coordinator is the root ("top") of a communication tree (inverted tree), while the cohorts are the other nodes. Messages from the coordinator are propagated "down" the tree, while messages to the coordinator are "collected" by a cohort from all the cohorts below it, before it sends the appropriate message "up" the tree (except an <b>abort</b> message, which is propagated "up" immediately upon receiving it, or if this cohort decided to abort).</p>
+<p>The <b>Dynamic two-phase commit</b> (Dynamic two-phase commitment, D2PC) protocol is a variant of Tree 2PC with no predetermined coordinator. <b>Agreement</b> messages start to propagate from all the leaves, each leaf when completed its tasks on behalf of the transaction (becoming <i>ready</i>), and the coordinator is determined dynamically by racing <b>agreement</b> messages, at the place where they collide. They collide either on a transaction tree node, or on an edge. In the latter case one of the two edge's nodes is elected as a coordinator (any node). D2PC is time optimal (among all the instances of a specific transaction tree, and any specific Tree 2PC protocol implementation; all instances have the same tree; each instance has a different node as coordinator): it commits the coordinator and each cohort in minimum possible time, allowing earlier release of locked resources.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=11" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFSkeen1983">Skeen, D. (May 1983). "A Formal Model of Crash Recovery in a Distributed System". <i>IEEE Transactions on Software Engineering</i> <b>9</b> (3): 219–228. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1109%2FTSE.1983.236608" class="external text" title="http://dx.doi.org/10.1109%2FTSE.1983.236608" rel="nofollow">10.1109/TSE.1983.236608</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+Formal+Model+of+Crash+Recovery+in+a+Distributed+System&amp;rft.jtitle=IEEE+Transactions+on+Software+Engineering&amp;rft.aulast=Skeen&amp;rft.aufirst=D.&amp;rft.au=Skeen%2C+D.&amp;rft.date=May+1983&amp;rft.volume=9&amp;rft.issue=3&amp;rft.pages=219%E2%80%93228&amp;rft_id=info:doi/10.1109%2FTSE.1983.236608&amp;rfr_id=info:sid/en.wikipedia.org:Two-phase_commit_protocol"><span style="display: none;">&#160;</span></span></li>
+</ol>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=12" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Atomic_commit" title="Atomic commit">Atomic commit</a></li>
+<li><a href="/wiki/Commit_(data_management)" title="Commit (data management)">Commit (data management)</a></li>
+<li><a href="/wiki/Three-phase_commit_protocol" title="Three-phase commit protocol">Three-phase commit protocol</a></li>
+<li><a href="/wiki/X/Open_XA" title="X/Open XA">XA</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit&amp;section=13" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://ei.cs.vt.edu/~cs5204/sp99/distributedDBMS/duckett/tpcp.html" class="external free" title="http://ei.cs.vt.edu/~cs5204/sp99/distributedDBMS/duckett/tpcp.html" rel="nofollow">http://ei.cs.vt.edu/~cs5204/sp99/distributedDBMS/duckett/tpcp.html</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 521/1000000
+Post-expand include size: 3388/2048000 bytes
+Template argument size: 982/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:787850-0!1!0!default!!en!2 and timestamp 20090413021219 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Two-phase_commit_protocol">http://en.wikipedia.org/wiki/Two-phase_commit_protocol</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Data_management" title="Category:Data management">Data management</a></span> | <span dir='ltr'><a href="/wiki/Category:Transaction_processing" title="Category:Transaction processing">Transaction processing</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Two-phase_commit_protocol" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Two-phase_commit_protocol" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Two-phase_commit_protocol&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Two-phase_commit_protocol" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Two-phase_commit_protocol" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Two-phase_commit_protocol" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Two-phase_commit_protocol&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Two-phase_commit_protocol&amp;oldid=283480667" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Two-phase_commit_protocol&amp;id=283480667">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-da"><a href="http://da.wikipedia.org/wiki/Two-phase_commit">Dansk</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Commit-Protokoll">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Commit_de_dos_fases">Español</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/2%E7%9B%B8%E3%82%B3%E3%83%9F%E3%83%83%E3%83%88">日本語</a></li>
+				<li class="interwiki-vi"><a href="http://vi.wikipedia.org/wiki/X%C3%A1c_nh%E1%BA%ADn_hai_pha_(khoa_h%E1%BB%8Dc_m%C3%A1y_t%C3%ADnh)">Tiếng Việt</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 13 April 2009, at 02:12 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv185 in 0.052 secs. --></body></html>

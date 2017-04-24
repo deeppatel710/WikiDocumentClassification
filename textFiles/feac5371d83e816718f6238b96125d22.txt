@@ -1,0 +1,308 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Multihoming - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Multihoming";
+		var wgTitle = "Multihoming";
+		var wgAction = "view";
+		var wgArticleId = "641227";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282756987;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Multihoming
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Multihoming is a technique to increase the reliability of the Internet connection for an IP network. As an adjective, it is typically used to describe a customer, rather than an Internet service provider (ISP) network.
+
+
+
+
+Contents
+
+
+1 Multihoming variants
+2 Multihoming caveats
+3 IPv4 multihoming
+4 IPv6 multihoming
+
+4.1 Current solutions
+4.2 Other current possibilities
+4.3 Potential future solutions
+
+
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Multihoming variants
+There are several ways to multihome, separate from the actual protocols used to do so, amongst which the most important are:
+
+Single Link, Multiple IP address (Spaces)
+The host has multiple IP addresses (e.g. 2001:db8::1 and 2001:db8::2 in IPv6), but only one physical upstream link. When the single link fails, connectivity is down for all addresses.
+
+
+Multiple Interfaces, Single IP address per interface
+The host has multiple interfaces and each interface has one, or more, IP addresses. If one of the links fails, then its IP address becomes unreachable, but the other IP addresses will still work. Hosts that have multiple AAAA or A records enabled can then still be reachable at the penalty of having the client program time out and retry on the broken address. Existing connections can't be taken over by the other interface, as TCP does not support this. To remedy this, one could use SCTP which does allow this situation. However SCTP is not used very much in practice.
+
+
+Multiple Links, Single IP address (Space)
+This is what in general is meant with Multihoming. With the use of a routing protocol, in most cases BGP, the end-site announces this address space to its upstream links. When one of the links fails, the protocol notices this on both sides and traffic is not sent over the failing link any more. Usually this method is used to multihome a site and not for single hosts.
+
+
+Multiple Links, Multiple IP address (Spaces)
+This approach uses a specialized Link Load Balancer (or WAN Load Balancer) appliance between the firewall and the link routers. No special configuration is required in the ISP’s routers. It allows use of all links at the same time to increase the total available bandwidth and detects link saturation and failures in real time to redirect traffic. Algorithms allow traffic management. Incoming balancing is usually performed with a real time DNS resolution.
+
+
+[edit] Multihoming caveats
+While multihoming is generally used to eliminate network connectivity as a potential single point of failure (SPOF), certain implementation caveats apply which can affect the success of such a strategy.
+In particular, each of the following items must be addressed in order to eliminate the network SPOF:
+
+Upstream connectivity: A given network operations center must have multiple upstream links to independent providers. Furthermore, to lessen the possibility of simultaneous damage to all upstream links, the physical location of each of these upstream links should be physically diverse: far enough apart that a piece of machinery (such as a backhoe) won't accidentally sever all connections at the same time.
+Routers: Routers and switches must be positioned such that no single piece of network hardware controls all network access to a given host. In particular, it is not uncommon to see multiple Internet uplinks all converge on a single edge router. In such a configuration, the loss of that single router disconnects the Internet uplink, despite the fact that multiple ISPs are otherwise in use.
+Host connectivity: A "reliable" host must be connected to the network over multiple network interfaces, each connected to a separate router or switch. Alternatively, and preferably, the function of a given host could be duplicated across multiple computers, each of which is connected to a different router or switch.
+Referencing Entities: Not only must a host be accessible, but in many cases it must also be "referenced" to be useful. For most servers, this means in particular that the name resolution to that server be functional. For example, if the failure of a single element blocks users from properly resolving the DNS name of that server, then the server is effectively non-functional, despite its otherwise connected state.
+
+The elimination of a single point of failure is achieved only when each component that could potentially fail is duplicated.
+
+[edit] IPv4 multihoming
+In order to be multihomed, a network must have its own public IP address range and an AS number. Then a connection to two (or more) separate ISPs is established. The routing over these connections is normally controlled by a BGP enabled router.
+In the case where one outgoing link from the multihomed network fails, outgoing traffic will automatically be routed via one of the remaining links. More importantly, other networks will be notified, through BGP updates of the multihomed network routes, of the need to route incoming traffic via another ISP and link.
+A key pitfall in multihoming is that two apparently independent links, from completely different ISPs may actually share a common transmission line and/or edge router. This will form a single point of failure and considerably reduce the reliability benefits from multihoming.
+Another problem to look out for is that multihoming too small a network may not be effective since route filtering is very common among BGP users and smaller prefixes may be filtered out. This will make multihoming fail.
+
+[edit] IPv6 multihoming
+Multihoming in the next-generation IPv6 protocol is not yet standardized, as discussions about the various possible approaches to multihoming are still unresolved.
+
+[edit] Current solutions
+
+Provider Independent Address Space has been made available in IPv6. This technique has the advantage of working like IPv4, supporting traffic balancing across multiple providers, and maintaining existing TCP and UDP sessions through cutovers. Critics say that the increased size of routing tables needed to handle multi-homing in this way will overwhelm current router hardware. Proponents say that new hardware will be able to handle the increase due to cheaper memory, which drops in price with Moore's law. Proponents also say this is the only viable solution right now, and the worse is better philosophy supports the idea that it is better to deploy an imperfect solution now than a perfect solution after it's too late.
+Because many ISPs filter out route announcements with small prefixes, this will generally require a large "ISP-sized" IP allocation, such as a /32, to ensure global reachability. Using such large prefixes is an inefficient use of IPv6's address space; there are only 4 billion /32 prefixes. However, from a pragmatic perspective, allocating a /32 is equivalent in global address space cost to allocating a single IPv4 address, and this may be acceptable if, as seems to be likely for the foreseeable future, the number of multihomed sites can be numbered only in the millions, as opposed to the many billions of non-multihomed endpoints which are anticipated to comprise the vast majority of IPv6 endpoints.[citation needed]
+
+
+
+[edit] Other current possibilities
+
+Automated renumbering. If one uplink goes down, all addresses in the network will be renumbered into a new /48 subnet. DNS and firewall records must be updated to redirect traffic to a different /48 subnet. This renumbering will break live TCP and UDP sessions.[citation needed]
+Maintaining multiple simultaneous sets of host addresses, from different upstream /48's for each host, and using multiple AAAA records. This works in most cases, but has the disadvantage that DNS and firewall records must be updated to redirect traffic to the correct set of IP addresses if one of the links goes down. Since this also changes IP addresses on failure, it will still break live TCP and UDP sessions.[citation needed]
+
+
+[edit] Potential future solutions
+
+Site Multihoming by IPv6 Intermediation
+
+
+Con: Operators don't believe in it
+Con: Multihoming configured on host stack, no support for middleboxes (firewalls, proxies)[citation needed]
+
+
+Host Identity Protocol
+
+
+Con: Not deployed
+Con: All applications need to support it
+Pro: Free certificates
+
+
+Stream Control Transmission Protocol
+
+
+Con: Not deployed
+Con: Not TCP/IP
+Con: All applications need to support it
+
+
+[edit] External links
+IPv4 multihoming:
+
+O'Reilly article on BGP Multihoming
+Cisco multihoming configuration example
+Linux Multihoming configuration example
+Windows Multihoming example for Single Link, Multiple IP address (Link down as per 2009 Jan 28, see the internet archive for a cached version)
+
+IPv6 multihoming:
+
+Astrocom article on multihoming
+Old IETF IPv6 multihoming working group
+Current IETF IPv6 multihoming working group
+Internet-Draft: Analysis of IPv6 Multihoming Scenarios
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Multihoming"
+Categories: Internet architecture | Routing | MultihomingHidden categories: All articles with unsourced statements | Articles with unsourced statements since January 2008 | Articles with unsourced statements since September 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 12:51 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

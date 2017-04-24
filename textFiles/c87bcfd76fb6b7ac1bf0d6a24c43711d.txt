@@ -1,0 +1,382 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Capability-based security - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Capability-based_security";
+		var wgTitle = "Capability-based security";
+		var wgAction = "view";
+		var wgArticleId = "539717";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276178789;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Capability-based security
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (July 2007)
+
+
+
+
+
+
+
+It has been suggested that this article or section be merged with Capability-based addressing. (Discuss)
+
+
+Capability-based security is a concept in the design of secure computing systems. A capability (known in some systems as a key) is a communicable, unforgeable token of authority. It refers to a value that references an object along with an associated set of access rights. A user program on a capability-based operating system must use a capability to access an object. Capability-based security refers to the principle of designing user programs such that they directly share capabilities with each other according to the principle of least privilege, and to the operating system infrastructure necessary to make such transactions efficient and secure.
+Although most operating systems implement a facility which resembles capabilities, they typically do not provide enough support to allow for the exchange of capabilities among possibly mutually untrusting entities to be the primary means of granting and distributing access rights throughout the system. A capability-based system, in contrast, is designed with that goal in mind.
+Capabilities as discussed on this page should not be confused with POSIX 1e/2c "Capabilities". The latter are coarse-grained privileges that cannot be transferred between processes.
+
+
+
+
+Contents
+
+
+1 Capabilities and capability-based security
+2 Introduction to capability-based security
+3 Sharing of capabilities between processes
+4 POSIX Capabilities
+5 Research and commercial systems
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Capabilities and capability-based security
+Capabilities achieve their objective of improving system security by being used in place of forgeable references. A forgeable reference (for example, a path name) identifies an object, but does not specify which access rights are appropriate for that object and the user program which holds that reference. Consequently, any attempt to access the referenced object must be validated by the operating system, typically via the use of an access control list (ACL). Instead, in a system with capabilities, the mere fact that a user program possesses that capability entitles it to use the referenced object in accordance with the rights that are specified by that capability. In theory, a system with capabilities removes the need for any access control list or similar mechanism by giving all entities all and only the capabilities they will actually need.
+A capability is typically implemented as a privileged data structure that consists of a section that specifies access rights, and a section that uniquely identifies the object to be accessed. In practice, it is used much like a file descriptor in a traditional operating system, but to access every object on the system. Capabilities are typically stored by the operating system in a list, with some mechanism in place to prevent the program from directly modifying the contents of the capability (so as to forge access rights or change the object it points to). Some systems have also been based on capability-based addressing (hardware support for capabilities), such as Plessey System 250.
+Programs possessing capabilities can perform functions on them, such as passing them on to other programs, converting them to a less-privileged version, or deleting them. The operating system must ensure that only specific operations can occur to the capabilities in the system, in order to maintain the integrity of the security policy.
+
+[edit] Introduction to capability-based security
+(The following introduction assumes some basic knowledge of Unix systems.)
+A capability is defined to be a protected object reference which, by virtue of its possession by a user process, grants that process the capability (hence the name) to interact with an object in certain ways. Those ways might include reading data associated with an object, modifying the object, executing the data in the object as a process, and other conceivable access rights. The capability logically consists of a reference that uniquely identifies a particular object and a set of one or more of these rights.
+Suppose that, in a user process's memory space, there exists the following string:
+
+/etc/passwd
+
+Although this identifies a unique object on the system, it does not specify access rights and hence is not a capability. Suppose there is instead the following two values:
+
+/etc/passwd
+O_RDWR
+
+This identifies an object along with a set of access rights. It, however, is still not a capability because the user process's possession of these values says nothing about whether that access would actually be legitimate.
+Now suppose that the user program successfully executes the following statement:
+
+int fd = open("/etc/passwd", O_RDWR);
+
+The variable fd now contains the index of a file descriptor in the process's file descriptor table. This file descriptor is a capability. Its existence in the process's file descriptor table is sufficient to know that the process does indeed have legitimate access to the object. A key feature of this arrangement is that the file descriptor table is in kernel memory and cannot be directly manipulated by the user program.
+
+[edit] Sharing of capabilities between processes
+In traditional operating systems, programs often communicate with each other and with storage using references like those in the first two examples. Path names are often passed as command-line parameters, sent via sockets, and stored on disk. These references are not capabilities, and must be validated before they can be used. In these systems, a central question is "on whose authority is a given reference to be evaluated?" This becomes a critical issue especially for processes which must act on behalf of two different authority-bearing entities. They become susceptible to a programming error known as the Confused deputy problem, very frequently resulting in a security hole.
+In a capability-based system, the capabilities themselves are passed between processes and storage using a mechanism that is known by the operating system to maintain the integrity of those capabilities.
+Although many operating systems implement facilities very similar to capabilities through the use of file descriptors or file handles — for example, in UNIX, file descriptors can be discarded (closed), inherited by child processes, and even sent to other processes via sockets — there are several obstacles[citation needed] that prevent all of the benefits of a capability-based addressing system from being realized in a traditional operating system environment. Chief[citation needed] among these obstacles is the fact that entities which might hold capabilities (such as processes and files) cannot be made persistent in such a way that maintains the integrity of the secure information that a capability represents. The operating system cannot trust a user program to read back a capability and not tamper with the object reference or the access rights, and has no built-in facilities to control such tampering. Consequently, when a program wishes to regain access to an object that is referenced on disk, the operating system must have some way of validating that access request,[citation needed] and an access control list or similar mechanism is mandated.
+One novel approach to solving this problem involves the use of an orthogonally persistent operating system. (This was realised in the Flex machine. See Ten15). In such a system, there is no need for entities to be discarded and their capabilities be invalidated, and hence require an ACL-like mechanism to restore those capabilities at a later time. The operating system maintains the integrity and security of the capabilities contained within all storage, both volatile and nonvolatile, at all times; in part by performing all serialization tasks by itself, rather than requiring user programs to do so, as is the case in most operating systems. Because user programs are relieved of this responsibility, there is no need to trust them to reproduce only legal capabilities, nor to validate requests for access using an access control mechanism.
+
+[edit] POSIX Capabilities
+POSIX draft 1003.1e specifies concept of permissions called “capabilities”. However POSIX capabilities differ from capabilities in this article — POSIX capability is not associated with any object -- a process having CAP_NET_BIND_SERVICE capability can listen on any TCP port under 1024.
+
+[edit] Research and commercial systems
+
+KeyKOS
+
+EROS - The Extremely Reliable Operating System - KeyKOS successor
+
+CapROS - EROS successor, project to further develop EROS code base for commercial use
+Coyotos - EROS successor, for research
+
+
+
+
+kaneton
+Cambridge CAP computer
+Carnegie Mellon University C.mmp with Hydra (operating system)
+Carnegie Mellon University CM* with StarOS
+IBM System/38 and AS/400
+Intel iAPX 432
+Plessey System 250
+Symbian
+Flex
+L4 microkernel - Open Kernel Labs - OKL4 and NICTA - seL4
+Amoeba distributed operating system
+
+
+
+[edit] References
+
+Levy, Henry M., *Capability-Based Computer Systems, Digital Equipment Corporation 1984. ISBN 0-932376-22-3. An electronic version is available here.
+The EROS Project
+E, a programming language based around capability security (ERights.org)
+Mark S. Miller, Ka-Ping Yee, Jonathan Shapiro. Capability Myths Demolished, Technical Report SRL2003-02, Systems Research Laboratory, Johns Hopkins University. Available online.
+The Cambridge CAP Computer, Levy, 1988
+
+not currently used:
+
+Capability-based addressing: Theodore A. Linden (December 1976). "Operating System Structures to Support Security and Reliable Software". ACM Computing Surveys (CSUR) 8 (4): 409-445. ISSN 0360-0300 }. http://portal.acm.org/citation.cfm?id=356682&coll=&dl=ACM&CFID=15151515&CFTOKEN=6184618. 
+Li Gong, A Secure Identity-Based Capability System, sp, p. 56, 1989 IEEE Symposium on Security and Privacy, 1989
+Capability-based addressing
+A hardware implementation of capability-based addressing
+An implementation of capabilities on the PDP-11/45
+IBM System/38 support for capability-based addressing
+EROS: a fast capability system
+
+POSIX "capabilities" in Linux:
+
+POSIX Capabilities & Files
+POSIX file capabilities: Parceling the power of root
+
+
+[edit] External links
+
+The cap-talk mailing list
+Reviews of 'Capability Myths Demolished' Some criticism of the reference above.
+What is a Capability?: an informal introduction to capabilities.
+Rick Smith interviews Jonathan Shapiro, designer of EROS, in 2000.
+Capability Theory by Sound Bytes
+History of the Capability Approach
+
+
+
+
+
+
+
+
+v • d • e
+
+Object-capability security
+
+
+
+
+
+OS kernels
+
+NLTSS · KeyKOS · EROS · CapROS · Coyotos
+
+
+
+
+
+
+Programming languages
+
+Joule · E · Cajita
+
+
+
+
+
+
+Systems using capabilities
+
+CapDesk · Plash
+
+
+
+
+
+
+Specialised hardware
+
+Cambridge CAP
+
+
+
+
+
+
+Concepts
+
+Principle of least authority (POLA) · Confused deputy problem · Ambient authority · File descriptor · C-list · Capability-based security · Capability-based addressing
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Capability-based_security"
+Categories: Computer security models | Access controlHidden categories: Articles needing additional references from July 2007 | All articles to be merged | Articles to be merged since January 2009 | All articles with unsourced statements | Articles with unsourced statements since July 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Italiano
+日本語
+Tiếng Việt
+
+
+
+
+
+
+
+
+
+ This page was last modified on 10 March 2009, at 02:24 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

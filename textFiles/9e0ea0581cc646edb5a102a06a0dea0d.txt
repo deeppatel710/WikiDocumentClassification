@@ -1,0 +1,277 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Xiaolin Wu's line algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Xiaolin_Wu\'s_line_algorithm";
+		var wgTitle = "Xiaolin Wu\'s line algorithm";
+		var wgAction = "view";
+		var wgArticleId = "222689";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 256575623;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Xiaolin Wu's line algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+Antialiased line drawn with Xiaolin Wu's algorithm
+
+
+
+
+
+
+
+Please help improve this article or section by expanding it. Further information might be found on the talk page. (May 2008)
+
+
+Xiaolin Wu's line algorithm is an algorithm for line antialiasing, which was presented in the article An Efficient Antialiasing Technique in the July 1991 issue of Computer Graphics, as well as in the article Fast Antialiasing in the June 1992 issue of Dr. Dobb's Journal.
+Bresenham's algorithm draws lines extremely quickly, but it does not perform anti-aliasing. In addition, it cannot handle the case where the line endpoints do not lie exactly on integer points of the pixel grid. A naïve approach to anti-aliasing the line would take an extremely long time, but Wu's algorithm is quite fast (it is still slower than Bresenham's, though). The basis of the algorithm is to draw pairs of pixels straddling the line, coloured according to proximity. Pixels at the line ends are handled separately. Lines less than one pixel long should be handled as a special case.
+An extension to the algorithm for circle drawing was presented by Xiaolin Wu in the book Graphics Gems II. Just like the line drawing algorithm is a replacement for Bresenham's line drawing algorithm, the circle drawing algorithm is a replacement for Bresenham's circle drawing algorithm.
+
+[edit] Pseudocode implementation
+Here is pseudocode for the nearly-horizontal case (Δx > Δy). To extend the algorithm to work for all lines, swap the x and y coordinates when near-vertical lines appear (for reference, see Bresenham's line algorithm). This implementation is only valid for x, y ≥ 0.
+
+function plot(x, y, c) is
+    plot the pixel at (x, y) with brightness c (where 0 ≤ c ≤ 1)
+
+function ipart(x) is
+    return integer part of x
+
+function round(x) is
+    return ipart(x + 0.5)
+
+function fpart(x) is
+    return fractional part of x
+
+function rfpart(x) is
+    return 1 - fpart(x)
+
+function drawLine(x1,y1,x2,y2) is
+   
+    dx = x2 - x1
+    dy = y2 - y1
+   
+    if abs(dx) > abs(dy) then			
+     //handle "horizontal" lines
+     if x2 < x1
+ 	    swap x1, x2
+ 	    swap y1, y2
+     end if
+     gradient = dy / dx
+   
+     // handle first endpoint
+     xend = round(x1)
+     yend = y1 + gradient * (xend - x1)
+     xgap = rfpart(x1 + 0.5)
+     xpxl1 = xend  // this will be used in the main loop
+     ypxl1 = ipart(yend)
+     plot(xpxl1, ypxl1, rfpart(yend) * xgap)
+     plot(xpxl1, ypxl1 + 1, fpart(yend) * xgap)
+     intery = yend + gradient // first y-intersection for the main loop
+ 
+     // handle second endpoint
+     xend = round(x2)
+     yend = y2 + gradient * (xend - x2)
+     xgap = fpart(x2 + 0.5)
+     xpxl2 = xend  // this will be used in the main loop
+     ypxl2 = ipart(yend)
+     plot(xpxl2, ypxl2, rfpart(yend) * xgap)
+     plot(xpxl2, ypxl2 + 1, fpart(yend) * xgap)
+
+     // main loop
+     for x from xpxl1 + 1 to xpxl2 - 1 do
+ 	    plot(x, ipart(intery), rfpart(intery))
+	    plot(x, ipart(intery) + 1, fpart(intery))
+	    intery = intery + gradient
+     repeat
+    else
+      //handle "vertical" lines  same code as above but X takes the role of Y
+end function
+
+
+
+[edit] References
+
+Abrash, Michael (June 1992). "Fast Antialiasing (Column)". Dr. Dobb's Journal 17 (6): 139(7). http://www.gamedev.net/reference/articles/article382.asp. 
+Wu, Xiaolin (July 1991). "An efficient antialiasing technique". Computer Graphics 25 (4): 143–152. doi:10.1145/127719.122734. ISBN 0-89791-436-8. http://portal.acm.org/citation.cfm?id=122734. 
+Wu, Xiaolin (1991). "Fast Anti-Aliased Circle Generation". in James Arvo (Ed.). Graphics Gems II. San Francisco: Morgan Kaufmann. pp. 446–?. ISBN 0-12-064480-0. 
+
+
+[edit] External links
+
+Xiaolin Wu's homepage
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm"
+Categories: Computer graphics algorithms | Articles with example pseudocodeHidden categories: Articles to be expanded since May 2008 | All articles to be expanded 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 December 2008, at 06:24 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

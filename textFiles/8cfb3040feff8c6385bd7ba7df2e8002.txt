@@ -1,0 +1,472 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+File Transfer Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "File_Transfer_Protocol";
+		var wgTitle = "File Transfer Protocol";
+		var wgAction = "view";
+		var wgArticleId = "53289";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281612592;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); File Transfer Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+"FTP" and "FTP server" redirect here. For other uses, see FTP (disambiguation).
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (January 2009)
+
+
+File Transfer Protocol (FTP) is a network protocol used to exchange and manipulate files over a TCP computer network, such as the internet. An FTP client may connect to an FTP server to manipulate files on that server.
+
+
+The Internet Protocol Suite
+
+
+Application Layer
+
+
+BGP · DHCP · DNS · FTP · GTP · HTTP · IMAP · IRC · Megaco · MGCP · NNTP · NTP · POP · RIP · RPC · RTP · RTSP · SDP · SIP · SMTP · SNMP · SOAP · SSH · Telnet · TLS/SSL · XMPP · (more)
+
+
+Transport Layer
+
+
+TCP · UDP · DCCP · SCTP · RSVP · ECN · (more)
+
+
+Internet Layer
+
+
+IP (IPv4, IPv6) · ICMP · ICMPv6 · IGMP · IPsec · (more)
+
+
+Link Layer
+
+
+ARP · RARP · NDP · OSPF · Tunnels (L2TP) · Media Access Control (Ethernet, MPLS, DSL, ISDN, FDDI) · Device Drivers · (more)
+
+
+
+This box: view • talk • edit
+
+
+
+
+
+
+
+
+Contents
+
+
+1 Connection methods
+2 Security problems
+3 FTP return codes
+4 Anonymous FTP
+5 Data format
+6 FTP and web browsers
+7 FTP and NAT devices
+8 FTP over SSH (not SFTP)
+9 See also
+10 References
+11 Further reading
+12 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Connection methods
+FTP runs over TCP.[1] It defaults to listen on port 21 for incoming connections from FTP clients. A connection to this port from the FTP Client forms the control stream on which commands are passed from the FTP client to the FTP server and on occasion from the FTP server to the FTP client. FTP uses out-of-band control, which means it uses a separate connection for control and data. Thus, for the actual file transfer to take place, a different connection is required which is called the data stream. Depending on the transfer mode, the process of setting up the data stream is different. Port 21 for control (or program), port 20 for data.
+In active mode, the FTP client opens a dynamic port, sends the FTP server the dynamic port number on which it is listening over the control stream and waits for a connection from the FTP server. When the FTP server initiates the data connection to the FTP client it binds the source port to port 20 on the FTP server.
+In order to use active mode, the client sends a PORT command, with the IP and port as argument. The format for the IP and port is "h1,h2,h3,h4,p1,p2". Each field is a decimal representation of 8 bits of the host IP, followed by the chosen data port. For example, a client with an IP of 192.168.0.1, listening on port 49154 for the data connection will send the command "PORT 192,168,0,1,192,2". The port fields should be interpreted as p1×256 + p2 = port, or, in this example, 192×256 + 2 = 49154.
+In passive mode, the FTP server opens a dynamic port, sends the FTP client the server's IP address to connect to and the port on which it is listening (a 16-bit value broken into a high and low byte, as explained above) over the control stream and waits for a connection from the FTP client. In this case, the FTP client binds the source port of the connection to a dynamic port.
+To use passive mode, the client sends the PASV command to which the server would reply with something similar to "227 Entering Passive Mode (127,0,0,1,192,52)". The syntax of the IP address and port are the same as for the argument to the PORT command.
+In extended passive mode, the FTP server operates exactly the same as passive mode, however it only transmits the port number (not broken into high and low bytes) and the client is to assume that it connects to the same IP address that was originally connected to. Extended passive mode was added by RFC 2428 in September 1998.
+While data is being transferred via the data stream, the control stream sits idle. This can cause problems with large data transfers through firewalls which time out sessions after lengthy periods of idleness. While the file may well be successfully transferred, the control session can be disconnected by the firewall, causing an error to be generated.
+The FTP protocol supports resuming of interrupted downloads using the REST command. The client passes the number of bytes it has already received as argument to the REST command and restarts the transfer. In some commandline clients for example, there is an often-ignored but valuable command, "reget" (meaning "get again") that will cause an interrupted "get" command to be continued, hopefully to completion, after a communications interruption.
+Resuming uploads is not as easy. Although the FTP protocol supports the APPE command to append data to a file on the server, the client does not know the exact position at which a transfer got interrupted. It has to obtain the size of the file some other way, for example over a directory listing or using the SIZE command.
+In ASCII mode (see below), resuming transfers can be troublesome if client and server use different end of line characters.
+The objectives of FTP, as outlined by its RFC, are:
+
+To promote sharing of files (computer programs and/or data).
+To encourage indirect or implicit use of remote computers.
+To shield a user from variations in file storage systems among different hosts.
+To transfer data reliably, and efficiently.
+
+
+[edit] Security problems
+The original FTP specification is an inherently unsecure method of transferring files because there is no method specified for transferring data in an encrypted fashion. This means that under most network configurations, user names, passwords, FTP commands and transferred files can be captured by anyone on the same network using a packet sniffer. This is a problem common to many Internet protocol specifications written prior to the creation of SSL, such as HTTP, SMTP and Telnet. The common solution to this problem is to use either SFTP (SSH File Transfer Protocol), or FTPS (FTP over SSL), which adds SSL or TLS encryption to FTP as specified in RFC 4217.
+
+[edit] FTP return codes
+Main article: List of FTP server return codes
+FTP server return codes indicate their status by the digits within them. A brief explanation of various digits' meanings are given below:
+
+1xx: Positive Preliminary reply. The action requested is being initiated but there will be another reply before it begins.
+2xx: Positive Completion reply. The action requested has been completed. The client may now issue a new command.
+3xx: Positive Intermediate reply. The command was successful, but a further command is required before the server can act upon the request.
+4xx: Transient Negative Completion reply. The command was not successful, but the client is free to try the command again as the failure is only temporary.
+5xx: Permanent Negative Completion reply. The command was not successful and the client should not attempt to repeat it again.
+x0x: The failure was due to a syntax error.
+x1x: This response is a reply to a request for information.
+x2x: This response is a reply relating to connection information.
+x3x: This response is a reply relating to accounting and authorization.
+x4x: Unspecified as yet
+x5x: These responses indicate the status of the Server file system vis-a-vis the requested transfer or other file system action.
+
+
+[edit] Anonymous FTP
+A host that provides an FTP service may additionally provide Anonymous FTP access as well. Under this arrangement, users do not strictly need an account on the host. Instead the user typically enters 'anonymous' or 'ftp' when prompted for username. Although users are commonly asked to send their email address as their password, little to no verification is actually performed on the supplied data.
+As modern FTP clients typically hide the anonymous login process from the user, the ftp client will supply dummy data as the password (since the user's email address may not be known to the application). For example, the following ftp user agents specify the listed passwords for anonymous logins:
+
+Mozilla Firefox (3.0.7) — mozilla@example.com
+KDE Konqueror (3.5) — anonymous@
+wget (1.10.2) — -wget@
+lftp (3.4.4) — lftp@
+
+The Gopher protocol has been suggested as an alternative to anonymous FTP, as well as Trivial File Transfer Protocol and File Service Protocol.[citation needed]
+
+[edit] Data format
+While transferring data over the network, several data representations can be used. The two most common transfer modes are:
+
+ASCII mode
+Binary mode: In "Binary mode", the sending machine sends each file byte for byte and as such the recipient stores the bytestream as it receives it. (The FTP standard calls this "IMAGE" or "I" mode)
+
+In "ASCII mode", any form of data that is not plain text will be corrupted. When a file is sent using an ASCII-type transfer, the individual letters, numbers, and characters are sent using their ASCII character codes. The receiving machine saves these in a text file in the appropriate format (for example, a Unix machine saves it in a Unix format, a Windows machine saves it in a Windows format). Hence if an ASCII transfer is used it can be assumed plain text is sent, which is stored by the receiving computer in its own format. Translating between text formats might entail substituting the end of line and end of file characters used on the source platform with those on the destination platform, e.g. a Windows machine receiving a file from a Unix machine will replace the line feeds with carriage return-line feed pairs. It might also involve translating characters; for example, when transferring from an IBM mainframe to a system using ASCII, EBCDIC characters used on the mainframe will be translated to their ASCII equivalents, and when transferring from the system using ASCII to the mainframe, ASCII characters will be translated to their EBCDIC equivalents.
+By default, most FTP clients use ASCII mode. Some clients try to determine the required transfer-mode by inspecting the file's name or contents, or by determining whether the server is running an operating system with the same text file format.
+The FTP specifications also list the following transfer modes:
+
+EBCDIC mode - this transfers bytes, except they are encoded in EBCDIC rather than ASCII. Thus, for example, the ASCII mode server
+Local mode - this is designed for use with systems that are word-oriented rather than byte-oriented. For example mode "L 36" can be used to transfer binary data between two 36-bit machines. In L mode, the words are packed into bytes rather than being padded. Given the predominance of byte-oriented hardware nowadays, this mode is rarely used. However, some FTP servers accept "L 8" as being equivalent to "I".
+
+In practice, these additional transfer modes are rarely used. They are however still used by some legacy mainframe systems.
+The text (ASCII/EBCDIC) modes can also be qualified with the type of carriage control used (e.g. TELNET NVT carriage control, ASA carriage control), although that is rarely used nowadays.
+Note that the terminology "mode" is technically incorrect, although commonly used by FTP clients. "MODE" in RFC 959 refers to the format of the protocol data stream (STREAM, BLOCK or COMPRESSED), as opposed to the format of the underlying file. What is commonly called "mode" is actually the "TYPE", which specifies the format of the file rather than the data stream. FTP also supports specification of the file structure ("STRU"), which can be either FILE (stream-oriented files), RECORD (record-oriented files) or PAGE (special type designed for use with TENEX). PAGE STRU is not really useful for non-TENEX systems, and RFC1123 section 4.1.2.3 recommends that it not be implemented.
+
+[edit] FTP and web browsers
+Most recent web browsers and file managers can connect to FTP servers, although they may lack the support for protocol extensions such as FTPS. This allows manipulation of remote files over FTP through an interface similar to that used for local files. This is done via an FTP URL, which takes the form ftp(s)://<ftpserveraddress>  (e.g., ftp://ftp.gimp.org/). A password can optionally be given in the URL, e.g.:   ftp(s)://<login>:<password>@<ftpserveraddress>:<port>. Most web-browsers require the use of passive mode FTP, which not all FTP servers are capable of handling. Some browsers allow only the downloading of files, but offer no way to upload files to the server.
+
+[edit] FTP and NAT devices
+The representation of the IP addresses and port numbers in the PORT command and PASV reply poses another challenge for Network address translation (NAT) devices in handling FTP. The NAT device must alter these values, so that they contain the IP address of the NAT-ed client, and a port chosen by the NAT device for the data connection. The new address and port will probably differ in length in their decimal representation from the original address and port. This means that altering the values on the control connection by the NAT device must be done carefully, changing the TCP Sequence and Acknowledgment fields for all subsequent packets. Such translation is not usually performed in most NAT devices, but special application layer gateways exist for this purpose.
+
+See also Application-level gateway
+
+
+[edit] FTP over SSH (not SFTP)
+FTP over SSH (not SFTP) refers to the practice of tunneling a normal FTP session over an SSH connection.
+Because FTP uses multiple TCP connections (unusual for a TCP/IP protocol that is still in use), it is particularly difficult to tunnel over SSH. With many SSH clients, attempting to set up a tunnel for the control channel (the initial client-to-server connection on port 21) will protect only that channel; when data is transferred, the FTP software at either end will set up new TCP connections (data channels) which will bypass the SSH connection, and thus have no confidentiality, integrity protection, etc.
+Otherwise, it is necessary for the SSH client software to have specific knowledge of the FTP protocol, and monitor and rewrite FTP control channel messages and autonomously open new forwardings for FTP data channels. Version 3 of SSH Communications Security's software suite, and the GPL licensed FONC are two software packages that support this mode.
+FTP over SSH is sometimes referred to as secure FTP; this should not be confused with other methods of securing FTP, such as with SSL/TLS (FTPS). Other methods of transferring files using SSH that are not related to FTP include SFTP and SCP; in each of these, the entire conversation (credentials and data) is always protected by the SSH protocol.
+
+[edit] See also
+
+File eXchange Protocol (FXP)
+FTAM
+FTPFS
+List of FTP server return codes
+List of FTP commands
+List of file transfer protocols
+Managed File Transfer
+OBEX
+Shared file access
+TCP Wrapper
+Comparison of FTP client software
+List of FTP server software
+Comparison of FTP server software
+
+
+[edit] References
+
+
+^ Postel, J.. "RFC 959 - File Transfer Protocol, chapter 8". http://tools.ietf.org/html/rfc959. Retrieved on 2009-01-04. 
+
+
+
+[edit] Further reading
+
+RFC 959 – File Transfer Protocol (FTP). J. Postel, J. Reynolds. Oct-1985. This obsoleted the preceding RFC 765 and earlier FTP RFCs back to the original RFC 114.
+RFC 1579 – Firewall-Friendly FTP.
+RFC 2228 – FTP Security Extensions.
+RFC 2428 – Extensions for IPv6, NAT, and Extended passive mode. Sep-1998.
+RFC 2640 – Internationalization of the File Transfer Protocol.
+RFC 3659 – Extensions to FTP. P. Hethmon. March-2007.
+
+
+[edit] External links
+
+FTP Reviewed — a review of the protocol notably from a security standpoint
+Raw FTP command list
+FTP Sequence Diagram (in PDF format)
+FTP Application simulation
+
+
+
+
+
+
+
+
+
+v • d • e
+
+URI scheme
+
+
+
+
+
+Official
+
+aaa: · aaas: · acap: · cap: · cid: · crid: · data: · dav: · dict: · dns: · fax: · file: · ftp: · go: · gopher: · h323: · http: · https: · im: · imap: · Info: · ldap: · mailto: · mid: · news: · nfs: · nntp: · pop: · pres: · rtsp: · sip: · sips: · snmp: · tel: · telnet: · urn: · wais: · xmpp:
+
+
+
+
+
+
+Unofficial
+
+about: · afp: · aim: · apt: · bolo: · bzr: · callto: · cel: · cvs: · daap: · ed2k: · feed: · fish: · gg: · git: · gizmoproject: · iax2: · irc: · ircs: · itms: · lastfm: · ldaps: · magnet: · mms: · msnim: · psyc: · rsync: · secondlife: · skype: · ssh: · svn: · sftp: · smb: · sms: · soldat: · steam: · unreal: · ut2004: · view-source: · vzochat: · webcal: · wyciwyg: · xfire: · ymsgr:
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/File_Transfer_Protocol"
+Categories: Clear text protocols | Network file transfer protocols | FTP | Servers | Internet history | Application layer protocols | Internet protocols | Internet standards | Unix softwareHidden categories: Articles needing additional references from January 2009 | All articles with unsourced statements | Articles with unsourced statements since September 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Afrikaans
+Alemannisch
+العربية
+Azərbaycan
+বাংলা
+Беларуская (тарашкевіца)
+Boarisch
+Bosanski
+Български
+Català
+Česky
+Dansk
+Deutsch
+Ελληνικά
+Español
+Esperanto
+Euskara
+فارسی
+Français
+Gaeilge
+Galego
+한국어
+Hrvatski
+Bahasa Indonesia
+Interlingua
+Íslenska
+Italiano
+עברית
+ქართული
+Қазақша
+Kurdî / كوردی
+Latviešu
+Lietuvių
+Magyar
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+‪Norsk (nynorsk)‬
+O'zbek
+Polski
+Português
+Русский
+Shqip
+Simple English
+Slovenčina
+Slovenščina
+Српски / Srpski
+Srpskohrvatski / Српскохрватски
+Suomi
+Svenska
+Tagalog
+ไทย
+Tiếng Việt
+Тоҷикӣ
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 April 2009, at 01:20.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

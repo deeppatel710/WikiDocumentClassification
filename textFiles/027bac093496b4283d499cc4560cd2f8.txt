@@ -1,0 +1,299 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+inode - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Inode";
+		var wgTitle = "Inode";
+		var wgAction = "view";
+		var wgArticleId = "580170";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281084059;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); inode
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article may require cleanup to meet Wikipedia's quality standards. Please improve this article if you can. (December 2008)
+
+
+
+
+
+
+
+This article may require copy-editing for grammar, style, cohesion, tone or spelling. You can assist by editing it now. A how-to guide is available. (December 2008)
+
+
+In computing, an inode is a data structure on a traditional Unix-style file system such as UFS. An inode stores basic information about a regular file, directory, or other file system object.
+
+
+
+
+Contents
+
+
+1 Origin of term
+2 Details
+3 POSIX inode description
+4 Implications
+5 Practical considerations
+6 External links
+7 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Origin of term
+The exact reason for designating these as "i" nodes is unknown. When asked, Unix pioneer Dennis Ritchie replied[1]:
+
+
+In truth, I don't know either. It was just a term that we started to use. "Index" is my best guess, because of the slightly unusual file system structure that stored the access information of files as a flat array on the disk, with all the hierarchical directory information living aside from this. Thus the i-number is an index in this array, the i-node is the selected element of the array. (The "i-" notation was used in the 1st edition manual; its hyphen was gradually dropped.)
+
+
+
+[edit] Details
+When a file system is created, data structures are created that contain information about files. Each file is associated with an inode that is identified by an inode number (often referred to as an "i-number" or "inode") in the file system where it resides.
+Inodes store information on files, such as user and group ownership, access mode (read, write, execute permissions) and type of file. On many file system types the number of inodes available is fixed at filesystem creation, limiting the maximum number of files the file system can hold. A typical fraction of space allocated for inodes in a filesystem is 1% of total size.
+The inode number indexes a table of inodes in a known location on the device; from the inode number, the kernel can access the contents of the inode, including the data pointers, and so the contents of the file.
+A file's inode number can be found using the ls -i command, while the ls -l command will retrieve inode information (i.e. the file information).
+Some Unix-style filesystems such as ReiserFS may avoid having a table of inodes, but must store equivalent data in order to provide equivalent functions. The data may be called stat data, in reference to the stat system call that provides the data to programs.
+File names and directory implications
+
+Inodes do not contain filenames, only file metadata.
+Unix directories are lists of "link" structures, each of which contains one filename and one inode number.
+The kernel must search a directory looking for a particular filename and then convert the filename to the correct corresponding inode number if the name is found.
+
+The kernel's in-memory representation of this data is called struct inode in Linux. Systems derived from BSD use the term vnode, with the v of vnode referring to the kernel's virtual file system layer.
+
+[edit] POSIX inode description
+The POSIX standard mandates filesystem behavior that is strongly influenced by traditional UNIX filesystems. Regular files are required to have the following attributes:
+
+The length of the file in bytes.
+Device ID (this identifies the device containing the file).
+The User ID of the file's owner.
+The Group ID of the file.
+The file mode, which determines what users can read, write, and execute the file.
+Timestamps telling when the inode itself was last changed (ctime, change time), the file content last modified (mtime, modification time), and last accessed (atime, access time).
+A reference count telling how many hard links point to the inode.
+Pointers to the disk blocks that store the file's contents (see inode pointer structure).
+
+The stat system call retrieves a file's inode number and some of the information in the inode.
+
+[edit] Implications
+The properties of a file system that makes use of inodes surprise many users who are not used to the concept:
+
+If multiple names link to the same inode (they are all hard links to it) then all of the names are equivalent. The first one to have been created has no special status. This is unlike the sometimes more familiar symbolic links, where all of the links depend on the original name.
+An inode can even have no links at all. Normally such a file would be removed from the disk and its resources freed for reallocation (the normal process of deleting a file) but if any processes are holding the file open, they may continue to access it, and the file will only be finally deleted when the last reference to it is closed. This includes executable images which are implicitly held open by the processes executing them. For this reason, when programs are updated, it is recommended to delete the old executable first and create a new inode for the updated version, so that any instances of the old version currently executing may continue to do so unbothered.
+Typically, it is not possible to map from an open file to the filename that was used to open it. The operating system would convert the filename to an inode number at the first possible chance, then forget the filename. This means that the getcwd() and getwd() library functions would need to search the parent directory to find a file with an inode matching the "." directory, then search the grandparent directory for that directory, and so on until reaching the "/" directory. SVR4 and Linux systems retain extra information to avoid this awkwardness.
+Historically, it was possible to hard link directories. This made the directory structure into an arbitrary directed graph as opposed to a directed acyclic graph (DAG), a connected graph with N-1 edges for N nodes. For example, it was possible for a directory to be its own parent. Modern systems generally prohibit this confusing state, except that the root directory is still its own parent.
+A file's inode number will stay the same when it is moved to another directory on the same device, or when the disk is defragmented. Therefore, moving either a file's directory entry or its data (or both) is not enough to prevent a running process from accessing it, if the process ever had a chance of finding out the inode number. This also implies that completely conforming behavior of inodes is impossible to implement with many non-Unix file systems, such as FAT and its descendants, which don't have a way of storing this lasting "sameness" when both a file's directory entry and its data are moved around.
+Installation of new libraries is simple with inode filesystems. Take the following example: A currently running process can have a library mapped, while another process replaces that file (creating a new inode), all new mapping of that library will be of the new file. This eliminates the need to reboot to replace currently mapped libraries.
+
+
+[edit] Practical considerations
+Many computer programs used by system administrators in UNIX operating systems often give inode numbers to designate a file. Popular disk integrity checking utility fsck or pfiles command may serve here as examples. Thus, the need naturally arises to translate inode numbers to file pathnames and vice versa. This can be accomplished using file-finding utility find with option -inum or ls command with proper option which on many platforms is -i.
+It is possible to "run out" of inodes. When this happens, new files cannot be created on the device, even though there may be free space available.
+
+[edit] External links
+
+- Anatomy Of The Linux File System
+
+
+[edit] References
+
+
+^ Linux Kernel list archive. Retrieved on 2009-04-01.
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Inode"
+Categories: Computer file systems | UnixHidden categories: Cleanup from December 2008 | All pages needing cleanup | Wikipedia articles needing copy edit from December 2008 | All articles needing copy edit 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 1 April 2009, at 14:43.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

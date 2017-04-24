@@ -1,0 +1,389 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Generic Routing Encapsulation - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Generic_Routing_Encapsulation";
+		var wgTitle = "Generic Routing Encapsulation";
+		var wgAction = "view";
+		var wgArticleId = "616939";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 275633586;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Generic Routing Encapsulation
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Generic Routing Encapsulation (GRE) is a tunneling protocol developed by Cisco that can encapsulate a wide variety of network layer protocol packet types inside IP tunnels, creating a virtual point-to-point link to Cisco routers at remote points over an IP internetwork.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Tunnel keepalives
+3 Example uses
+4 Example protocol stack
+5 IP as a delivery protocol
+6 Packet header
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+GRE tunnels are designed to be completely stateless. This means that each tunnel end-point does not keep any information about the state or availability of the remote tunnel end-point. A consequence of this is that the local tunnel end-point router does not have the ability to bring the line protocol of the GRE tunnel interface down if the remote end-point is unreachable. The ability to mark an interface as down when the remote end of the link is not available is used in order to remove any routes (specifically static routes) in the routing table that use that interface as the outbound interface. Specifically, if the line protocol for an interface is changed to down, then any static routes that point out that interface are removed from the routing table. This allows for the installation of an alternate (floating) static route or for policy-based routing (PBR) to select an alternate next-hop or interface.
+Normally, a GRE tunnel interface comes up as soon as it is configured and it stays up as long as there is a valid tunnel source address or interface which is up. The tunnel destination IP address must also be routable. This is true even if the other side of the tunnel has not been configured. This means that a static route or PBR forwarding of packets via the GRE tunnel interface remains in effect even though the GRE tunnel packets do not reach the other end of the tunnel.
+
+[edit] Tunnel keepalives
+The GRE tunnel keepalive mechanism is slightly different than for Ethernet or serial interfaces. It gives the ability for one side to originate and receive keepalive packets to and from a remote router even if the remote router does not support GRE keepalives. Since GRE is a packet tunneling mechanism for tunneling IP inside IP, a GRE IP tunnel packet can be built inside another GRE IP tunnel packet. For GRE keepalives, the sender pre-builds the keepalive response packet inside the original keepalive request packet so that the remote end only needs to do standard GRE decapsulation of the outer GRE IP header and then forward the inner IP GRE packet. This mechanism causes the keepalive response to forward out the physical interface rather than the tunnel interface. This means that the GRE keepalive response packet is not affected by any output features on the tunnel interface.
+Another attribute of GRE tunnel keepalives is that the keepalive timers on each side are independent and do not have to match. The problem with the configuration of keepalives only on one side of the tunnel is that only the router that has keepalives configured marks its tunnel interface as down if the keepalive timer expires. The GRE tunnel interface on the other side, where keepalives are not configured, remains up even if the other side of the tunnel is down. The tunnel can become a black-hole for packets directed into the tunnel from the side that did not have keepalives configured. In a large hub-and-spoke GRE tunnel network, it might be appropriate to only configure GRE keepalives on the spoke side and not on the hub side. This is because it is often more important for the spoke to discover that the hub is unreachable and therefore switch to a backup path (Dial Backup for example).
+Before GRE keepalives were implemented, there were only three reasons for a GRE tunnel to shut down:
+
+There is no route to the tunnel destination address.
+The interface that anchors the tunnel source is down.
+The route to the tunnel destination address is through the tunnel itself.
+
+These three rules (missing route, interface down and mis-routed tunnel destination) are problems local to the router at the tunnel endpoints and do not cover problems in the intervening network. For example, these rules do not cover the case in which the GRE tunneled packets are successfully forwarded, but are lost before they reach the other end of the tunnel. This causes data packets that go through the GRE tunnel to be "black holed", even though an alternate route that uses PBR or a floating static route via another interface is potentially available. Keepalives on the GRE tunnel interface are used in order to solve this issue in the same way as keepalives are used on physical interfaces.
+With Cisco IOS Software Release 12.2(8)T, it is possible to configure keepalives on a point-to-point GRE tunnel interface. With this change, the tunnel interface dynamically shuts down if the keepalives fail for a certain period of time. In order to better understand how GRE tunnel keepalives work, these sections discuss some other common keepalive mechanisms.
+
+[edit] Example uses
+
+In conjunction with PPTP to create VPNs.
+In conjunction with IPsec VPNs to allow passing of routing information between connected networks.
+In Mobility protocols.
+In A8/A10 interfaces to encapsulate IP data to/from Packet Control Function (PCF).
+Linux and BSD can establish ad-hoc IP over GRE tunnels which are interoperable with Cisco equipment.
+
+
+[edit] Example protocol stack
+
+
+OSI model layer
+Protocol
+
+
+5. Application
+RADIUS
+
+
+4. Transport
+UDP
+
+
+3. Network (GRE-encapsulated)
+IPv6
+
+
+Encapsulation
+GRE
+
+
+3. Network
+IPv4
+
+
+2. Data Link
+Ethernet
+
+
+1. Physical
+Ethernet physical layer
+
+
+From what can be seen in the diagram above, protocol encapsulation (not specifically GRE) breaks the layering order in the OSI model terms. It may be viewed as a separator between two different protocol stacks, one acting as a carrier for another.
+
+[edit] IP as a delivery protocol
+GRE packets which are encapsulated within IP will use IP protocol type 47. [1]
+
+[edit] Packet header
+A GRE packet header structure is represented in the diagram below.
+
+
+Bits 0–4
+5–7
+8–12
+13–15
+16–31
+
+
+C
+R
+K
+S
+s
+Recur
+Flags
+Version
+Protocol Type
+
+
+Checksum (optional)
+Offset (optional)
+
+
+Key (optional)
+
+
+Sequence Number (optional)
+
+
+Routing (optional)
+
+
+The packet fields are as follows:
+
+Checksum Present (C), 1-bit 
+The Checksum field is present and contains valid information if set. If either the Checksum Present bit or the Routing Present bit are set, the Checksum and Offset fields are both present.
+
+
+Routing Present (R), 1-bit 
+If set then the Offset field is present and contains valid information. If either the Checksum Present bit or the Routing Present bit are set, the Checksum and Offset fields are both present.
+
+
+Key Present (K), 1-bit 
+If set then the Key field is present and contains valid information.
+
+
+Sequence Number present (capital S), 1-bit 
+If set then the Sequence Number field is present and contains valid information.
+
+
+Strict Source Route (s), 1-bit 
+The meaning of this bit is defined in other documents. It is recommended that this bit only be set if all of the Routing Information consists of Strict Source Routes.
+
+
+Recursion Control (Recur), 3 bits 
+Contains the number of additional encapsulations which are permitted. 0 is the default.
+
+
+Flags, 5 bits 
+These bits are reserved and must be transmitted as 0.
+
+
+Version, 3 bits 
+GRE protocol version. Normally must be cleared to 0 but in L2TP networks using 1.
+
+
+Protocol, 16 bits 
+Contains the protocol type of the payload packet. In general, the value will be the Ethernet protocol type field for the packet. Additional values may be defined in other documents.
+
+
+Checksum, 16 bits 
+Contains the IP (one's complement) checksum of the GRE header and the payload packet.
+
+
+Offset, 16 bits 
+Indicates the byte offset from the start of the Routing field to the first byte of the active Source Route Entry to be examined.
+
+
+Key, 32 bits 
+Contains a number which was inserted by the encapsulator. The Key field is intended to be used for identifying an individual traffic flow within a tunnel. Note that Key field is not involved in any sort of security (despite its name.)
+
+
+Sequence Number, 32 bits 
+Contains a number which is inserted by the encapsulator. It may be used by the receiver to establish the order in which packets have been transmitted from the encapsulator to the receiver.
+
+
+Routing, variable length 
+This field is a list of SREs.
+
+
+[edit] References
+
+
+^ RFC 1702: Generic Routing Encapsulation over IPv4 networks. October, 1994.
+
+
+
+[edit] External links
+
+RFC 1701 — Generic Routing Encapsulation (GRE) (INFORMATIONAL)
+RFC 1702 — Generic Routing Encapsulation over IPv4 networks (INFORMATIONAL)
+RFC 2784 — Generic Routing Encapsulation (GRE) (PROPOSED STANDARD - Updated by RFC 2890)
+RFC 2890 — Key and Sequence Number Extensions to GRE (PROPOSED STANDARD)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Generic_Routing_Encapsulation"
+Categories: Tunneling protocols 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+Nederlands
+Русский
+Suomi
+
+
+
+
+
+
+
+
+
+ This page was last modified on 7 March 2009, at 17:47.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

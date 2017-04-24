@@ -1,0 +1,263 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Port knocking - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Port_knocking";
+		var wgTitle = "Port knocking";
+		var wgAction = "view";
+		var wgArticleId = "936630";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 264110416;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Port knocking
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (January 2008)
+
+
+In computer networking, port knocking is a method of externally opening ports on a firewall by generating a connection attempt on a set of prespecified closed ports. Once a correct sequence of connection attempts is received, the firewall rules are dynamically modified to allow the host which sent the connection attempts to connect over specific port(s). A variant called Single Packet Authentication exists, where only a single 'knock' is needed, consisting of an encrypted packet.[1][2]
+The primary purpose of port knocking is to prevent an attacker from scanning a system for potentially exploitable services by doing a port scan, because unless the attacker sends the correct knock sequence, the protected ports will appear closed.
+This is usually implemented by configuring a daemon to watch the firewall log file for said connection attempts then modify the firewall configuration accordingly. It can also be performed by a process examining packets at a higher level (using packet capture interfaces such as pcap), allowing the use of already "open" TCP ports to be used within the knock sequence.
+The port "knock" itself is similar to a secret handshake and can consist of any number of TCP, UDP or even sometimes ICMP and other protocol packets to numbered ports on the destination machine. The complexity of the knock can be anything from a simple ordered list (e.g. TCP port 1000, TCP port 2000, UDP port 3000) to a complex time-dependent, source-IP-based and other-factor-based encrypted hash.
+A portknock daemon on the firewall machine listens for packets on certain ports (either via the firewall log or by packet capture). The client user would carry an extra utility, which could be as simple as netcat or a modified ping program or as complicated as a full hash-generator, and use that before they attempted to connect to the machine in the usual way.
+Most portknocks are stateful systems in that if the first part of the "knock" has been received successfully, an incorrect second part would not allow the remote user to continue and, indeed, would give the remote user no clue as to how far through the sequence they failed. Usually the only indication of failure is that, at the end of the knock sequence, the port expected to be open is not opened. No packets are sent to the remote user at any time.
+While this technique for securing access to remote network daemons has not been widely adopted by the security community, it has been integrated in newer rootkits.
+
+
+
+
+Contents
+
+
+1 Benefits of port knocking
+2 Disadvantages of port knocking
+3 Notes
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Benefits of port knocking
+Consider that, if an external attacker did not know the port knock sequence, even the simplest of sequences would require a massive brute force effort in order to be discovered. A three-knock simple TCP sequence (e.g. port 1000, 2000, 3000) would require an attacker without prior knowledge of the sequence to test every combination of three ports in the range 1-65535, and then to scan each port in between to see if anything had opened. As a stateful system, the port would not open until after the correct three-digit sequence had been received in order, without other packets in between.
+That equates to approximately 655354 packets in order to obtain and detect a single successful opening. That's approximately 18,445,618,199,572,250,625 or 18 quintillion packets. On the average attempt it would take approximately 9 quintillion packets to successfully open a single, simple three-port TCP-only knock by brute force. This is made even more impractical when knock attempt-limiting is used to stop brute force attacks, longer and more complex sequences are used and cryptographic hashes are used as part of the knock.
+When a port knock is successfully used to open a port, the firewall rules are generally only opened to the IP address that supplied the correct knock. This is similar to only allowing a certain IP whitelist to access a service but is also more dynamic. An authorised user situated anywhere in the world would be able to open the port they were interested in to only the IP that they are using without needing help from the server administrator. They would also be able to "close" the port once they had finished, or the system could be set up to use a timeout mechanism, to ensure that once they change IP's, only the IP's necessary are left able to contact the server.
+Because of port knocking's stateful behavior, several users from different source IP addresses can simultaneously be at varying levels of the port knock. Thus it is possible to have a genuine user with the correct knock let through the firewall even in the middle of a port attack from multiple IP's (assuming the bandwidth of the firewall is not completely swamped). To all other IP addresses, the ports still appear closed and there is no indication that there are other users who have successfully opened ports and are using them.
+Using cryptographic hashes inside the port knock sequence can mean that even sniffing the network traffic in and out of the source and target machines is ineffective against discovering the port knock sequence or using traffic replay attacks to repeat prior port knock sequences.
+Even if somebody did manage to guess, steal or sniff the port knock and successfully use it to gain access to a port, the usual port security mechanisms are still in place, along with whatever service authentication was running on the opened ports.
+The software required, either at the server or client end, is minimal and can in fact be implemented as simply as a shell script for the server or a Windows batch file and a standard Windows command line utility for the client. Overhead in terms of traffic, CPU and memory consumption is at an absolute minimum. Port knock daemons also tend to be so simple that any sort of vulnerability is obvious and the code is very easily auditable.
+With a portknock system in place on ports such as the SSH port, it can prevent brute force password attacks on logins. The SSH daemon need not even wake up as any attempt that is made without the correct portknock will bounce harmlessly off the TCP/IP stack rather than the SSH authentication. As far as any attacker is concerned, there is no daemon running on that port at all until they manage to correctly knock on the port.
+The system is completely customisable and not limited to opening specific ports or, indeed, opening ports at all. Usually a knock sequence description is tied with an action, such as running a shell script, so when a specific sequence is detected by the port knock daemon, the relevant shell script is run. This could add firewall rules to open ports or do anything else that was possible in a shell script. Many portknocks can be used on a single machine to perform many different actions, such as opening or closing different ports.
+Because the ports appear closed at all times until a user knowing the correct knock uses it, port knocking can help cut down not only on brute force password attacks and their associated log spam but also protocol vulnerability exploits. If an exploit was discovered that could compromise SSH daemons in their default configuration, having a port knock on that SSH port could mean that the SSH daemon may not be compromised in the time before it was updated. Only authorised users would have the knock and therefore only authorised users would be able to contact the SSH server in any way. Thus, random attempts on SSH servers by worms and viruses trying to exploit the vulnerability would not reach the vulnerable SSH server at all, giving the administrator a chance to update or patch the software. Although not a complete protection, port knocking would certainly be another level of defense against random attacks and, properly implemented, could even stop determined, targeted attacks.
+Port knocking generally has some disregard in the security world, given that early implementations basically consisted of a number of ports that had to be hit in order. However, the best of modern portknock systems are much more complex, some using highly secure cryptographic hashes in order to defeat the most common attacks (such as packet sniffing and packet replay). Additionally, portknock systems can include blacklists, whitelists and dynamic attack responses as can any internet service, however, even the simplest of port knocks controls access to a system before attackers are able to hit a service that allocates memory, CPU time or other significant resources and also acts as a barrier against brute-force attempts, automated vulnerability exploits etc.
+Port knocking does not generally lower the security of a system overall. Indeed, it provides another layer of security for minimal overhead. In the worst case scenario, however, the port knocking software can introduce a new security problem or lower security due to risk compensation.
+
+[edit] Disadvantages of port knocking
+If for some reason or other the port knocking daemon dies, you are left with a system you cannot connect with. This is also known as a single point of failure. However, to help mitigate this problem, modern port knocking implementations include a process monitoring daemon that will restart the port knocking daemon if it dies.
+
+[edit] Notes
+
+^ Sebastien Jeanquier (2006). An Analysis of Port Knocking and Single Packet Authorization. MSc thesis, University of London.
+^ Michael Rash (2006). Single Packet Authorization with Fwknop. ;login.
+
+
+[edit] External links
+
+"Enhancing Firewalls: Conveying User and Application Identification to Network Firewalls" MSc Thesis by Rennie deGraaf
+"An Analysis of Port Knocking and Single Packet Authorization" MSc Thesis by Sebastien Jeanquier
+"Implementing a Port Knocking system in C" Honors Thesis by Matt Doyle.
+List of resources about PK and SPA (papers, implementations, presentations...)
+PortKnocking - A system for stealthy authentication across closed ports.
+Linux Journal: Critique of Port Knocking (2004)
+A rebuttal to the linuxjournal.com critique
+fwknop: An implementation that combines port knocking and passive OS fingerprinting
+webknocking: Using webpages instead of ports.
+PortknockO: A Netfilter module for port knocking.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Port_knocking"
+Categories: Computer network securityHidden categories: Articles needing additional references from January 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+Italiano
+Polski
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 14 January 2009, at 20:39 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

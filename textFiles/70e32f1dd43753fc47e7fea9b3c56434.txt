@@ -1,0 +1,507 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Concurrent computing - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Concurrent_computing";
+		var wgTitle = "Concurrent computing";
+		var wgAction = "view";
+		var wgArticleId = "2581605";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281851058;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Concurrent computing
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article is missing citations or needs footnotes. Please help add inline citations to guard against copyright violations and factual inaccuracies. (December 2006)
+
+
+
+
+Programming paradigms
+
+
+
+
+Agent-oriented
+Component-based
+
+Flow-based
+Pipeline
+
+
+Concatenative
+Concurrent computing
+Context-oriented
+Declarative (Contrast: Imperative)
+
+Functional
+
+Dataflow
+
+Cell-oriented (spreadsheets)
+Reactive
+
+
+
+
+Goal-directed
+
+Constraint
+Constraint logic
+Logic
+
+Abductive logic
+Inductive logic
+
+
+
+
+
+
+Event-driven
+Feature-oriented
+Function-level (Contrast: Value-level)
+Imperative (Contrast: Declarative)
+
+Advanced separation of concerns
+
+Aspect-oriented
+Subject-oriented
+
+
+Array (Contrast: Scalar)
+Automata-based
+Object-oriented
+
+Class-based
+Prototype-based
+
+
+Procedural
+
+Structured
+
+
+Role-oriented
+Scalar (Contrast: Array)
+
+
+Iterative (Contrast: Recursive)
+Metaprogramming
+
+Attribute-oriented
+Automatic
+
+Generic
+
+Template
+
+Policy-based
+
+
+
+
+Language-oriented
+
+Grammar-oriented
+
+Dialecting
+
+
+Intentional
+
+
+
+
+Reflective
+
+
+Modular
+Nondeterministic
+Parallel computing
+
+Process-oriented
+
+
+Programming in the large and programming in the small
+Recursive (Contrast: Iterative)
+Tree
+Value-level (Contrast: Function-level)
+
+
+This box: view • talk • edit
+
+
+
+Concurrent computing is a form of computing in which programs are designed as collections of interacting computational processes that may be executed in parallel.[1] Concurrent programs can be executed sequentially on a single processor by interleaving the execution steps of each computational process, or executed in parallel by assigning each computational process to one of a set of processors that may be in close proximity or distributed across a network. The main challenges in designing concurrent programs are ensuring the correct sequencing of the interactions or communications between different computational processes, and coordinating access to resources that are shared between processes.[1] A number of different methods can be used to implement concurrent programs, such as implementing each computational process as an operating system process, or implementing the computational processes as a set of threads within a single operating system process.
+Pioneers in the field of concurrent computing include Edsger Dijkstra, Per Brinch Hansen, and C. A. R. Hoare.
+
+
+
+
+Contents
+
+
+1 Concurrent interaction and communication
+2 Coordinating access to resources
+3 Advantages
+4 Concurrent programming languages
+5 Models of concurrency
+6 See also
+7 References
+8 Further reading
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Concurrent interaction and communication
+In some concurrent computing systems communication between the concurrent components is hidden from the programmer (e.g., by using futures), while in others it must be handled explicitly. Explicit communication can be divided into two classes:
+
+Shared memory communication 
+Concurrent components communicate by altering the contents of shared memory locations (exemplified by Java and C#). This style of concurrent programming usually requires the application of some form of locking (e.g., mutexes (means mutual exclusion), semaphores, or monitors) to coordinate between threads.
+
+
+Message passing communication 
+Concurrent components communicate by exchanging messages (exemplified by Erlang and occam). The exchange of messages may be carried out asynchronously (sometimes referred to as "send and pray", although it is standard practice to resend messages that are not acknowledged as received), or may use a rendezvous style in which the sender blocks until the message is received. Message-passing concurrency tends to be far easier to reason about than shared-memory concurrency, and is typically considered a more robust, although slower, form of concurrent programming. A wide variety of mathematical theories for understanding and analyzing message-passing systems are available, including the Actor model, and various process calculi. Message passing can be efficiently implemented on symmetric multiprocessors using shared coherent memory.
+
+
+[edit] Coordinating access to resources
+One of the major issues in concurrent computing is preventing concurrent processes from interfering with each other. For example, consider the following algorithm for making withdrawals from a checking account represented by the shared resource balance:
+
+1  bool withdraw(int withdrawal)
+2  {
+3     if( balance >= withdrawal )
+4     {
+5         balance -= withdrawal;
+6         return true;
+7     } 
+8     return false;
+9  }
+
+Suppose balance=500, and two concurrent processes make the calls withdraw(300) and withdraw(350). If line 3 in both operations executes before line 5 both operations will find that balance > withdrawal evaluates to true, and execution will proceed to subtracting the withdrawal amount. However, since both processes perform their withdrawals, the total amount withdrawn will end up being more than the original balance. These sorts of problems with shared resources require the use of concurrency control, or non-blocking algorithms.
+Because concurrent systems rely on the use of shared resources (including communications mediums), concurrent computing in general requires the use of some form of arbiter somewhere in the implementation to mediate access to these resources.
+Unfortunately, while many solutions exist to the problem of a conflict over one resource, many of those "solutions" have their own concurrency problems such as deadlock when more than one resource is involved.
+
+[edit] Advantages
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (December 2006)
+
+
+
+Increased application throughput - parallel execution of a concurrent program allows the number of tasks completed in certain time period to increase.
+High responsiveness for input/output - input/output-intensive applications mostly wait for input or output operations to complete. Concurrent programming allows the time that would be spent waiting to be used for another task.
+More appropriate program structure - some problems and problem domains are well-suited to representation as concurrent tasks or processes.
+
+
+[edit] Concurrent programming languages
+Concurrent programming languages are programming languages that use language constructs for concurrency. These constructs may involve multi-threading, support for distributed computing, message passing, shared resources (including shared memory) or futures (known also as promises).
+Today, the most commonly used programming languages that have specific constructs for concurrency are Java and C#. Both of these languages fundamentally use a shared-memory concurrency model, with locking provided by monitors (although message-passing models can and have been implemented on top of the underlying shared-memory model). Of the languages that use a message-passing concurrency model, Erlang is probably the most widely used in industry at present.
+Many concurrent programming languages have been developed more as research languages (e.g. Pict) rather than as languages for production use. However, languages such as Erlang, Limbo, and occam have seen industrial use at various times in the last 20 years. Languages in which concurrency plays an important role include:
+
+ActorScript [2] theoretical purely actor-based language defined in terms of itself
+Ada
+Afnix – concurrent access to data is protected automatically (previously called Aleph, but unrelated to Alef)
+Alef – concurrent language with threads and message passing, used for systems programming in early versions of Plan 9 from Bell Labs
+Alice – extension to Standard ML, adds support for concurrency via futures.
+Cilk – a concurrent C
+Cω – C Omega, a research language extending C#, uses asynchronous communication
+Clojure – a modern Lisp targeting the JVM
+Concurrent Clean – a functional programming language, similar to Haskell
+Concurrent ML – a concurrent extension of Standard ML
+Concurrent Pascal – by Brinch-Hansen
+Compute Unified Device Architecture (CUDA)
+Curry
+E – uses promises, ensures deadlocks cannot occur
+Eiffel – through its SCOOP mechanism based on the concepts of Design by Contract
+Erlang – uses asynchronous message passing with nothing shared
+Io – actor-based concurrency
+Janus features distinct "askers" and "tellers" to logical variables, bag channels; is purely declarative
+JoCaml
+Join Java – concurrent language based on the Java programming language
+Joule – dataflow language, communicates by message passing
+Concurrent Haskell – lazy, pure functional language operating concurrent processes on shared memory
+Limbo – relative of Alef, used for systems programming in Inferno (operating system)
+MultiLisp – Scheme variant extended to support parallelism
+Modula-3 – modern language in Algol family with extensive support for threads, mutexes, condition variables.
+occam – influenced heavily by Communicating Sequential Processes (CSP).
+
+occam-π – a modern variant of occam, which incorporates ideas from Milner's π-calculus
+
+
+Orc – a heavily concurrent, nondeterministic language based on Kleene algebra.
+Oz – multiparadigm language, supports shared-state and message-passing concurrency, and futures
+
+Mozart Programming System – multiplatform Oz
+
+
+Pict – essentially an executable implementation of Milner's π-calculus
+Reia – uses asynchronous message passing between shared-nothing objects
+Stackless Python
+SALSA – actor language with token-passing, join, and first-class continuations for distributed computing over the Internet
+Scala – a general purpose programming language designed to express common programming patterns in a concise, elegant, and type-safe way
+SR – research language
+
+Many other languages provide support for concurrency in the form of libraries (on level roughly comparable with the above list).
+
+[edit] Models of concurrency
+There are several models of concurrent computing, which can be used to understand and analyze concurrent systems. These models include:
+
+The Actor model
+Petri nets
+Process calculi such as
+
+Ambient calculus
+Calculus of Communicating Systems (CCS)
+Communicating Sequential Processes (CSP)
+π-calculus
+
+
+
+
+[edit] See also
+
+Ptolemy Project
+Race condition
+Critical section
+Transaction processing
+Software transactional memory
+Flow-based programming
+
+
+[edit] References
+
+
+^ a b Ben-Ari, Mordechai (2006). Principles of Concurrent and Distributed Programming (2nd ed.). Addison-Wesley. ISBN 978-0-321-31283-9. 
+^ Carl Hewitt. ActorScriptTM: Implementing massive local and nonlocal concurrency. http://knol.google.com/k/carl-hewitt-httpcarlhewittinfo/actorscripttm/pcxtp4rx7g1t/18#. 
+
+
+
+[edit] Further reading
+
+Filman, Robert E.; Daniel P. Friedman. Coordinated Computing: Tools and Techniques for Distributed Software. New York: McGraw-Hill. p. 370. ISBN 0-07-022439-0. http://ic.arc.nasa.gov/people/filman/text/dpl/dpl.html. 
+
+
+Taubenfeld, Gadi (2006). Synchronization Algorithms and Concurrent Programming. Pearson / Prentice Hall. p. 433. ISBN 0131972596. http://www.faculty.idc.ac.il/gadi/book.htm. 
+
+
+[edit] External links
+
+Concurrent Systems Virtual Library
+
+
+
+
+
+
+
+
+v • d • e
+
+Types of programming languages
+
+
+
+
+
+
+Array · Aspect-oriented · Assembly · Class-based · Compiled · Concurrent · Curly bracket · Data-oriented · Data-structured · Dataflow · Declarative · Domain-specific · Dynamic · Esoteric · Event-driven · Extensible · Functional · High-level · Imperative · Interpreted · Logic · Low-level · Machine · Macro · Metaprogramming · Multi-paradigm · Non-English-based · Object-oriented · Off-side rule · Pipeline · Procedural · Prototype-based · Reflective · Rule-based · Scripting · Synchronous · Visual
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Concurrent_computing"
+Categories: Operating system technology | Concurrent computingHidden categories: Articles with unsourced statements since December 2006 | All articles with unsourced statements | Articles lacking sources from December 2006 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Nederlands
+日本語
+Polski
+Português
+Suomi
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 April 2009, at 06:37.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

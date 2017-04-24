@@ -1,0 +1,630 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Slowly changing dimension - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Slowly_changing_dimension";
+		var wgTitle = "Slowly changing dimension";
+		var wgAction = "view";
+		var wgArticleId = "5209807";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282733946;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-sql {line-height: normal;}
+.source-sql li, .source-sql pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for sql
+ * CSS class: source-sql, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-sql .de1, .source-sql .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-sql  {}
+.source-sql .head {}
+.source-sql .foot {}
+.source-sql .imp {font-weight: bold; color: red;}
+.source-sql .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-sql li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-sql li.li2 {font-weight: bold;}
+.source-sql .kw1 {color: #993333; font-weight: bold;}
+.source-sql .co1 {color: #808080; font-style: italic;}
+.source-sql .co2 {color: #808080; font-style: italic;}
+.source-sql .coMULTI {color: #808080; font-style: italic;}
+.source-sql .es0 {color: #000099; font-weight: bold;}
+.source-sql .br0 {color: #66cc66;}
+.source-sql .st0 {color: #ff0000;}
+.source-sql .nu0 {color: #cc66cc;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Slowly changing dimension
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article may require cleanup to meet Wikipedia's quality standards. Please improve this article if you can. (June 2008)
+
+
+
+
+
+
+
+This article is missing citations or needs footnotes. Please help add inline citations to guard against copyright violations and factual inaccuracies. (April 2007)
+
+
+Dimension is a term in data management and data warehousing that refers to logical groupings of data such as geographical location, customer information, or product information. Slowly Changing Dimensions (SCD) are dimensions that have data that slowly changes.
+For example, you may have a Dimension in your database that tracks the sales records of your company's salesmen. Creating sales reports seems simple enough, until a sales person is transferred from one regional office to another. How do you record such a change in your sales Dimension?
+You could sum or average the sales by salesperson, but if you use that to compare the performance of sales people, that might give misleading information. If the sales person that was transferred used to work in a hot market where sales were easy, and now works in a market where sales are infrequent, his totals will look much stronger than the other salespeople in his new region, even if they are just as good. Or you could create a second sales-person record and treat the transferred person as a new sales person, but that creates problems also.
+Dealing with these issues involves SCD management methodologies referred to as Type 0, 1, 2, 3, 4, and 6. Type 6 SCDs are also sometimes called Hybrid SCDs.
+The most common slowly changing dimensions are Types 1, 2, and 3.
+
+
+
+
+Contents
+
+
+1 Type 1
+2 Type 2
+3 Type 3
+4 Type 4
+5 Type 6 / Hybrid
+6 Type 6 / Hybrid - Alternative Implementation
+7 Combining Types
+8 Notes
+9 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Type 1
+The Type 1 methodology overwrites old data with new data, and therefore does not track historical data at all. This is most appropriate when correcting certain types of data errors, such as the spelling of a name. (Assuming you won't ever need to know how it used to be misspelled in the past.)
+Another example would be of a database table that keeps supplier information.
+
+
+Supplier_key
+Supplier_Name
+Supplier_State
+
+
+001
+Phlogistical Supply Company
+CA
+
+
+Now imagine that this supplier moves their headquarters to Illinois. The updated table would simply overwrite this record:
+
+
+Supplier_key
+Supplier_Name
+Supplier_State
+
+
+001
+Phlogistical Supply Company
+IL
+
+
+The obvious disadvantage to this method of managing SCDs is that there is no historical record kept in the data warehouse. You can't tell if your suppliers are tending to move to the Midwest, for example. But an advantage to this is that these are very easy to maintain.
+
+[edit] Type 2
+The Type 2 method tracks historical data by creating multiple records in the dimensional tables with separate keys. With Type 2, we have unlimited history preservation as a new record is inserted each time a change is made.
+In the same example, if the supplier moves to Illinois, the table would look like this:
+
+
+Supplier_key
+Supplier_Code
+Supplier_Name
+Supplier_State
+version
+
+
+001
+ABC
+Phlogistical Supply Company
+CA
+0
+
+
+002
+ABC
+Phlogistical Supply Company
+IL
+1
+
+
+Another popular method for tuple versioning is to add effective date columns.
+
+
+Supplier_key
+Supplier_Code
+Supplier_Name
+Supplier_State
+Start_Date
+End_Date
+
+
+001
+ABC
+Phlogistical Supply Company
+CA
+01-Jan-2000
+21-Dec-2004
+
+
+002
+ABC
+Phlogistical Supply Company
+IL
+22-Dec-2004
+
+
+
+Null End_Date signifies current tuple version. In some cases, a standardized surrogate high date (e.g. 12/31/9999) may be used as an end date, so that the field can be included in an index.
+Transactions that reference this Surrogate Key (Supplier_Key) are then permanently bound to these time slices defined by each row in the slowly changing dimension table. If there are retrospective changes made to the contents of the dimension, or if a new set of attributes are added to the dimension (for example a Sales Rep column) which have different effective dates to those already defined, then this can result in the existing transactions needing to be updated to reflect the new situation. This can be an expensive database operation, so Type 2 SCD are not a good choice if the dimensional model or data is subject to change.
+
+[edit] Type 3
+The Type 3 method track changes using separate columns. Whereas Type 2 had unlimited history preservation, Type 3 has limited history preservation, as it's limited to the number of columns we designate for storing historical data. Where the original table structure in Type 1 and Type 2 was very similar, Type 3 will add additional columns to the tables:
+
+
+Supplier_key
+Supplier_Name
+Original_Supplier_State
+Effective_Date
+Current_Supplier_State
+
+
+001
+Phlogistical Supply Company
+CA
+22-Dec-2004
+IL
+
+
+Note that this record can not track all historical changes, such as when a supplier moves twice.
+
+[edit] Type 4
+The Type 4 method is usually just referred to as using "history tables", where one table keeps the current data, and an additional table is used to keep a record of some or all changes.
+Following the example above, the original table might be called Supplier and the history table might be called Supplier_History.
+
+Supplier
+
+Supplier_key
+Supplier_Name
+Supplier_State
+
+
+001
+Phlogistical Supply Company
+IL
+
+
+
+Supplier_History
+
+Supplier_key
+Supplier_Name
+Supplier_State
+Create_Date
+
+
+001
+Phlogistical Supply Company
+CA
+22-Dec-2004
+
+
+
+[edit] Type 6 / Hybrid
+The Type 6 method is one that combines the approaches of types 1,2 and 3 (1 + 2 + 3 = 6). One possible explanation of the origin of the term was that it was coined by Ralph Kimball during a conversation with Stephen Pace from Kalido but has also been referred to by Tom Haughey [1]. It is not frequently used because it has the potential to complicate end user access, but has some advantages over the other approaches especially when techniques are employed to mitigate the downstream complexity.
+The approach is to use a Type 1 slowly changing dimension, but adding an additional pair of date columns to indicate the date range at which a particular row in the dimension applies.
+This approach has a number of advantages:
+
+the user can choose to query using the current values of the dimensional table by restricting the rows in the Dimension table using a filter to only select current values
+alternatively the user can use the "as at the time of the transaction" values by using one of the date fields on the transaction as a constraint on the dimension table.
+if there are a number of date columns on the transaction (e.g. Order Date, Shipping Date, Confirmation Date) then the user can choose which date to analyze the fact data by - something not possible using other approaches.
+
+This is how the Supplier table would look using Type 6 Slowly Changing Dimensions:
+
+Supplier
+
+Row_Key
+Supplier_key
+Supplier_code
+Supplier_Name
+Supplier_State
+Start_Date
+End_Date
+Current Indicator
+
+
+1
+001
+ABC001
+Phlogistical Supply Company
+CA
+22-Dec-2004
+15-Jan-2007
+N
+
+
+2
+001
+ABC001
+Phlogistical Supply Company
+IL
+15-Jan-2007
+1-Jan-2099
+Y
+
+
+Alternative implementations of Type 6 can include a blank end date. Other approaches include using a Revision Number instead of a Row Key.
+Note, Transactions should have the Supplier Key as the foreign key (even though this is not a join to a unique column) in combination with a date filter. The join should not be to the primary key for the table (Row Key). The Transaction could also optionally carry one or more Row Keys (to allow use of Type 2 SCD in addition to Type 6) depending on which of the transactions datestamp columns the user wishes to analyze by - but note the issues with this approach described in the section on Type 2 SCD.
+Note the Current_Indicator and Row_Key columns are optional - they are not required in order for analysis, but can simplify querying and management respectively.
+Note Ideally a Fact should only have a single event date on it to represent the date at which the transaction occurred. If there are multiple dates, consider splitting the Fact out into the most granular events if possible.
+Example SQL: In the following example, we wish to query the following Delivery transactions:
+
+Delivery
+
+Delivery_Key
+Supplier_key
+Quantity
+Product
+Delivery_Date
+Order_Date
+
+
+1
+001
+132
+Bags
+22-Dec-2006
+15-Oct-2006
+
+
+2
+001
+324
+Chairs
+15-Jan-2007
+1-Jan-2007
+
+
+To query the star schema using the historic reference data as of the date of the delivery, the query looks like this:
+
+
+SELECT
+delivery.delivery_cost,
+supplier.supplier_name,
+supplier.supplier_state
+ 
+FROM delivery
+ 
+INNER JOIN supplier ON delivery.supplier_key = supplier.supplier_key
+ 
+WHERE
+delivery.delivery_date >=supplier.start_date
+AND delivery.delivery_date <supplier.end_date
+
+To query using the order date, the SQL simply needs to be changed to reference the Order_Date.
+To query the star schema using the current reference data, the query looks like this:
+
+
+SELECT
+delivery.delivery_cost,
+supplier.supplier_name,
+supplier.supplier_state
+ 
+FROM delivery
+ 
+INNER JOIN supplier ON delivery.supplier_key = supplier.supplier_key
+ 
+WHERE
+supplier.start_date <= NOW()
+AND supplier.end_date > NOW()
+
+Notes
+
+NOW() is PostgreSQL/MySQL syntax, getdate() is SQL Server syntax, for Oracle use SYSDATE
+
+
+Caution - If the WHERE clause restricting the rows in the dimension table is not present, then the query will potentially return duplicate rows and give the wrong answers, so this technique should be used with care.
+
+
+Some Business Intelligence tools do not handle generating complex joins such as this well.
+
+
+The Etl processes needed to create this table also need to be carefully designed to ensure that there are no overlaps in the time periods for each distinct item of reference data.
+
+
+The >= and < clause is required to ensure no time period is omitted.
+
+
+Often a view is created over the table which can filter out the rows or columns. This simplifies joins to the table if only the current rows are needed for certain queries. This view could be materialized to a physical table if storage space is not a problem. This can be done automatically by most modern DBMS's and automatically kept up to date.
+
+
+[edit] Type 6 / Hybrid - Alternative Implementation
+One of the drawbacks of the above implementation is that a many-to-many relationship between the dimension and the fact table is never resolved into the data model. This many-to-many relationship can't be resolved at a logical and Physical Data Model Standpoint. The way it is designed, it will be only resolved at runtime, at a report level, when end-user fills in the 'As At Date' parameter. The consequence is that no referential integrity can be enforced at a RDBMS level between the fact and the dimension table. A variant of this SCD type 6 exists that implements all the advantages of SCD6 without this inconvenience.
+This variant is based on the dimension table primary key made of a surrogate key and a version number (and not a Start date). The version number of the current dimension record would always be 0. Before a dimension record gets updated, the version 0 is copied over a new record (version n+1) and the version 0 can be updated.
+
+Supplier Dimension
+
+Version_Number
+Supplier_key
+Supplier_code
+Supplier_Name
+Supplier_State
+Start_Date
+End_Date
+
+
+1
+001
+ABC001
+Phlogistical Supply Company
+CA
+22-Dec-2004
+15-Jan-2007
+
+
+0
+001
+ABC001
+Phlogistical Supply Company
+IL
+15-Jan-2007
+
+
+
+In the fact table, when a fact is added, it can be only using the current dimension record, Consequently, all the fact records will have a version number equals to 0.
+
+Fact Delivery
+
+Delivery_Key
+Supplier_key
+Supplier_version_number
+Quantity
+Product
+Delivery_Date
+Order_Date
+
+
+1
+001
+0
+132
+Bags
+22-Dec-2006
+15-Oct-2006
+
+
+2
+001
+0
+324
+Chairs
+15-Jan-2007
+1-Jan-2007
+
+
+The advantage of this SCD Type 6 implementation is that the many to many between the fact and dimension is resolved, the priority given to the AS IS version (version number=0).
+Another advantage is that the RDBMS can ensure the referential integrity between the fact table and the dimension table. Finally, when using a Design Tool like Erwin, Powerdesigner...in the Physical Model, fact tables are linked to dimension tables. The Dimension surrogate key + the dimension version number is a compound primary key , and can be stored into the fact table , even though the version number will be always 0.
+In the implementation using the Start date in the primary key, all the tables in the Physical Data Model will look like standalone tables and no integrity constraint can be enforced by the RDBMS (even though it is not always desirable).
+
+[edit] Combining Types
+Different types can be applied to different columns of a table. For example, we can apply Type 1 to Supplier Name column and Type 2 to Supplier State column of the same table, the Supplier table.
+
+[edit] Notes
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it has insufficient inline citations. Please help to improve this article by introducing more precise citations where appropriate. (April 2009)
+
+
+
+
+^ Tom Haughey - Advanced Topics in Dimensional Modeling
+
+
+
+[edit] References
+
+
+Ralph Kimball, Margy Ross: The Data Warehouse Toolkit: The Complete Guide to Dimensional Modeling (Second Edition), John Wiley & Sons, ISBN 0-471-20024-7
+
+
+Bruce Ottmann, Chris Angus: Data processing system, US Patent Office, Patent Number 7,003,504. February 21, 2006
+
+
+Ralph Kimball:Kimball University: Handling Arbitrary Restatements of History [1]. December 9, 2007
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Slowly_changing_dimension"
+Categories: Data modeling | Data warehousingHidden categories: Cleanup from June 2008 | All pages needing cleanup | Articles with unsourced statements since April 2007 | All articles with unsourced statements | Articles lacking in-text citations from April 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 09:18 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

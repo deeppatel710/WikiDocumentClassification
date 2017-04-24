@@ -1,0 +1,344 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mach (kernel) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Mach_(kernel)";
+		var wgTitle = "Mach (kernel)";
+		var wgAction = "view";
+		var wgArticleId = "21028";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 277560025;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Mach (kernel)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it has insufficient inline citations. Please help to improve this article by introducing more precise citations where appropriate. (October 2008)
+
+
+Mach is an operating system microkernel developed at Carnegie Mellon University to support operating system research, primarily distributed and parallel computation. It is one of the earliest examples of a microkernel, and still the standard by which similar projects are measured.
+The project at Carnegie Mellon ran from 1985 to 1994, ending with Mach 3.0. A number of other efforts have continued Mach research, including the University of Utah's Mach 4. Mach was developed as a replacement for the kernel in the BSD version of UNIX, so no new operating system would have to be designed around it. Today further experimental research on Mach appears ended, although Mach and its derivatives are in use in a number of commercial operating systems, such as NEXTSTEP and OPENSTEP, and most notably Mac OS X (using the XNU kernel). The Mach virtual memory management system was also adopted by the BSD developers at CSRG, and appears in modern BSD-derived UNIX systems, such as FreeBSD. Neither Mac OS X nor FreeBSD maintain the microkernel structure pioneered in Mach, although Mac OS X continues to offer microkernel Inter-Process Communication and control primitives for use directly by applications.
+Mach is the logical successor to Carnegie Mellon's Accent kernel. The lead developer on the Mach project, Richard Rashid, has been working at Microsoft since 1991 in various top-level positions revolving around the Microsoft Research division. Another of the original Mach developers, Avie Tevanian, was formerly head of software at NeXT, then Chief Software Technology Officer at Apple Computer until March 2006.[1]
+
+
+
+
+Contents
+
+
+1 Mach concepts
+2 Development
+3 Performance problems
+4 Potential solutions
+5 The Next Generation
+6 Operating systems and kernels based on Mach
+7 See also
+8 References
+
+8.1 Notes
+
+
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Mach concepts
+Since Mach was designed as a "drop-in" replacement for the traditional UNIX kernel, this discussion focuses on what distinguishes Mach from UNIX. It became clear early that UNIX's concept of everything-as-a-file might not be practical on modern systems, although some systems such as Plan 9 from Bell Labs have tried this way. Nevertheless, those same developers lamented the loss of flexibility that the original concept offered. Another level of virtualization was sought that would make the system "work" again.
+The critical abstraction in UNIX was the pipe. What was needed was a pipe-like concept that worked at a much more general level, allowing a broad variety of information be passed between programs. Such a system did exist using inter-process communication (IPC): A pipe-like system that would move any information between two programs, as opposed to file-like information. While many systems, including most Unices, had added various IPC implementations over the years, these were special-purpose libraries only really useful for one-off tasks.
+Carnegie Mellon University started experimentation along these lines under the Accent kernel project, using an IPC system based on shared memory. Accent was a purely experimental system with many features, developed in an ad-hoc fashion over a period of time with changing research interests. Additionally, Accent's usefulness for research was limited because it was not UNIX-compatible, and UNIX was already the de-facto standard for almost all operating system research. Finally, Accent was tightly coupled with the hardware platform on which it was developed, and at the time in the early 1980s it appeared there would soon be an explosion of new platforms, many of them massively parallel.
+Mach started largely as an effort to produce a cleanly-defined, UNIX-based, highly portable Accent. The result was a short list of generic concepts:
+
+a "task" is a set of resources that enable "threads" to run
+a "thread" is a single unit of code running on a processor
+a "port" defines a secure pipe for IPC between tasks
+"messages" are passed between tasks on ports
+
+Mach developed on Accent's IPC concepts, but made the system much more UNIX-like in nature, even able to run UNIX programs with little or no modification. To do this, Mach introduced the concept of a port, representing each endpoint of a two-way IPC. Ports had security and rights like files under UNIX, allowing a very UNIX-like model of protection to be applied to them. Additionally, Mach allowed any program to be handed privileges that would normally be given to the kernel only, in order to allow user space programs to handle things like interacting with hardware.
+Under Mach, and like UNIX, the operating system again becomes primarily a collection of utilities. As UNIX, Mach keeps the concept of a driver for handling the hardware. Therefore all the drivers for the present hardware have to be included in the microkernel. Other architectures based on Hardware Abstraction Layer or exokernels could move the drivers out of the microkernel.
+The main difference with UNIX is that instead of utilities handling files, they can handle any "task". More code was moved out of the kernel and into user space, resulting in a much smaller kernel and the rise of the term microkernel. Unlike traditional systems, under Mach a process, or "task", can consist of a number of threads. While this is common in modern systems, Mach was the first system to define tasks and threads in this way. The kernel's job was reduced from essentially being the operating system to maintaining the "utilities" and scheduling their access to hardware.
+The existence of ports and the use of IPC is perhaps the most fundamental difference between Mach and traditional kernels. Under UNIX, calling the kernel consists of an operation known as a syscall or trap. The program uses a library to place data in a well known location in memory and then causes a fault, a type of error. When the system is first started the kernel is set up to be the "handler" of all faults, so when the program causes a fault the kernel takes over, examines the information passed to it, and then carries out the instructions.
+Under Mach, the IPC system was used for this role instead. In order to call system functionality, a program would ask the kernel for access to a port, then use the IPC system to send messages to that port. Although the messages were triggered by syscalls as they would be on other kernels, under Mach that was pretty much all the kernel did—handling the actual request would be up to some other program.
+The use of IPC for message passing benefited support for threads and concurrency. Since tasks consisted of multiple threads, and it was the code in the threads that used the IPC mechanism, Mach was able to freeze and unfreeze threads while the message was handled. This allowed the system to be distributed over multiple processors, either using shared memory directly as in most Mach messages, or by adding code to copy the message to another processor if needed. In a traditional kernel this is difficult to implement; the system has to be sure that different programs don't try to write to the same memory from different processors. Under Mach this was well defined and easy to implement; it was the very process of accessing that memory, the ports, that was made a first-class citizen of the system.
+The IPC system initially had performance problems, so a few strategies were developed to minimize the impact. Like its predecessor, Accent, Mach used a single shared-memory mechanism for physically passing the message from one program to another. Physically copying the message would be too slow, so Mach relies on the machine's memory management unit (MMU) to quickly map the data from one program to another. Only if the data is written to would it have to be physically copied, a process known as copy-on-write.
+Messages were also checked for validity by the kernel, to avoid bad data crashing one of the many programs making up the system. Ports were deliberately modeled on the UNIX file system concepts. This allowed the user to find ports using existing file system navigation concepts, as well as assigning rights and permissions as they would on the file system.
+Development under such a system would be easier. Not only would the code being worked on exist in a traditional program that could be built using existing tools, it could also be started, debugged and killed off using the same tools. With a monokernel a bug in new code would take down the entire machine and require a reboot, whereas under Mach this would require only that the program be restarted. Additionally the user could tailor the system to include, or exclude, whatever features they required. Since the operating system was simply a collection of programs, they could add or remove parts by simply running or killing them as they would any other program.
+Finally, under Mach, all of these features were deliberately designed to be extremely platform neutral. To quote one text on Mach:
+
+Unlike UNIX, which was developed without regard for multiprocessing, Mach incorporates multiprocessing support throughout. Its multiprocessing support is also exceedingly flexible, ranging from shared memory systems to systems with no memory shared between processors. Mach is designed to run on computer systems ranging from one to thousands of processors. In addition, Mach is easily ported to many varied computer architectures. A key goal of Mach is to be a distributed system capable of functioning on heterogeneous hardware. (Appendix B, Operating System Concepts)
+
+There are a number of disadvantages, however. A relatively mundane one is that it is not clear how to find ports. Under UNIX this problem was solved over time as programmers agreed on a number of "well known" locations in the file system to serve various duties. While this same approach worked for Mach's ports as well, under Mach the operating system was assumed to be much more fluid, with ports appearing and disappearing all the time. Without some mechanism to find ports and the services they represented, much of this flexibility would be lost.
+
+[edit] Development
+Mach was initially hosted as additional code written directly into the existing 4.2BSD kernel, allowing the team to work on the system long before it was complete. Work started with the already functional Accent IPC/port system, and moved on to the other key portions of the OS, tasks and threads and virtual memory. As portions were completed various parts of the BSD system were re-written to call into Mach, and a change to 4.3BSD was also made during this process.
+By 1986 the system was complete to the point of being able to run on its own on the DEC VAX. Although doing little of practical value, the goal of making a microkernel was realized. This was soon followed by versions on the IBM PC/RT and for Sun Microsystems 68030-based workstations, proving the system's portability. By 1987 the list included the Encore Multimax and Sequent Balance machines, testing Mach's ability to run on multiprocessor systems. A public Release 1 was made that year, and Release 2 followed the next year.
+Throughout this time the promise of a "true" microkernel was not yet being delivered. These early Mach versions included the majority of 4.3BSD in the kernel, a system known as POE Server, resulting in a kernel that was actually larger than the UNIX it was based on. The idea, however, was to move the UNIX layer out of the kernel into user-space, where it could be more easily worked on and even replaced outright. Unfortunately performance proved to be a major problem, and a number of architectural changes were made in order to solve this problem. Unwieldy UNIX licensing issues were also plaguing researchers, so this early effort to provide a non-licensed UNIX-like system environment continued to find use, well into the further development of Mach.
+The resulting Mach 3 was released in 1990, and generated intense interest. A small team had built Mach and ported it to a number of platforms, including complex multiprocessor systems which were causing serious problems for older-style kernels. This generated considerable interest in the commercial market, where a number of companies were in the midst of considering changing hardware platforms. If the existing system could be ported to run on Mach, it would seem it would then be easy to change the platform underneath.
+Mach received a major boost in visibility when the Open Software Foundation (OSF) announced they would be hosting future versions of OSF/1 on Mach 2.5, and were investigating Mach 3 as well. Mach 2.5 was also selected for the NeXTSTEP system and a number of commercial multiprocessor vendors. Mach 3 led to a number of efforts to port other operating systems to the kernel, including IBM's Workplace OS and several efforts by Apple Computer to build a cross-platform version of the Mac OS.
+For some time it appeared that every future operating system would be based on Mach by the late 1990s.
+
+[edit] Performance problems
+Mach was originally intended to be a replacement for classical UNIX, and for this reason contained many UNIX-like ideas. For instance, Mach used a permissioning and security system patterned on UNIX's file system. Since the kernel was privileged (running in kernel-space) it was possible for malfunctioning or malicious programs to send it commands that would cause damage to the system, and for this reason the kernel checked every message for validity. Additionally most of the functionality was to be located in user-space programs, so this meant there needed to be some way for the kernel to grant these programs additional privileges, to operate on hardware for instance.
+Some of Mach's more esoteric features were also based on this same IPC mechanism. For instance, Mach was able to support multi-processor machines with ease. In a traditional kernel extensive work needs to be carried out to make it reentrant or interruptible, as programs running on different processors could call into the kernel at the same time. Under Mach, the bits of the operating system are isolated in servers, which are able to run, like any other program, on any processor. Although in theory the Mach kernel would also have to be reentrant, in practice this isn't an issue because its response times are so fast it can simply wait and serve requests in turn. Mach also included a server that could forward messages not just between programs, but even over the network, which was an area of intense development in the late 1980s and early 1990s.
+Unfortunately, the use of IPC for almost all tasks turned out to have serious performance impact. Benchmarks on 1997 hardware showed that Mach 3.0-based UNIX single-server implementations were about 50% slower than native UNIX.[1][2]
+Studies showed the vast majority of this performance hit, 73% by one measure, was due to the overhead of the IPC.[citation needed] And this was measured on a system with a single large server providing the operating system; breaking the system down further into smaller servers would only make the problem worse. It appeared the goal of a collection-of-servers was simply not possible.
+Many attempts were made to improve the performance of Mach and Mach-like microkernels, but by the mid-1990s much of the early intense interest had died. The concept of an operating system based on IPC appeared to be dead, the idea itself flawed.[citation needed]
+In fact, further study of the exact nature of the performance problems turned up a number of interesting facts. One was that the IPC itself was not the problem: there was some overhead associated with the memory mapping needed to support it, but this added only a small amount of time to making a call. The rest, 80% of the time being spent, was due to additional tasks the kernel was running on the messages. Primary among these was the port rights checking and message validity. In tests on a 486DX-50 a standard UNIX system call took 21 microseconds to complete, while a corresponding operation on Mach took 114 microseconds. Only 18 microseconds of this was hardware related; the rest was the Mach kernel running various routines on the message.[3]
+When Mach was first being seriously used in the 2.x versions, performance was slower than traditional kernels, perhaps as much as 25%.[citation needed] This cost was not considered particularly worrying, however, because the system was also offering multi-processor support and easy portability. Many felt this was an expected and acceptable cost to pay. In fact the system was hiding a serious performance problem, one that only became obvious when Mach 3 started to be widely used, and developers attempted to make systems running in user-space.
+When Mach 3 attempted to move the operating system into user-space, the overhead suddenly became overwhelming. In this case consider the simple task of asking the system for the time. Under a true user-space system, there would be a server handling this request. The caller would trigger the IPC system to run the kernel, causing a context switch and memory mapping. The kernel would then examine the contents of the message to see if the caller had rights to call the server, and if so, do another mapping into the server's memory and another context switch to allow it to run. The process then repeats to return the results, adding up to a total of four context switches and memory mappings, as well as two runs of the code to check the rights and validity of the messages.
+To put numbers to this, a call into the BSD kernel on a 486DX-50 requires about 20 microseconds (μs). The same call on the same system running Mach 3 required 114 μs. Given a syscall that does nothing, a full round-trip under BSD would require about 40 μs, whereas on a user-space Mach system it would take just under 500 μs. In detailed testing published in 1991, Chen and Bershad found overall system performance was degraded by up to 66% compared to a traditional kernel.[citation needed]
+This was not the only source of performance problems. Another centered on the problems of trying to handle memory properly when physical memory ran low and paging had to occur. In the traditional monokernels the authors had direct experience with which parts of the kernel called which others, allowing them to fine tune their pager to avoid paging out code that was about to be used. Under Mach this wasn't possible because the kernel had no real idea what the operating system consisted of. Instead they had to use a single one-size-fits-all solution that added to the performance problems. Mach 3 attempted to address this problem by providing a simple pager, relying on user-space pagers for better specialization. But this turned out to have little effect. In practice, any benefits it had were wiped out by the expensive IPC needed to call it in.
+Other performance problems were related to Mach's support for multiprocessor systems. From the mid-1980s to the early 1990s, commodity CPUs grew in performance at a rate of about 60% a year, but the speed of memory access grew at only 7% a year. This meant that the cost of accessing memory grew tremendously over this period, and since Mach was based on mapping memory around between programs, any "cache miss" made IPC calls slow.
+Regardless of the advantages of the Mach approach, these sorts of real-world performance hits were simply not acceptable. As other teams found the same sorts of results, the early Mach enthusiasm quickly disappeared. After a short time many in the development community seemed to conclude that the entire concept of using IPC as the basis of an operating system was inherently flawed.[citation needed]
+
+[edit] Potential solutions
+IPC overhead is a major issue for Mach 3 systems. However, the concept of a multi-server system is still promising, though it still requires some research. The developers have to be careful to isolate code into modules that do not call from server to server. For instance, the majority of the networking code would be placed in a single server, thereby minimizing IPC for normal networking tasks.
+Most developers instead stuck with the original POE concept of a single large server providing the operating system functionality. In order to ease development, they allowed the operating system server to run either in user-space or kernel-space. This allowed them to develop in user-space and have all the advantages of the original Mach idea, and then move the debugged server into kernel-space in order to get better performance. Several operating systems have since been constructed using this method, known as co-location, among them Lites, MkLinux, OSF/1 and NeXTSTEP/OPENSTEP/Mac OS X. The Chorus microkernel made this a feature of the basic system, allowing servers to be raised into the kernel space using built-in mechanisms.
+Mach 4 attempted to address these problems, this time with a more radical set of upgrades. In particular, it was found that program code was typically not writable, so potential hits due to copy-on-write were rare. Thus it made sense to not map the memory between programs for IPC, but instead migrate the program code being used into the local space of the program. This led to the concept of "shuttles" and it seemed performance had improved, but the developers moved on with the system in a semi-usable state. Mach 4 also introduced built-in co-location primitives, making it a part of the kernel itself.
+By the mid-1990s, work on microkernel systems was largely dead, despite the market generally believing that all modern operating systems would be microkernel based by the 1990s. The only remaining widespread use of the Mach kernel is Apple's Mac OS X, which runs a heavily modified Mach 2.5 kernel.
+
+[edit] The Next Generation
+Further analysis demonstrated that the IPC performance problem was not as obvious as it seemed. Recall that a single-side of a syscall took 20 μs under BSD and 114 μs on Mach running on the same system. Of the 114, 11 were due to the context switch, identical to BSD. An additional 18 were used by the MMU to map the message between user-space and kernel space. This adds up to only 31 μs, longer than a traditional syscall, but not by much.
+The rest, the majority of the actual problem, was due to the kernel performing tasks such as checking the message for port access rights. While it would seem this is an important security concern, in fact, it only makes sense in a UNIX-like system. For instance, a single-user operating system running a cell phone or robot might not need any of these features, and this is exactly the sort of system where Mach's pick-and-choose operating system would be most valuable. Likewise Mach caused problems when memory had been moved by the operating system, another task that only really makes sense if the system has more than one address space. DOS and the early Mac OS had a single large address space shared by all programs, so under these systems the mapping is a waste of time.
+These realizations led to a series of second generation microkernels, which further reduced the complexity of the system and placed almost all functionality in the user space. For instance, the L4 kernel includes only seven functions and uses 12k of memory, whereas Mach 3 includes about 140 functions and uses about 330k of memory. IPC calls under L4 on a 486DX-50 take only 5 μs, faster than a UNIX syscall on the same system, and over 20 times as fast as Mach. Of course this ignores the fact that L4 is not handling permissioning or security, but by leaving this to the user-space programs, they can select as much or as little overhead as they require.
+The potential performance gains of L4 are tempered by the fact that the user-space applications will often have to provide many of the functions formerly supported by the kernel. In order to test the end-to-end performance, MkLinux in co-located mode was compared with an L4 port running in user-space. L4 added about 5%-10% overhead, compared to Mach's 15%, all the more interesting considering the double context switches needed[citation needed].
+These newer microkernels have revitalized the industry as a whole, and many formerly dead projects such as the GNU Hurd have received new attention as a result.
+
+[edit] Operating systems and kernels based on Mach
+
+GNU Hurd (based on GNU Mach)
+Lites
+MkLinux
+mtXinu
+MachTen
+MacMach
+Mac OS X
+iPhone OS, which is based on the full Mac OS X
+NEXTSTEP
+OSF/1
+Workplace OS
+xMach
+UNICOS MAX
+
+
+[edit] See also
+
+Microkernel
+L4 microkernel family
+EROS microkernel family
+
+
+[edit] References
+
+J. Bradley Chen, Brian N. Bershad. The impact of operating system structure on memory system performance, ACM Press, 1994, ISBN 0-89791-632-8
+
+
+[edit] Notes
+
+
+^ M. Condict, D. Bolinger, E. McManus, D. Mitchell, S. Lewontin (April 1994). "Microkernel modularity with integrated kernel performance". Technical report, OSF Research Institute, Cambridge, MA. 
+^ Hermann Härtig, Michael Hohmuth, Jochen Liedtke, Sebastian Schönberg, Jean Wolter (October 1997). "The performance of μ-kernel-based systems". Proceedings of the 16th ACM symposium on Operating systems principles (SOSP), Saint-Malo, France: 67. ISBN 0-89791-916-5. http://portal.acm.org/citation.cfm?id=266660&dl=ACM&coll=&CFID=15151515&CFTOKEN=6184618.  url2
+^ Jochen Liedtke (1993). "Improving IPC by Kernel Design". Proceedings of the 14th ACM Symposium on Operating System Principles (SOSP). ISBN0-89791-632-8. 
+
+
+
+[edit] External links
+
+The Mach project at Carnegie Mellon
+The Mach System – Appendix to Operating System Concepts (7th ed) by Avi Silberschatz, Peter Baer Galvin and Greg Gagne
+A comparison of Mach, Amoeba and Chorus
+Towards Real Microkernels – Contains numerous performance measurements, including those quoted in the article
+The Performance of µ-Kernel-Based Systems – Contains an excellent performance comparison of Linux running as a monokernel, on Mach 3 and on L4
+Mach kernel source code - Browsable version of the Mach Kernel source code on the FreeBSD/Linux kernel cross reference site
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Mach_(kernel)"
+Categories: MicrokernelsHidden categories: Articles lacking in-text citations | All articles with unsourced statements | Articles with unsourced statements since February 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 March 2009, at 03:20.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Backpropagation,Activation function,Algorithm,Artificial neural network,Artificial neuron,Automatic differentiation,David E. Rumelhart,Delta rule,Differentiable,Feed-forward,Gaussian function" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Backpropagation&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Backpropagation&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Backpropagation - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Backpropagation";
+		var wgTitle = "Backpropagation";
+		var wgAction = "view";
+		var wgArticleId = "1360091";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279722601;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Backpropagation skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Backpropagation</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<div class="dablink">This article is about the computer algorithm.  For the biological process, see <a href="/wiki/Neural_backpropagation" title="Neural backpropagation">Neural backpropagation</a>.</div>
+<p><b>Backpropagation</b>, or <b>propagation of error</b>, is a common method of teaching <a href="/wiki/Artificial_neural_network" title="Artificial neural network">artificial neural networks</a> how to perform a given task. It was first described by <a href="/wiki/Paul_Werbos" title="Paul Werbos">Paul Werbos</a> in 1974, but it wasn't until 1986, through the work of <a href="/wiki/David_E._Rumelhart" title="David E. Rumelhart" class="mw-redirect">David E. Rumelhart</a>, <a href="/wiki/Geoffrey_E._Hinton" title="Geoffrey E. Hinton" class="mw-redirect">Geoffrey E. Hinton</a> and <a href="/w/index.php?title=Ronald_J._Williams&amp;action=edit&amp;redlink=1" class="new" title="Ronald J. Williams (page does not exist)">Ronald J. Williams</a>, that it gained recognition, and it led to a “renaissance” in the field of artificial neural network research.</p>
+<p>It is a <a href="/wiki/Supervised_learning" title="Supervised learning">supervised learning</a> method, and is an implementation of the <a href="/wiki/Delta_rule" title="Delta rule">Delta rule</a>. It requires a teacher that knows, or can calculate, the desired output for any given input. It is most useful for <a href="/wiki/Feed-forward" title="Feed-forward">feed-forward</a> networks (networks that have no feedback, or simply, that have no connections that loop). The term is an abbreviation for "backwards propagation of errors". Backpropagation requires that the <a href="/wiki/Activation_function" title="Activation function">activation function</a> used by the <a href="/wiki/Artificial_neuron" title="Artificial neuron">artificial neurons</a> (or "nodes") is <a href="/wiki/Differentiable" title="Differentiable" class="mw-redirect">differentiable</a>.</p>
+<p><a name="Summary" id="Summary"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Backpropagation&amp;action=edit&amp;section=1" title="Edit section: Summary">edit</a>]</span> <span class="mw-headline">Summary</span></h2>
+<p>Summary of the backpropagation technique:</p>
+<ol>
+<li>Present a training sample to the neural network.</li>
+<li>Compare the network's output to the desired output from that sample. Calculate the error in each output neuron.</li>
+<li>For each neuron, calculate what the output should have been, and a <i>scaling factor</i>, how much lower or higher the output must be adjusted to match the desired output. This is the local error.</li>
+<li>Adjust the weights of each neuron to lower the local error.</li>
+<li>Assign "blame" for the local error to neurons at the previous level, giving greater responsibility to neurons connected by stronger weights.</li>
+<li>Repeat from step 3 on the neurons at the previous level, using each one's "blame" as its error.</li>
+</ol>
+<p><a name="Algorithm" id="Algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Backpropagation&amp;action=edit&amp;section=2" title="Edit section: Algorithm">edit</a>]</span> <span class="mw-headline">Algorithm</span></h2>
+<p>Actual algorithm for a 3-layer network (only one hidden layer):</p>
+<pre>
+  Initialize the weights in the network (often randomly)
+  Do
+         For each example e in the training set
+              O = neural-net-output(network, e) ; forward pass
+              T = teacher output for e
+              Calculate error (T - O) at the output units
+              Compute delta_wi for all weights from hidden layer to output layer ; backward pass
+              Compute delta_wi for all weights from input layer to hidden layer ; backward pass continued
+              Update the weights in the network
+  Until all examples classified correctly or stopping criterion satisfied
+  Return the network
+</pre>
+<p>As the <a href="/wiki/Algorithm" title="Algorithm">algorithm</a>'s name implies, the errors (and therefore the learning) propagate backwards from the output nodes to the inner nodes. So technically speaking, backpropagation is used to calculate the gradient of the error of the network with respect to the network's modifiable weights. This gradient is almost always then used in a simple <a href="/wiki/Stochastic_gradient_descent" title="Stochastic gradient descent">stochastic gradient descent</a> algorithm to find weights that minimize the error. Often the term "backpropagation" is used in a more general sense, to refer to the entire procedure encompassing both the calculation of the gradient and its use in stochastic gradient descent. Backpropagation usually allows quick convergence on satisfactory <a href="/wiki/Maxima_and_minima" title="Maxima and minima">local minima</a> for error in the kind of networks to which it is suited.</p>
+<p>It is important to note that backpropagation networks are necessarily <a href="/wiki/Multilayer_perceptron" title="Multilayer perceptron">multilayer perceptrons</a> (usually with one input, one hidden, and one output layer). In order for the hidden layer to serve any useful function, multilayer networks must have non-linear activation functions for the multiple layers: a multilayer network using only linear activiation functions is equivalent to some single layer, linear network. Non-linear activation functions that are commonly used include the <a href="/wiki/Logistic_function" title="Logistic function">logistic function</a>, the <a href="/wiki/Softmax_activation_function" title="Softmax activation function">softmax function</a>, and the <a href="/wiki/Gaussian_function" title="Gaussian function">gaussian function</a>.</p>
+<p>The backpropagation algorithm for calculating a gradient has been rediscovered a number of times, and is a special case of a more general technique called <a href="/wiki/Automatic_differentiation" title="Automatic differentiation">automatic differentiation</a> in the reverse accumulation mode.</p>
+<p>It is also closely related to the <a href="/wiki/Gauss%E2%80%93Newton_algorithm" title="Gauss–Newton algorithm">Gauss–Newton algorithm</a>, and is also part of continuing research in <a href="/wiki/Neural_backpropagation" title="Neural backpropagation">neural backpropagation</a>.</p>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Backpropagation&amp;action=edit&amp;section=3" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li>Chapter 7 <a href="http://page.mi.fu-berlin.de/rojas/neural/chapter/K7.pdf" class="external text" title="http://page.mi.fu-berlin.de/rojas/neural/chapter/K7.pdf" rel="nofollow">The backpropagation algorithm</a> of <a href="http://page.mi.fu-berlin.de/rojas/neural/index.html.html" class="external text" title="http://page.mi.fu-berlin.de/rojas/neural/index.html.html" rel="nofollow"><i>Neural Networks - A Systematic Introduction</i></a> by <a href="/wiki/Ra%C3%BAl_Rojas" title="Raúl Rojas">Raúl Rojas</a> (<a href="/wiki/Special:BookSources/9783540605058" class="internal">ISBN 978-3540605058</a>)</li>
+<li><a href="http://neurondotnet.freehostia.com" class="external text" title="http://neurondotnet.freehostia.com" rel="nofollow">NeuronDotNet - A modular implementation of artificial neural networks in C# along with sample applications</a></li>
+<li><a href="http://www.codeproject.com/KB/recipes/BP.aspx" class="external text" title="http://www.codeproject.com/KB/recipes/BP.aspx" rel="nofollow">Implementation of BackPropagation in C++</a></li>
+<li><a href="http://www.codeproject.com/KB/cs/BackPropagationNeuralNet.aspx" class="external text" title="http://www.codeproject.com/KB/cs/BackPropagationNeuralNet.aspx" rel="nofollow">Implementation of BackPropagation in C#</a></li>
+<li><a href="http://ai4r.rubyforge.org/neuralNetworks.html" class="external text" title="http://ai4r.rubyforge.org/neuralNetworks.html" rel="nofollow">Implementation of BackPropagation in Ruby</a></li>
+<li><a href="http://arctrix.com/nas/python/bpnn.py" class="external text" title="http://arctrix.com/nas/python/bpnn.py" rel="nofollow">Implementation of BackPropagation in Python</a></li>
+<li><a href="http://www.tek271.com/articles/neuralNet/IntoToNeuralNets.html" class="external text" title="http://www.tek271.com/articles/neuralNet/IntoToNeuralNets.html" rel="nofollow">Quick explanation of the backpropagation algorithm</a></li>
+<li><a href="http://galaxy.agh.edu.pl/~vlsi/AI/backp_t_en/backprop.html" class="external text" title="http://galaxy.agh.edu.pl/~vlsi/AI/backp_t_en/backprop.html" rel="nofollow">Graphical explanation of the backpropagation algorithm</a></li>
+<li><a href="http://www.speech.sri.com/people/anand/771/html/node37.html" class="external text" title="http://www.speech.sri.com/people/anand/771/html/node37.html" rel="nofollow">Concise explanation of the backpropagation algorithm using math notation</a></li>
+<li><a href="http://en.wikiversity.org/wiki/Learning_and_Neural_Networks" class="external text" title="http://en.wikiversity.org/wiki/Learning_and_Neural_Networks" rel="nofollow">Backpropagation neural network tutorial at the Wikiversity</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 38/1000000
+Post-expand include size: 459/2048000 bytes
+Template argument size: 278/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1360091-0!1!0!default!!en!2 and timestamp 20090326022540 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Backpropagation">http://en.wikipedia.org/wiki/Backpropagation</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Machine_learning" title="Category:Machine learning">Machine learning</a></span> | <span dir='ltr'><a href="/wiki/Category:Neural_networks" title="Category:Neural networks">Neural networks</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Backpropagation" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Backpropagation" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Backpropagation&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Backpropagation&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Backpropagation" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Backpropagation" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Backpropagation" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Backpropagation&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Backpropagation&amp;oldid=279722601" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Backpropagation&amp;id=279722601">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Backpropagation">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Propagaci%C3%B3n_hacia_atr%C3%A1s">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/R%C3%A9tropropagation_du_gradient">Français</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%83%90%E3%83%83%E3%82%AF%E3%83%97%E3%83%AD%E3%83%91%E3%82%B2%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Propagacja_wsteczna">Polski</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D0%BE%D0%B3%D0%BE_%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8">Русский</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 26 March 2009, at 02:25 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv98 in 0.071 secs. --></body></html>

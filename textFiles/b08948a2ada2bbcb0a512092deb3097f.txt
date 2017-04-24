@@ -1,0 +1,274 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sender ID - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Sender_ID";
+		var wgTitle = "Sender ID";
+		var wgAction = "view";
+		var wgArticleId = "925739";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = "255874752";
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Sender ID
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Sender ID is an anti-spoofing proposal from the former MARID IETF working group that tried to join Sender Policy Framework (SPF) and Caller ID. Sender ID is defined primarily in Experimental RFC 4406, but additional parts in RFC 4405, RFC 4407 and RFC 4408.
+
+
+
+
+Contents
+
+
+1 Principles of operation
+2 Standardization issues
+3 Intellectual Property
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Principles of operation
+Sender ID is heavily based on SPF, with only a few additions. This article will mostly discuss just these differences.
+
+They both are TXT records published by the DNS servers of a domain name.
+They both give rules that the owner of this domain name intends to respect in all headers of his genuinely sent emails.
+They differ on what rules they apply to what fields contained in the message header.
+They both want to be used by some mail clients and web mail servers (and some MTA servers) to distinguish good mail from junk by helping to authenticate the sender.
+
+Syntactically, SPF and Sender ID are almost identical: Replacing the string v=spf1 in a valid SPF policy by one of...
+
+spf2.0/mfrom
+spf2.0/mfrom,pra
+spf2.0/pra,mfrom
+spf2.0/pra
+
+...yields a syntactically valid Sender ID policy, and vice versa. The evaluation of SPF and Sender ID policies follows the same general rules. The core Sender ID specification has a normative reference to the SPF specification and thereby inherits exactly the same error handling, the same processing limits, and the same syntax details as SPF.
+Semantically, there are only two differences: Sender ID offers the feature of positional modifiers not supported in SPF. In practice, so far no positional modifier has been specified— let alone supported—in any Sender ID implementation.
+Except for this detail, spf2.0/mfrom is semantically the same as SPF: mfrom stands for MAIL FROM, the checked identity in SPF. Because SPF is more widely deployed than the later proposed spf2.0/mfrom, publishers of sender policies wishing to protect their address in MAIL FROM Return-Paths generally prefer the classic v=spf1 format.
+Both spf2.0/mfrom,pra and spf2.0/pra,mfrom have the same meaning, they introduce a policy that can be used to check the mfrom as well as the pra identity.
+Last but not least, spf2.0/pra introduces policies checked only with the pra identity. At this time it is not specified how SPF's %{h} macro for the HELO identity should be handled in pra checks, Sender ID implementations could handle it as syntax error.
+The Purported Responsible Address or pra is determined by a tricky evaluation of the four mail header fields...
+
+From
+Sender
+Resent-From
+Resent-Sender
+
+...finally resulting either in one address—the pra—or an error for illegal combinations as explained in RFC 2822. Simplified, the rules are: Sender beats From and Resent-* beats Sender. Note that it's illegal to have more than one From-address without a single Sender-address.
+This pra scheme has the theoretical advantage of dealing with addresses in header fields that are often displayed by MUAs (Mail User Agents), unlike SPF's Return-Path header field or mfrom in Sender ID terminology.
+In practice, the pra scheme usually only offers protection when the email is legitimate, while offering no real protection in the case of spam or phishing. The pra for most legitimate email will be either the familiar From: header field, or, in the case of mailing lists, the Sender: header field. In the case of phishing or spam, however, the pra may be based on Resent-* header fields that are often not displayed to the user. To be an effective anti-phishing tool, the MUA will need to be modified to display either the pra for Sender ID, or the Return-Path: header field for SPF.
+The pra tries to counter the problem of phishing, while SPF or mfrom tries to counter the problem of spam bounces and other auto-replies to forged Return-Paths. Two different problems with two different proposed solutions.
+
+[edit] Standardization issues
+The pra has the disadvantage that forwarders and mailing lists can only support it by modifying the mail header, e.g. insert a Sender or Resent-Sender. The latter violates RFC 2822 and can be incompatible with RFC 822.
+With SPF, mailing lists continue to work as is. Forwarders wishing to support SPF only need to modify SMTP MAIL FROM and RCPT TO, not the mail. That's no new concept; with the original RFC 821 SMTP forwarders always added their host name to the reverse path in the MAIL FROM.
+The most problematic point in the core Sender ID specification is its recommendation to interpret v=spf1 policies like spf2.0/mfrom,pra instead of spf2.0/mfrom.
+This was never intended by all published SPF drafts since 2003, and for an unknown large number of v=spf1 policies an evaluation for pra could cause bogus results for many cases where pra and mfrom are different.
+This technical problem — in fact only four characters ,pra in the core Sender ID specification — was the base of an appeal to the Internet Architecture Board (IAB). In response to another prior appeal the IESG already noted that Sender ID cannot advance on the IETF standards track without addressing the incompatibility with a MUST in RFC 2822.
+
+[edit] Intellectual Property
+The Sender ID proposal was the subject of controversy regarding intellectual property licensing issues: Microsoft holds patents[citation needed] on key parts of Sender ID and used to license those patents under terms that were not compatible with the GNU General Public License and which were considered problematic for free software implementations in general. On October 23, 2006, Microsoft placed those patents under the Open Specification Promise, which is compatible with free and open source licenses, but not with the most recent version of the GPL license, version 3.x.
+
+[edit] See also
+
+Category:E-mail authentication
+E-mail authentication overview
+MARID (IETF WG in 2004)
+DomainKeys
+
+
+[edit] External links
+
+Sender ID Framework Microsoft Corporation
+http://www.microsoft.com/senderid " SIDF resources and tools including SPF wizard.
+ASF Position Regarding Sender ID statement from the Apache Software Foundation
+IAB appeal about Sender ID's reuse of v=spf1 for PRA from the SPF project (2006).
+Debian project unable to deploy Sender ID statement by the Debian project
+IETF Decides on SPF / Sender-ID issue coverage and discussion on slashdot
+Is Sender ID Dead in the Water? - No MARID Working Group Consensus coverage and discussion on groklaw
+MARID Co-Chairs Clarify Consensus Statement
+MARID to close mailing list thread.
+Sender ID: A Tale of Open Standards and Corporate Greed?
+Use Sender ID or we'll junk you, says Microsoft Hotmail and MSN to 'Junk' mail without Sender ID
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Sender_ID"
+Categories: E-mail authentication | Spam filtering | MicrosoftHidden categories: All articles with unsourced statements | Articles with unsourced statements since April 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+Português
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 December 2008, at 17:49.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

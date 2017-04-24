@@ -1,0 +1,471 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Digest access authentication - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Digest_access_authentication";
+		var wgTitle = "Digest access authentication";
+		var wgAction = "view";
+		var wgArticleId = "1381205";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 286725992;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Digest access authentication
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (December 2008)
+
+
+
+
+HTTP
+
+
+Persistence · Compression · SSL
+
+
+Headers
+
+
+ETag · Cookie · Referrer
+
+
+Status codes
+
+
+301 Moved permanently
+
+
+302 Found
+
+
+303 See Other
+
+
+403 Forbidden
+
+
+404 Not Found
+
+
+
+This box: view • talk • edit
+
+
+
+HTTP Digest access authentication is one of the agreed methods a web server can use to negotiate credentials with a web user (using the HTTP protocol). Digest authentication is intended to supersede unencrypted use of the Basic access authentication, allowing user identity to be established securely without having to send a password in plaintext over the network. Digest authentication is basically an application of MD5 cryptographic hashing with usage of nonce values to prevent cryptanalysis.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Impact of MD5 security on Digest authentication
+3 HTTP Digest Authentication considerations
+
+3.1 Advantages
+3.2 Disadvantages
+3.3 Alternative authentication protocols
+
+
+4 Example with explanation
+5 SIP Digest Authentication
+6 Browser Implementation
+7 References
+8 See also
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+Digest access authentication was originally specified by RFC 2069 (An Extension to HTTP: Digest Access Authentication). RFC 2069 specifies roughly a traditional digest authentication scheme with security maintained by a server-generated nonce value.
+
+
+
+RFC 2069 was later replaced by RFC 2617 (HTTP Authentication: Basic and Digest Access Authentication). RFC 2617 introduced a number of optional security enhancements to Digest Authentication; "Quality of Protection" (qop), nonce counter incremented by client, and a client generated random nonce. These enhancements are designed to protect against e.g. chosen-plaintext attack cryptanalysis.
+
+If the qop directive's value is "auth" or is unspecified, then HA2 is
+
+If the qop directive's value is "auth-int" , then HA2 is
+
+If the qop directive's value is "auth" or "auth-int" , then compute the response as follows:
+
+If the qop directive is unspecified, compute the response as in the earlier RFC 2069 standard as discussed above.
+
+[edit] Impact of MD5 security on Digest authentication
+The MD5 calculations used in HTTP Digest Authentication is intended to be "one way", meaning that it should be difficult to determine the original input when only the output is known. If the password itself is too simple, however, then it may be possible to test all possible inputs and find a matching output (a brute force attack) – perhaps aided by a dictionary or suitable look-up list. For the most security, users should use long, non-trivial passwords - however this is not ideal since it is an inconvenience on the user-side.
+The HTTP scheme was designed at CERN in 1993 and does not incorporate subsequent improvements in authentication systems, such as the development of keyed-hash message authentication code (HMAC). Although the cryptographic construction that is used is based on the MD5 hash function, collision attacks were in 2004 generally believed (e.g. Hash collision news) to not affect applications where the plaintext (i.e. password) is not known. However, claims in 2006 (Kim, Biryukov2, Preneel, Hong On the Security of HMAC and NMAC Based on HAVAL MD4 MD5 SHA-0 and SHA-1) cause some doubt over other MD5 applications as well. However, so far MD5 collision attacks have not been shown to pose a threat to Digest Authentication, and the RFC 2617 allows servers to implement mechanisms to detect some collision and replay attacks.
+One consequence of Digest authentication design is that the server must know the password (i.e. store it in plain text) or store the same HA1 (MD5) hash that is used to calculate the client's response (see example , below). This means that if the password database at a site is compromised the attacker will be able to impersonate any user whose access credentials are stolen. Such a compromise should not affect other sites if the MD5 hash is stored rather than the password, because the realm information is used as a salt. Unfortunately the scheme prevents use of different salts being used for each individual password held on the server.
+
+[edit] HTTP Digest Authentication considerations
+
+[edit] Advantages
+HTTP Digest authentication is designed to be more secure than traditional digest authentication schemes; "significantly stronger than (e.g.) CRAM-MD5 ..." (RFC2617).
+Some of the security strengths of HTTP Digest authentication is:
+
+The password is not used directly in the digest, but rather HA1 = MD5(username:realm:password). This allows some implementations (e.g. JBoss DIGESTAuth) to store HA1 rather than the clear text password.
+Client nonce was introduced in RFC2617, which allows the client to prevent chosen plaintext attacks (which otherwise makes e.g. rainbow tables a threat to digest authentication schemes).
+Server nonce is allowed to contain timestamps. Therefore the server may inspect nonce attributes submitted by clients, to prevent replay attacks.
+Server is also allowed to maintain a list of recently issued or used server nonce values to prevent reuse.
+
+
+[edit] Disadvantages
+Digest access authentication is intended as a security trade-off; it is intended to replace unencrypted HTTP Basic access authentication which is extremely weak. However it is not intended to replace strong authentication protocols, such as Public key or Kerberos authentication.
+Security wise, there are several drawbacks with Digest access authentication:
+
+Many of the security options in RFC2617 are optional. If quality-of-protection (qop) is not specified by server, the client will operate in a security reduced legacy RFC2069 mode.
+Digest access authentication is vulnerable to Man-in-the-middle attack; a MitM attacker could tell clients to use Basic access authentication or legacy RFC2069 Digest access authentication mode.
+Internet Explorer 5 may be incompatible with other digest access authentication implementations.[1]
+
+
+[edit] Alternative authentication protocols
+Some strong authentication protocols for web based applications include:
+
+Public key authentication (usually implemented with HTTPS / SSL Client Certificates)
+Kerberos or SPNEGO authentication, primarily employed by Microsoft IIS running configured for "Integrated Windows Authentication".
+
+Weak cleartext protocols are also often in use:
+
+Basic access authentication scheme
+HTTP+HTML Form based authentication
+
+These weak cleartext protocols used together with HTTPS network encryption resolve many of the threats that Digest access authentication protocol is designed to prevent.
+
+[edit] Example with explanation
+
+Warning: Please refer to the original specifications for a more comprehensive discussion of security issues.
+
+The following example was originally given in RFC 2617 and is expanded here to show the full text expected for each request and response. Note that only the "auth" (authentication) quality of protection code is covered – at the time of writing only the Opera and Konqueror web browsers are known to support "auth-int" (authentication with integrity protection). Although the specification mentions HTTP version 1.1 the scheme can be successfully added to a version 1.0 server, as shown here.
+This typical transaction consists of the following steps.
+
+The client asks for a page that requires authentication but does not provide a user name and password. Typically this is because the user simply entered the address or followed a link to the page.
+The server responds with the 401 response code, providing the authentication realm and a randomly-generated, single-use value called a nonce.
+At this point, the client will present the authentication realm (typically a description of the computer or system being accessed) to the user and prompt for a user name and password. The user may decide to cancel at this point.
+Once a user name and password have been supplied, the client re-sends the same request but adds an authentication header that includes the response code.
+In this example, the server accepts the authentication and the page is returned. If the user name is invalid and/or the password is incorrect, the server might return the "401" response code and the client would prompt the user again.
+
+Note: A client may already have the required user name and password without needing to prompt the user, e.g. if they have previously been stored by a web browser.
+
+Client request (no authentication):
+
+GET /dir/index.html HTTP/1.0
+Host: localhost
+
+(followed by a new line, in the form of a carriage return followed by a line feed).
+Server response:
+
+HTTP/1.0 401 Unauthorised
+Server: HTTPd/0.9
+Date: Sun, 10 Apr 2005 20:26:47 GMT
+WWW-Authenticate: Digest realm="testrealm@host.com",
+                         qop="auth,auth-int",
+                         nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093",
+                         opaque="5ccc069c403ebaf9f0171e9517f40e41"
+Content-Type: text/html
+Content-Length: 311
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML>
+  <HEAD>
+    <TITLE>Error</TITLE>
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+  </HEAD>
+  <BODY><H1>401 Unauthorised.</H1></BODY>
+</HTML>
+
+Client request (user name "Mufasa", password "Circle Of Life"):
+
+GET /dir/index.html HTTP/1.0
+Host: localhost
+Authorization: Digest username="Mufasa",
+                      realm="testrealm@host.com",
+                      nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093",
+                      uri="/dir/index.html",
+                      qop=auth,
+                      nc=00000001,
+                      cnonce="0a4f113b",
+                      response="6629fae49393a05397450978507c4ef1",
+                      opaque="5ccc069c403ebaf9f0171e9517f40e41"
+
+(followed by a blank line, as before).
+Server response:
+
+HTTP/1.0 200 OK
+Server: HTTPd/0.9
+Date: Sun, 10 Apr 2005 20:27:03 GMT
+Content-Type: text/html
+Content-Length: 7984
+
+(followed by a blank line and HTML text of the restricted page).
+
+The "response" value is calculated in three steps, as follows. Where values are combined, they are delimited by colon symbols.
+
+The MD5 hash of the combined user name, authentication realm and password is calculated. The result is referred to as HA1.
+The MD5 hash of the combined method and digest URI is calculated, e.g. of "GET" and "/dir/index.html". The result is referred to as HA2.
+The MD5 hash of the combined HA1 result, server nonce (nonce), request counter (nc), client nonce (cnonce), quality of protection code (qop) and HA2 result is calculated. The result is the "response" value provided by the client.
+
+Since the server has the same information as the client, the response can be checked by performing the same calculation. In the example given above the result is formed as follows – where MD5() represents a function used to calculate an MD5 hash, backslashes represent a continuation and the quotes shown are not used in the calculation.
+Completing the example given in RFC 2617 gives the following results for each step.
+
+    HA1 = MD5( "Mufasa:testrealm@host.com:Circle Of Life" )
+        = 939e7578ed9e3c518a452acee763bce9
+
+    HA2 = MD5( "GET:/dir/index.html" )
+        = 39aff3a2bab6126f332b942af96d3366
+
+    Response = MD5( "939e7578ed9e3c518a452acee763bce9:\
+                     dcd98b7102dd2f0e8b11d0f600bfb0c093:\
+                     00000001:0a4f113b:auth:\
+                     39aff3a2bab6126f332b942af96d3366" )
+             = 6629fae49393a05397450978507c4ef1
+
+At this point the client may make another request, reusing the server nonce value (the server only issues a new nonce for each "401" response) but providing a new client nonce (cnonce). For subsequent requests, the hexadecimal request counter (nc) must be greater than the last value it used – otherwise an attacker could simply "replay" an old request with the same credentials. It is up to the server to ensure that the counter increases for each of the nonce values that it has issued, rejecting any bad requests appropriately. Obviously changing the method, URI and/or counter value will result in a different response value.
+The server should remember nonce values that it has recently generated. It may also remember when each nonce value was issued, expiring them after a certain amount of time. If an expired value is used, the server should respond with the "401" status code and add stale=TRUE to the authentication header – indicating that the client should re-send with the new nonce provided, without prompting the user for another user name and password.
+The server does not need to keep any expired nonce values – it can simply assume that any unrecognised values have expired. It is also possible for the server to only allow each nonce value to be returned once, although this forces the client to repeat every request. Note that expiring a server nonce immediately will not work, as the client would never get a chance to use it.
+
+[edit] SIP Digest Authentication
+SIP uses basically the same digest authentication algorithm. It is specified by RFC 3261.
+
+[edit] Browser Implementation
+Browsers that have fully implemented the spec:
+
+Amaya
+Gecko-based:
+
+Mozilla Application Suite
+Mozilla Firefox
+Netscape 7+
+
+
+KHTML- and WebKit-based:
+
+Konqueror
+Google Chrome
+Safari
+
+
+Tasman-based:
+
+Internet Explorer for Mac
+
+
+Trident-based:
+
+Internet Explorer 7+ [1]
+
+
+Presto-based:
+
+Opera
+Opera Mobile
+Opera Mini
+Nintendo DS Browser
+Nokia 770 Browser
+Sony Mylo 1's Browser
+Wii Internet Channel Browser
+
+
+
+A 2002 analysis by eWeek Labs concluded that Internet Explorer Version 5 and Version 6 implements digest authentication in a way that does not comply with RFC 2617. As a result, these versions of Internet Explorer cannot be used as a web client for a server that complies with the digest authentication standard.[1]
+
+[edit] References
+
+^ a b Dyck, Timothy (2002-03-18). "IE, Apache Clash on Web Standard". eweek. http://www.eweek.com/c/a/Past-Reviews/IE-Apache-Clash-on-Web-Standard/. Retrieved on 2008-06-10. 
+
+
+[edit] See also
+
+AKA (security)
+Basic access authentication
+
+
+[edit] External links
+
+RFC 2617
+RFC 2069 (obsolete)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Digest_access_authentication"
+Categories: Cryptographic protocols | HTTP | Request for CommentsHidden categories: Articles needing additional references from December 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 28 April 2009, at 21:24 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

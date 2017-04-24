@@ -1,0 +1,320 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Duff's device - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Duff\'s_device";
+		var wgTitle = "Duff\'s device";
+		var wgAction = "view";
+		var wgArticleId = "456753";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 275805578;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-c {line-height: normal;}
+.source-c li, .source-c pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for c
+ * CSS class: source-c, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-c .de1, .source-c .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-c  {}
+.source-c .head {}
+.source-c .foot {}
+.source-c .imp {font-weight: bold; color: red;}
+.source-c .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-c li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-c li.li2 {font-weight: bold;}
+.source-c .kw1 {color: #b1b100;}
+.source-c .kw2 {color: #000000; font-weight: bold;}
+.source-c .kw3 {color: #000066;}
+.source-c .kw4 {color: #993333;}
+.source-c .co1 {color: #808080; font-style: italic;}
+.source-c .co2 {color: #339933;}
+.source-c .coMULTI {color: #808080; font-style: italic;}
+.source-c .es0 {color: #000099; font-weight: bold;}
+.source-c .br0 {color: #66cc66;}
+.source-c .st0 {color: #ff0000;}
+.source-c .nu0 {color: #cc66cc;}
+.source-c .me1 {color: #202020;}
+.source-c .me2 {color: #202020;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Duff's device
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, Duff's device is an optimized implementation of a serial copy that uses a technique widely applied in assembly language for loop unwinding. Its discovery is credited to Tom Duff in November of 1983, who at the time was working for Lucasfilm. It is perhaps the most dramatic use of case label fall-through in the C programming language to date. Duff does not claim credit for discovering the concept of loop unrolling, just this particular expression of it in C.
+
+
+
+
+Contents
+
+
+1 Original version
+2 Stroustrup's version
+3 Books
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Original version
+Traditionally, a serial copy would look like:
+
+
+do {                          /* count > 0 assumed */
+    *to = *from++;            /* Note that the ''to'' pointer is NOT incremented */
+} while (--count > 0);
+
+Note that to is not incremented because Duff was copying to a single memory-mapped output register. In modern C this would be communicated by the use of the volatile keyword as a qualifier in the declaration of the pointer to.
+While optimizing this, Duff realized that an unrolled version of his loop could be implemented by interlacing the structures of a switch and a loop.
+
+
+dsend(to, from, count)
+char *to, *from;
+int count;
+{
+    int n = (count + 7) / 8;
+    switch (count % 8) {
+    case 0: do { *to = *from++;
+    case 7:      *to = *from++;
+    case 6:      *to = *from++;
+    case 5:      *to = *from++;
+    case 4:      *to = *from++;
+    case 3:      *to = *from++;
+    case 2:      *to = *from++;
+    case 1:      *to = *from++;
+               } while (--n > 0);
+    }
+}
+
+Based on an algorithm used widely by programmers coding in assembly for minimizing the number of tests and branches during a copy, Duff's device appears out of place when implemented in C. The device is valid, legal C by virtue of the relaxed specification of the switch statement in the language's definition. At the time of the device's invention this was the first edition of The C Programming Language which requires only that the controlled statement of the switch be a syntactically valid (compound) statement within which case labels can appear prefixing any sub-statement. In conjunction with the fact that, in the absence of a break statement, the flow of control will fall-through from a statement controlled by one case label to that controlled by the next, this means that the code specifies a succession of count copies from sequential source addresses to the memory-mapped output port. Note that, as documented in the comment, the code assumes that count is strictly positive.
+Many compilers will optimize the switch into a jump table just as would be done in an assembler implementation. C's default fall-through in case statements has long been its most controversial single feature; Duff observed that "This code forms some sort of argument in that debate, but I'm not sure whether it's for or against."[1]
+The primary increase in speed versus a simple, straightforward loop comes from loop unwinding, which reduces the number of comparisons performed during a loop. The switch/case statement is used to handle the remainder of the data not evenly divisible by the number of operations unrolled (in this example, 8 byte moves are unrolled, so the switch/case handles an extra 1–7 bytes automatically).
+This automatic handling of the remainder may not be the best solution on all systems and compilers — in some cases two loops may actually be faster (one loop, unrolled, to do the main copy, and a second loop to handle the remainder). The problem appears to come down to the ability of the compiler to correctly optimize the device, it may also interfere with pipelining and branch prediction on some architectures.[2] When numerous instances of Duff's device were removed from the XFree86 Server in version 4.0, there was a notable improvement in performance.[3] Therefore, when considering using this code, it may be worth running a few benchmarks to verify that it actually is the fastest code on the target architecture, at the target optimization level, with the target compiler.
+
+[edit] Stroustrup's version
+The original Device was made for copying to a register. To actually copy memory from one location to another, you must add an auto-increment to every reference to to, like so:
+
+ *to++ = *from++;
+
+This modified form of the Device appears as a "what does this code do?" exercise in Bjarne Stroustrup's book The C++ Programming Language, presumably because novice programmers cannot be expected to know about memory-mapped output registers. However, the standard C library provides the function memcpy for this purpose; it will not perform worse than this code, and may contain architecture specific optimisations that will make it significantly faster.
+
+[edit] Books
+
+Stroustrup, Bjarne, The C++ Programming Language, Third Edition. Addison-Wesley, ISBN 0-201-88954-4
+Kernighan, Brian and Dennis Ritchie, The C Programming Language.
+
+
+[edit] References
+
+^ Duff's device from FOLDOC
+^ James Ralston's USENIX 2003 Journal
+^ Ted Tso on XFree86 and performance, Linux Kernel Archive ML
+
+This article was originally based on material from the Free On-line Dictionary of Computing, which is licensed under the GFDL.
+
+[edit] External links
+
+Description and original mail by Duff at Lysator
+Article at FOLDOC
+Article at the Jargon File
+Article at CodeMaestro
+Google copy of original USENET post
+Simon Tatham's coroutines in C utilizes the same switch/case trick
+Adam Dunkels' protothreads also uses nested switch/case statements
+A formal correctness proof of Duff's Device in PVS.
+Protothreads - Lightweight, Stackless Threads in C (see also The lightest lightweight threads, Protothreads)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Duff%27s_device"
+Categories: C programming language | Articles with example C codeHidden categories: Wikipedia articles incorporating text from FOLDOC 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+日本語
+Polski
+Русский
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 March 2009, at 13:36.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Page replacement algorithm,Articles with unsourced statements since June 2008,Adaptive Replacement Cache,Adaptive replacement cache,Amortized analysis,Belady&#039;s anomaly,Cache algorithms,Clairvoyance,Computer,Demand paging,FreeBSD" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Page replacement algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Page_replacement_algorithm";
+		var wgTitle = "Page replacement algorithm";
+		var wgAction = "view";
+		var wgArticleId = "727476";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279558307;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Page_replacement_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Page replacement algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<div class="dablink">This article is about algorithms specific to paging.  For outline of general cache algorithms (e.g. processor, disk, database, web), see <a href="/wiki/Cache_algorithms" title="Cache algorithms">Cache algorithms</a>.</div>
+<p>In a <a href="/wiki/Computer" title="Computer">computer</a> <a href="/wiki/Operating_system" title="Operating system">operating system</a> that utilizes <a href="/wiki/Paging" title="Paging">paging</a> for <a href="/wiki/Virtual_memory" title="Virtual memory">virtual memory</a> <a href="/wiki/Memory_management" title="Memory management">memory management</a>, <b>page replacement algorithms</b> decide which memory pages to page out (swap out, write to disk) when a page of memory needs to be allocated. Paging happens when a <a href="/wiki/Page_fault" title="Page fault">page fault</a> occurs and a free page cannot be used to satisfy the allocation, either because there are none, or because the number of free pages is lower than some threshold.</p>
+<p>When the page that was selected for replacement and paged out is referenced again it has to be paged in (read in from disk), and this involves waiting for I/O completion. This determines the <i>quality</i> of the page replacement algorithm: the less time waiting for page-ins, the better the algorithm. A page replacement algorithm looks at the limited information about accesses to the pages provided by hardware, and tries to guess which pages should be replaced to minimize the total number of page misses, while balancing this with the costs (primary storage and processor time) of the algorithm itself.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#History"><span class="tocnumber">1</span> <span class="toctext">History</span></a></li>
+<li class="toclevel-1"><a href="#Local_vs._global_replacement"><span class="tocnumber">2</span> <span class="toctext">Local vs. global replacement</span></a></li>
+<li class="toclevel-1"><a href="#Precleaning"><span class="tocnumber">3</span> <span class="toctext">Precleaning</span></a></li>
+<li class="toclevel-1"><a href="#Anticipatory_paging"><span class="tocnumber">4</span> <span class="toctext">Anticipatory paging</span></a></li>
+<li class="toclevel-1"><a href="#Page_replacement_algorithms"><span class="tocnumber">5</span> <span class="toctext">Page replacement algorithms</span></a>
+<ul>
+<li class="toclevel-2"><a href="#The_theoretically_optimal_page_replacement_algorithm"><span class="tocnumber">5.1</span> <span class="toctext">The theoretically optimal page replacement algorithm</span></a></li>
+<li class="toclevel-2"><a href="#Not_recently_used"><span class="tocnumber">5.2</span> <span class="toctext">Not recently used</span></a></li>
+<li class="toclevel-2"><a href="#First-in.2C_first-out"><span class="tocnumber">5.3</span> <span class="toctext">First-in, first-out</span></a></li>
+<li class="toclevel-2"><a href="#Second-chance"><span class="tocnumber">5.4</span> <span class="toctext">Second-chance</span></a></li>
+<li class="toclevel-2"><a href="#Clock"><span class="tocnumber">5.5</span> <span class="toctext">Clock</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Variants_on_Clock"><span class="tocnumber">5.5.1</span> <span class="toctext">Variants on Clock</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Least_recently_used"><span class="tocnumber">5.6</span> <span class="toctext">Least recently used</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Variants_on_LRU"><span class="tocnumber">5.6.1</span> <span class="toctext">Variants on LRU</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Random"><span class="tocnumber">5.7</span> <span class="toctext">Random</span></a></li>
+<li class="toclevel-2"><a href="#Not_frequently_used"><span class="tocnumber">5.8</span> <span class="toctext">Not frequently used</span></a></li>
+<li class="toclevel-2"><a href="#Aging"><span class="tocnumber">5.9</span> <span class="toctext">Aging</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Working_Set"><span class="tocnumber">6</span> <span class="toctext">Working Set</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">7</span> <span class="toctext">References</span></a>
+<ul>
+<li class="toclevel-2"><a href="#See_also"><span class="tocnumber">7.1</span> <span class="toctext">See also</span></a></li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="History" id="History"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=1" title="Edit section: History">edit</a>]</span> <span class="mw-headline">History</span></h2>
+<p>Page replacement algorithms were a hot topic of research and debate in the 1960s and 1970s. That mostly ended with the development of sophisticated LRU approximations and working set algorithms. Since then, some basic assumptions made by the traditional page replacement algorithms were invalidated, resulting in a revival of research. In particular, the following trends in the behavior of underlying hardware and user-level software has affected the performance of page replacement algorithms:</p>
+<ul>
+<li>Size of primary storage has increased by multiple orders of magnitude. With several gigabytes of primary memory, algorithms that require a periodic check of each and every memory frame are becoming less and less practical.</li>
+</ul>
+<ul>
+<li>Memory hierarchies have grown taller. The cost of a CPU cache miss is far more expensive. This exacerbates the previous problem.</li>
+</ul>
+<ul>
+<li><a href="/wiki/Memory_locality" title="Memory locality" class="mw-redirect">Locality of reference</a> of user software has weakened. This is mostly attributed to the spread of <a href="/wiki/Object-oriented_programming" title="Object-oriented programming">object-oriented programming</a> techniques that favor large numbers of small functions, use of sophisticated data structures like <a href="/wiki/Tree_data_structure" title="Tree data structure" class="mw-redirect">trees</a> and <a href="/wiki/Hash_table" title="Hash table">hash tables</a> that tend to result in chaotic memory reference patterns, and the advent of <a href="/wiki/Garbage_collection_(computer_science)" title="Garbage collection (computer science)">garbage collection</a> that drastically changed memory access behavior of applications.</li>
+</ul>
+<p>Requirements for page replacement algorithms have changed due to differences in operating system <a href="/wiki/Kernel_(computer_science)" title="Kernel (computer science)" class="mw-redirect">kernel</a> architectures. In particular, most modern OS kernels have unified virtual memory and file system caches, requiring the page replacement algorithm to select a page from among the pages of both user program virtual address spaces and cached files. The latter pages have specific properties. For example, they can be locked, or can have write ordering requirements imposed by <a href="/wiki/Journaling_file_system" title="Journaling file system">journaling</a>. Moreover, as the goal of page replacement is to minimize total time waiting for memory, it has to take into account memory requirements imposed by other kernel sub-systems that allocate memory. As a result, page replacement in modern kernels (<a href="/wiki/Linux" title="Linux">Linux</a>, <a href="/wiki/FreeBSD" title="FreeBSD">FreeBSD</a>, and <a href="/wiki/Solaris_(operating_system)" title="Solaris (operating system)">Solaris</a>) tends to work at the level of a general purpose kernel memory allocator, rather than at the higher level of a virtual memory subsystem.</p>
+<p><a name="Local_vs._global_replacement" id="Local_vs._global_replacement"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=2" title="Edit section: Local vs. global replacement">edit</a>]</span> <span class="mw-headline">Local vs. global replacement</span></h2>
+<p>Replacement algorithms can be <i>local</i> or <i>global</i>.</p>
+<p>When a process incurs a page fault, a local page replacement algorithm selects for replacement some page that belongs to that same process (or a group of processes sharing a memory partition). A global replacement algorithm is free to select any page in memory.</p>
+<p>Local page replacement assumes some form of memory partitioning that determines how many pages are to be assigned to a given process or a group of processes. Most popular forms of partitioning are <i>fixed partitioning</i> and <i>balanced set</i> algorithms based on the <a href="/wiki/Working_set" title="Working set">working set</a> model. The advantage of local page replacement is its scalability: each process can handle its page faults independently without contending for some shared global data structure.</p>
+<p><a name="Precleaning" id="Precleaning"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=3" title="Edit section: Precleaning">edit</a>]</span> <span class="mw-headline">Precleaning</span></h2>
+<p>Most replacement algorithms simply return the target page as their result. This means that if target page is <i>dirty</i> (that is, contains data that have to be written to the stable storage before page can be reclaimed), I/O has to be initiated to send that page to the stable storage (to <i>clean</i> the page). In the early days of virtual memory, time spent on cleaning was not of much concern, because virtual memory was first implemented on systems with <a href="/wiki/Full_duplex" title="Full duplex" class="mw-redirect">full duplex</a> channels to the stable storage, and cleaning was customarily overlapped with paging. Contemporary commodity hardware, on the other hand, does not support full duplex transfers, and cleaning of target pages becomes an issue.</p>
+<p>To deal with this situation, various <i>precleaning</i> policies are implemented. Precleaning is the mechanism that starts I/O on dirty pages that are (likely) to be replaced soon. The idea is that by the time the precleaned page is actually selected for the replacement, the I/O will complete and the page will be clean. Precleaning assumes that it is possible to identify pages that will be replaced <i>next</i>. Precleaning that is too eager can waste I/O bandwidth by writing pages that manage to get re-dirtied before being selected for replacement.</p>
+<p><a name="Anticipatory_paging" id="Anticipatory_paging"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=4" title="Edit section: Anticipatory paging">edit</a>]</span> <span class="mw-headline">Anticipatory paging</span></h2>
+<table class="metadata plainlinks ambox ambox-move" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Mergefrom.svg" class="image" title="Mergefrom.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Mergefrom.svg/50px-Mergefrom.svg.png" width="50" height="20" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">It has been suggested that <i><a href="/wiki/Paging" title="Paging">paging</a></i> be <a href="/wiki/Wikipedia:Merging_and_moving_pages" title="Wikipedia:Merging and moving pages" class="mw-redirect">merged</a> into this article or section. (<a href="/wiki/Talk:Page_replacement_algorithm" title="Talk:Page replacement algorithm">Discuss</a>)</td>
+</tr>
+</table>
+<p>Some systems use <a href="/wiki/Demand_paging" title="Demand paging">demand paging</a> -- waiting until a page is actually requested before loading it into RAM.</p>
+<p>Other systems attempt to reduce latency by guessing which pages not in RAM are likely to be needed soon, and pre-loading such pages into RAM, before that page is requested. (This is often in combination with pre-cleaning, which guesses which pages currently in RAM are not likely to be needed soon, and pre-writing them out to storage).</p>
+<p>When a page fault occurs, "anticipatory paging" systems will not only bring in the referenced page, but also the next few consecutive pages (analogous to a <a href="/wiki/Prefetch_input_queue" title="Prefetch input queue">prefetch input queue</a> in a CPU).</p>
+<p>The <a href="/wiki/Paging#Swapping_in_Linux" title="Paging">swap prefetch</a> mechanism goes even further in loading pages (even if they are not consecutive) that are likely to be needed soon.</p>
+<p><a name="Page_replacement_algorithms" id="Page_replacement_algorithms"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=5" title="Edit section: Page replacement algorithms">edit</a>]</span> <span class="mw-headline">Page replacement algorithms</span></h2>
+<p>There are a variety of page replacement algorithms <sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup>:</p>
+<p><a name="The_theoretically_optimal_page_replacement_algorithm" id="The_theoretically_optimal_page_replacement_algorithm"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=6" title="Edit section: The theoretically optimal page replacement algorithm">edit</a>]</span> <span class="mw-headline">The theoretically optimal page replacement algorithm</span></h3>
+<p>The theoretically optimal page replacement algorithm (also known as OPT or <a href="/wiki/Clairvoyance" title="Clairvoyance">clairvoyant</a> replacement algorithm, or <a href="/wiki/Laszlo_Belady" title="Laszlo Belady">Belady's</a> optimal page replacement policy)<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup><sup id="cite_ref-2" class="reference"><a href="#cite_note-2" title=""><span>[</span>3<span>]</span></a></sup><sup id="cite_ref-3" class="reference"><a href="#cite_note-3" title=""><span>[</span>4<span>]</span></a></sup> is an algorithm that works as follows: when a page needs to be swapped in, the <a href="/wiki/Operating_system" title="Operating system">operating system</a> swaps out the page whose next use will occur farthest in the future. For example, a page that is not going to be used for the next 6 seconds will be swapped out over a page that is going to be used within the next 0.4 seconds.</p>
+<p>This algorithm cannot be implemented in the general purpose operating system because it is impossible to compute reliably how long it will be before a page is going to be used, except when all software that will run on a system is either known beforehand and is amenable to the static analysis of its memory reference patterns, or only a class of applications allowing run-time analysis is allowed. Despite this limitation, algorithms exist<sup class="noprint Template-Fact"><span title="This claim needs references to reliable sources&#160;since June 2008" style="white-space: nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</span></sup> that can offer near-optimal performance — the operating system keeps track of all pages referenced by the program, and it uses those data to decide which pages to swap in and out on subsequent runs. This algorithm can offer near-optimal performance, but not on the first run of a program, and only if the program's memory reference pattern is relatively consistent each time it runs.</p>
+<p>Analysis of the paging problem has also been done in the field of <a href="/wiki/Online_algorithm" title="Online algorithm">online algorithms</a>. Efficiency of randomized online algorithms for the paging problem is measured using <a href="/wiki/Amortized_analysis" title="Amortized analysis">amortized analysis</a>.</p>
+<p><a name="Not_recently_used" id="Not_recently_used"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=7" title="Edit section: Not recently used">edit</a>]</span> <span class="mw-headline">Not recently used</span></h3>
+<p>The not recently used (NRU) page replacement algorithm is an algorithm that favours keeping pages in memory that have been recently used. This algorithm works on the following principle: when a page is referenced, a referenced bit is set for that page, marking it as referenced. Similarly, when a page is modified (written to), a modified bit is set. The setting of the bits is usually done by the hardware, although it is possible to do so on the software level as well.</p>
+<p>At a certain fixed time interval, the clock interrupt triggers and clears the referenced bit of all the pages, so only pages referenced within the current clock interval are marked with a referenced bit. When a page needs to be replaced, the <a href="/wiki/Operating_system" title="Operating system">operating system</a> divides the pages into four classes:</p>
+<ul>
+<li>Class 0: not referenced, not modified</li>
+<li>Class 1: not referenced, modified</li>
+<li>Class 2: referenced, not modified</li>
+<li>Class 3: referenced, modified</li>
+</ul>
+<p>Although it does not seem possible for a page to be not referenced yet modified, this happens when a class 3 page has its referenced bit cleared by the clock interrupt. The NRU algorithm picks a random page from the lowest category for removal. Note that this algorithm implies that a referenced page is more important than a modified page.</p>
+<p><a name="First-in.2C_first-out" id="First-in.2C_first-out"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=8" title="Edit section: First-in, first-out">edit</a>]</span> <span class="mw-headline">First-in, first-out</span></h3>
+<p>The first-in, first-out (FIFO) page replacement algorithm is a low-overhead algorithm that requires little book-keeping on the part of the <a href="/wiki/Operating_system" title="Operating system">operating system</a>. The idea is obvious from the name - the operating system keeps track of all the pages in memory in a queue, with the most recent arrival at the back, and the earliest arrival in front. When a page needs to be replaced, the page at the front of the queue (the oldest page) is selected. While FIFO is cheap and intuitive, it performs poorly in practical application. Thus, it is rarely used in its unmodified form. This algorithm experiences <a href="/wiki/Belady%27s_anomaly" title="Belady's anomaly">Belady's anomaly</a>.</p>
+<p>FIFO page replacement algorithm is used by the <a href="/wiki/VAX/VMS" title="VAX/VMS" class="mw-redirect">VAX/VMS</a> operating system, with some modifications.<sup id="cite_ref-Silber_4-0" class="reference"><a href="#cite_note-Silber-4" title=""><span>[</span>5<span>]</span></a></sup> Partial second chance is provided by skipping a limited number of entries with valid translation table references <a href="http://mx.isti.cnr.it/cgi-bin/conan?key=Sys_Parameters~TBSKIPWSL&amp;title=VMS%20Help&amp;referer=" class="external autonumber" title="http://mx.isti.cnr.it/cgi-bin/conan?key=Sys_Parameters~TBSKIPWSL&amp;title=VMS%20Help&amp;referer=" rel="nofollow">[3]</a>, and additionally, pages are displaced from process working set to a systemwide pool from which they can be recovered if not already re-used.</p>
+<p><a name="Second-chance" id="Second-chance"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=9" title="Edit section: Second-chance">edit</a>]</span> <span class="mw-headline">Second-chance</span></h3>
+<p>A modified form of the FIFO page replacement algorithm, known as the Second-chance page replacement algorithm, fares relatively better than FIFO at little cost for the improvement. It works by looking at the front of the queue as FIFO does, but instead of immediately paging out that page, it checks to see if its referenced bit is set. If it is not set, the page is swapped out. Otherwise, the referenced bit is cleared, the page is inserted at the back of the queue (as if it were a new page) and this process is repeated. This can also be thought of as a circular queue. If all the pages have their referenced bit set, on the second encounter of the first page in the list, that page will be swapped out, as it now has its referenced bit cleared.</p>
+<p>As its name suggests, Second-chance gives every page a "second-chance" - an old page that has been referenced is probably in use, and should not be swapped out over a new page that has not been referenced.</p>
+<p><a name="Clock" id="Clock"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=10" title="Edit section: Clock">edit</a>]</span> <span class="mw-headline">Clock</span></h3>
+<p>Clock is a more efficient version of FIFO than Second-chance because pages don't have to be constantly pushed to the back of the list, but it performs the same general function as Second-Chance. The clock algorithm keeps a circular list of pages in memory, with the "hand" (iterator) pointing to the oldest page in the list. When a page fault occurs and no empty frames exist, then the R (referenced) bit is inspected at the hand's location. If R is 0, the new page is put in place of the page the "hand" points to, otherwise the R bit is cleared. Then, the clock hand is incremented and the process is repeated until a page is replaced. <sup id="cite_ref-Tanenbaum_5-0" class="reference"><a href="#cite_note-Tanenbaum-5" title=""><span>[</span>6<span>]</span></a></sup></p>
+<p><a name="Variants_on_Clock" id="Variants_on_Clock"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=11" title="Edit section: Variants on Clock">edit</a>]</span> <span class="mw-headline">Variants on Clock</span></h4>
+<ul>
+<li>Clock-Pro keeps a circular list of information about recently-referenced pages, including all M pages in memory as well as the most recent M pages that have been paged out. This extra information on paged-out pages, like the similar information maintained by <a href="/wiki/Adaptive_replacement_cache" title="Adaptive replacement cache">ARC</a>, helps it work better than LRU on large loops and one-time scans<sup id="cite_ref-6" class="reference"><a href="#cite_note-6" title=""><span>[</span>7<span>]</span></a></sup>.</li>
+<li>WSclock<sup id="cite_ref-7" class="reference"><a href="#cite_note-7" title=""><span>[</span>8<span>]</span></a></sup>. The "aging" algorithm and the "WSClock" algorithm are probably the most important page replacement algorithms in practice.<sup id="cite_ref-8" class="reference"><a href="#cite_note-8" title=""><span>[</span>9<span>]</span></a></sup><sup id="cite_ref-9" class="reference"><a href="#cite_note-9" title=""><span>[</span>10<span>]</span></a></sup></li>
+</ul>
+<p><a name="Least_recently_used" id="Least_recently_used"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=12" title="Edit section: Least recently used">edit</a>]</span> <span class="mw-headline">Least recently used</span></h3>
+<p>The least recently used page (LRU) replacement algorithm, though similar in name to NRU, differs in the fact that LRU keeps track of page usage over a short period of time, while NRU just looks at the usage in the last clock interval. LRU works on the idea that pages that have been most heavily used in the past few instructions are most likely to be used heavily in the next few instructions too. While LRU can provide near-optimal performance in theory (almost as good as <a href="/wiki/Adaptive_Replacement_Cache" title="Adaptive Replacement Cache" class="mw-redirect">Adaptive Replacement Cache</a>), it is rather expensive to implement in practice. There are a few implementation methods for this algorithm that try to reduce the cost yet keep as much of the performance as possible.</p>
+<p>The most expensive method is the linked list method, which uses a linked list containing all the pages in memory. At the back of this list is the least recently used page, and at the front is the most recently used page. The cost of this implementation lies in the fact that items in the list will have to be moved about every memory reference, which is a very time-consuming process.</p>
+<p>Another method that requires hardware support is as follows: suppose the hardware has a 64-bit counter that is incremented at every instruction. Whenever a page is accessed, it gains a value equal to the counter at the time of page access. Whenever a page needs to be replaced, the <a href="/wiki/Operating_system" title="Operating system">operating system</a> selects the page with the lowest counter and swaps it out. With present hardware, this is not feasible because the required hardware counters do not exist.</p>
+<p>Because of implementation costs, one may consider algorithms (like those that follow) that are similar to LRU, but which offer cheaper implementations.</p>
+<p>One important advantage of LRU algorithm is that it is amenable to full statistical analysis. It has been proved, for example, that LRU can never result in more than N-times more page faults than OPT algorithm, where N is proportional to the number of pages in the managed pool.</p>
+<p>On the other hand, LRU's weakness is that its performance tends to degenerate under many quite common reference patterns. For example, if there are N pages in the LRU pool, an application executing a loop over array of N + 1 pages will cause a page fault on each and every access. As loops over large arrays are common, much effort has been put into modifying LRU to work better in such situations. Many of the proposed LRU modifications try to detect looping reference patterns and to switch into suitable replacement algorithm, like Most Recently Used (MRU).</p>
+<p><a name="Variants_on_LRU" id="Variants_on_LRU"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=13" title="Edit section: Variants on LRU">edit</a>]</span> <span class="mw-headline">Variants on LRU</span></h4>
+<ol>
+<li><a href="http://www.ics.forth.gr/dcs/Activities/papers/2000.WCW.caching_search.pdf" class="external text" title="http://www.ics.forth.gr/dcs/Activities/papers/2000.WCW.caching_search.pdf" rel="nofollow">LRU-K</a> improves greatly on LRU with regard to locality in time. It's also known as LRU-2, for the case that K=2. LRU-1 (i.e. K=1) is the same as normal LRU.</li>
+</ol>
+<ol>
+<li>The <a href="/wiki/Adaptive_Replacement_Cache" title="Adaptive Replacement Cache" class="mw-redirect">ARC</a><sup id="cite_ref-10" class="reference"><a href="#cite_note-10" title=""><span>[</span>11<span>]</span></a></sup> algorithm extends LRU by maintaining a history of recently evicted pages and uses this to change preference to recent or frequent access. It is particularly resistant to sequential scans.</li>
+</ol>
+<p>A comparison of ARC with other algorithms (LRU,MQ,2Q,LRU-2,LRFU,LIRS) can be found in Megiddo &amp; Modha<sup id="cite_ref-11" class="reference"><a href="#cite_note-11" title=""><span>[</span>12<span>]</span></a></sup></p>
+<p><a name="Random" id="Random"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=14" title="Edit section: Random">edit</a>]</span> <span class="mw-headline">Random</span></h3>
+<p>Random replacement algorithm replaces a random page in memory. This eliminates the overhead cost of tracking page references. Usually it fares better than FIFO, and for looping memory references it is better than LRU, although generally LRU performs better in practice. <a href="/wiki/OS/390" title="OS/390">OS/390</a> uses global LRU approximation and falls back to random replacement when LRU performance degenerates, and the <a href="/wiki/Intel_i860" title="Intel i860">Intel i860</a> processor used a random replacement policy (Rhodehamel 1989).</p>
+<p><a name="Not_frequently_used" id="Not_frequently_used"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=15" title="Edit section: Not frequently used">edit</a>]</span> <span class="mw-headline">Not frequently used</span></h3>
+<p>The not frequently used (NFU) page replacement algorithm requires a counter, and every page has one counter of its own which is initially set to 0. At each clock interval, all pages that have been referenced within that interval will have their counter incremented by 1. In effect, the counters keep track of how frequently a page has been used. Thus, the page with the lowest counter can be swapped out when necessary.</p>
+<p>The main problem with NFU is that it keeps track of the frequency of use without regard to the time span of use. Thus, in a multi-pass compiler, pages which were heavily used during the first pass, but are not needed in the second pass will be favoured over pages which are comparably lightly used in the second pass, as they have higher frequency counters. This results in poor performance. Other common scenarios exist where NFU will perform similarly, such as an OS boot-up. Thankfully, a similar and better algorithm exists, and its description follows.</p>
+<p>The not frequently used page-replacement algorithm generates fewer page faults than the least recently used page replacement algorithm when the page table contains null pointer values.</p>
+<p><a name="Aging" id="Aging"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=16" title="Edit section: Aging">edit</a>]</span> <span class="mw-headline">Aging</span></h3>
+<p>The aging algorithm is a descendant of the NFU algorithm, with modifications to make it aware of the time span of use. Instead of just incrementing the counters of pages referenced, putting equal emphasis on page references regardless of the time, the reference counter on a page is first shifted right (divided by 2), before adding the referenced bit to the left of that binary number. For instance, if a page has referenced bits 1,0,0,1,1,0 in the past 6 clock ticks, its referenced counter will look like this: 10000000, 01000000, 00100000, 10010000, 11001000, 01100100. Page references closer to the present time have more impact than page references long ago. This ensures that pages referenced more recently, though less frequently referenced, will have higher priority over pages more frequently referenced in the past. Thus, when a page needs to be swapped out, the page with the lowest counter will be chosen.</p>
+<p>Note that aging differs from LRU in the sense that aging can only keep track of the references in the latest 16/32 (depending on the bit size of the processor's integers) time intervals. Consequently, two pages may have referenced counters of 00000000, even though one page was referenced 9 intervals ago and the other 1000 intervals ago. Generally speaking, knowing the usage within the past 16 intervals is sufficient for making a good decision as to which page to swap out. Thus, aging can offer near-optimal performance for a moderate price.</p>
+<p><a name="Working_Set" id="Working_Set"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=17" title="Edit section: Working Set">edit</a>]</span> <span class="mw-headline">Working Set</span></h2>
+<div class="rellink noprint relarticle mainarticle">Main article: <a href="/wiki/Working_set" title="Working set">working set</a></div>
+<p>The working set of a process is the set of pages expected to be used by that process during some time interval.</p>
+<p>While the "working set model" isn't a page replacement algorithm in the strict sense (it's actually a kind of <a href="/wiki/Scheduling_(computing)#Mid-term_Scheduler" title="Scheduling (computing)">mid-term scheduler</a>), several page replacement algorithms attempt to approximate the working set model, attempting to keep all pages in the working set in RAM. For example, the Clock algorithm can be modified to ignore pages currently in the working set, or if the R bit set. (<a href="http://portal.acm.org/citation.cfm?id=806596" class="external text" title="http://portal.acm.org/citation.cfm?id=806596" rel="nofollow">Carr and Hennessey, 1981</a>)</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=18" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <a href="http://www.cs.uiowa.edu/~jones/opsys/fall95/notes/0908.html" class="external text" title="http://www.cs.uiowa.edu/~jones/opsys/fall95/notes/0908.html" rel="nofollow">"Lecture Notes"</a> by Douglas W. Jones 1995</li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <a href="http://www.read.cs.ucla.edu/111/2006fall/notes/lec11" class="external text" title="http://www.read.cs.ucla.edu/111/2006fall/notes/lec11" rel="nofollow">2006fall:notes:lec11 [CS111]</a></li>
+<li id="cite_note-2"><b><a href="#cite_ref-2" title="">^</a></b> <a href="http://cat.inist.fr/?aModele=afficheN&amp;cpsidt=15530156" class="external text" title="http://cat.inist.fr/?aModele=afficheN&amp;cpsidt=15530156" rel="nofollow">Characterization of Web reference behavior revisited: Evidence for Dichotomized Cache management</a></li>
+<li id="cite_note-3"><b><a href="#cite_ref-3" title="">^</a></b> <a href="http://www.cs.uiowa.edu/~jones/opsys/fall95/notes/0908.html" class="external text" title="http://www.cs.uiowa.edu/~jones/opsys/fall95/notes/0908.html" rel="nofollow">22C:116, Notes, Sept. 8, 1995</a></li>
+<li id="cite_note-Silber-4"><b><a href="#cite_ref-Silber_4-0" title="">^</a></b> Abraham Silberschatz, Peter Baer Galvin, Greg Gagne. <i>Operating Systems Concepts (Seventh Edition).</i>: Wiley 2005. p. 339.</li>
+<li id="cite_note-Tanenbaum-5"><b><a href="#cite_ref-Tanenbaum_5-0" title="">^</a></b> Andrew S. Tanenbaum. <i>Modern Operating Systems (Second Edition)</i>. pp. 218 (4.4.5). 2001.</li>
+<li id="cite_note-6"><b><a href="#cite_ref-6" title="">^</a></b> [<a href="http://www.cse.ohio-state.edu/hpcs/WWW/HTML/publications/papers/TR-05-3.pdf" class="external free" title="http://www.cse.ohio-state.edu/hpcs/WWW/HTML/publications/papers/TR-05-3.pdf" rel="nofollow">http://www.cse.ohio-state.edu/hpcs/WWW/HTML/publications/papers/TR-05-3.pdf</a> "CLOCK-Pro: An Effective Improvement of the CLOCK Replacement" by Song Jiang, Feng Chen, and Xiaodong Zhang, 2005</li>
+<li id="cite_note-7"><b><a href="#cite_ref-7" title="">^</a></b> "WSCLOCK—a simple and effective algorithm for virtual memory management" by Richard W. Carr and John L. Hennessy, 1981 <a href="http://portal.acm.org/citation.cfm?id=806596" class="external autonumber" title="http://portal.acm.org/citation.cfm?id=806596" rel="nofollow">[1]</a> <a href="http://infolab.stanford.edu/~manku/quals/zpapers/81-wsclock.pdf.gz" class="external autonumber" title="http://infolab.stanford.edu/~manku/quals/zpapers/81-wsclock.pdf.gz" rel="nofollow">[2]</a></li>
+<li id="cite_note-8"><b><a href="#cite_ref-8" title="">^</a></b> <a href="http://www.cs.nyu.edu/courses/spring09/V22.0202-002/wsclock-davis.html" class="external text" title="http://www.cs.nyu.edu/courses/spring09/V22.0202-002/wsclock-davis.html" rel="nofollow">"WSClock"</a> by Allan Gottlieb</li>
+<li id="cite_note-9"><b><a href="#cite_ref-9" title="">^</a></b> <a href="http://www.informit.com/articles/article.aspx?p=25260&amp;seqNum=11" class="external text" title="http://www.informit.com/articles/article.aspx?p=25260&amp;seqNum=11" rel="nofollow">"Page Replacement Algorithms"</a> by Andrew S. Tanenbaum 2002</li>
+<li id="cite_note-10"><b><a href="#cite_ref-10" title="">^</a></b> Megiddo &amp; Modha, <i><a href="http://www.almaden.ibm.com/cs/people/dmodha/arcfast.pdf" class="external text" title="http://www.almaden.ibm.com/cs/people/dmodha/arcfast.pdf" rel="nofollow">ARC: A Self-tuning, low overhead replacement cache</a></i></li>
+<li id="cite_note-11"><b><a href="#cite_ref-11" title="">^</a></b> Nimrod Megiddo &amp; Dharmendra S. Modha, <i><span class="PDFlink"><a href="http://www.almaden.ibm.com/cs/people/dmodha/ARC.pdf" class="external text" title="http://www.almaden.ibm.com/cs/people/dmodha/ARC.pdf" rel="nofollow">Outperforming LRU with an Adaptive Replacement Cache Algorithm</a></span><span style="font-size:smaller;"><a href="/wiki/Portable_Document_Format" title="Portable Document Format">PDF</a>&#160;(123&#160;<a href="/wiki/Kibibyte" title="Kibibyte">KiB</a>)</span></i>, IEEE Computer Magazine, pp. 58-65, April 2004.</li>
+</ol>
+</div>
+<p><a name="See_also" id="See_also"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit&amp;section=19" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h3>
+<ul>
+<li>Aho, Denning and Ullman, <i><a href="http://portal.acm.org/citation.cfm?id=321632&amp;coll=portal&amp;dl=ACM" class="external text" title="http://portal.acm.org/citation.cfm?id=321632&amp;coll=portal&amp;dl=ACM" rel="nofollow">Principles of Optimal Page Replacement</a></i>, Journal of the ACM, Vol. 18, Issue 1,January 1971, pp 80-93</li>
+<li>Rhodehamel, Michael W. "<a href="http://ieeexplore.ieee.org/xpl/abs_free.jsp?arNumber=63392" class="external text" title="http://ieeexplore.ieee.org/xpl/abs_free.jsp?arNumber=63392" rel="nofollow">The Bus Interface and Paging Units of the i860(tm) Microprocessor</a>". In Proc. IEEE International Conference on Computer Design, p. 380-384, 1989.</li>
+<li>Tanenbaum, Andrew S. <i>Operating Systems: Design and Implementation (Second Edition)</i>. New Jersey: Prentice-Hall 1997.</li>
+<li>Tanenbaum, Andrew S. <i>Modern Operating Systems (Second Edition)</i>. New Jersey: Prentice-Hall 2001. Online excerpt on page replacement algorithms: <a href="http://www.informit.com/articles/article.aspx?p=25260" class="external text" title="http://www.informit.com/articles/article.aspx?p=25260" rel="nofollow">Page Replacement Algorithms</a>.</li>
+<li>Johnson and Shasha, <i><span class="PDFlink"><a href="http://www.vldb.org/conf/1994/P439.PDF" class="external text" title="http://www.vldb.org/conf/1994/P439.PDF" rel="nofollow">2Q: A Low Overhead High Performance Buffer Management Replacement Algorithm</a></span><span style="font-size:smaller;"><a href="/wiki/Portable_Document_Format" title="Portable Document Format">PDF</a>&#160;(1.01&#160;<a href="/wiki/Mebibyte" title="Mebibyte">MiB</a>)</span></i> <a href="http://www.vldb.org/dblp/db/conf/vldb/vldb94-439.html" class="external text" title="http://www.vldb.org/dblp/db/conf/vldb/vldb94-439.html" rel="nofollow">abstract</a></li>
+<li>Gideon Glass and Pei Cao <a href="http://portal.acm.org/citation.cfm?id=258681&amp;jmp=abstract&amp;coll=portal&amp;dl=ACM&amp;CFID=12125227&amp;CFTOKEN=21656990#abstract" class="external text" title="http://portal.acm.org/citation.cfm?id=258681&amp;jmp=abstract&amp;coll=portal&amp;dl=ACM&amp;CFID=12125227&amp;CFTOKEN=21656990#abstract" rel="nofollow">Adaptive-Page-Replacement-Based-on-Memory-Reference-Behavior</a>. Also available in extended form as <a href="http://www.cs.wisc.edu/techreports/viewreport.php?report=1338" class="external text" title="http://www.cs.wisc.edu/techreports/viewreport.php?report=1338" rel="nofollow">Technical Report 1338</a> at www.cs.wisc.edu</li>
+<li>Jongmin Kim and others, <i><span class="PDFlink"><a href="http://ssrnet.snu.ac.kr/~choijm/paper/IC-2000-OSDI-UBM.pdf" class="external text" title="http://ssrnet.snu.ac.kr/~choijm/paper/IC-2000-OSDI-UBM.pdf" rel="nofollow">A Low-Overhead High-Performance Unified Buffer Management Scheme that Exploits Sequential and Looping References</a></span><span style="font-size:smaller;"><a href="/wiki/Portable_Document_Format" title="Portable Document Format">PDF</a>&#160;(4.14&#160;<a href="/wiki/Mebibyte" title="Mebibyte">MiB</a>)</span></i>, <a href="http://www.usenix.org/events/osdi2000/" class="external text" title="http://www.usenix.org/events/osdi2000/" rel="nofollow">Usenix Symposium on Operating System Design and Implementation (OSDI'2000)</a>, San Diego, CA, October 17-21, 2000</li>
+<li>Sorav Bansal and Dharmendra S. Modha, <i><span class="PDFlink"><a href="http://www.almaden.ibm.com/cs/people/dmodha/clockfast.pdf" class="external text" title="http://www.almaden.ibm.com/cs/people/dmodha/clockfast.pdf" rel="nofollow">CAR: Clock with Adaptive Replacement</a></span><span style="font-size:smaller;"><a href="/wiki/Portable_Document_Format" title="Portable Document Format">PDF</a>&#160;(212&#160;<a href="/wiki/Kibibyte" title="Kibibyte">KiB</a>)</span></i></li>
+<li>Smaragdakis and others, <i><span class="PDFlink"><a href="http://www.cs.amherst.edu/~sfkaplan/courses/spring-2004/cs40/papers/SKW:EELRUSEAPR.pdf" class="external text" title="http://www.cs.amherst.edu/~sfkaplan/courses/spring-2004/cs40/papers/SKW:EELRUSEAPR.pdf" rel="nofollow">EELRU: Simple and Effective Adaptive Page Replacement</a></span><span style="font-size:smaller;"><a href="/wiki/Portable_Document_Format" title="Portable Document Format">PDF</a>&#160;(1.55&#160;<a href="/wiki/Mebibyte" title="Mebibyte">MiB</a>)</span></i></li>
+<li>Song Jiang and Xiaodong Zhang, <i><span class="PDFlink"><a href="http://www.cse.ohio-state.edu/hpcs/WWW/HTML/publications/papers/TR-02-6.pdf" class="external text" title="http://www.cse.ohio-state.edu/hpcs/WWW/HTML/publications/papers/TR-02-6.pdf" rel="nofollow">LIRS: a Low Inter Reference recency Set replacement</a></span><span style="font-size:smaller;"><a href="/wiki/Portable_Document_Format" title="Portable Document Format">PDF</a>&#160;(309&#160;<a href="/wiki/Kibibyte" title="Kibibyte">KiB</a>)</span></i>, SIGMETRICS 2002</li>
+<li>D. Lee and others, <i><a href="http://csdl2.computer.org/persagen/DLAbsToc.jsp?resourcePath=/dl/proceedings/&amp;toc=comp/proceedings/euromicro/1997/8215/00/8215toc.xml&amp;DOI=10.1109/EMSCNT.1997.658446" class="external text" title="http://csdl2.computer.org/persagen/DLAbsToc.jsp?resourcePath=/dl/proceedings/&amp;toc=comp/proceedings/euromicro/1997/8215/00/8215toc.xml&amp;DOI=10.1109/EMSCNT.1997.658446" rel="nofollow">Implementation and Performance Evaluation of the LRFU Replacement Policy</a></i>, p. 0106, 23rd <a href="http://csdl2.computer.org/persagen/DLAbsToc.jsp?resourcePath=/dl/proceedings/euromicro/&amp;toc=comp/proceedings/euromicro/1997/8215/00/8215toc.xml" class="external text" title="http://csdl2.computer.org/persagen/DLAbsToc.jsp?resourcePath=/dl/proceedings/euromicro/&amp;toc=comp/proceedings/euromicro/1997/8215/00/8215toc.xml" rel="nofollow">Euromicro Conference: New Frontiers of Information Technology-Short Contributions</a>, 1997</li>
+<li>Elizabeth J. O'Neil and others, <i><span class="PDFlink"><a href="http://www.cs.cmu.edu/~christos/courses/721-resources/p297-o_neil.pdf" class="external text" title="http://www.cs.cmu.edu/~christos/courses/721-resources/p297-o_neil.pdf" rel="nofollow">The LRU-K page replacement algorithm for database disk buffering</a></span><span style="font-size:smaller;"><a href="/wiki/Portable_Document_Format" title="Portable Document Format">PDF</a>&#160;(1.17&#160;<a href="/wiki/Mebibyte" title="Mebibyte">MiB</a>)</span></i>, <a href="http://portal.acm.org/citation.cfm?id=170036.170081" class="external text" title="http://portal.acm.org/citation.cfm?id=170036.170081" rel="nofollow">ACM SIGMOD Conf.</a>, pp. 297–306, 1993.</li>
+<li>Y. Zhou and J.F. Philbin, <i><a href="http://www.usenix.org/events/usenix01/full_papers/zhou/" class="external text" title="http://www.usenix.org/events/usenix01/full_papers/zhou/" rel="nofollow">The Multi-Queue Replacement Algorithm for Second-Level Buffer Caches</a></i>, Proc. Usenix Ann. Tech. Conf. (Usenix 2001), pp. 91-104.</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 627/1000000
+Post-expand include size: 6733/2048000 bytes
+Template argument size: 3902/2048000 bytes
+Expensive parser function count: 1/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:727476-0!1!0!default!!en!2 and timestamp 20090406234849 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Page_replacement_algorithm">http://en.wikipedia.org/wiki/Page_replacement_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Virtual_memory" title="Category:Virtual memory">Virtual memory</a></span> | <span dir='ltr'><a href="/wiki/Category:Memory_management_algorithms" title="Category:Memory management algorithms">Memory management algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Online_algorithms" title="Category:Online algorithms">Online algorithms</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Articles_to_be_merged_since_March_2009" title="Category:Articles to be merged since March 2009">Articles to be merged since March 2009</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_to_be_merged" title="Category:All articles to be merged">All articles to be merged</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_with_unsourced_statements" title="Category:All articles with unsourced statements">All articles with unsourced statements</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_unsourced_statements_since_June_2008" title="Category:Articles with unsourced statements since June 2008">Articles with unsourced statements since June 2008</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Page_replacement_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Page_replacement_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Page_replacement_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Page_replacement_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Page_replacement_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Page_replacement_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Page_replacement_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Page_replacement_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Page_replacement_algorithm&amp;oldid=279558307" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Page_replacement_algorithm&amp;id=279558307">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-ar"><a href="http://ar.wikipedia.org/wiki/%D8%AA%D8%A8%D8%AF%D9%8A%D9%84_%D8%A7%D9%84%D8%B5%D9%81%D8%AD%D8%A7%D8%AA">العربية</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmos_de_reemplazo_de_p%C3%A1ginas">Español</a></li>
+				<li class="interwiki-eu"><a href="http://eu.wikipedia.org/wiki/Orriak_ordezkatzeko_algoritmoak">Euskara</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithmes_de_remplacement_des_lignes_de_cache">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%ED%8E%98%EC%9D%B4%EC%A7%80_%EA%B5%90%EC%B2%B4_%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98">한국어</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%83%9A%E3%83%BC%E3%82%B8%E7%BD%AE%E6%8F%9B%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0">日本語</a></li>
+				<li class="interwiki-simple"><a href="http://simple.wikipedia.org/wiki/Page_replacement_algorithm">Simple English</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 25 March 2009, at 10:55 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv158 in 0.054 secs. --></body></html>

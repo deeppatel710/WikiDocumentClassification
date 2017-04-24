@@ -1,0 +1,628 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Compiler optimization - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Compiler_optimization";
+		var wgTitle = "Compiler optimization";
+		var wgAction = "view";
+		var wgArticleId = "40355";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282266112;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Compiler optimization
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (April 2009)
+
+
+Compiler optimization is the process of tuning the output of a compiler to minimize or maximize some attribute of an executable computer program. The most common requirement is to minimize the time taken to execute a program; a less common one is to minimize the amount of memory occupied. The growth of portable computers has created a market for minimizing the power consumed by a program.
+It has been shown that some code optimization problems are NP-complete, or even undecidable. In practice, factors such as the programmer's willingness to wait for the compiler to complete its task place upper limits on the optimizations that a compiler implementor might provide. (Optimization is generally a very CPU- and memory-intensive process.) In the past, computer memory limitations were also a major factor in limiting which optimizations could be performed.
+
+
+
+
+Contents
+
+
+1 Types of optimizations
+2 Factors affecting optimization
+3 Optimization techniques
+
+3.1 Common themes
+3.2 Optimization techniques
+
+3.2.1 Loop optimizations
+3.2.2 Data-flow optimizations
+3.2.3 SSA-based optimizations
+3.2.4 Code generator optimizations
+3.2.5 Functional language optimizations
+3.2.6 Other optimizations
+
+
+3.3 Interprocedural optimizations
+
+
+4 Problems with optimization
+5 List of compiler optimizations
+6 List of static code analyses
+7 See also
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Types of optimizations
+Techniques used in optimization can be broken up among various scopes which can affect anything from a single statement to the entire program. Generally speaking, locally scoped techniques are easier to implement than global ones but result in smaller gains. Some examples of scopes include:
+
+Peephole optimizations: Usually performed late in the compilation process after machine code has been generated. This form of optimization examines a few adjacent instructions (like "looking through a peephole" at the code) to see whether they can be replaced by a single instruction or a shorter sequence of instructions. For instance, a multiplication of a value by 2 might be more efficiently executed by left-shifting the value or by adding the value to itself. (This example is also an instance of strength reduction.)
+
+
+Local optimizations: These only consider information local to a function definition. This reduces the amount of analysis that needs to be performed (saving time and reducing storage requirements) but means that worst case assumptions have to be made when function calls occur or global variables are accessed (because little information about them is available).
+
+
+Interprocedural or whole-program optimization: These analyze all of a program's source code. The greater quantity of information extracted means that optimizations can be more effective compared to when they only have access to local information (i.e., within a single function). This kind of optimization can also allow new techniques to be performed. For instance function inlining, where a call to a function is replaced by a copy of the function body.
+
+
+Loop optimizations: These act on the statements which make up a loop, such as a for loop (eg, loop-invariant code motion). Loop optimizations can have a significant impact because many programs spend a large percentage of their time inside loops.
+
+In addition to scoped optimizations there are two further general categories of optimization:
+
+Programming language-independent vs. language-dependent: Most high-level languages share common programming constructs and abstractions — decision (if, switch, case), looping (for, while, repeat.. until, do.. while), encapsulation (structures, objects). Thus similar optimization techniques can be used across languages. However, certain language features make some kinds of optimizations difficult. For instance, the existence of pointers in C and C++ makes it difficult to optimize array accesses (see Alias analysis). Conversely, some language features make certain optimizations easier. For example, in some languages functions are not permitted to have "side effects". Therefore, if a program makes several calls to the same function with the same arguments, the compiler can immediately infer that the function's result need be computed only once.
+
+
+Machine independent vs. machine dependent: Many optimizations that operate on abstract programming concepts (loops, objects, structures) are independent of the machine targeted by the compiler, but many of the most effective optimizations are those that best exploit special features of the target platform.
+
+The following is an instance of a local machine dependent optimization. To set a register to 0, the obvious way is to use the constant 0 in an instruction that sets a register value to a constant. A less obvious way is to XOR a register with itself. It is up to the compiler to know which instruction variant to use. On many RISC machines, both instructions would be equally appropriate, since they would both be the same length and take the same time. On many other microprocessors such as the Intel x86 family, it turns out that the XOR variant is shorter and probably faster, as there will be no need to decode an immediate operand, nor use the internal "immediate operand register". (The catch being that XOR may introduce a data dependency on the previous value of the register, causing a pipeline stall. However, processors often have XOR of a register with itself as a special case that doesn't cause stalls.)
+
+[edit] Factors affecting optimization
+
+The machine itself
+
+Many of the choices about which optimizations can and should be done depend on the characteristics of the target machine. It is sometimes possible to parameterize some of these machine dependent factors, so that a single piece of compiler code can be used to optimize different machines just by altering the machine description parameters. GCC is a compiler which exemplifies this approach.
+
+The architecture of the target CPU
+
+
+Number of CPU registers: To a certain extent, the more registers, the easier it is to optimize for performance. Local variables can be allocated in the registers and not on the stack. Temporary/intermediate results can be left in registers without writing to and reading back from memory.
+
+
+RISC vs. CISC: CISC instruction sets often have variable instruction lengths, often have a larger number of possible instructions that can be used, and each instruction could take differing amounts of time. RISC instruction sets attempt to limit the variability in each of these: instruction sets are usually constant length, with few exceptions, there are usually fewer combinations of registers and memory operations, and the instruction issue rate (the number of instructions completed per time period, usually an integer multiple of the clock cycle) is usually constant in cases where memory latency is not a factor. There may be several ways of carrying out a certain task, with CISC usually offering more alternatives than RISC. Compilers have to know the relative costs among the various instructions and choose the best instruction sequence (see instruction selection).
+Pipelines: A pipeline is essentially an ALU broken up into an assembly line. It allows use of parts of the ALU for different instructions by breaking up the execution of instructions into various stages: instruction decode, address decode, memory fetch, register fetch, compute, register store, etc. One instruction could be in the register store stage, while another could be in the register fetch stage. Pipeline conflicts occur when an instruction in one stage of the pipeline depends on the result of another instruction ahead of it in the pipeline but not yet completed. Pipeline conflicts can lead to pipeline stalls: where the CPU wastes cycles waiting for a conflict to resolve.
+
+
+Compilers can schedule, or reorder, instructions so that pipeline stalls occur less frequently.
+
+
+Number of functional units: Some CPUs have several ALUs and FPUs. This allows them to execute multiple instructions simultaneously. There may be restrictions on which instructions can pair with which other instructions ("pairing" is the simultaneous execution of two or more instructions), and which functional unit can execute which instruction. They also have issues similar to pipeline conflicts.
+
+
+Here again, instructions have to be scheduled so that the various functional units are fully fed with instructions to execute.
+
+
+The architecture of the machine
+
+
+Cache size (256kB-12MB) and type (direct mapped, 2-/4-/8-/16-way associative, fully associative): Techniques like inline expansion and loop unrolling may increase the size of the generated code and reduce code locality. The program may slow down drastically if an oft-run piece of code (like inner loops in various algorithms) suddenly cannot fit in the cache. Also, caches which are not fully associative have higher chances of cache collisions even in an unfilled cache.
+Cache/Memory transfer rates: These give the compiler an indication of the penalty for cache misses. This is used mainly in specialized applications.
+
+
+Intended use of the generated code
+
+
+Debugging: When a programmer is still writing an application, they will recompile and test often, and so compilation must be fast. This is one reason most optimizations are avoided while debugging. Also, debugging code is usually stepped through in a symbolic debugger, and optimizing transformations, particularly those that reorder code, can make it difficult to identify the output code with the line numbers in the source code from which the code was generated. This can confuse the debugging tools and the programmer using them.
+
+
+General purpose use: Prepackaged software is very often expected to be executed on a variety of machines and CPUs that may share the same instruction set, but have different timing, cache or memory characteristics. So, the code may not be tuned to any particular CPU, or may be tuned to work well on the most popular CPU and work reasonably on other CPUs.
+
+
+Special-purpose use: If the software is compiled to be used on one or a few very similar machines, with known characteristics, then the compiler can heavily tune the generated code to those machines alone. Important special cases include code designed for parallel and vector processors, for which we have parallelizing compilers.
+
+
+Embedded systems: These are a common case of special-purpose use. Embedded software can be tightly tuned to an exact CPU and memory size. Also, system cost or reliablility may be more important than the code's speed. So, for example, compilers for embedded software usually offer options that reduce code size at the expense of speed, because memory is the main cost of an embedded computer. The code's timing may need to be predictable, rather than "as fast as possible," so code caching might be disabled, along with compiler optimizations that require it.
+
+
+[edit] Optimization techniques
+
+[edit] Common themes
+To a large extent, compiler optimization techniques have the following themes, which sometime conflict.
+
+Optimize the common case
+The common case may have unique properties that allow a fast path at the expense of a slow path. If the fast path is taken most often, the result is better over-all performance.
+
+
+Avoid redundancy
+Reuse results that are already computed and store them for use later, instead of recomputing them.
+
+
+Less code
+Remove unnecessary computations and intermediate values. Less work for the CPU, cache, and memory usually results in faster execution. Alternatively, in embedded systems, less code brings a lower product cost.
+
+
+Straight line code, fewer jumps
+Less complicated code. Jumps (conditional or unconditional branches) interfere with the prefetching of instructions, thus slowing down code. Using inlining or macro expansion, instead of calling subroutines, can be used to reduce branching (at the cost of increasing binary file size by the length of the repeated code)
+
+
+Locality
+Code and data that are accessed closely together in time should be placed close together in memory to increase spatial locality of reference.
+
+
+Exploit the memory hierarchy
+Accesses to memory are increasingly more expensive for each level of the memory hierarchy, so place the most commonly used items in registers first, then caches, then main memory, before going to disk.
+
+
+Parallelize
+Reorder operations to allow multiple computations to happen in parallel, either at the instruction, memory, or thread level.
+
+
+More precise information is better
+The more precise the information the compiler has, the better it can employ any or all of these optimization techniques.
+
+
+Runtime metrics can help
+Information gathered at runtime (ideally with minimal overhead) can be used by a JIT compiler to dynamically improve optimization
+
+
+[edit] Optimization techniques
+
+[edit] Loop optimizations
+Main article: Loop optimization
+Some optimization techniques primarily designed to operate on loops include:
+
+Induction variable analysis
+Roughly, if a variable in a loop is a simple function of the index variable, such as j:= 4*i+1, it can be updated appropriately each time the loop variable is changed. This is a strength reduction, and also may allow the index variable's definitions to become dead code. This information is also useful for bounds-checking elimination and dependence analysis, among other things.
+
+
+Loop fission or loop distribution
+Loop fission attempts to break a loop into multiple loops over the same index range but each taking only a part of the loop's body. This can improve locality of reference, both of the data being accessed in the loop and the code in the loop's body.
+
+
+Loop fusion or loop combining
+Another technique which attempts to reduce loop overhead. When two adjacent loops would iterate the same number of times (whether or not that number is known at compile time), their bodies can be combined as long as they make no reference to each other's data.
+
+
+Loop inversion
+This technique changes a standard while loop into a do/while (also known as repeat/until) loop wrapped in an if conditional, reducing the number of jumps by two, for cases when the loop is executed. Doing so duplicates the condition check (increasing the size of the code) but is more efficient because jumps usually cause a pipeline stall. Additionally, if the initial condition is known at compile-time and is known to be side-effect-free, the if guard can be skipped.
+
+
+Loop interchange
+These optimizations exchange inner loops with outer loops. When the loop variables index into an array, such a transformation can improve locality of reference, depending on the array's layout.
+
+
+Loop-invariant code motion
+If a quantity is computed inside a loop during every iteration, and its value is the same for each iteration, it can vastly improve efficiency to hoist it outside the loop and compute its value just once before the loop begins. This is particularly important with the address-calculation expressions generated by loops over arrays. For correct implementation, this technique must be used with loop inversion, because not all code is safe to be hoisted outside the loop.
+
+
+Loop nest optimization
+Some pervasive algorithms such as matrix multiplication have very poor cache behavior and excessive memory accesses. Loop nest optimization increases the number of cache hits by performing the operation over small blocks and by using a loop interchange.
+
+
+Loop reversal
+Loop reversal reverses the order in which values are assigned to the index variable. This is a subtle optimization which can help eliminate dependencies and thus enable other optimizations.
+
+
+Loop unrolling
+Unrolling duplicates the body of the loop multiple times, in order to decrease the number of times the loop condition is tested and the number of jumps, which hurt performance by impairing the instruction pipeline. Completely unrolling a loop eliminates all overhead, but requires that the number of iterations be known at compile time.
+
+
+Loop splitting
+Loop splitting attempts to simplify a loop or eliminate dependencies by breaking it into multiple loops which have the same bodies but iterate over different contiguous portions of the index range. A useful special case is loop peeling, which can simplify a loop with a problematic first iteration by performing that iteration separately before entering the loop.
+
+
+Loop unswitching
+Unswitching moves a conditional from inside a loop to outside the loop by duplicating the loop's body inside each of the if and else clauses of the conditional.
+
+
+Software pipelining
+The loop is restructured in such a way that work done in an iteration is split into several parts and done over several iterations. In a tight loop this technique hides the latency between loading and using values.
+
+
+[edit] Data-flow optimizations
+Data flow optimizations, based on Data-flow analysis, primarily depend on how certain properties of data are propagated by control edges in the control flow graph. Some of these include:
+
+Common subexpression elimination
+In the expression "(a+b)-(a+b)/4", "common subexpression" refers to the duplicated "(a+b)". Compilers implementing this technique realize that "(a+b)" won't change, and as such, only calculate its value once.
+
+
+Constant folding and propagation
+replacing expressions consisting of constants (e.g. "3 + 5") with their final value ("8") at compile time, rather than doing the calculation in run-time. Used in most modern languages.
+
+
+Induction variable recognition and elimination
+see discussion above about induction variable analysis.
+
+
+Alias classification and pointer analysis
+in the presence of pointers, it is difficult to make any optimisations at all, since potentially any variable can have been changed when a memory location is assigned to. By specifying which pointers can alias which variables, unrelated pointers can be ignored.
+
+
+[edit] SSA-based optimizations
+These optimizations are intended to be done after transforming the program into a special form called static single assignment (see SSA form), in which every variable is assigned in only one place. Although some function without SSA, they are most effective with SSA. Many optimizations listed in other sections also benefit with no special changes, such as register allocation.
+
+global value numbering
+GVN eliminates redundancy by constructing a value graph of the program, and then determining which values are computed by equivalent expressions. GVN is able to identify some redundancy that common subexpression elimination cannot, and vice versa.
+
+
+sparse conditional constant propagation
+Effectively equivalent to iteratively performing constant propagation, constant folding, and dead code elimination until there is no change, but is much more efficient. This optimization symbolically executes the program, simultaneously propagating constant values and eliminating portions of the control flow graph that this makes unreachable.
+
+
+
+[edit] Code generator optimizations
+
+register allocation
+The most frequently used variables should be kept in processor registers for fastest access. To find which variables to put in registers an interference-graph is created. Each variable is a vertex and when two variables are used at the same time (have an intersecting liverange) they have an edge between them. This graph is colored using for example Chaitin's algorithm using the same number of colors as there are registers. If the coloring fails one variable is "spilled" to memory and the coloring is retried.
+
+
+instruction selection
+Most architectures, particularly CISC architectures and those with many addressing modes, offer several different ways of performing a particular operation, using entirely different sequences of instructions. The job of the instruction selector is to do a good job overall of choosing which instructions to implement which operators in the low-level intermediate representation with. For example, on many processors in the 68000 family and on the x86 architecture, complex addressing modes can be used in statements like "lea 25(a1,d5*4), a0", allowing a single instruction to perform a significant amount of arithmetic with less storage.
+
+
+instruction scheduling
+Instruction scheduling is an important optimization for modern pipelined processors, which avoids stalls or bubbles in the pipeline by clustering instructions with no dependencies together, while being careful to preserve the original semantics.
+
+
+rematerialization
+Rematerialization recalculates a value instead of loading it from memory, preventing a memory access. This is performed in tandem with register allocation to avoid spills.
+
+
+code factoring
+If several sequences of code are identical, or can be parameterized or reordered to be identical, they can be replaced with calls to a shared subroutine. This can often share code for subroutine set-up and sometimes tail-recursion. [1]
+
+
+trampolines
+Many CPUs have smaller subroutine call instructions to access low memory. A compiler can save space by using these small calls in the main body of code. Jump instructions in low memory can access the routines at any address. This multiplies space savings from code factoring.[2]
+
+
+reordering computations
+Based on integer linear programming, restructuring compilers enhance data locality and expose more parallelism by reordering computations. Space-optimizing compilers may reorder code to lengthen sequences that can be factored into subroutines.
+
+
+[edit] Functional language optimizations
+Although many of these also apply to non-functional languages, they either originate in, are most easily implemented in, or are particularly critical in functional languages such as Lisp and ML.
+
+Removing recursion
+Recursion is often expensive, as a function call consumes stack space and involves some overhead related to parameter passing and flushing the instruction cache. Tail recursive algorithms can be converted to iteration, which does not have call overhead and uses a constant amount of stack space, through a process called tail recursion elimination or tail call optimization. Some functional languages, e.g. Scheme, mandate that tail calls be optimized by a conforming implementation, due to their prevalence in these languages.
+
+
+Data structure fusion
+Because of the high level nature by which data structures are specified in functional languages such as Haskell, it is possible to combine several recursive functions which produce and consume some temporary data structure so that the data is passed directly without wasting time constructing the data structure.
+
+
+[edit] Other optimizations
+Please help separate and categorize these further and create detailed pages for them, especially the more complex ones, or link to one where one exists.
+
+Bounds-checking elimination
+Many languages, for example Java, enforce bounds-checking of all array accesses. This is a severe performance bottleneck on certain applications such as scientific code. Bounds-checking elimination allows the compiler to safely remove bounds-checking in many situations where it can determine that the index must fall within valid bounds, for example if it is a simple loop variable.
+
+
+Branch offset optimization (machine independent)
+Choose the shortest branch displacement that reaches target
+
+
+Code-block reordering
+Code-block reordering alters the order of the basic blocks in a program in order to reduce conditional branches and improve locality of reference.
+
+
+Dead code elimination
+Removes instructions that will not affect the behaviour of the program, for example definitions which have no uses, called dead code. This reduces code size and eliminates unnecessary computation.
+
+
+Factoring out of invariants
+If an expression is carried out both when a condition is met and is not met, it can be written just once outside of the conditional statement. Similarly, if certain types of expressions (e.g. the assignment of a constant into a variable) appear inside a loop, they can be moved out of it because their effect will be the same no matter if they're executed many times or just once. Also known as total redundancy elimination. A more powerful optimization is Partial redundancy elimination (PRE).
+
+
+Inline expansion
+When some code invokes a procedure, it is possible to directly insert the body of the procedure inside the calling code rather than transferring control to it. This saves the overhead related to procedure calls, as well as providing great opportunity for many different parameter-specific optimizations, but comes at the cost of space; the procedure body is duplicated each time the procedure is called inline. Generally, inlining is useful in performance-critical code that makes a large number of calls to small procedures.
+
+
+Jump threading
+In this pass, conditional jumps in the code that branch to identical or inverse tests are detected, and can be "threaded" through a second conditional test.
+
+
+Strength reduction
+A general term encompassing optimizations that replace complex or difficult or expensive operations with simpler ones. Induction variable analysis can accomplish this with variables inside a loop which depend on the loop variable. Several peephole optimizations also fall into this category, such as replacing division by a constant with multiplication by its reciprocal, converting multiplies into a series of bit-shifts and adds, and replacing large instructions with equivalent smaller ones that load more quickly.
+
+
+Reduction of cache collisions
+(e.g. by disrupting alignment within a page)
+
+
+Stack height reduction
+Rearrange expression tree to minimize resources needed for expression evaluation.
+
+
+Test reordering
+If we have two tests that are the condition for something, we can first deal with the simpler tests (e.g. comparing a variable to something) and only then with the complex tests (e.g. those that require a function call). This technique complements lazy evaluation, but can be used only when the tests are not dependent on one another. Short-circuiting semantics can make this difficult.
+
+
+[edit] Interprocedural optimizations
+Interprocedural optimization works on the entire program, across procedure and file boundaries. It works tightly with intraprocedural counterparts, carried out with the cooperation of a local part and global part. Typical interprocedural optimizations are: procedure inlining, interprocedural dead code elimination, interprocedural constant propagation, and procedure reordering. As usual, the compiler needs to perform interprocedural analysis before its actual optimizations. Interprocedural analyses include alias analysis, array access analysis, and the construction of a call graph.
+Interprocedural optimization is common in modern commercial compilers from SGI, Intel, Microsoft, and Sun Microsystems. For a long time the open source GCC was criticized[citation needed] for a lack of powerful interprocedural analysis and optimizations, though this is now improving.[citation needed] Another good open source compiler with full analysis and optimization infrastructure is Open64, which is used by many organizations for research and for commercial purposes.
+Due to the extra time and space required by interprocedural analysis, most compilers do not perform it by default. Users must use compiler options explicitly to tell the compiler to enable interprocedural analysis and other expensive optimizations.
+
+[edit] Problems with optimization
+Early in the history of compilers, compiler optimizations were not as good as hand-written ones. As compiler technologies have improved, good compilers can often generate better code than human programmers — and good post pass optimizers can improve highly hand-optimized code even further. For RISC CPU architectures, and even more so for VLIW hardware, compiler optimization is the key for obtaining efficient code, because RISC instruction sets are so compact that it is hard for a human to manually schedule or combine small instructions to get efficient results. Indeed, these architectures were designed to rely on compiler writers for adequate performance.
+However, optimizing compilers are by no means perfect. There is no way that a compiler can guarantee that, for all program source code, the fastest (or smallest) possible equivalent compiled program is output; such a compiler is fundamentally impossible because it would solve the halting problem.
+This may be proven by considering a call to a function, foo(). This function returns nothing and does not have side effects (no I/O, does not modify global variables and "live" data structures, etc.). The fastest possible equivalent program would be simply to eliminate the function call. However, if the function foo() in fact does not return, then the program with the call to foo() would be different from the program without the call; the optimizing compiler will then have to determine this by solving the halting problem.
+Additionally, there are a number of other more practical issues with optimizing compiler technology:
+
+Usually, an optimizing compiler only performs low-level, localized changes to small sets of operations. In other words, high-level inefficiency in the source program (such as an inefficient algorithm) remains unchanged.
+
+
+Modern third-party compilers usually have to support several objectives. In so doing, these compilers are a 'jack of all trades yet master of none'.
+
+
+A compiler typically only deals with a small part of an entire program at a time, at most a module at a time and usually only a procedure; the result is that it is unable to consider at least some important contextual information.
+
+
+The overhead of compiler optimization. Any extra work takes time, whole-program optimization (interprocedural optimization) is very costly.
+
+
+The interaction of compiler optimization phases: what combination of optimization phases are optimal, in what order and how many times?
+
+Work to improve optimization technology continues. One approach is the use of so-called "post pass" optimizers. These tools take the executable output by an "optimizing" compiler and optimize it even further. As opposed to compilers which optimize intermediate representations of programs, post pass optimizers work on the assembly language level. Post pass compilers are also limited, however, by the fact that much of the information found in the original source code has been lost.
+As processor performance continues to improve at a rapid pace while memory bandwidth improves more slowly, optimizations that reduce memory bandwidth (even at the cost of making the processor execute "extra" instructions) will become more useful. Examples of this mentioned above include loop nest optimization and rematerialization.
+
+[edit] List of compiler optimizations
+
+automatic parallelization
+Constant folding
+Algebraic simplifications:
+Value numbering
+Copy propagation
+Constant propagation
+Sparse conditional constant propagation
+Common subexpression elimination (CSE)
+Partial redundancy elimination
+Dead code elimination
+Induction variable elimination, strength reduction
+Loop optimizations
+
+Loop invariant code motion
+Loop unrolling
+
+
+Software pipelining
+Inlining
+Code generator
+
+Register allocation: local and global
+Instruction scheduling
+Branch optimizations
+Tail merging and cross jumping
+Machine idioms and instruction combining
+
+
+vectorization
+phase ordering
+Profile-guided optimization
+
+
+[edit] List of static code analyses
+
+Alias analysis
+Pointer analysis
+Shape analysis
+Escape analysis
+Array access analysis
+Dependence analysis
+Control flow analysis
+Data flow analysis
+
+Use-define chain analysis
+Live variable analysis
+Available expression analysis
+
+
+
+
+[edit] See also
+
+Algorithmic efficiency
+Full employment theorem
+Just-in-time compilation (JIT)
+
+
+[edit] References
+
+^ Cx51 Compiler Manual, version 09.2001, p155, Keil Software Inc.
+^ Ibid. Keil manual.
+
+
+[edit] External links
+
+NULLSTONE Optimization Categories - major compiler optimization categories.
+Optimization manuals by Agner Fog - documentation about x86 processor architecture and low-level code optimization
+Assembly Optimization Tips by Mark Larson
+Citations from CiteSeer
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Compiler_optimization"
+Categories: Compiler optimizations | Programming language implementationHidden categories: Articles lacking in-text citations from April 2009 | All articles with unsourced statements | Articles with unsourced statements since October 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+فارسی
+한국어
+עברית
+Nederlands
+日本語
+Polski
+Русский
+Српски / Srpski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 7 April 2009, at 03:46 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

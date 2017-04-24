@@ -1,0 +1,312 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+STRIPS - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "STRIPS";
+		var wgTitle = "STRIPS";
+		var wgAction = "view";
+		var wgArticleId = "1953958";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279012746;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); STRIPS
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about automated planning in artificial intelligence. The term strips is also used in relation to Treasury security
+In artificial intelligence, STRIPS (Stanford Research Institute Problem Solver) is an automated planner developed by Richard Fikes and Nils Nilsson in 1971. The same name was later used to refer to the formal language of the inputs to this planner. This language is the base for most of the languages for expressing automated planning problem instances in use today. This article only describes the language, not the planner.
+
+
+
+
+Contents
+
+
+1 Definition
+2 Extensions
+3 An example STRIPS problem
+4 Complexity
+5 See also
+6 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Definition
+A STRIPS instance is composed of:
+
+An initial state;
+The specification of the goal states – situations which the planner is trying to reach;
+A set of actions. For each action, the following are included:
+
+preconditions (what must be established before the action is performed);
+postconditions (what is established after the action is performed).
+
+
+
+Mathematically, a STRIPS instance is a quadruple , in which each component has the following meaning:
+
+P is a set of conditions (i.e., propositional variables);
+O is a set of operators (i.e., actions); each operator is itself a quadruple  , each element being a set of conditions. These four sets specify, in order, which conditions must be true for the action to be executable, which ones must be false, which ones are made true by the action and which ones are made false;
+I is the initial state, given as the set of conditions that are initially true (all others are assumed false);
+G is the specification of the goal state; this is given as a pair , which specify which conditions are true and false, respectively, in order for a state to be considered a goal state.
+
+A plan for such a planning instance is a sequence of operators that can be executed from the initial state and that leads to a goal state.
+Formally, a state is a set of conditions: a state is represented by the set of conditions that are true in it. Transitions between states are modeled by a transition function, which is a function mapping states into new states that result from the execution of actions. Since states are represented by sets of conditions, the transition function relative to the STRIPS instance  is a function
+
+
+
+where 2P is the set of all subsets of P, and is therefore the set of all possible states.
+The transition function can be defined as follows, in the assumption that actions can always be executed but they do not have effects if their preconditions are not met (this is a simplifying assumption):
+
+
+
+=         
+if  and 
+
+
+ 
+= P
+otherwise
+
+
+The function  can be extended to sequences of actions by the following recursive equations:
+
+
+
+
+A plan for a STRIPS instance is a sequence of actions such that the state that results from executing the actions in order from the initial state satisfies the goal conditions. Formally,  is a plan for  if  satisfies the following two conditions:
+
+
+
+
+
+[edit] Extensions
+The above language is actually the propositional version of STRIPS; in practice, conditions are often about objects: for example, that the position of a robot can be modeled by a predicate At, and At(room1) means that the robot is in Room1. In this case, actions can have free variables, which are implicitly existentially quantified. In other words, an action represents all possible propositional actions that can be obtained by replacing each free variable with a value.
+The initial state is considered fully known in the language described above: conditions that are not in I are all assumed false. This is often a limiting assumption, as there are natural examples of planning problems in which the initial state is not fully known. Extensions of STRIPS have been developed to deal with partially known initial states. Other extensions exist.
+
+[edit] An example STRIPS problem
+A monkey is in a lab. The monkey wants some bananas. There are three locations in the lab – locations A, B and C. The monkey is at location A. There is a box in location C. There are some bananas in location B, but they are hanging from the ceiling. The monkey needs the box to get to the bananas.
+
+Initial state: At(A), Level(low), BoxAt(C), BananasAt(B)
+Goal state:    Have(Bananas)
+Actions:       _Move(X, Y)_
+                //move from X to Y
+               Preconditions: At(X), Level(low)
+               Postconditions: not At(X), At(Y)
+               _ClimbUp(Location)_
+               //climb up on the box
+               Preconditions: At(Location), BoxAt(Location), Level(low)
+               Postconditions: Level(high), not Level(low)
+               _ClimbDown(Location)_
+               //climb down from the box
+               Preconditions: At(Location), BoxAt(Location), Level(high)
+               Postconditions: Level(low), not Level(high)
+               _MoveBox(X, Y)_
+               //move the box from X to Y -- And the monkey moves, too
+               Preconditions: At(X), BoxAt(X), Level(low)
+               Postconditions: BoxAt(Y), not BoxAt(X), At(Y), not At(X)
+               _TakeBananas(Location)_
+               //take the bananas
+               Preconditions: At(Location), BananasAt(Location), Level(high)
+               Postcondition: Have(bananas)
+
+
+[edit] Complexity
+Deciding the existence of a plan for a propositional STRIPS instance is PSPACE-complete. Various restrictions can be enforced on the instances to make the problem NP-complete.
+
+[edit] See also
+
+Automated planning
+Hierarchical task network
+Planning Domain Definition Language (PDDL)
+Action description language (ADL)
+
+
+[edit] References
+
+C. Bäckström and B. Nebel (1995). Complexity results for SAS+ planning. Computational Intelligence, 11:625-656.
+T. Bylander (1991). Complexity results for planning. In Proceedings of the Twelfth International Joint Conference on Artificial Intelligence (IJCAI'91), pages 274-279.
+R. Fikes and N. Nilsson (1971). STRIPS: a new approach to the application of theorem proving to problem solving. Artificial Intelligence, 2:189-208.
+Russell, Stuart J.; Norvig, Peter (2003), Artificial Intelligence: A Modern Approach (2nd ed.), Upper Saddle River, NJ: Prentice Hall, ISBN 0-13-790395-2, http://aima.cs.berkeley.edu/ 
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/STRIPS"
+Categories: History of artificial intelligence | Automated planning and scheduling 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Español
+Français
+日本語
+‪Norsk (nynorsk)‬
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 22 March 2009, at 20:59 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

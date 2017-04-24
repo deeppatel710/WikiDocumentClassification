@@ -1,0 +1,375 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Self-modifying code - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Self-modifying_code";
+		var wgTitle = "Self-modifying code";
+		var wgAction = "view";
+		var wgArticleId = "217647";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 277361213;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Self-modifying code
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, self-modifying code is code that alters its own instructions while it is executing - usually to reduce the instruction path length and improve performance or simply to reduce otherwise repetitively similar code thus simplify maintenance. Self modification is an alternative to the method of 'flag setting' and conditional program branching, used primarily to reduce the number of times a condition needs to be tested for.
+The method is frequently used for conditionally invoking test/debugging code without requiring additional overhead for every input/output cycle and also in just-in-time (JIT) compilers.
+The modifications may be performed:-
+
+only during initialization - based on input parameters (when the process is more commonly described as software 'configuration' and is somewhat analagous, in hardware terms, to setting jumpers for printed circuit boards). Alteration of program entry pointers is an equivalent indirect method of self-modification, but requiring the co-existence of one or more alternative instruction paths, increasing the program size.
+throughout execution ('on-the-fly') - based on particular program states that have been reached during the execution
+
+In either case, the modifications may be performed directly to the machine code instructions themselves, by overlaying new instructions over the existing ones (for example: altering a compare and branch to an unconditional branch or alternatively a 'noop').
+
+
+
+
+Contents
+
+
+1 Application in low and high level languages
+
+1.1 Assembly language
+1.2 High level languages
+
+
+2 History
+3 Usage
+
+3.1 Optimizing a state-dependent loop
+3.2 Use as camouflage
+3.3 Self-referential machine learning systems
+3.4 Operating systems
+3.5 Just-in-time compilers
+3.6 Interaction of cache and self-modifying code
+3.7 Henry Massalin's Synthesis kernel
+
+
+4 Advantages
+5 Disadvantages
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Application in low and high level languages
+Self-modification can be accomplished in a variety of ways depending upon the programming language and its support for pointers and/or access to dynamic compiler or interpreter 'engines':-
+
+overlay of existing instructions (or parts of instructions such as opcode, register, flags or address) or
+direct creation of whole instructions or sequences of instructions in memory
+creating or modification of source code statements followed by a 'mini compile' or a dynamic interpretation
+creating an entire program dynamically and then executing it
+
+
+[edit] Assembly language
+Self-modifying code is quite straightforward to implement when using assembly language. Instructions can be dynamically created in memory (or else overlaid over existing code in non-protected program storage), in a sequence equivalent to the ones that a standard compiler may generate as the object code (/binary file). With modern processors, there can be unintended side effects on the CPU cache that have to be considered. The method was frequently used for testing 'first time' conditions, as in this suitably commented IBM/360 Assembler example. It uses instruction overlay to reduce the instruction path length by (N x 1)-1 where N is the number of records on the file (-1 being the overhead to perform the overlay).
+
+     SUBRTN CLI    SUBRTN,X'95'       FIRST TIME HERE?  (this instruction is immediately overlaid during 1st time through)
+            BNE    OPENED                  (WILL DROP THROUGH IF CLI OPCODE, = x'95' HAS NOT BEEN CHANGED YET)
+            MVC    SUBRTN(4),JUMP     YES, OVERLAY THE TEST BY THE MOVE OF AN UNCONDITIONAL BRANCH (same length machine code)
+            OPEN   INPUT                      and OPEN THE INPUT FILE since its first time through here
+     JUMP   B      OPENED             THIS 4-BYTE UNCONDITIONAL BRANCH INSTRUCTION OVERLAYS THE 4-BYTE INSTRUCTION AT LABEL 'TEST' 
+     OPENED GET    INPUT              NORMAL PROCESSING RESUMES HERE
+            ...
+
+
+(Since the replacement unconditional branch is also slightly faster than a compare instruction, as well as reducing the overall path length, the saved difference in timing between the two instructions is magnified by a factor of N. The 'jump' instruction retains locality of reference and much higher 'visibility' by its close proximity to the overwritten instruction, despite adding an unecessary extra instruction after the OPEN) In later Operating systems for programs residing in protected storage this technique could not be used and so changing the pointer to the subroutine would be used instead. The pointer would reside in dynamic storage and could be altered at will after the first pass to bypass the OPEN (Having to load a pointer first instead of a direct branch & link to the subroutine would add N instructions to the path length - but there would be a corresponding reduction of N for the unconditional branch that would no longer be required).
+
+[edit] High level languages
+Some high level languages/ interpreters such as SNOBOL4, the Lisp programming language, the ALTER verb in COBOL and the eval statement in javascript actively support self-modification. The ALTER verb in COBOL has historically been severely criticised for providing the facility but this criticism is mainly focused on its lack of 'visibility' (i.e. no compiler warnings or cross references to the dynamically altered statements). This shortcoming can however be overcome with suitable programmer embedded comments in these cases. Self-modification can be more difficult to implement on certain compilers but Clipper and Spitbol are two that also provide it. Most scripting languages such as Perl, Python and javascript are interpreted, which means that the program can easily generate new code dynamically and then execute it 'on-the-fly'. Usually, the code is created in dynamic memory, but it can also be indirectly executed by first writing out a new (external) file and then running the new file using the scripting language interpreter (a process actually more similar to 'compile and run' than true self-modification - some 4GL systems from the 1970's, for example, generated complete COBOL or Assembler programs, compiled them and then executed them in quick succession - whether or not this kind of on-the-fly program construction is viewed as 'self-modification' is clearly open to debate and might be better categorized as simply 'program generation' using a 4GL)
+One batch programming technique is to use self-modifying code[1].
+Dynamic dispatch and virtual tables can be considered a form of self-modification using late binding to choose which control flow the program will actually take. Use of this relatively new terminology appears to completely satiate the otherwise quite strong distaste amongst computer science purists for what is, essentially, nothing less than thinly disguised legacy self-modification.
+
+[edit] History
+In the early days of computers, self-modifying code was often used in order to reduce the usage of limited memory or improve performance or both. It was also sometimes used to implement subroutine calls and returns when the instruction set only provided simple branching or skipping instructions to vary the control flow (This application is still relevant in certain ultra-RISC architectures, at least theoretically; see for example One instruction set computer). Donald Knuth's MIX architecture also used self-modifying code to implement subroutine calls.
+Already, critical systems which are too complex for people to fully manage in real time, such as the Internet and electrical distribution networks routinely rely upon self-modifying behaviors (though not necessarily self-modifying code) in order to function acceptably.
+
+[edit] Usage
+Self-modifying code can be used for various purposes:
+
+Semi-automatic optimization of a state dependent loop.
+Runtime code generation, or specialization of an algorithm in runtime or loadtime (which is popular, for example, in the domain of real-time graphics) such as a general sort utility - preparing code to perform the key comparison described in a specific invocation.
+JIT compilers building code 'on-the-fly'
+Altering of inlined state of an object, or simulating the high-level construction of closures.
+Patching of subroutine (pointer) address calling, usually as performed at load/initialization time of dynamic libraries, or else on each invocation, patching the subroutine's internal references to its parameters so as to use actual addresses of specific routines. (i.e. Indirect 'self-modification').
+Evolutionary computing systems such as genetic programming.
+Hiding of code to prevent reverse engineering (by use of a disassembler or debugger) or to evade detection by virus/spyware scanning software and the like.
+Filling 100% of memory (in some architectures) with a rolling pattern of repeating opcodes, to erase all programs and data, or to burn-in hardware.
+Compression of code to be decompressed and executed at runtime, e.g., when memory or disk space is limited.
+Some very limited instruction sets leave no option but to use self-modifying code to achieve certain functionality. For example, a "One Instruction Set Computer" machine that uses only the subtract-and-branch-if-negative "instruction" cannot do an indirect copy (something like the equivalent of "*a = **b" in the C programming language) without using self-modifying code.
+Altering instructions for fault-tolerance
+
+
+[edit] Optimizing a state-dependent loop
+Pseudocode example:
+
+repeat N times {
+  if STATE is 1
+   increase A by one
+  else
+   decrease A by one
+
+  do something with A
+}
+
+Self-modifying code in this case would simply be a matter of rewriting the loop like this:
+
+ repeat N times {
+
+  increase A by one
+  do something with A
+ }
+ 
+ when STATE has to switch {
+    replace the opcode "increase" above with the opcode to decrease
+ }
+
+Note that 2-state replacement of the opcode can be easily written as 'xor var at address with the value "opcodeOf(Inc) xor opcodeOf(dec)"'.
+Choosing this solution will have to depend of course on the value of 'N' and the frequency of state changing.
+
+[edit] Use as camouflage
+Self-modifying code was used to hide copy protection instructions in 1980s disk based programs for platforms such as IBM PC and Apple II. For example, on an IBM PC (or compatible), the floppy disk drive access instruction 'int 0x13' would not appear in the executable program's image but it would be written into the executable's memory image after the program started executing.
+Self-modifying code is also sometimes used by programs that do not want to reveal their presence — such as computer viruses and some shellcodes. Viruses and shellcodes that use self-modifying code mostly do this in combination with polymorphic code. Polymorphic viruses are sometimes called primitive self-mutators. Modifying a piece of running code is also used in certain attacks, such as buffer overflows.
+
+[edit] Self-referential machine learning systems
+Traditional machine learning systems have a fixed, pre-programmed learning algorithm to adjust their parameters. However, since the 1980s Jürgen Schmidhuber has published several self-modifying systems with the ability to change their own learning algorithm. They avoid the danger of catastrophic self-rewrites by making sure that self-modifications will survive only if they are useful according to a user-given fitness function or error function or reward function.
+
+[edit] Operating systems
+Because of the security implications of self-modifying code, all of the major operating systems are careful to remove such vulnerabilities as they become known. The concern is typically not that programs will intentionally modify themselves, but that they could be maliciously changed by an exploit.
+As consequence of the troubles that can be caused by these exploits, an OS feature called W^X (for "write xor execute") has been developed which prohibits a program from making any page of memory both writable and executable. Some systems prevent a writable page from ever being changed to be executable, even if write permission is removed. Other systems provide a 'back door' of sorts, allowing multiple mappings of a page of memory to have different permissions. A relatively portable way to bypass W^X is to create a file with all permissions, then map the file into memory twice. On Linux, one may use an undocumented SysV shared memory flag to get executable shared memory without needing to create a file. On Windows Vista and Windows XP the W^X protection is named Data Execution Prevention and can be disabled via the Control Panel.
+Regardless, at a meta-level, programs can still modify their own behavior by changing data stored elsewhere (see Metaprogramming) or via use of polymorphism.
+
+[edit] Just-in-time compilers
+Just-in-time compilers for Java, .NET, ActionScript 3.0 and other programming languages compile blocks of byte-code or p-code into machine code suitable for the host processor and then immediately execute them. Fabrice Bellard's Tiny C Compiler can and has been used as C-Just-in-Time-Compiler-Library, e.g. by TCCBOOT (a bootloader that can compile, load and run its operation system on-the-fly).
+Graphics drivers for modern GPUs perform JIT-Compilation of DirectX or OpenGL/GLSL geometry and fragment shaders, and can thus be seen as self-modifying code, sometimes distributed over multiple processors and DSPs (or even self-modifying hardware).
+Some CPU Architecture Emulators use similar techniques to JIT-Compilers (simulated instruction set as "programming language" that becomes compiled for the target processor).
+
+[edit] Interaction of cache and self-modifying code
+On architectures without coupled data and instruction cache (some ARM and MIPS cores) the cache synchronization must be explicitly performed by the modifying code (flush data cache and invalidate instruction cache for the modified memory area).
+In some cases short sections of self-modifying code executes more slowly on modern processors. This is because a modern processor will usually try to keep blocks of code in its cache memory. Each time the program rewrites a part of itself, the rewritten part must be loaded into the cache again, which results in a slight delay, if the modified codelet shares the same cache line with the modifying code, as is the case when the modified memory address is located within a few bytes to the one of the modifying code.
+The cache invalidation issue on modern processors usually means that self-modifying code would still be faster only when the modification will occur rarely, such as in the case of a state switching inside an inner loop.[citation needed]
+Most modern processors load the machine code before they execute it, which means that if an instruction that is too near the instruction pointer is modified, the processor will not notice, but instead execute the code as it was before it was modified. See Prefetch Input Queue (PIQ). PC processors have to handle self-modifying code correctly for backwards compatibility reasons but they are far from efficient at doing so[citation needed].
+
+[edit] Henry Massalin's Synthesis kernel
+The Synthesis kernel written by Dr. Henry Massalin as his Ph.D. thesis is commonly viewed to be the "mother of all self-modifying code." Massalin's tiny Unix kernel takes a structured, or even object oriented, approach to self-modifying code, where code is created for individual quajects, like filehandles; generating code for specific tasks allows the Synthesis kernel to (as a JIT interpreter might) apply a number of optimizations such as constant folding or common subexpression elimination.
+The Synthesis kernel was extremely fast, but was written entirely in assembly. The resulting lack of portability has prevented Massalin's optimization ideas from being adopted by any production kernel. However, the structure of the techniques suggests that they could be captured by a higher level language, albeit one more complex than existing mid-level languages. Such a language and compiler could allow development of extremely fast operating systems and applications.
+Paul Haeberli and Bruce Karsh have objected to the "marginalization" of self-modifying code, and optimization in general, in favor of reduced development costs, drawing a parallel to the "heavy religious atmosphere" which the Italian Futurist movement rebelled against[citation needed].
+
+[edit] Advantages
+
+Fast paths can be established for a programs execution, reducing some otherwise repetetive conditional branches and
+JIT compilers can build programs that are more highly optimized than even an optimzing compiler can generate
+
+improving algorithmic efficiency
+
+[edit] Disadvantages
+Self-modifying code is seen by some as a bad practice which makes code harder to read and maintain. There are however ways in which self modification is nevertheless deemed acceptable, such as when sub routine pointers are dynamically altered - even though the effect is almost identical to direct modification. The subtle difference, in this case, is that a pointer variable is altered, not actual program instructions. The change to the pointer is, in this case, equivalent to the setting of a 'flag' (that might have been set as an alternative) - except that the flag does not need to be tested each time thereafter.
+
+[edit] See also
+
+Algorithmic efficiency
+Reflection (computer science)
+Self-replication
+Quine (computing)
+PCASTL
+
+
+[edit] References
+
+
+^ Self-modifying Batch File by Lars Fosdal
+
+
+
+[edit] External links
+
+Using self-modifying code under Linux
+Self-modifying C code
+"Synthesis: An Efficient Implementation of Fundamental Operating System Services": Henry Massalin's Ph.D. thesis on the Synthesis kernel
+Futurist Programming
+Certified Self-Modifying Code
+Jürgen Schmidhuber's publications on self-modifying code for self-referential machine learning systems
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Self-modifying_code"
+Categories: Programming paradigmsHidden categories: All articles with unsourced statements | Articles with unsourced statements since March 2008 | Articles with unsourced statements since December 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Italiano
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 15 March 2009, at 08:00 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

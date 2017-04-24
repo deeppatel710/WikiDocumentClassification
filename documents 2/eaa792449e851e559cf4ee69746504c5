@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Journaling file system,ACID,Atomicity,Comparison of file systems,Crash (computing),Database,Elevator algorithm,Error detection and correction,Ext3,File system,Garbage collection (computer science)" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Journaling_file_system&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Journaling_file_system&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Journaling file system - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Journaling_file_system";
+		var wgTitle = "Journaling file system";
+		var wgAction = "view";
+		var wgArticleId = "48073";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 260870142;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Journaling_file_system skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Journaling file system</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<div class="dablink">For the IBM Journaled File System, see <a href="/wiki/JFS_(file_system)" title="JFS (file system)">JFS (file system)</a>.</div>
+<p>A <b>journaling</b> <b>file system</b> is a <a href="/wiki/File_system" title="File system">file system</a> that logs changes to a journal (usually a circular log in a dedicated area) before committing them to the main file system. Such file systems are less likely to become corrupted in the event of power failure or system crash.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Rationale"><span class="tocnumber">1</span> <span class="toctext">Rationale</span></a></li>
+<li class="toclevel-1"><a href="#Optimizations"><span class="tocnumber">2</span> <span class="toctext">Optimizations</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Metadata-only_journaling"><span class="tocnumber">2.1</span> <span class="toctext">Metadata-only journaling</span></a></li>
+<li class="toclevel-2"><a href="#Dynamically-allocated_journals"><span class="tocnumber">2.2</span> <span class="toctext">Dynamically-allocated journals</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">3</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">5</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Rationale" id="Rationale"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Journaling_file_system&amp;action=edit&amp;section=1" title="Edit section: Rationale">edit</a>]</span> <span class="mw-headline">Rationale</span></h2>
+<p>Updating file systems to reflect changes to files and directories usually requires many separate write operations. This introduces a <a href="/wiki/Race_condition" title="Race condition">race condition</a> for which an interruption (like a power failure or system <a href="/wiki/Crash_(computing)" title="Crash (computing)">crash</a>) between writes can leave data structures in an invalid intermediate state.</p>
+<p>For example, deleting a file on a Unix file system involves two steps:</p>
+<ol>
+<li>Removing its directory entry.</li>
+<li>Marking space for the file and its <a href="/wiki/Inode" title="Inode">inode</a> as free in the free space map.</li>
+</ol>
+<p>If a crash occurs between steps 1 and 2, there will be an orphaned inode and hence a <a href="/wiki/Storage_leak" title="Storage leak" class="mw-redirect">storage leak</a>. On the other hand, if only step 2 is performed first before the crash, the not-yet-deleted file will be marked free and possibly be overwritten by something else.</p>
+<p>In a non-journaled file system, detecting and recovering from such inconsistencies requires a complete <a href="/wiki/Glossary_of_graph_theory#Walks" title="Glossary of graph theory">walk</a> of its data structures. This can take a long time if the file system is large and if there is relatively little <a href="/wiki/List_of_device_bandwidths" title="List of device bandwidths">I/O bandwidth</a>.</p>
+<p>A journaled file system maintains a journal of the changes it intends to make, ahead of time. After a crash, recovery simply involves replaying changes from this journal until the file system is consistent again. The changes are thus said to be <a href="/wiki/Atomicity" title="Atomicity">atomic</a> (or indivisible) in that they either:</p>
+<ul>
+<li>succeed (have succeeded originally or be replayed completely during recovery), or</li>
+<li>are not replayed at all (are skipped because they had not yet been completely written to the journal).</li>
+</ul>
+<p><a name="Optimizations" id="Optimizations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Journaling_file_system&amp;action=edit&amp;section=2" title="Edit section: Optimizations">edit</a>]</span> <span class="mw-headline">Optimizations</span></h2>
+<p>Some file systems allow the journal to grow, shrink and be re-allocated just as would a regular file; most, however, put the journal in a contiguous area or a special hidden file that is guaranteed not to move or change size while the file system is mounted.</p>
+<p>A <i>physical journal</i> logs verbatim copies of blocks that will be written later, such as that in <a href="/wiki/Ext3" title="Ext3">ext3</a>.<sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup> A <i>logical journal</i> logs <a href="/wiki/Metadata" title="Metadata">information</a> about the changes in a special, compact format, such as that in <a href="/wiki/XFS" title="XFS">XFS</a> or the <a href="/wiki/USN_Journal" title="USN Journal">USN Journal</a> (<a href="/wiki/NTFS" title="NTFS">NTFS</a>). This reduces the amount of data that needs to be read from and written to the journal in large, metadata-heavy operations (for example, deleting a large directory tree).</p>
+<p>Because the <a href="/wiki/Error_detection_and_correction#Error-correcting_code" title="Error detection and correction">Error Correcting Codes</a> used by disk drives apply to whole disk blocks rather than individual bits or bytes, a power failure in the middle of a write can prevent the code for that block from being updated, causing all the bytes belonging to it to become unreadable. This can make a logical journal somewhat riskier than a physical journal, which can overwrite entire blocks without needing to access their old contents.</p>
+<p>Some <a href="/wiki/Unix_File_System" title="Unix File System">UFS</a> implementations avoid journaling and instead implement <a href="/wiki/Soft_updates" title="Soft updates">soft updates</a>: they order their writes in such a way that the on-disk file system is never inconsistent, or that the only inconsistency that can be created in the event of a crash is a storage leak. To recover from these leaks, the free space map is reconciled against a full walk of the file system at next mount. This <a href="/wiki/Garbage_collection_(computer_science)" title="Garbage collection (computer science)">garbage collection</a> is usually done in the background.<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup></p>
+<p><a name="Metadata-only_journaling" id="Metadata-only_journaling"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Journaling_file_system&amp;action=edit&amp;section=3" title="Edit section: Metadata-only journaling">edit</a>]</span> <span class="mw-headline">Metadata-only journaling</span></h3>
+<p>Journaling can have a severe impact on performance because it requires that all data be written twice.<sup id="cite_ref-2" class="reference"><a href="#cite_note-2" title=""><span>[</span>3<span>]</span></a></sup> <a href="/wiki/Metadata" title="Metadata">Metadata</a>-only journaling is a compromise between reliability and performance that stores only changes to file <a href="/wiki/Metadata" title="Metadata">metadata</a> in the journal. This still ensures that the file system can recover quickly when next mounted, but leaves an opportunity for data corruption because unjournaled file data and journaled metadata can fall out of sync.</p>
+<p>For example, appending to a file on a Unix file system involves three steps:</p>
+<ol>
+<li>Increasing the size of the file in its <a href="/wiki/Inode" title="Inode">inode</a>.</li>
+<li>Allocating space for the extension in the free space map.</li>
+<li>Writing the appended data to the newly-allocated space.</li>
+</ol>
+<p>In a metadata-only journal, step 3 would not be logged. If step 3 was not done, but steps 1 and 2 are replayed during recovery, the file will be appended with garbage.</p>
+<p>The write cache in most operating systems sorts its writes (using the <a href="/wiki/Elevator_algorithm" title="Elevator algorithm">elevator algorithm</a> or some similar scheme) to maximize throughput. To avoid an out-of-order write hazard with a metadata-only journal, writes for file data must be sorted so that they are committed to storage before their associated metadata. This can be tricky to implement because it requires coordination within the operating system kernel between the file system driver and write cache. An out-of-order write hazard can also exist if the underlying storage:</p>
+<ul>
+<li>cannot write blocks atomically, or</li>
+<li>changes the order of its writes, or</li>
+<li>does not honor requests to flush its write cache.</li>
+</ul>
+<p><a name="Dynamically-allocated_journals" id="Dynamically-allocated_journals"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Journaling_file_system&amp;action=edit&amp;section=4" title="Edit section: Dynamically-allocated journals">edit</a>]</span> <span class="mw-headline">Dynamically-allocated journals</span></h3>
+<p>In <a href="/wiki/Log-structured_file_system" title="Log-structured file system">log-structured file systems</a>, write-twice penalty does not apply because the journal itself is the file system. Most Unix file systems are not log-structured, but some implement similar techniques in order to avoid the double-write penalty. In particular, <a href="/wiki/Reiser4" title="Reiser4">Reiser4</a> can group many separate writes into a single contiguously-written chunk, then extend the head of the journal to enclose the newly-written chunk. The tail of the journal retracts from the chunk after it has been committed to storage.<sup id="cite_ref-3" class="reference"><a href="#cite_note-3" title=""><span>[</span>4<span>]</span></a></sup></p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Journaling_file_system&amp;action=edit&amp;section=5" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small references-column-count references-column-count-2" style="-moz-column-count:2; column-count:2;">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFTweedie1998">Tweedie, Stephen C (1998), "<a href="http://donner.cs.uni-magdeburg.de/bs/lehre/wise0001/bs2/journaling/journal-design.pdf" class="external text" title="http://donner.cs.uni-magdeburg.de/bs/lehre/wise0001/bs2/journaling/journal-design.pdf" rel="nofollow">Journaling the Linux ext2fs Filesystem</a>" (PDF), <i>The Fourth Annual Linux Expo</i><span class="printonly">, <a href="http://donner.cs.uni-magdeburg.de/bs/lehre/wise0001/bs2/journaling/journal-design.pdf" class="external free" title="http://donner.cs.uni-magdeburg.de/bs/lehre/wise0001/bs2/journaling/journal-design.pdf" rel="nofollow">http://donner.cs.uni-magdeburg.de/bs/lehre/wise0001/bs2/journaling/journal-design.pdf</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Journaling+the+Linux+ext2fs+Filesystem&amp;rft.jtitle=The+Fourth+Annual+Linux+Expo&amp;rft.aulast=Tweedie&amp;rft.aufirst=Stephen+C&amp;rft.au=Tweedie%2C+Stephen+C&amp;rft.date=1998&amp;rft_id=http%3A%2F%2Fdonner.cs.uni-magdeburg.de%2Fbs%2Flehre%2Fwise0001%2Fbs2%2Fjournaling%2Fjournal-design.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Journaling_file_system"><span style="display: none;">&#160;</span></span>.</li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFSeltzerGangerMcKusick">Seltzer, Margo I; Ganger, Gregory R; McKusick, M Kirk, "<a href="http://www.usenix.org/event/usenix2000/general/full_papers/seltzer/seltzer_html" class="external text" title="http://www.usenix.org/event/usenix2000/general/full_papers/seltzer/seltzer_html" rel="nofollow">"Journaling Versus Soft Updates: Asynchronous Meta-data Protection in File Systems"</a>", <i>2000 USENIX Annual Technical Conference</i> (USENIX Association)<span class="printonly">, <a href="http://www.usenix.org/event/usenix2000/general/full_papers/seltzer/seltzer_html" class="external free" title="http://www.usenix.org/event/usenix2000/general/full_papers/seltzer/seltzer_html" rel="nofollow">http://www.usenix.org/event/usenix2000/general/full_papers/seltzer/seltzer_html</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=%22Journaling+Versus+Soft+Updates%3A+Asynchronous+Meta-data+Protection+in+File+Systems%22&amp;rft.jtitle=2000+USENIX+Annual+Technical+Conference&amp;rft.aulast=Seltzer&amp;rft.aufirst=Margo+I&amp;rft.au=Seltzer%2C+Margo+I&amp;rft.au=Ganger%2C+Gregory+R&amp;rft.au=McKusick%2C+M+Kirk&amp;rft.pub=USENIX+Association&amp;rft_id=http%3A%2F%2Fwww.usenix.org%2Fevent%2Fusenix2000%2Fgeneral%2Ffull_papers%2Fseltzer%2Fseltzer_html&amp;rfr_id=info:sid/en.wikipedia.org:Journaling_file_system"><span style="display: none;">&#160;</span></span>.</li>
+<li id="cite_note-2"><b><a href="#cite_ref-2" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFPrabhakaranArpaci-DusseauArpaci-Dusseau">Prabhakaran, Vijayan; Arpaci-Dusseau, Andrea C; Arpaci-Dusseau, Remzi H, "<a href="https://www.usenix.org/events/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf" class="external text" title="https://www.usenix.org/events/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf" rel="nofollow">Analysis and Evolution of Journaling File Systems</a>" (PDF), <i>2005 USENIX Annual Technical Conference</i> (USENIX Association)<span class="printonly">, <a href="https://www.usenix.org/events/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf" class="external free" title="https://www.usenix.org/events/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf" rel="nofollow">https://www.usenix.org/events/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Analysis+and+Evolution+of+Journaling+File+Systems&amp;rft.jtitle=2005+USENIX+Annual+Technical+Conference&amp;rft.aulast=Prabhakaran&amp;rft.aufirst=Vijayan&amp;rft.au=Prabhakaran%2C+Vijayan&amp;rft.au=Arpaci-Dusseau%2C+Andrea+C&amp;rft.au=Arpaci-Dusseau%2C+Remzi+H&amp;rft.pub=USENIX+Association&amp;rft_id=https%3A%2F%2Fwww.usenix.org%2Fevents%2Fusenix05%2Ftech%2Fgeneral%2Ffull_papers%2Fprabhakaran%2Fprabhakaran.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Journaling_file_system"><span style="display: none;">&#160;</span></span>.</li>
+<li id="cite_note-3"><b><a href="#cite_ref-3" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFReiser2003">Reiser, Hans (October 2003), <i><a href="http://namesys.com/v4/v4.html" class="external text" title="http://namesys.com/v4/v4.html" rel="nofollow">Reiser4 white paper</a></i><span class="printonly">, <a href="http://namesys.com/v4/v4.html" class="external free" title="http://namesys.com/v4/v4.html" rel="nofollow">http://namesys.com/v4/v4.html</a></span><span class="reference-accessdate">, retrieved on 2007-07-27</span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Reiser4+white+paper&amp;rft.aulast=Reiser&amp;rft.aufirst=Hans&amp;rft.au=Reiser%2C+Hans&amp;rft.date=October+2003&amp;rft_id=http%3A%2F%2Fnamesys.com%2Fv4%2Fv4.html&amp;rfr_id=info:sid/en.wikipedia.org:Journaling_file_system"><span style="display: none;">&#160;</span></span>.</li>
+</ol>
+</div>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Journaling_file_system&amp;action=edit&amp;section=6" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Comparison_of_file_systems" title="Comparison of file systems">Comparison of file systems</a></li>
+<li><a href="/wiki/ACID" title="ACID">ACID</a></li>
+<li><a href="/wiki/Database" title="Database">Database</a></li>
+<li>IBM's <a href="/wiki/JFS_(file_system)" title="JFS (file system)">Journaled File System (JFS)</a></li>
+<li><a href="/wiki/Transaction_processing" title="Transaction processing">Transaction processing</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Journaling_file_system&amp;action=edit&amp;section=7" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.ibm.com/developerworks/library/l-journaling-filesystems/index.html" class="external text" title="http://www.ibm.com/developerworks/library/l-journaling-filesystems/index.html" rel="nofollow">Anatomy of Linux journaling file systems</a> by M. Tim Jones</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 2249/1000000
+Post-expand include size: 21610/2048000 bytes
+Template argument size: 6221/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:48073-0!1!0!default!!en!2 and timestamp 20090403212810 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Journaling_file_system">http://en.wikipedia.org/wiki/Journaling_file_system</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Computer_file_systems" title="Category:Computer file systems">Computer file systems</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Journaling_file_system" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Journaling_file_system" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Journaling_file_system&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Journaling_file_system&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Journaling_file_system" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Journaling_file_system" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Journaling_file_system" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Journaling_file_system&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Journaling_file_system&amp;oldid=260870142" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Journaling_file_system&amp;id=260870142">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-ar"><a href="http://ar.wikipedia.org/wiki/%D9%86%D8%B8%D8%A7%D9%85_%D8%A7%D9%84%D9%85%D9%84%D9%81%D8%A7%D8%AA_%D8%A7%D9%84%D9%85%D8%B2%D9%88%D8%AF_%D8%A8%D9%82%D9%8A%D8%AF_%D8%AD%D9%88%D8%A7%D8%AF%D8%AB">العربية</a></li>
+				<li class="interwiki-cs"><a href="http://cs.wikipedia.org/wiki/%C5%BDurn%C3%A1lovac%C3%AD_syst%C3%A9m_soubor%C5%AF">Česky</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Journaling-Dateisystem">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Journaling">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Journal_(syst%C3%A8me_de_fichiers)">Français</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Journaling">Italiano</a></li>
+				<li class="interwiki-he"><a href="http://he.wikipedia.org/wiki/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA_%D7%A7%D7%91%D7%A6%D7%99%D7%9D_%D7%9E%D7%AA%D7%95%D7%A2%D7%93%D7%AA">עברית</a></li>
+				<li class="interwiki-hu"><a href="http://hu.wikipedia.org/wiki/Napl%C3%B3z%C3%B3_f%C3%A1jlrendszer">Magyar</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%82%B8%E3%83%A3%E3%83%BC%E3%83%8A%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Ksi%C4%99gowanie_(informatyka)">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Journaling">Português</a></li>
+				<li class="interwiki-ro"><a href="http://ro.wikipedia.org/wiki/Sistem_de_fi%C5%9Fiere_cu_jurnalizare">Română</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%96%D1%83%D1%80%D0%BD%D0%B0%D0%BB%D0%B8%D1%80%D1%83%D0%B5%D0%BC%D0%B0%D1%8F_%D1%84%D0%B0%D0%B9%D0%BB%D0%BE%D0%B2%D0%B0%D1%8F_%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">Русский</a></li>
+				<li class="interwiki-sv"><a href="http://sv.wikipedia.org/wiki/Journalf%C3%B6rande_filsystem">Svenska</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 30 December 2008, at 12:49.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv105 in 0.066 secs. --></body></html>

@@ -1,0 +1,328 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Calling convention - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Calling_convention";
+		var wgTitle = "Calling convention";
+		var wgAction = "view";
+		var wgArticleId = "1795571";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 272689535;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Calling convention
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, a calling convention is a scheme for how functions receive parameters from their caller and how they return a result; calling conventions can differ in:
+
+where parameters and return values are placed (in registers; on the call stack; a mix of both)
+the order in which parameters are passed (or parts of a single parameter)
+how the task of setting up and cleaning up a function call is divided between the caller and the callee.
+which registers that may be directly used by the callee may sometimes also be included (otherwise regarded as an ABI-detail)
+
+Different programming languages use different calling conventions, and so can different platforms (CPU architecture + operating system). This can sometimes cause problems when combining modules written in multiple languages, or when calling operating system or library APIs from a language other than the one in which they are written; in these cases, special care must be taken to coordinate the calling conventions used by caller and callee. Even a program using a single programming language may use multiple calling conventions, either chosen by the compiler, for code optimization, or specified by the programmer.
+Architectures almost always have more than one possible calling convention. With many general-purpose registers and other features, the potential number of calling conventions is large, although some architectures are specified to use only one calling convention, supplied by the architect.
+
+
+
+
+Contents
+
+
+1 Calling conventions on different platforms
+
+1.1 x86
+1.2 PowerPC
+1.3 MIPS
+1.4 SPARC
+1.5 Threaded code
+1.6 ARM
+
+
+2 See also
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Calling conventions on different platforms
+
+[edit] x86
+Main article: x86 calling conventions
+The x86 architecture features many different calling conventions. Due to the small number of architectural registers, the x86 calling conventions mostly pass arguments on the stack, while the return value (or a pointer to it) is passed in a register. Some conventions use registers for the first few parameters, which may improve performance for some very frequently invoked short and simple subroutines.
+Example call:
+
+push eAX            ; pass some register result
+push byte[eBP+20]   ; pass some memory variable (FASM/TASM syntax)
+push 3              ; pass some constant
+call calc           ; the returned result is now in eAX
+
+Typical callee structure: (some or all (except ret) of the instructions below may be optimized away in simple procedures)
+
+calc:
+ push eBP            ; save old frame pointer
+ mov eBP,eSP         ; get new frame pointer
+ sub eSP,localsize   ; reserve place for locals
+ .
+ .                   ; perform calculations, leave result in AX
+ .
+ mov eSP,eBP         ; free space for locals
+ pop eBP             ; restore old frame pointer
+ ret paramsize       ; free parameter space and return
+
+
+[edit] PowerPC
+The PowerPC architecture has a large number of registers so most functions can pass all arguments in them for single level calls. Additional arguments are passed on the stack, and space for register-based arguments is also always allocated on the stack as a convenience to the called function in case multi-level calls are used (recursive or otherwise) and the registers must be saved. This is also of use in variadic functions, such as printf(), where the function's arguments need to be accessed as an array. A single calling convention is used for all procedural languages.
+
+[edit] MIPS
+The MIPS passes the first four arguments to a function in the registers $a0-$a3; subsequent arguments are passed on the stack. The return value (or a pointer to it) is stored in register $v0.
+
+[edit] SPARC
+The SPARC architecture, unlike most RISC architectures, is built on register windows. There are 24 accessible registers in each register window, 8 of them are the "in" registers, 8 are registers for local variables, and 8 are out registers. The in registers are used to pass arguments to the function being called, so any additional arguments needed to be pushed onto the stack. However, space is always allocated by the called function to handle a potential register window overflow, local variable, and returning a struct by value. To call a function, one places the argument for the function to be called in the out registers, when the function is called the out registers become the in registers and the called function access the argument in its in registers. When the called function returns, it places the return value in the first in register, which becomes the first out register when the called function returns.
+The System V ABI, which most modern Unix-like systems follow, passes the first six arguments in "in" registers %i0 through %i5, reserving %i6 for the frame pointer and %i7 for the return address.
+
+[edit] Threaded code
+Main article: Threaded code
+Threaded code places all the responsibility for setting up and cleaning up a function call on the called code. The calling code does nothing but list the subroutines to be called. This puts all the function setup and cleanup code in one place -- the prolog and epilog of the function -- rather than in the many places that function is called. This makes threaded code the most compact calling convention.
+Threaded code passes all arguments on the stack. All return values are returned on the stack. This makes naive implementations slower than calling conventions that keep more values in registers. However, threaded code implementations that cache several of the top stack values in registers -- in particular, the return address -- are usually faster than subroutine calling conventions that always push and pop the return address to the stack. [1]
+
+[edit] ARM
+The standard ARM calling convention allocates the 16 ARM registers as:
+
+r15, as always, is the program counter.
+r14 is the link register. (The BL instruction, used in a subroutine call, stores the return address in this register).
+r13 is arbitrarily chosen as the stack register.
+r12 is the Intra-Procedure-call scratch register.
+r4 to r11: used to hold local variables.
+r0 to r3: used to hold argument values passed to a subroutine ... and also hold results returned from a subroutine.
+
+If the type of value returned is too large to fit in r0 to r3, or whose size cannot be determined statically at compile time, then the caller must allocate space for that value at run time, and pass a pointer to that space in r0.
+Subroutines must preserve the contents of r4 to r11 and the stack pointer. (Perhaps by saving them to the stack in the function prolog, then using them as scratch space, then restoring them from the stack in the function epilog).
+In particular, subroutines that call other subroutines *must* save the return value in the link register r14 to the stack before calling those other subroutines. However, such subroutines do not need to return that value to r14 -- they merely need to load that value into r15, the progam counter, to return.
+The ARM stack is full-descending.
+[2]
+This calling convention causes a "typical" ARM subroutine to
+
+In the prolog, push r4 to r11 to the stack, and push the return address in r14, to the stack. (This can be done with a single STM instruction).
+copy any passed arguments (in r0 to r3) to the local scratch registers (r4 to r11).
+allocate other local variables to the remaining local scratch registers (r4 to r11).
+do calculations and call other subroutines as necessary using BL, assuming r0 to r3 and r14 will not be preserved.
+put the result in r0
+In the epilog, pull r4 to r11 from the stack, and pulls the return address to the program counter r15. (This can be done with a single LDM instruction).
+
+
+[edit] See also
+
+Application binary interface
+
+
+[edit] References
+
+
+^ "in contrast to popular myths, subroutine threading is usually slower than direct threading."
+^ "Procedure Call Standard for the ARM Architecture" 2008
+
+
+
+[edit] External links
+
+
+
+The Wikibook Embedded Systems has a page on the topic of
+Mixed C and Assembly Programming
+
+
+
+
+
+
+The Wikibook Reverse Engineering has a page on the topic of
+Calling Conventions
+
+
+
+
+S. C. Johnson, D. M. Ritchie, Computing Science Technical Report No. 102: The C Language Calling Sequence, Bell Laboratories, September, 1981
+Introduction to assembly on the PowerPC
+Mac OS X ABI Function Call Guide
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Calling_convention"
+Categories: Programming constructs 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Български
+Deutsch
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 23 February 2009, at 09:53.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

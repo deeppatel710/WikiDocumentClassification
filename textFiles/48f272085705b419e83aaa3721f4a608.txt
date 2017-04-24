@@ -1,0 +1,376 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Netflow - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Netflow";
+		var wgTitle = "Netflow";
+		var wgAction = "view";
+		var wgArticleId = "1206114";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284374386;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Netflow
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (March 2009)
+
+
+
+
+
+
+NetFlow architecture
+
+
+NetFlow is a network protocol developed by Cisco Systems to run on Cisco IOS-enabled equipment for collecting IP traffic information. It's proprietary and supported by platforms other than IOS, such as Juniper routers or FreeBSD and OpenBSD.
+
+
+
+
+Contents
+
+
+1 Protocol description
+
+1.1 NetFlow and IPFIX
+1.2 Network Flows
+1.3 Netflow Record
+1.4 Cisco's Sampled NetFlow
+1.5 Cisco's NetFlow Security Event Logging
+
+
+2 NetFlow Monitoring Based on Standalone Probes
+3 Versions
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Protocol description
+Cisco routers that have the Netflow feature enabled generate netflow records; these are exported from the router in User Datagram Protocol (UDP) or Stream Control Transmission Protocol (SCTP) packets and collected using a netflow collector. Other vendors provide similar features for their routers but with different names:
+
+Jflow or cflowd for Juniper Networks
+NetStream for Huawei Technology
+Cflowd for Alcatel-Lucent
+
+
+[edit] NetFlow and IPFIX
+Although initially implemented by Cisco, NetFlow is emerging as an IETF standard: Internet Protocol Flow Information eXport (IPFIX). Based on the NetFlow Version 9 implementation, IPFIX is going to be the industry standard in the very near future. Network infrastructure vendors, including Nortel Networks and others, are already adding IPFIX support to their devices.
+
+[edit] Network Flows
+A network flow has been defined in many ways. The traditional Cisco definition is to use a 7-tuple key, where a flow is defined as a unidirectional sequence of packets all sharing all of the following 7 values:
+
+Source IP address
+Destination IP address
+Source port for UDP or TCP, 0 for other protocols
+Destination port for UDP or TCP, type and code for ICMP, or 0 for other protocols
+IP protocol
+Ingress interface
+IP Type of Service
+
+Flexible Netflow and IPFIX support user-defined flow keys.
+The router will output a flow record when it determines that the flow is finished. It does this by flow aging: when the router sees new traffic for an existing flow it resets the aging counter. Also, TCP session termination in a TCP flow causes the router to expire the flow. Routers can also be configured to output a flow record at a fixed interval even if the flow is still ongoing. In Flexible NetFlow (FNF) an administrator could actually define flow properties on the router.
+
+[edit] Netflow Record
+A NetFlow record can contain a wide variety of information about the traffic in a given flow. NetFlow version 5 (one of the most commonly used versions, followed by version 9) contains the following:
+
+Version number
+Sequence number
+Input and output interface indices used by SNMP (ifIndex in IF-MIB).
+Timestamps for the flow start and finish time, in milliseconds since the last boot.
+Number of bytes and packets observed in the flow
+Layer 3 headers:
+
+Source & destination IP addresses
+Source and destination port numbers
+IP protocol
+Type of Service (ToS) value
+
+
+In the case of TCP flows, the union of all TCP flags observed over the life of the flow.
+Layer 3 Routing information:
+
+IP address of the immediate next-hop (not the BGP nexthop) along the route to the destination
+Source & destination IP masks (prefix lengths in the CIDR notation)
+
+
+
+Some routers will also include the source and destination Autonomous System (AS) number. Depending on the router configuration, it can also be the immediate neighbor AS. That information is not always accurate, and the local AS will be indicated by the same value (zero) as any unknown AS.
+NetFlow version 9 can include all of these fields and can optionally include additional information such as Multiprotocol Label Switching (MPLS) labels and IPv6 addresses and ports,
+By analyzing flow data, a picture of traffic flow and traffic volume in a network can be built. The NetFlow record format has evolved over time, hence the inclusion of version numbers. Cisco maintains details of the different version numbers and the layout of the packets for each version.
+NetFlow records are usually sent via a UDP or SCTP in newer software, and for efficiency reasons, the router does not store flow records once they are exported. Therefore, if the NetFlow record is dropped due to network congestion, it is lost forever -- there's no way for the router to resend it (this is correct for UDP NetFlow only). The IP address of the netflow collector and the port upon which it is listening must be configured on the sending router but is usually either on ports 2055, 9555, or 9995. NetFlow is also enabled on a per-interface basis to avoid unnecessary burdening of the router's CPU. NetFlow is generally based on the packets input to interfaces where it is enabled. This avoids double counting and saves work for the router. It also allows the router to export NetFlow records for dropped packets.
+ICMP records use the Destination Port number field to define the ICMP Type and CODE in HEX. The type and code are concatenated before the conversion. An ICMP Host Unreachable message would be TYPE 3 with a CODE of 01 (301). Netflow converts this value to a hex value of 769 when exported.
+
+[edit] Cisco's Sampled NetFlow
+Maintaining NetFlow data can be computationally expensive for the router and burden the router's CPU to the point where it runs out of capacity. To avoid problems caused by router CPU exhaustion, Cisco provides "Sampled NetFlow". Rather than looking at every packet to maintain NetFlow records, the router looks at every nth packet, where n can be configured (as in Deterministic NetFlow, used on Cisco's GSRs) or it is a randomly selecting interval (as used in Random Sampled Netflow, used on all other Cisco platforms). When Sampled NetFlow is used, the NetFlow records must be adjusted for the effect of sampling - traffic volumes, in particular, are now an estimate rather than the actual measured flow volume.
+
+[edit] Cisco's NetFlow Security Event Logging
+Introduced with the launch of the Cisco ASA 5580 products, NetFlow Security Event Logging utilizes Netflow v9 fields and templates in order to efficiently deliver security telemetry in high performance environments. NetFlow Security Event Logging scales better than syslog while offering the same level of detail and granularity in logged events.[neutrality disputed]
+
+[edit] NetFlow Monitoring Based on Standalone Probes
+
+
+
+
+
+This section may contain original research or unverified claims. Please improve the article by adding references. See the talk page for details. (March 2009)
+
+
+
+
+
+
+NetFlow architecture using standalone probes.
+
+
+Although frequently used, the router-based approach suffers from several limitations. Cisco routers often use input packet sampling and the number of supported packets/sec or flows/sec is limited unless additional specialized and costly network boards are used. Furthermore, the routers have fixed placement, layer 3 visibility makes them target of attacks, and the provided statistics are not reliable enough for billing or security applications. Moreover, enabling the NetFlow monitoring on software-based routers (Cisco 7200 etc.) slows down their performance.
+For this reason, a new approach in NetFlow monitoring using standalone NetFlow probes is becoming very popular. This approach overcomes the limitations of router-based NetFlow monitoring. The probes are transparently connected to the monitored link as a totally passive appliance using TAP or SPAN port of switch or router. NetFlow probes are using dedicated link for NetFlow exports, so they are completely invisible on the monitored link.
+
+[edit] Versions
+
+
+
+
+
+This section contains information which may be of unclear or questionable importance or relevance to the article's subject matter.
+Please help improve this article by clarifying or removing superfluous information.
+
+
+
+
+Version
+Comment
+
+
+v1
+First try
+
+
+v5
+Most used version
+
+
+v6
+Encapsulation information
+
+
+v7
+Switch information
+
+
+v8
+Several aggregation forms
+
+
+v9
+Template Based, allowing many combinations
+
+
+IPFIX
+aka v10; IETF Standardized NetFlow 9 with Enterprise fields and other community input
+
+
+
+[edit] See also
+
+IP Flow Information Export (IPFIX) - IETF work to standardize flow export, based on NetFlow version 9
+SFlow
+
+
+[edit] External links
+
+Basic Netflow information on the Cisco Site
+Packet format for Version 9 NetFlow packets
+Cisco NetFlow Security Event Logging
+RFC3334 - Policy-Based Accounting
+RFC3954 - NetFlow Version 9
+RFC3955 - Candidate Protocols for IP Flow Information Export (IPFIX)
+RFC5101 - Specification of the IP Flow Information Export (IPFIX) Protocol for the Exchange of IP Traffic Flow Information (IPFIX)
+RFC5102 - Information Model for IP Flow Information Export
+List of software related to flow accounting
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Netflow"
+Categories: Computer network analysis | Network-related software | Cisco protocolsHidden categories: Articles lacking in-text citations from March 2009 | All pages needing cleanup | Articles with minor POV problems from March 2009 | Articles that may contain original research since March 2009 | All articles that may contain original research 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Česky
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 17 April 2009, at 07:42 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

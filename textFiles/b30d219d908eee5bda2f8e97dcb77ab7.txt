@@ -1,0 +1,423 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Answer set programming - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Answer_set_programming";
+		var wgTitle = "Answer set programming";
+		var wgAction = "view";
+		var wgArticleId = "2386211";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = "259321487";
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Answer set programming
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Answer set programming (ASP) is a form of declarative programming oriented towards difficult (primarily NP-hard) search problems. It is based on the stable model (answer set) semantics of logic programming. In ASP, search problems are reduced to computing stable models, and answer set solvers -- programs for generating stable models -- are used to perform search. The computational process employed in the design of many answer set solvers is an enhancement of the DPLL algorithm and, in principle, it always terminates (unlike Prolog query evaluation, which may lead to an infinite loop).
+In a more general sense, ASP includes all applications of answer sets to knowledge representation[1][2] and the use of Prolog-style query evaluation for solving problems arising in these applications.
+
+
+
+
+Contents
+
+
+1 History
+2 Answer set programming language Lparse
+3 Generating stable models
+4 Examples of ASP programs
+
+4.1 Graph coloring
+4.2 Large clique
+4.3 Hamiltonian cycle
+
+
+5 Comparison of implementations
+6 References
+7 See also
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+The planning method proposed by Dimopoulos, Nebel and Köhler[3] is an early example of answer set programming. Their approach is based on the relationship between plans and stable models[4]. Soininen and Niemelä[5] applied what is now known as answer set programming to the problem of product configuration. The use of answer set solvers for search was identified as a new programming paradigm in Marek and Truszczyński[6] (the term "answer set programming" was used for the first time as the title of a part of the collection where that paper appeared) and in [Niemelä 1999].[7]
+
+[edit] Answer set programming language Lparse
+Lparse is the name of the program that was originally created as a front-end for the answer set solver smodels, and is now used in the same way in many other answer set solvers, including assat, clasp, cmodels, gNt, nomore++ and pbmodels. (dlv is an exception; the syntax of ASP programs written for dlv is somewhat different.)
+An Lparse program consists of rules of the form
+
+<head> :- <body> .
+
+The symbol :- ("if") is dropped if <body> is empty. The simplest kind of Lparse rules are rules with constraints.
+One other useful construct included in this language is choice. For instance, the choice rule
+
+{p,q,r}.
+
+says: choose arbitrarily which of the atoms p,q,r to include in the stable model. The lparse program that contains this choice rule and no other rules has 8 stable models -- arbitrary subsets of {p,q,r}. The definition of a stable model was generalized to programs with choice rules.[8] Choice rules can be treated also as abbreviations for propositional formulas under the stable model semantics.[9] For instance, the choice rule above can be viewed as shorthand for the conjunction of three "excluded middle" formulas:
+
+
+
+The language of lparse allows us also to write "constrained" choice rules, such as
+
+1{p,q,r}2.
+
+This rule says: choose at least 1 of the atoms p,q,r, but not more than 2. The meaning of this rule under the stable model semantics is represented by the propositional formula
+
+
+
+
+
+
+
+
+
+
+Cardinality bounds can be used in the body of a rule as well, for instance:
+
+:- 2{p,q,r}.
+
+Adding this constraint to an Lparse program eliminates the stable models that contain at least 2 of the atoms p,q,r. The meaning of this rule can be represented by the propositional formula
+
+
+
+
+
+
+
+Variables (capitalized, as in Prolog) are used in Lparse to abbreviate collections of rules that follow the same pattern, and also to abbreviate collections of atoms within the same rule. For instance, the Lparse program
+
+p(a). p(b). p(c).
+q(X) :- p(X), X!=a.
+
+has the same meaning as
+
+p(a). p(b). p(c).
+q(b). q(c).
+
+The program
+
+p(a). p(b). p(c).
+{q(X):p(X)}2.
+
+is shorthand for
+
+p(a). p(b). p(c).
+{q(a),q(b),q(c)}2.
+
+
+[edit] Generating stable models
+To find a stable model of the Lparse program stored in file <filename> we use the command
+
+% lparse <filename> | smodels
+
+Option 0 instructs smodels to find all stable models of the program. For instance, if file test contains the rules
+
+1{p,q,r}2.
+s :- not p.
+
+then the command
+
+% lparse test | smodels 0
+
+produces the output
+
+Answer: 1
+Stable Model: q p 
+Answer: 2
+Stable Model: p 
+Answer: 3
+Stable Model: r p 
+Answer: 4
+Stable Model: q s 
+Answer: 5
+Stable Model: r s 
+Answer: 6
+Stable Model: r q s
+
+
+[edit] Examples of ASP programs
+
+[edit] Graph coloring
+An n-coloring of a graph G is a function  from its set of vertices to  such that  for every pair of adjacent vertices x,y. We would like to use ASP to find an n-coloring of a given graph (or determine that it does not exist).
+This can be accomplished using the following Lparse program:
+
+c(1..n).                                           
+1 {color(X,I) : c(I)} 1 :- v(X).             
+:- color(X,I), color(Y,I), e(X,Y), c(I).
+
+Line 1 defines the numbers  to be colors. According to the choice rule in Line 2, a unique color i should be assigned to each vertex x. The constraint in Line 3 prohibits assigning the same color to vertices x and y if there is an edge connecting them.
+If we combine this file with a definition of G, such as
+
+v(1..100). % 1,...,100 are vertices
+e(1,55). % there is an edge from 1 to 55
+. . .
+
+and run smodels on it, with the numeric value of n specified on the command line, then the atoms of the form  in the output of smodels will represent an n-coloring of G.
+The program in this example illustrates the "generate-and-test" organization that is often found in simple ASP programs. The choice rule describes a set of "potential solutions" -- a simple superset of the set of solutions to the given search problem. It is followed by a constraint, which eliminates all potential solutions that are not acceptable. However, the search process employed by smodels and other answer set solvers is not based on trial and error.
+
+[edit] Large clique
+A clique in a graph is a set of pairwise adjacent vertices. The following lparse program finds a clique of size  in a given graph, or determines that it does not exist:
+
+n {in(X) : v(X)}.
+:- in(X), in(Y), v(X), v(Y), X!=Y, not e(X,Y), not e(Y,X).
+
+This is another example of the generate-and-test organization. The choice rule in Line 1 "generates" all sets consisting of  vertices. The constraint in Line 2 "weeds out" the sets that are not cliques.
+
+[edit] Hamiltonian cycle
+A Hamiltonian cycle in a directed graph is a cycle that passes through each vertex of the graph exactly once. The following Lparse program can be used to find a Hamiltonian cycle in a given directed graph if it exists; we assume that 0 is one of the vertices.
+
+{in(X,Y)} :- e(X,Y).
+
+:- 2 {in(X,Y) : e(X,Y)}, v(X).
+:- 2 {in(X,Y) : e(X,Y)}, v(Y).
+
+r(X) :- in(0,X), v(X).
+r(Y) :- r(X), in(X,Y), e(X,Y).
+
+:- not r(X), v(X).
+
+The choice rule in Line 1 "generates" all subsets of the set of edges. The three constraints "weed out" the subsets that are not Hamiltonian cycles. The last of them uses the auxiliary predicate r(x) ("x is reachable from 0") to prohibit the vertices that do not satisfy this condition. This predicate is defined recursively in Lines 4 and 5.
+This program is an example of the more general "generate, define and test" organization: it includes the definition of an auxiliary predicate that helps us eliminate all "bad" potential solutions.
+
+[edit] Comparison of implementations
+
+
+Platform
+Features
+Mechanics
+
+
+Name
+OS
+Licence
+Variables
+Function symbols
+Explicit sets
+Explicit lists
+
+
+DLV
+Linux,Mac OS,Windows
+Freeware
+Yes
+No
+No
+No
+
+
+
+Smodels
+Linux,Mac OS,Windows
+GPL
+Yes
+No
+No
+No
+
+
+
+
+[edit] References
+
+^ C. Baral [2003] Knowledge Representation, Reasoning and Declarative Problem Solving. Cambridge University Press.
+^ M. Gelfond [2008] Answer sets. In: Handbook of Knowledge Representation, Elsevier, pages 285-316.
+^ Y. Dimopoulos, B. Nebel and J. Köhler [1997] Encoding planning problems in non-monotonic logic programs. In: Proceedings of ECP-97, Springer Verlag, pages 273-285.
+^ V.S.Subrahmanian and C. Zaniolo [1995] Relating stable models and AI planning domains. In: Proceedings of ICLP-95, pages 233-247.
+^ T. Soininen and I. Niemelä [1998] Formalizing configuration knowledge using rules with choices. Technical Report TKO-B142, Laboratory of Information Processing Science, Helsinki University of Technology.
+^ V. Marek and M. Truszczyński [1999] Stable models and an alternative logic programming paradigm. In: The Logic Programming Paradigm: a 25-Year Perspective, Springer Verlag, pages 169-181.
+^ I. Niemelä [1999] Logic programs with stable model semantics as a constraint programming paradigm. Annals of Mathematics and Artificial Intelligence, Vol. 25, pages 241-273.
+^ I. Niemelä, P. Simons and T. Soinenen [1999] Stable model semantics of weight constraint rules. In: Proceedings of LPNMR-99, pages 317-331.
+^ P. Ferraris and V. Lifschitz [2005] Weight constraints as nested expressions. Theory and Practice of Logic Programming, Vol. 5, pages 45-74.
+
+
+
+[edit] See also
+
+Default logic
+Logic programming
+Non-monotonic logic
+Prolog
+Stable model semantics
+
+
+[edit] External links
+
+First ASP System Competition
+Platypus
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Answer_set_programming"
+Categories: Logic programming 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 21 December 2008, at 09:59.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

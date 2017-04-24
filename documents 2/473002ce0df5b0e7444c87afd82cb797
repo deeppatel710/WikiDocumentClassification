@@ -1,0 +1,644 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Compiler optimization,Articles with unsourced statements since October 2007,68000 family,Addressing mode,Algorithmic efficiency,Alias analysis,Aliasing (computing),Arithmetic logic unit,Array access analysis,Assembly language,Automatic parallelization" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Compiler_optimization&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Compiler_optimization&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Compiler optimization - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Compiler_optimization";
+		var wgTitle = "Compiler optimization";
+		var wgAction = "view";
+		var wgArticleId = "40355";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282266112;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Compiler_optimization skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Compiler optimization</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table class="metadata plainlinks ambox ambox-style" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Text_document_with_red_question_mark.svg" class="image" title="Text document with red question mark.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Text_document_with_red_question_mark.svg/40px-Text_document_with_red_question_mark.svg.png" width="40" height="40" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article includes a <a href="/wiki/Wikipedia:Citing_sources" title="Wikipedia:Citing sources">list of references</a> or <a href="/wiki/Wikipedia:External_links" title="Wikipedia:External links">external links</a>, but <b>its sources remain unclear because it lacks <a href="/wiki/Wikipedia:Citing_sources#Inline_citations" title="Wikipedia:Citing sources">inline citations</a>.</b> Please <a href="/wiki/Wikipedia:WikiProject_Fact_and_Reference_Check" title="Wikipedia:WikiProject Fact and Reference Check">improve</a> this article by introducing more precise citations <a href="/wiki/Wikipedia:When_to_cite" title="Wikipedia:When to cite">where appropriate</a>. <small><i>(April 2009)</i></small></td>
+</tr>
+</table>
+<p><b>Compiler optimization</b> is the process of tuning the output of a <a href="/wiki/Compiler" title="Compiler">compiler</a> to minimize or maximize some attribute of an <a href="/wiki/Executable" title="Executable">executable</a> computer program. The most common requirement is to minimize the time taken to execute a <a href="/wiki/Computer_program" title="Computer program">program</a>; a less common one is to minimize the amount of <a href="/wiki/Memory_(computers)" title="Memory (computers)" class="mw-redirect">memory</a> occupied. The growth of <a href="/wiki/Portable_computer" title="Portable computer">portable computers</a> has created a market for minimizing the <a href="/wiki/Energy_conservation" title="Energy conservation">power</a> consumed by a program.</p>
+<p>It has been shown that some code optimization problems are <a href="/wiki/NP-complete" title="NP-complete">NP-complete</a>, or even <a href="/wiki/Undecidable_problem" title="Undecidable problem">undecidable</a>. In practice, factors such as the <a href="/wiki/Programmer" title="Programmer">programmer</a>'s willingness to wait for the compiler to complete its task place upper limits on the optimizations that a compiler implementor might provide. (Optimization is generally a very <a href="/wiki/CPU" title="CPU" class="mw-redirect">CPU</a>- and memory-intensive process.) In the past, computer memory limitations were also a major factor in limiting which optimizations could be performed.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Types_of_optimizations"><span class="tocnumber">1</span> <span class="toctext">Types of optimizations</span></a></li>
+<li class="toclevel-1"><a href="#Factors_affecting_optimization"><span class="tocnumber">2</span> <span class="toctext">Factors affecting optimization</span></a></li>
+<li class="toclevel-1"><a href="#Optimization_techniques"><span class="tocnumber">3</span> <span class="toctext">Optimization techniques</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Common_themes"><span class="tocnumber">3.1</span> <span class="toctext">Common themes</span></a></li>
+<li class="toclevel-2"><a href="#Optimization_techniques_2"><span class="tocnumber">3.2</span> <span class="toctext">Optimization techniques</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Loop_optimizations"><span class="tocnumber">3.2.1</span> <span class="toctext">Loop optimizations</span></a></li>
+<li class="toclevel-3"><a href="#Data-flow_optimizations"><span class="tocnumber">3.2.2</span> <span class="toctext">Data-flow optimizations</span></a></li>
+<li class="toclevel-3"><a href="#SSA-based_optimizations"><span class="tocnumber">3.2.3</span> <span class="toctext">SSA-based optimizations</span></a></li>
+<li class="toclevel-3"><a href="#Code_generator_optimizations"><span class="tocnumber">3.2.4</span> <span class="toctext">Code generator optimizations</span></a></li>
+<li class="toclevel-3"><a href="#Functional_language_optimizations"><span class="tocnumber">3.2.5</span> <span class="toctext">Functional language optimizations</span></a></li>
+<li class="toclevel-3"><a href="#Other_optimizations"><span class="tocnumber">3.2.6</span> <span class="toctext">Other optimizations</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Interprocedural_optimizations"><span class="tocnumber">3.3</span> <span class="toctext">Interprocedural optimizations</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Problems_with_optimization"><span class="tocnumber">4</span> <span class="toctext">Problems with optimization</span></a></li>
+<li class="toclevel-1"><a href="#List_of_compiler_optimizations"><span class="tocnumber">5</span> <span class="toctext">List of compiler optimizations</span></a></li>
+<li class="toclevel-1"><a href="#List_of_static_code_analyses"><span class="tocnumber">6</span> <span class="toctext">List of static code analyses</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">7</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">8</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">9</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Types_of_optimizations" id="Types_of_optimizations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=1" title="Edit section: Types of optimizations">edit</a>]</span> <span class="mw-headline">Types of optimizations</span></h2>
+<p>Techniques used in optimization can be broken up among various <i>scopes</i> which can affect anything from a single statement to the entire program. Generally speaking, locally scoped techniques are easier to implement than global ones but result in smaller gains. Some examples of scopes include:</p>
+<ul>
+<li><a href="/wiki/Peephole_optimization" title="Peephole optimization">Peephole optimizations</a>: Usually performed late in the compilation process after <a href="/wiki/Machine_code" title="Machine code">machine code</a> has been generated. This form of optimization examines a few adjacent instructions (like "looking through a peephole" at the code) to see whether they can be replaced by a single instruction or a shorter sequence of instructions. For instance, a multiplication of a value by&#160;2 might be more efficiently executed by <a href="/wiki/Bitwise_operation#Bit_shifts" title="Bitwise operation">left-shifting</a> the value or by adding the value to itself. (This example is also an instance of <a href="/wiki/Strength_reduction" title="Strength reduction">strength reduction</a>.)</li>
+</ul>
+<ul>
+<li><a href="/w/index.php?title=Local_optimizations&amp;action=edit&amp;redlink=1" class="new" title="Local optimizations (page does not exist)">Local optimizations</a>: These only consider information local to a function definition. This reduces the amount of analysis that needs to be performed (saving time and reducing storage requirements) but means that worst case assumptions have to be made when function calls occur or global variables are accessed (because little information about them is available).</li>
+</ul>
+<ul>
+<li><i>Interprocedural</i> or whole-program optimization: These analyze all of a program's source code. The greater quantity of information extracted means that optimizations can be more effective compared to when they only have access to local information (i.e., within a single function). This kind of optimization can also allow new techniques to be performed. For instance function <a href="/wiki/Inline_expansion" title="Inline expansion">inlining</a>, where a call to a function is replaced by a copy of the function body.</li>
+</ul>
+<ul>
+<li><a href="/wiki/Loop_optimization" title="Loop optimization">Loop optimizations</a>: These act on the statements which make up a loop, such as a <i>for</i> loop (eg, <a href="/wiki/Loop-invariant_code_motion" title="Loop-invariant code motion">loop-invariant code motion</a>). Loop optimizations can have a significant impact because many programs spend a large percentage of their time inside loops.</li>
+</ul>
+<p>In addition to scoped optimizations there are two further general categories of optimization:</p>
+<ul>
+<li><i><a href="/wiki/Programming_language" title="Programming language">Programming language</a>-independent vs. language-dependent</i>: Most high-level languages share common programming constructs and abstractions — decision (if, switch, case), looping (for, while, repeat.. until, do.. while), encapsulation (structures, objects). Thus similar optimization techniques can be used across languages. However, certain language features make some kinds of optimizations difficult. For instance, the existence of pointers in <a href="/wiki/C_(programming_language)" title="C (programming language)">C</a> and <a href="/wiki/C%2B%2B" title="C++">C++</a> makes it difficult to optimize array accesses (see <a href="/wiki/Alias_analysis" title="Alias analysis">Alias analysis</a>). Conversely, some language features make certain optimizations easier. For example, in some languages functions are not permitted to have "side effects". Therefore, if a program makes several calls to the same function with the same arguments, the compiler can immediately infer that the function's result need be computed only once.</li>
+</ul>
+<ul>
+<li><i>Machine independent vs. machine dependent</i>: Many optimizations that operate on abstract programming concepts (loops, objects, structures) are independent of the machine targeted by the compiler, but many of the most effective optimizations are those that best exploit special features of the target platform.</li>
+</ul>
+<p>The following is an instance of a local machine dependent optimization. To set a register to 0, the obvious way is to use the constant 0 in an instruction that sets a register value to a constant. A less obvious way is to <a href="/wiki/XOR" title="XOR" class="mw-redirect">XOR</a> a register with itself. It is up to the compiler to know which instruction variant to use. On many <a href="/wiki/RISC" title="RISC" class="mw-redirect">RISC</a> machines, both instructions would be equally appropriate, since they would both be the same length and take the same time. On many other <a href="/wiki/Microprocessor" title="Microprocessor">microprocessors</a> such as the <a href="/wiki/Intel" title="Intel" class="mw-redirect">Intel</a> <a href="/wiki/X86" title="X86">x86</a> family, it turns out that the XOR variant is shorter and probably faster, as there will be no need to decode an immediate operand, nor use the internal "immediate operand register". (The catch being that XOR may introduce a data dependency on the previous value of the register, causing a <a href="/wiki/Instruction_pipeline" title="Instruction pipeline">pipeline</a> stall. However, processors often have XOR of a register with itself as a special case that doesn't cause stalls.)</p>
+<p><a name="Factors_affecting_optimization" id="Factors_affecting_optimization"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=2" title="Edit section: Factors affecting optimization">edit</a>]</span> <span class="mw-headline">Factors affecting optimization</span></h2>
+<dl>
+<dt><i>The machine itself</i></dt>
+</dl>
+<p>Many of the choices about which optimizations can and should be done depend on the characteristics of the target machine. It is sometimes possible to parameterize some of these machine dependent factors, so that a single piece of compiler code can be used to optimize different machines just by altering the machine description parameters. <a href="/wiki/GNU_Compiler_Collection" title="GNU Compiler Collection">GCC</a> is a compiler which exemplifies this approach.</p>
+<dl>
+<dt><i>The architecture of the target CPU</i></dt>
+</dl>
+<ul>
+<li>Number of <a href="/wiki/Central_processing_unit" title="Central processing unit">CPU</a> <a href="/wiki/Processor_register" title="Processor register">registers</a>: To a certain extent, the more registers, the easier it is to optimize for performance. <a href="/wiki/Local_variable" title="Local variable">Local variables</a> can be allocated in the registers and not on the <a href="/wiki/Call_stack" title="Call stack">stack</a>. Temporary/intermediate results can be left in registers without writing to and reading back from memory.</li>
+</ul>
+<ul>
+<li><a href="/wiki/RISC" title="RISC" class="mw-redirect">RISC</a> vs. <a href="/wiki/Complex_instruction_set_computer" title="Complex instruction set computer">CISC</a>: CISC instruction sets often have variable instruction lengths, often have a larger number of possible instructions that can be used, and each instruction could take differing amounts of time. RISC instruction sets attempt to limit the variability in each of these: instruction sets are usually constant length, with few exceptions, there are usually fewer combinations of registers and memory operations, and the instruction issue rate (the number of instructions completed per time period, usually an integer multiple of the clock cycle) is usually constant in cases where memory latency is not a factor. There may be several ways of carrying out a certain task, with CISC usually offering more alternatives than RISC. Compilers have to know the relative costs among the various instructions and choose the best instruction sequence (see <a href="/wiki/Instruction_selection" title="Instruction selection">instruction selection</a>).</li>
+<li><a href="/wiki/Instruction_pipeline" title="Instruction pipeline">Pipelines</a>: A pipeline is essentially an <a href="/wiki/Arithmetic_logic_unit" title="Arithmetic logic unit">ALU</a> broken up into an assembly line. It allows use of parts of the ALU for different instructions by breaking up the execution of instructions into various stages: instruction decode, address decode, memory fetch, register fetch, compute, register store, etc. One instruction could be in the register store stage, while another could be in the register fetch stage. Pipeline conflicts occur when an instruction in one stage of the pipeline depends on the result of another instruction ahead of it in the pipeline but not yet completed. Pipeline conflicts can lead to <a href="/wiki/Pipeline_stall" title="Pipeline stall" class="mw-redirect">pipeline stalls</a>: where the CPU wastes cycles waiting for a conflict to resolve.</li>
+</ul>
+<dl>
+<dd>Compilers can <i>schedule</i>, or reorder, instructions so that pipeline stalls occur less frequently.</dd>
+</dl>
+<ul>
+<li><a href="/wiki/Superscalar" title="Superscalar">Number of functional units</a>: Some CPUs have several ALUs and <a href="/wiki/Floating_point_unit" title="Floating point unit" class="mw-redirect">FPUs</a>. This allows them to execute multiple instructions simultaneously. There may be restrictions on which instructions can pair with which other instructions ("pairing" is the simultaneous execution of two or more instructions), and which functional unit can execute which instruction. They also have issues similar to pipeline conflicts.</li>
+</ul>
+<dl>
+<dd>Here again, instructions have to be scheduled so that the various functional units are fully fed with instructions to execute.</dd>
+</dl>
+<dl>
+<dt><i>The architecture of the machine</i></dt>
+</dl>
+<ul>
+<li><a href="/wiki/CPU_Cache" title="CPU Cache" class="mw-redirect">Cache</a> size (256kB-12MB) and type (direct mapped, 2-/4-/8-/16-way associative, fully associative): Techniques like <a href="/wiki/Inline_expansion" title="Inline expansion">inline expansion</a> and <a href="/wiki/Loop_unrolling" title="Loop unrolling" class="mw-redirect">loop unrolling</a> may increase the size of the generated code and reduce code locality. The program may slow down drastically if an oft-run piece of code (like inner loops in various algorithms) suddenly cannot fit in the cache. Also, caches which are not fully associative have higher chances of cache collisions even in an unfilled cache.</li>
+<li>Cache/Memory transfer rates: These give the compiler an indication of the penalty for cache misses. This is used mainly in specialized applications.</li>
+</ul>
+<dl>
+<dt><i>Intended use of the generated code</i></dt>
+</dl>
+<ul>
+<li><a href="/wiki/Debugging" title="Debugging">Debugging</a>: When a programmer is still writing an application, they will recompile and test often, and so compilation must be fast. This is one reason most optimizations are avoided while debugging. Also, debugging code is usually stepped through in a <a href="/wiki/Symbolic_debugger" title="Symbolic debugger" class="mw-redirect">symbolic debugger</a>, and optimizing transformations, particularly those that reorder code, can make it difficult to identify the output code with the line numbers in the source code from which the code was generated. This can confuse the debugging tools and the programmer using them.</li>
+</ul>
+<ul>
+<li>General purpose use: Prepackaged software is very often expected to be executed on a variety of machines and CPUs that may share the same instruction set, but have different timing, cache or memory characteristics. So, the code may not be tuned to any particular CPU, or may be tuned to work well on the most popular CPU and work reasonably on other CPUs.</li>
+</ul>
+<ul>
+<li>Special-purpose use: If the software is compiled to be used on one or a few very similar machines, with known characteristics, then the compiler can heavily tune the generated code to those machines alone. Important special cases include code designed for <a href="/wiki/Parallel_computing" title="Parallel computing">parallel</a> and <a href="/wiki/Vector_processor" title="Vector processor">vector processors</a>, for which we have parallelizing compilers.</li>
+</ul>
+<ul>
+<li><a href="/wiki/Embedded_system" title="Embedded system">Embedded systems</a>: These are a common case of special-purpose use. Embedded software can be tightly tuned to an exact CPU and memory size. Also, system cost or reliablility may be more important than the code's speed. So, for example, compilers for embedded software usually offer options that reduce code size at the expense of speed, because memory is the main cost of an embedded computer. The code's timing may need to be predictable, rather than "as fast as possible," so code caching might be disabled, along with compiler optimizations that require it.</li>
+</ul>
+<p><a name="Optimization_techniques" id="Optimization_techniques"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=3" title="Edit section: Optimization techniques">edit</a>]</span> <span class="mw-headline">Optimization techniques</span></h2>
+<p><a name="Common_themes" id="Common_themes"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=4" title="Edit section: Common themes">edit</a>]</span> <span class="mw-headline">Common themes</span></h3>
+<p>To a large extent, compiler optimization techniques have the following themes, which sometime conflict.</p>
+<dl>
+<dt><i>Optimize the common case</i></dt>
+<dd>The common case may have unique properties that allow a <i><a href="/wiki/Fast_path" title="Fast path">fast path</a></i> at the expense of a <i>slow path</i>. If the fast path is taken most often, the result is better over-all performance.</dd>
+</dl>
+<dl>
+<dt><i>Avoid redundancy</i></dt>
+<dd>Reuse results that are already computed and store them for use later, instead of recomputing them.</dd>
+</dl>
+<dl>
+<dt><i>Less code</i></dt>
+<dd>Remove unnecessary computations and intermediate values. Less work for the CPU, cache, and memory usually results in faster execution. Alternatively, in <a href="/wiki/Embedded_systems" title="Embedded systems" class="mw-redirect">embedded systems</a>, less code brings a lower product cost.</dd>
+</dl>
+<dl>
+<dt><i>Straight line code, fewer jumps</i></dt>
+<dd>Less complicated code. Jumps (conditional or <a href="/wiki/Unconditional_branch" title="Unconditional branch" class="mw-redirect">unconditional branches</a>) interfere with the prefetching of instructions, thus slowing down code. Using <a href="/wiki/Inlining" title="Inlining" class="mw-redirect">inlining</a> or <a href="/wiki/Macro_(computer_science)" title="Macro (computer science)">macro</a> expansion, instead of calling subroutines, can be used to reduce branching (at the cost of increasing <a href="/wiki/Binary_file" title="Binary file">binary file</a> size by the length of the repeated code)</dd>
+</dl>
+<dl>
+<dt><i>Locality</i></dt>
+<dd>Code and data that are accessed closely together in time should be placed close together in memory to increase spatial <a href="/wiki/Locality_of_reference" title="Locality of reference">locality of reference</a>.</dd>
+</dl>
+<dl>
+<dt><i>Exploit the memory hierarchy</i></dt>
+<dd>Accesses to memory are increasingly more expensive for each level of the <a href="/wiki/Memory_hierarchy" title="Memory hierarchy">memory hierarchy</a>, so place the most commonly used items in registers first, then caches, then main memory, before going to disk.</dd>
+</dl>
+<dl>
+<dt><i>Parallelize</i></dt>
+<dd>Reorder operations to allow multiple computations to happen in parallel, either at the instruction, memory, or thread level.</dd>
+</dl>
+<dl>
+<dt><i>More precise information is better</i></dt>
+<dd>The more precise the information the compiler has, the better it can employ any or all of these optimization techniques.</dd>
+</dl>
+<dl>
+<dt><i>Runtime metrics can help</i></dt>
+<dd>Information gathered at runtime (ideally with minimal <a href="/wiki/Overhead" title="Overhead">overhead</a>) can be used by a <a href="/wiki/JIT" title="JIT">JIT</a> compiler to dynamically improve optimization</dd>
+</dl>
+<p><a name="Optimization_techniques_2" id="Optimization_techniques_2"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=5" title="Edit section: Optimization techniques">edit</a>]</span> <span class="mw-headline">Optimization techniques</span></h3>
+<p><a name="Loop_optimizations" id="Loop_optimizations"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=6" title="Edit section: Loop optimizations">edit</a>]</span> <span class="mw-headline">Loop optimizations</span></h4>
+<div class="rellink noprint relarticle mainarticle">Main article: <a href="/wiki/Loop_optimization" title="Loop optimization">Loop optimization</a></div>
+<p>Some optimization techniques primarily designed to operate on loops include:</p>
+<dl>
+<dt><a href="/wiki/Induction_variable_analysis" title="Induction variable analysis" class="mw-redirect">Induction variable analysis</a></dt>
+<dd>Roughly, if a variable in a loop is a simple function of the index variable, such as <code>j:= 4*i+1</code>, it can be updated appropriately each time the loop variable is changed. This is a <a href="/wiki/Strength_reduction" title="Strength reduction">strength reduction</a>, and also may allow the index variable's definitions to become <a href="/wiki/Dead_code" title="Dead code">dead code</a>. This information is also useful for <a href="/wiki/Bounds-checking_elimination" title="Bounds-checking elimination">bounds-checking elimination</a> and <a href="/wiki/Dependence_analysis" title="Dependence analysis">dependence analysis</a>, among other things.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_fission" title="Loop fission">Loop fission</a> or <i>loop distribution</i></dt>
+<dd>Loop fission attempts to break a loop into multiple loops over the same index range but each taking only a part of the loop's body. This can improve <a href="/wiki/Locality_of_reference" title="Locality of reference">locality of reference</a>, both of the data being accessed in the loop and the code in the loop's body.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_fusion" title="Loop fusion">Loop fusion</a> or <i>loop combining</i></dt>
+<dd>Another technique which attempts to reduce loop overhead. When two adjacent loops would iterate the same number of times (whether or not that number is known at compile time), their bodies can be combined as long as they make no reference to each other's data.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_inversion" title="Loop inversion">Loop inversion</a></dt>
+<dd>This technique changes a standard <i>while</i> loop into a <i>do/while</i> (also known as <i>repeat/until</i>) loop wrapped in an <i>if</i> conditional, reducing the number of jumps by two, for cases when the loop is executed. Doing so duplicates the condition check (increasing the size of the code) but is more efficient because jumps usually cause a <a href="/wiki/Pipeline_stall" title="Pipeline stall" class="mw-redirect">pipeline stall</a>. Additionally, if the initial condition is known at compile-time and is known to be <a href="/wiki/Side_effect_(computer_science)" title="Side effect (computer science)">side-effect</a>-free, the <i>if</i> guard can be skipped.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_interchange" title="Loop interchange">Loop interchange</a></dt>
+<dd>These optimizations exchange inner loops with outer loops. When the loop variables index into an array, such a transformation can improve <a href="/wiki/Locality_of_reference" title="Locality of reference">locality of reference</a>, depending on the array's layout.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop-invariant_code_motion" title="Loop-invariant code motion">Loop-invariant code motion</a></dt>
+<dd>If a quantity is computed inside a loop during every iteration, and its value is the same for each iteration, it can vastly improve efficiency to hoist it outside the loop and compute its value just once before the loop begins. This is particularly important with the address-calculation expressions generated by loops over arrays. For correct implementation, this technique must be used with <a href="/wiki/Loop_inversion" title="Loop inversion">loop inversion</a>, because not all code is safe to be hoisted outside the loop.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_nest_optimization" title="Loop nest optimization">Loop nest optimization</a></dt>
+<dd>Some pervasive algorithms such as matrix multiplication have very poor cache behavior and excessive memory accesses. Loop nest optimization increases the number of cache hits by performing the operation over small blocks and by using a loop interchange.</dd>
+</dl>
+<dl>
+<dt><a href="/w/index.php?title=Loop_reversal&amp;action=edit&amp;redlink=1" class="new" title="Loop reversal (page does not exist)">Loop reversal</a></dt>
+<dd>Loop reversal reverses the order in which values are assigned to the index variable. This is a subtle optimization which can help eliminate <a href="/wiki/Dependence_analysis" title="Dependence analysis">dependencies</a> and thus enable other optimizations.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_unrolling" title="Loop unrolling" class="mw-redirect">Loop unrolling</a></dt>
+<dd>Unrolling duplicates the body of the loop multiple times, in order to decrease the number of times the loop condition is tested and the number of jumps, which hurt performance by impairing the instruction pipeline. Completely unrolling a loop eliminates all overhead, but requires that the number of iterations be known at compile time.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_splitting" title="Loop splitting">Loop splitting</a></dt>
+<dd>Loop splitting attempts to simplify a loop or eliminate <a href="/wiki/Dependence_analysis" title="Dependence analysis">dependencies</a> by breaking it into multiple loops which have the same bodies but iterate over different contiguous portions of the index range. A useful special case is <i>loop peeling</i>, which can simplify a loop with a problematic first iteration by performing that iteration separately before entering the loop.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Loop_unswitching" title="Loop unswitching">Loop unswitching</a></dt>
+<dd>Unswitching moves a conditional from inside a loop to outside the loop by duplicating the loop's body inside each of the if and else clauses of the conditional.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Software_pipelining" title="Software pipelining">Software pipelining</a></dt>
+<dd>The loop is restructured in such a way that work done in an iteration is split into several parts and done over several iterations. In a tight loop this technique hides the latency between loading and using values.</dd>
+</dl>
+<p><a name="Data-flow_optimizations" id="Data-flow_optimizations"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=7" title="Edit section: Data-flow optimizations">edit</a>]</span> <span class="mw-headline">Data-flow optimizations</span></h4>
+<p><a href="/wiki/Dataflow" title="Dataflow">Data flow</a> optimizations, based on <a href="/wiki/Data-flow_analysis" title="Data-flow analysis">Data-flow analysis</a>, primarily depend on how certain properties of data are propagated by control edges in the <a href="/wiki/Control_flow_graph" title="Control flow graph">control flow graph</a>. Some of these include:</p>
+<dl>
+<dt><a href="/wiki/Common_subexpression_elimination" title="Common subexpression elimination">Common subexpression elimination</a></dt>
+<dd>In the expression "(a+b)-(a+b)/4", "common subexpression" refers to the duplicated "(a+b)". Compilers implementing this technique realize that "(a+b)" won't change, and as such, only calculate its value once.</dd>
+</dl>
+<dl>
+<dt><i><a href="/wiki/Constant_folding" title="Constant folding">Constant folding</a> and propagation</i></dt>
+<dd>replacing expressions consisting of constants (e.g. "3 + 5") with their final value ("8") at compile time, rather than doing the calculation in run-time. Used in most modern languages.</dd>
+</dl>
+<dl>
+<dt><i><a href="/wiki/Induction_variable_recognition_and_elimination" title="Induction variable recognition and elimination" class="mw-redirect">Induction variable recognition and elimination</a></i></dt>
+<dd>see discussion above about <i>induction variable analysis</i>.</dd>
+</dl>
+<dl>
+<dt><i><a href="/wiki/Aliasing_(computing)#Conflicts_with_optimisation" title="Aliasing (computing)">Alias classification and pointer analysis</a></i></dt>
+<dd>in the presence of <a href="/wiki/Pointer" title="Pointer" class="mw-redirect">pointers</a>, it is difficult to make any optimisations at all, since potentially any variable can have been changed when a memory location is assigned to. By specifying which pointers can alias which variables, unrelated pointers can be ignored.</dd>
+</dl>
+<p><a name="SSA-based_optimizations" id="SSA-based_optimizations"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=8" title="Edit section: SSA-based optimizations">edit</a>]</span> <span class="mw-headline"><a href="/wiki/SSA_(compilers)" title="SSA (compilers)" class="mw-redirect">SSA</a>-based optimizations</span></h4>
+<p>These optimizations are intended to be done after transforming the program into a special form called static single assignment (see <a href="/wiki/SSA_(compilers)" title="SSA (compilers)" class="mw-redirect">SSA</a> form), in which every variable is assigned in only one place. Although some function without SSA, they are most effective with SSA. Many optimizations listed in other sections also benefit with no special changes, such as register allocation.</p>
+<dl>
+<dt><b><a href="/wiki/Global_value_numbering" title="Global value numbering">global value numbering</a></b></dt>
+<dd>GVN eliminates redundancy by constructing a <a href="/w/index.php?title=Value_graph_(compilers)&amp;action=edit&amp;redlink=1" class="new" title="Value graph (compilers) (page does not exist)">value graph</a> of the program, and then determining which values are computed by equivalent expressions. GVN is able to identify some redundancy that <a href="/wiki/Common_subexpression_elimination" title="Common subexpression elimination">common subexpression elimination</a> cannot, and vice versa.</dd>
+</dl>
+<dl>
+<dt><b><a href="/wiki/Sparse_conditional_constant_propagation" title="Sparse conditional constant propagation">sparse conditional constant propagation</a></b></dt>
+<dd>Effectively equivalent to iteratively performing constant propagation, <a href="/wiki/Constant_folding" title="Constant folding">constant folding</a>, and <a href="/wiki/Dead_code_elimination" title="Dead code elimination">dead code elimination</a> until there is no change, but is much more efficient. This optimization symbolically executes the program, simultaneously propagating constant values and eliminating portions of the <a href="/wiki/Control_flow_graph" title="Control flow graph">control flow graph</a> that this makes unreachable.</dd>
+</dl>
+<hr />
+<p><a name="Code_generator_optimizations" id="Code_generator_optimizations"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=9" title="Edit section: Code generator optimizations">edit</a>]</span> <span class="mw-headline">Code generator optimizations</span></h4>
+<dl>
+<dt><b><a href="/wiki/Register_allocation" title="Register allocation">register allocation</a></b></dt>
+<dd>The most frequently used variables should be kept in processor registers for fastest access. To find which variables to put in registers an interference-graph is created. Each variable is a vertex and when two variables are used at the same time (have an intersecting liverange) they have an edge between them. This graph is colored using for example <a href="/wiki/Chaitin%27s_algorithm" title="Chaitin's algorithm">Chaitin's algorithm</a> using the same number of colors as there are registers. If the coloring fails one variable is "spilled" to memory and the coloring is retried.</dd>
+</dl>
+<dl>
+<dt><b><a href="/wiki/Instruction_selection" title="Instruction selection">instruction selection</a></b></dt>
+<dd>Most architectures, particularly <a href="/wiki/Complex_instruction_set_computer" title="Complex instruction set computer">CISC</a> architectures and those with many <a href="/wiki/Addressing_mode" title="Addressing mode">addressing modes</a>, offer several different ways of performing a particular operation, using entirely different sequences of instructions. The job of the instruction selector is to do a good job overall of choosing which instructions to implement which operators in the low-level <a href="/wiki/Intermediate_representation" title="Intermediate representation">intermediate representation</a> with. For example, on many processors in the <a href="/wiki/68000_family" title="68000 family" class="mw-redirect">68000 family</a> and on the x86 architecture, complex addressing modes can be used in statements like "lea 25(a1,d5*4), a0", allowing a single instruction to perform a significant amount of arithmetic with less storage.</dd>
+</dl>
+<dl>
+<dt><b><a href="/wiki/Instruction_scheduling" title="Instruction scheduling">instruction scheduling</a></b></dt>
+<dd>Instruction scheduling is an important optimization for modern <a href="/wiki/Instruction_pipeline" title="Instruction pipeline">pipelined</a> processors, which avoids stalls or bubbles in the pipeline by clustering instructions with no dependencies together, while being careful to preserve the original semantics.</dd>
+</dl>
+<dl>
+<dt><b><a href="/wiki/Rematerialization" title="Rematerialization">rematerialization</a></b></dt>
+<dd>Rematerialization recalculates a value instead of loading it from memory, preventing a memory access. This is performed in tandem with register allocation to avoid spills.</dd>
+</dl>
+<dl>
+<dt><b>code factoring</b></dt>
+<dd>If several sequences of code are identical, or can be parameterized or reordered to be identical, they can be replaced with calls to a shared subroutine. This can often share code for subroutine set-up and sometimes tail-recursion. <sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup></dd>
+</dl>
+<dl>
+<dt><b>trampolines</b></dt>
+<dd>Many CPUs have smaller subroutine call instructions to access low memory. A compiler can save space by using these small calls in the main body of code. Jump instructions in low memory can access the routines at any address. This multiplies space savings from code factoring.<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup></dd>
+</dl>
+<dl>
+<dt><b>reordering computations</b></dt>
+<dd>Based on <a href="/wiki/Integer_linear_programming" title="Integer linear programming" class="mw-redirect">integer linear programming</a>, restructuring compilers enhance data locality and expose more parallelism by reordering computations. Space-optimizing compilers may reorder code to lengthen sequences that can be factored into subroutines.</dd>
+</dl>
+<p><a name="Functional_language_optimizations" id="Functional_language_optimizations"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=10" title="Edit section: Functional language optimizations">edit</a>]</span> <span class="mw-headline">Functional language optimizations</span></h4>
+<p>Although many of these also apply to non-functional languages, they either originate in, are most easily implemented in, or are particularly critical in <a href="/wiki/Functional_language" title="Functional language" class="mw-redirect">functional languages</a> such as <a href="/wiki/Lisp_programming_language" title="Lisp programming language" class="mw-redirect">Lisp</a> and <a href="/wiki/ML_programming_language" title="ML programming language" class="mw-redirect">ML</a>.</p>
+<dl>
+<dt>Removing <a href="/wiki/Recursion" title="Recursion">recursion</a></dt>
+<dd>Recursion is often expensive, as a function call consumes stack space and involves some overhead related to parameter passing and flushing the instruction cache. <a href="/wiki/Tail_recursion" title="Tail recursion">Tail recursive</a> algorithms can be converted to <a href="/wiki/Iteration" title="Iteration">iteration</a>, which does not have call overhead and uses a constant amount of stack space, through a process called tail recursion elimination or tail call optimization. Some functional languages, e.g. <a href="/wiki/Scheme_(programming_language)#Tail_recursion" title="Scheme (programming language)">Scheme</a>, mandate that tail calls be optimized by a conforming implementation, due to their prevalence in these languages.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Data_structure" title="Data structure">Data structure</a> fusion</dt>
+<dd>Because of the high level nature by which data structures are specified in functional languages such as Haskell, it is possible to combine several recursive functions which produce and consume some temporary data structure so that the data is passed directly without wasting time constructing the data structure.</dd>
+</dl>
+<p><a name="Other_optimizations" id="Other_optimizations"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=11" title="Edit section: Other optimizations">edit</a>]</span> <span class="mw-headline">Other optimizations</span></h4>
+<p><i>Please help separate and categorize these further and create detailed pages for them, especially the more complex ones, or link to one where one exists.</i></p>
+<dl>
+<dt><a href="/wiki/Bounds-checking_elimination" title="Bounds-checking elimination">Bounds-checking elimination</a></dt>
+<dd>Many languages, for example <a href="/wiki/Java_(programming_language)" title="Java (programming language)">Java</a>, enforce bounds-checking of all array accesses. This is a severe performance bottleneck on certain applications such as scientific code. Bounds-checking elimination allows the compiler to safely remove bounds-checking in many situations where it can determine that the index must fall within valid bounds, for example if it is a simple loop variable.</dd>
+</dl>
+<dl>
+<dt><i>Branch offset optimization (machine independent)</i></dt>
+<dd>Choose the shortest branch displacement that reaches target</dd>
+</dl>
+<dl>
+<dt><i>Code-block reordering</i></dt>
+<dd>Code-block reordering alters the order of the <a href="/wiki/Basic_block" title="Basic block">basic blocks</a> in a program in order to reduce conditional branches and improve <a href="/wiki/Locality_of_reference" title="Locality of reference">locality of reference</a>.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Dead_code_elimination" title="Dead code elimination">Dead code elimination</a></dt>
+<dd>Removes instructions that will not affect the behaviour of the program, for example definitions which have no uses, called <a href="/wiki/Dead_code" title="Dead code">dead code</a>. This reduces code size and eliminates unnecessary computation.</dd>
+</dl>
+<dl>
+<dt><i>Factoring out of invariants</i></dt>
+<dd>If an expression is carried out both when a condition is met and is not met, it can be written just once outside of the conditional statement. Similarly, if certain types of expressions (e.g. the assignment of a constant into a variable) appear inside a loop, they can be moved out of it because their effect will be the same no matter if they're executed many times or just once. Also known as total redundancy elimination. A more powerful optimization is <a href="/wiki/Partial_redundancy_elimination" title="Partial redundancy elimination">Partial redundancy elimination</a> (PRE).</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Inline_expansion" title="Inline expansion">Inline expansion</a></dt>
+<dd>When some code invokes a <a href="/wiki/Procedure" title="Procedure">procedure</a>, it is possible to directly insert the body of the procedure inside the calling code rather than transferring control to it. This saves the overhead related to procedure calls, as well as providing great opportunity for many different parameter-specific optimizations, but comes at the cost of space; the procedure body is duplicated each time the procedure is called inline. Generally, inlining is useful in performance-critical code that makes a large number of calls to small procedures.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Jump_threading" title="Jump threading">Jump threading</a></dt>
+<dd>In this pass, conditional jumps in the code that branch to identical or inverse tests are detected, and can be "threaded" through a second conditional test.</dd>
+</dl>
+<dl>
+<dt><a href="/wiki/Strength_reduction" title="Strength reduction">Strength reduction</a></dt>
+<dd>A general term encompassing optimizations that replace complex or difficult or expensive operations with simpler ones. <a href="/wiki/Induction_variable_analysis" title="Induction variable analysis" class="mw-redirect">Induction variable analysis</a> can accomplish this with variables inside a loop which depend on the loop variable. Several <a href="/wiki/Peephole_optimization" title="Peephole optimization">peephole optimizations</a> also fall into this category, such as replacing division by a constant with multiplication by its reciprocal, converting multiplies into a series of bit-shifts and adds, and replacing large instructions with equivalent smaller ones that load more quickly.</dd>
+</dl>
+<dl>
+<dt><i>Reduction of cache collisions</i></dt>
+<dd>(e.g. by disrupting alignment within a page)</dd>
+</dl>
+<dl>
+<dt><i>Stack height reduction</i></dt>
+<dd>Rearrange expression tree to minimize resources needed for expression evaluation.</dd>
+</dl>
+<dl>
+<dt><i>Test reordering</i></dt>
+<dd>If we have two tests that are the condition for something, we can first deal with the simpler tests (e.g. comparing a variable to something) and only then with the complex tests (e.g. those that require a function call). This technique complements <a href="/wiki/Lazy_evaluation" title="Lazy evaluation">lazy evaluation</a>, but can be used only when the tests are not dependent on one another. <a href="/wiki/Minimal_evaluation" title="Minimal evaluation" class="mw-redirect">Short-circuiting</a> semantics can make this difficult.</dd>
+</dl>
+<p><a name="Interprocedural_optimizations" id="Interprocedural_optimizations"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=12" title="Edit section: Interprocedural optimizations">edit</a>]</span> <span class="mw-headline">Interprocedural optimizations</span></h3>
+<p>Interprocedural optimization works on the entire program, across procedure and file boundaries. It works tightly with intraprocedural counterparts, carried out with the cooperation of a local part and global part. Typical interprocedural optimizations are: procedure <a href="/wiki/Inlining" title="Inlining" class="mw-redirect">inlining</a>, interprocedural <a href="/wiki/Dead_code_elimination" title="Dead code elimination">dead code elimination</a>, interprocedural constant propagation, and <a href="/w/index.php?title=Procedure_reordering&amp;action=edit&amp;redlink=1" class="new" title="Procedure reordering (page does not exist)">procedure reordering</a>. As usual, the compiler needs to perform interprocedural analysis before its actual optimizations. Interprocedural analyses include <a href="/wiki/Alias_analysis" title="Alias analysis">alias analysis</a>, <a href="/wiki/Array_access_analysis" title="Array access analysis">array access analysis</a>, and the construction of a <a href="/wiki/Call_graph" title="Call graph">call graph</a>.</p>
+<p>Interprocedural optimization is common in modern commercial compilers from <a href="/wiki/Silicon_Graphics" title="Silicon Graphics">SGI</a>, <a href="/wiki/Intel" title="Intel" class="mw-redirect">Intel</a>, <a href="/wiki/Microsoft" title="Microsoft">Microsoft</a>, and <a href="/wiki/Sun_Microsystems" title="Sun Microsystems">Sun Microsystems</a>. For a long time the open source <a href="/wiki/GNU_Compiler_Collection" title="GNU Compiler Collection">GCC</a> was criticized<sup class="noprint Template-Fact"><span title="This claim needs references to reliable sources&#160;since October 2007" style="white-space: nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</span></sup> for a lack of powerful interprocedural analysis and optimizations, though this is now improving.<sup class="noprint Template-Fact"><span title="This claim needs references to reliable sources&#160;since October 2007" style="white-space: nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</span></sup> Another good open source compiler with full analysis and optimization infrastructure is <a href="/wiki/Open64" title="Open64">Open64</a>, which is used by many organizations for research and for commercial purposes.</p>
+<p>Due to the extra time and space required by interprocedural analysis, most compilers do not perform it by default. Users must use compiler options explicitly to tell the compiler to enable interprocedural analysis and other expensive optimizations.</p>
+<p><a name="Problems_with_optimization" id="Problems_with_optimization"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=13" title="Edit section: Problems with optimization">edit</a>]</span> <span class="mw-headline">Problems with optimization</span></h2>
+<p>Early in the history of compilers, compiler optimizations were not as good as hand-written ones. As compiler technologies have improved, good compilers can often generate better code than human programmers — and good post pass optimizers can improve highly hand-optimized code even further. For <a href="/wiki/RISC" title="RISC" class="mw-redirect">RISC</a> CPU architectures, and even more so for <a href="/wiki/VLIW" title="VLIW" class="mw-redirect">VLIW</a> hardware, compiler optimization is the key for obtaining efficient code, because RISC instruction sets are so compact that it is hard for a human to manually schedule or combine small instructions to get efficient results. Indeed, these architectures were designed to rely on compiler writers for adequate performance.</p>
+<p>However, optimizing compilers are by no means perfect. There is no way that a compiler can guarantee that, for all program source code, the fastest (or smallest) possible equivalent compiled program is output; such a compiler is fundamentally impossible because it would solve the <a href="/wiki/Halting_problem" title="Halting problem">halting problem</a>.</p>
+<p>This may be proven by considering a call to a function, foo(). This function returns nothing and does not have side effects (no I/O, does not modify global variables and "live" data structures, etc.). The fastest possible equivalent program would be simply to eliminate the function call. However, if the function foo() in fact does <i>not</i> return, then the program with the call to foo() would be different from the program without the call; the optimizing compiler will then have to determine this by solving the <a href="/wiki/Halting_problem" title="Halting problem">halting problem</a>.</p>
+<p>Additionally, there are a number of other more practical issues with optimizing compiler technology:</p>
+<ul>
+<li>Usually, an optimizing compiler only performs low-level, localized changes to small sets of operations. In other words, high-level inefficiency in the source program (such as an inefficient algorithm) remains unchanged.</li>
+</ul>
+<ul>
+<li>Modern third-party compilers usually have to support several objectives. In so doing, these compilers are a 'jack of all trades yet master of none'.</li>
+</ul>
+<ul>
+<li>A compiler typically only deals with a small part of an entire program at a time, at most a module at a time and usually only a procedure; the result is that it is unable to consider at least some important contextual information.</li>
+</ul>
+<ul>
+<li>The overhead of compiler optimization. Any extra work takes time, whole-program optimization (interprocedural optimization) is very costly.</li>
+</ul>
+<ul>
+<li>The interaction of compiler optimization phases: what combination of optimization phases are optimal, in what order and how many times?</li>
+</ul>
+<p>Work to improve optimization technology continues. One approach is the use of so-called "post pass" optimizers. These tools take the executable output by an "optimizing" compiler and optimize it even further. As opposed to compilers which optimize intermediate representations of programs, post pass optimizers work on the <a href="/wiki/Assembly_language" title="Assembly language">assembly language</a> level. Post pass compilers are also limited, however, by the fact that much of the information found in the original source code has been lost.</p>
+<p>As processor performance continues to improve at a rapid pace while memory bandwidth improves more slowly, optimizations that reduce memory bandwidth (even at the cost of making the processor execute "extra" instructions) will become more useful. Examples of this mentioned above include <a href="/wiki/Loop_nest_optimization" title="Loop nest optimization">loop nest optimization</a> and <a href="/wiki/Rematerialization" title="Rematerialization">rematerialization</a>.</p>
+<p><a name="List_of_compiler_optimizations" id="List_of_compiler_optimizations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=14" title="Edit section: List of compiler optimizations">edit</a>]</span> <span class="mw-headline">List of compiler optimizations</span></h2>
+<ul>
+<li><a href="/wiki/Automatic_parallelization" title="Automatic parallelization">automatic parallelization</a></li>
+<li><a href="/wiki/Constant_folding" title="Constant folding">Constant folding</a></li>
+<li>Algebraic simplifications:</li>
+<li>Value numbering</li>
+<li><a href="/wiki/Copy_propagation" title="Copy propagation">Copy propagation</a></li>
+<li><a href="/wiki/Constant_propagation" title="Constant propagation" class="mw-redirect">Constant propagation</a></li>
+<li><a href="/wiki/Sparse_conditional_constant_propagation" title="Sparse conditional constant propagation">Sparse conditional constant propagation</a></li>
+<li><a href="/wiki/Common_subexpression_elimination" title="Common subexpression elimination">Common subexpression elimination</a> (CSE)</li>
+<li><a href="/wiki/Partial_redundancy_elimination" title="Partial redundancy elimination">Partial redundancy elimination</a></li>
+<li><a href="/wiki/Dead_code_elimination" title="Dead code elimination">Dead code elimination</a></li>
+<li>Induction variable elimination, <a href="/wiki/Strength_reduction" title="Strength reduction">strength reduction</a></li>
+<li><a href="/wiki/Loop_optimization" title="Loop optimization">Loop optimizations</a>
+<ul>
+<li><a href="/wiki/Loop_invariant" title="Loop invariant">Loop invariant</a> code motion</li>
+<li>Loop unrolling</li>
+</ul>
+</li>
+<li><a href="/wiki/Software_pipelining" title="Software pipelining">Software pipelining</a></li>
+<li>Inlining</li>
+<li><a href="/wiki/Code_generation_(compiler)" title="Code generation (compiler)">Code generator</a>
+<ul>
+<li><a href="/wiki/Register_allocation" title="Register allocation">Register allocation</a>: local and global</li>
+<li><a href="/wiki/Instruction_scheduling" title="Instruction scheduling">Instruction scheduling</a></li>
+<li>Branch optimizations</li>
+<li>Tail merging and cross jumping</li>
+<li>Machine idioms and instruction combining</li>
+</ul>
+</li>
+<li><a href="/wiki/Vectorization_(computer_science)" title="Vectorization (computer science)">vectorization</a></li>
+<li>phase ordering</li>
+<li><a href="/wiki/Profile-guided_optimization" title="Profile-guided optimization">Profile-guided optimization</a></li>
+</ul>
+<p><a name="List_of_static_code_analyses" id="List_of_static_code_analyses"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=15" title="Edit section: List of static code analyses">edit</a>]</span> <span class="mw-headline">List of <a href="/wiki/Static_code_analysis" title="Static code analysis">static code analyses</a></span></h2>
+<ul>
+<li><a href="/wiki/Alias_analysis" title="Alias analysis">Alias analysis</a></li>
+<li><a href="/wiki/Pointer_analysis" title="Pointer analysis">Pointer analysis</a></li>
+<li><a href="/wiki/Shape_analysis_(software)" title="Shape analysis (software)">Shape analysis</a></li>
+<li><a href="/wiki/Escape_analysis" title="Escape analysis">Escape analysis</a></li>
+<li><a href="/wiki/Array_access_analysis" title="Array access analysis">Array access analysis</a></li>
+<li><a href="/wiki/Dependence_analysis" title="Dependence analysis">Dependence analysis</a></li>
+<li><a href="/wiki/Control_flow_analysis" title="Control flow analysis" class="mw-redirect">Control flow analysis</a></li>
+<li><a href="/wiki/Data_flow_analysis" title="Data flow analysis" class="mw-redirect">Data flow analysis</a>
+<ul>
+<li><a href="/wiki/Use-define_chain" title="Use-define chain">Use-define chain</a> analysis</li>
+<li><a href="/wiki/Live_variable_analysis" title="Live variable analysis">Live variable analysis</a></li>
+<li><a href="/wiki/Available_expression" title="Available expression">Available expression</a> analysis</li>
+</ul>
+</li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=16" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Algorithmic_efficiency" title="Algorithmic efficiency">Algorithmic efficiency</a></li>
+<li><a href="/wiki/Full_employment_theorem" title="Full employment theorem">Full employment theorem</a></li>
+<li><a href="/wiki/Just-in-time_compilation" title="Just-in-time compilation">Just-in-time compilation</a> (JIT)</li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=17" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> Cx51 Compiler Manual, version 09.2001, p155, Keil Software Inc.</li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> Ibid. Keil manual.</li>
+</ol>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Compiler_optimization&amp;action=edit&amp;section=18" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.nullstone.com/htmls/category.htm" class="external text" title="http://www.nullstone.com/htmls/category.htm" rel="nofollow">NULLSTONE Optimization Categories</a> - major compiler optimization categories.</li>
+<li><a href="http://www.agner.org/optimize/#manuals" class="external text" title="http://www.agner.org/optimize/#manuals" rel="nofollow">Optimization manuals</a> by Agner Fog - documentation about x86 processor architecture and low-level code optimization</li>
+<li><a href="http://mark.masmcode.com/" class="external text" title="http://mark.masmcode.com/" rel="nofollow">Assembly Optimization Tips</a> by Mark Larson</li>
+<li><a href="http://citeseer.ist.psu.edu/Programming/CompilerOptimization/" class="external text" title="http://citeseer.ist.psu.edu/Programming/CompilerOptimization/" rel="nofollow">Citations from CiteSeer</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 342/1000000
+Post-expand include size: 5785/2048000 bytes
+Template argument size: 2132/2048000 bytes
+Expensive parser function count: 2/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:40355-0!1!0!default!!en!2 and timestamp 20090408070704 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Compiler_optimization">http://en.wikipedia.org/wiki/Compiler_optimization</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Compiler_optimizations" title="Category:Compiler optimizations">Compiler optimizations</a></span> | <span dir='ltr'><a href="/wiki/Category:Programming_language_implementation" title="Category:Programming language implementation">Programming language implementation</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Articles_lacking_in-text_citations_from_April_2009" title="Category:Articles lacking in-text citations from April 2009">Articles lacking in-text citations from April 2009</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_with_unsourced_statements" title="Category:All articles with unsourced statements">All articles with unsourced statements</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_unsourced_statements_since_October_2007" title="Category:Articles with unsourced statements since October 2007">Articles with unsourced statements since October 2007</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Compiler_optimization" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Compiler_optimization" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Compiler_optimization&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Compiler_optimization&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Compiler_optimization" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Compiler_optimization" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Compiler_optimization" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Compiler_optimization&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Compiler_optimization&amp;oldid=282266112" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Compiler_optimization&amp;id=282266112">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-fa"><a href="http://fa.wikipedia.org/wiki/%D8%A8%D9%87%DB%8C%D9%86%D9%87%E2%80%8C%D8%B3%D8%A7%D8%B2%DB%8C_%DA%A9%D8%A7%D9%85%D9%BE%D8%A7%DB%8C%D9%84%D8%B1">فارسی</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%EC%BB%B4%ED%8C%8C%EC%9D%BC%EB%9F%AC_%EC%B5%9C%EC%A0%81%ED%99%94">한국어</a></li>
+				<li class="interwiki-he"><a href="http://he.wikipedia.org/wiki/%D7%9E%D7%99%D7%98%D7%95%D7%91_%D7%90%D7%9C%D7%92%D7%95%D7%A8%D7%99%D7%AA%D7%9E%D7%99%D7%9D">עברית</a></li>
+				<li class="interwiki-nl"><a href="http://nl.wikipedia.org/wiki/Optimalisatie_(compiler)">Nederlands</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%A9%E6%9C%80%E9%81%A9%E5%8C%96">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Optymalizacja_kodu_wynikowego">Polski</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%9E%D0%BF%D1%82%D0%B8%D0%BC%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F_%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%82%D0%BE%D1%80%D0%B0">Русский</a></li>
+				<li class="interwiki-sr"><a href="http://sr.wikipedia.org/wiki/Optimizacija_kompilatora">Српски / Srpski</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 7 April 2009, at 03:46 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv196 in 0.043 secs. --></body></html>

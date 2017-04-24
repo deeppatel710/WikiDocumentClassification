@@ -1,0 +1,597 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RSA - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "RSA";
+		var wgTitle = "RSA";
+		var wgAction = "view";
+		var wgArticleId = "25385";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281565995;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); RSA
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about an algorithm for public-key encryption.  For the U.S. encryption and network security company, see RSA Security.  For the Republic of South Africa, see South Africa.  For other uses, see RSA (disambiguation).
+In cryptography, RSA is an algorithm for public-key cryptography. It is the first algorithm known to be suitable for signing as well as encryption, and one of the first great advances in public key cryptography. RSA is widely used in electronic commerce protocols, and is believed to be secure given sufficiently long keys and the use of up-to-date implementations.
+
+
+
+
+Contents
+
+
+1 History
+2 Operation
+
+2.1 Key generation
+2.2 Encryption
+2.3 Decryption
+2.4 A working example
+2.5 Padding schemes
+2.6 Signing messages
+
+
+3 Security and practical considerations
+
+3.1 Integer factorization and RSA problem
+3.2 Key generation
+3.3 Speed
+3.4 Key distribution
+3.5 Timing attacks
+3.6 Adaptive chosen ciphertext attacks
+3.7 Branch prediction analysis attacks
+
+
+4 See also
+5 Notes
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+The algorithm was publicly described in 1977 by Ron Rivest, Adi Shamir, and Leonard Adleman at MIT; the letters RSA are the initials of their surnames, listed in the same order as on the paper.[1]
+Clifford Cocks, a British mathematician working for the UK intelligence agency GCHQ, described an equivalent system in an internal document in 1973, but given the relatively expensive computers needed to implement it at the time, it was mostly considered a curiosity and, as far as is publicly known, was never deployed. His discovery, however, was not revealed until 1997 due to its top-secret classification, and Rivest, Shamir, and Adleman devised RSA independently of Cocks' work.
+MIT was granted U.S. Patent 4,405,829  for a "Cryptographic communications system and method" that used the algorithm in 1983. The patent would have expired in 2003, but was released to the public domain by RSA Security on 21 September 2000. Since a paper describing the algorithm had been published in August 1977,[1] prior to the December 1977 filing date of the patent application, regulations in much of the rest of the world precluded patents elsewhere and only the US patent was granted. Had Cocks' work been publicly known, a patent in the US might not have been possible either.
+
+[edit] Operation
+The RSA algorithm involves three steps: key generation, encryption and decryption.
+
+[edit] Key generation
+RSA involves a public key and a private key. The public key can be known to everyone and is used for encrypting messages. Messages encrypted with the public key can only be decrypted using the private key. The keys for the RSA algorithm are generated the following way:
+
+Choose two distinct prime numbers p and q
+Compute n = pq
+
+n is used as the modulus for both the public and private keys
+
+
+Compute the totient: .
+Choose an integer e such that , and e and  share no factors other than 1 (i.e. e and  are coprime)
+
+e is released as the public key exponent
+
+
+Determine d (using modular arithmetic) which satisfies the congruence relation ;
+
+Stated differently, ed − 1 can be evenly divided by the totient (p − 1)(q − 1)
+This is often computed using the Extended Euclidean Algorithm
+d is kept as the private key exponent
+
+
+
+Notes on the above steps:
+
+Step 1: For security purposes, the integers p and q should be chosen uniformly at random and should be of similar bit-length. Prime integers can be efficiently found using a Primality test.
+Step 3: PKCS#1 v2.0 and PKCS#1 v2.1 specifies using , where lcm is the least common multiple instead of .
+Step 4: Choosing e with a small hamming weight results in more efficient encryption. Small public exponents (such as e=3) could potentially lead to greater security risks.[2]
+
+The public key consists of the modulus n and the public (or encryption) exponent e. The private key consists of the modulus n and the private (or decryption) exponent d which must be kept secret.
+
+For efficiency the following values may be precomputed and stored as part of the private key:
+
+p and q: the primes from the key generation,
+ and ,
+.
+
+
+
+
+[edit] Encryption
+Alice transmits her public key (n,e) to Bob and keeps the private key secret. Bob then wishes to send message M to Alice.
+He first turns M into an integer 0 < m < n by using an agreed-upon reversible protocol known as a padding scheme. He then computes the ciphertext c corresponding to:
+
+
+
+This can be done quickly using the method of exponentiation by squaring. Bob then transmits c to Alice.
+
+[edit] Decryption
+Alice can recover m from c by using her private key exponent d by the following computation:
+
+
+
+Given m, she can recover the original message M by reversing the padding scheme.
+The above decryption procedure works because:
+
+.
+
+Now, since ,
+
+.
+
+The last congruence directly follows from Euler's theorem when m is relatively prime to n. By using the Chinese remainder theorem it can be shown that the equations holds for all m.
+This shows that we get the original message back:
+
+
+
+
+[edit] A working example
+Here is an example of RSA encryption and decryption. The parameters used here are artificially small, but one can also use OpenSSL to generate and examine a real keypair.
+
+Choose two prime numbers
+
+p = 61 and q = 53
+
+
+Compute n = pq
+
+
+
+
+Compute the totient 
+
+
+
+
+Choose e > 1 coprime to 3120
+
+e = 17
+
+
+Compute d such that  e.g., by computing the modular multiplicative inverse of e modulo :
+
+d = 2753
+since 17 · 2753 = 46801 = 1 + 15 · 3120.
+
+
+
+
+The public key is (n = 3233, e = 17). For a padded message m the encryption function is:
+
+
+
+The private key is (n = 3233, d = 2753). The decryption function is:
+
+
+
+
+For example, to encrypt m = 123, we calculate
+
+
+
+To decrypt c = 855, we calculate
+
+.
+
+Both of these calculations can be computed efficiently using the square-and-multiply algorithm for modular exponentiation. In real life situations the primes selected would be much larger, however in our example it would be relatively trivial to factor n, 3233, obtained from the freely available public key back to the primes p and q. Given e, also from the public key, we could then compute d and so acquire the private key.
+
+[edit] Padding schemes
+When used in practice, RSA is generally combined with some padding scheme. The goal of the padding scheme is to prevent a number of attacks that potentially work against RSA without padding:
+
+When encrypting with low encryption exponents (e.g., e = 3) and small values of the m, (i.e. m < n1 / e) the result of me is strictly less than the modulus n. In this case, ciphertexts can be easily decrypted by taking the eth root of the ciphertext over the integers.
+If the same clear text message is sent to e or more recipients in an encrypted way, and the receivers share the same exponent e, but different p, q, and n, then it is easy to decrypt the original clear text message via the Chinese remainder theorem. Johan Håstad noticed that this attack is possible even if the cleartexts are not equal, but the attacker knows a linear relation between them.[3] This attack was later improved by Don Coppersmith.[4]
+Because RSA encryption is a deterministic encryption algorithm – i.e., has no random component – an attacker can successfully launch a chosen plaintext attack against the cryptosystem, by encrypting likely plaintexts under the public key and test if they are equal to the ciphertext. A cryptosystem is called semantically secure if an attacker cannot distinguish two encryptions from each other even if the attacker knows (or has chosen) the corresponding plaintexts. As described above, RSA without padding is not semantically secure.
+RSA has the property that the product of two ciphertexts is equal to the encryption of the product of the respective plaintexts. That is  Because of this multiplicative property a chosen-ciphertext attack is possible. E.g. an attacker, who wants to know the decryption of a ciphertext c = memod n may ask the holder of the private key to decrypt an unsuspicious-looking ciphertext c' = cremod n for some value r chosen by the attacker. Because of the multiplicative property c' is the encryption of mrmod n. Hence, if the attacker is successful with the attack, he will learn mrmod n from which he can derive the message m by multiplying mr with the modular inverse of r modulo n.
+
+To avoid these problems, practical RSA implementations typically embed some form of structured, randomized padding into the value m before encrypting it. This padding ensures that m does not fall into the range of insecure plaintexts, and that a given message, once padded, will encrypt to one of a large number of different possible ciphertexts.
+Standards such as PKCS#1 have been carefully designed to securely pad messages prior to RSA encryption. Because these schemes pad the plaintext m with some number of additional bits, the size of the un-padded message M must be somewhat smaller. RSA padding schemes must be carefully designed so as to prevent sophisticated attacks which may be facilitated by a predictable message structure. Early versions of the PKCS#1 standard (up to version 1.5) used a construction that turned RSA into a semantically secure encryption scheme. This version was later found vulnerable to a practical adaptive chosen ciphertext attack. Later versions of the standard include Optimal Asymmetric Encryption Padding (OAEP), which prevents these attacks. The PKCS#1 standard also incorporates processing schemes designed to provide additional security for RSA signatures, e.g., the Probabilistic Signature Scheme for RSA (RSA-PSS).
+
+[edit] Signing messages
+Suppose Alice uses Bob's public key to send him an encrypted message. In the message, she can claim to be Alice but Bob has no way of verifying that the message was actually from Alice since anyone can use Bob's public key to send him encrypted messages. So, in order to verify the origin of a message, RSA can also be used to sign a message.
+Suppose Alice wishes to send a signed message to Bob. She can use her own private key to do so. She produces a hash value of the message, raises it to the power of dmod n (as she does when decrypting a message), and attaches it as a "signature" to the message. When Bob receives the signed message, he uses the same hash algorithm in conjunction with Alice's public key. He raises the signature to the power of emod n (as he does when encrypting a message), and compares the resulting hash value with the message's actual hash value. If the two agree, he knows that the author of the message was in possession of Alice's private key, and that the message has not been tampered with since.
+Note that secure padding schemes such as RSA-PSS are as essential for the security of message signing as they are for message encryption, and that the same key should never be used for both encryption and signing purposes.
+
+[edit] Security and practical considerations
+
+[edit] Integer factorization and RSA problem
+See also: RSA Factoring Challenge and Integer factorization records
+The security of the RSA cryptosystem is based on two mathematical problems: the problem of factoring large numbers and the RSA problem. Full decryption of an RSA ciphertext is thought to be infeasible on the assumption that both of these problems are hard, i.e., no efficient algorithm exists for solving them. Providing security against partial decryption may require the addition of a secure padding scheme.[citation needed]
+The RSA problem is defined as the task of taking eth roots modulo a composite n: recovering a value m such that c = memod n, where (n,e) is an RSA public key and c is an RSA ciphertext. Currently the most promising approach to solving the RSA problem is to factor the modulus n. With the ability to recover prime factors, an attacker can compute the secret exponent d from a public key (n,e), then decrypt c using the standard procedure. To accomplish this, an attacker factors n into p and q, and computes (p − 1)(q − 1) which allows the determination of d from e. No polynomial-time method for factoring large integers on a classical computer has yet been found, but it has not been proven that none exists. See integer factorization for a discussion of this problem.
+As of 2008[update], the largest (known) number factored by a general-purpose factoring algorithm was 663 bits long (see RSA-200), using a state-of-the-art distributed implementation. The next record is probably going to be a 768 bits modulus[5]. RSA keys are typically 1024–2048 bits long. Some experts believe that 1024-bit keys may become breakable in the near term (though this is disputed); few see any way that 4096-bit keys could be broken in the foreseeable future. Therefore, it is generally presumed that RSA is secure if n is sufficiently large. If n is 300 bits or shorter, it can be factored in a few hours on a personal computer, using software already freely available. Keys of 512 bits have been shown to be practically breakable in 1999 when RSA-155 was factored by using several hundred computers and are now factored in a few weeks using common hardware.[6] A theoretical hardware device named TWIRL and described by Shamir and Tromer in 2003 called into question the security of 1024 bit keys. It is currently recommended that n be at least 2048 bits long.[citation needed]
+In 1994, Peter Shor showed that a quantum computer could factor in polynomial time, breaking RSA. However, only small scale quantum computers have been realized.[citation needed]
+
+[edit] Key generation
+Finding the large primes p and q is usually done by testing random numbers of the right size with probabilistic primality tests which quickly eliminate virtually all non-primes.
+Numbers p and q should not be 'too close', lest the Fermat factorization for n be successful, if p − q, for instance is less than 2n1 / 4 (which for even small 1024-bit values of n is 3×1077) solving for p and q is trivial. Furthermore, if either p − 1 or q − 1 has only small prime factors, n can be factored quickly by Pollard's p − 1 algorithm, and these values of p or q should therefore be discarded as well.
+It is important that the private key d be large enough. Michael J. Wiener showed[7] that if p is between q and 2q (which is quite typical) and d < n1 / 4 / 3, then d can be computed efficiently from n and e. There is no known attack against small public exponents such as e = 3, provided that proper padding is used. However, when no padding is used or when the padding is improperly implemented then small public exponents have a greater risk of leading to an attack, such as for example the unpadded plaintext vulnerability listed above. 65537 is a commonly used value for e. This value can be regarded as a compromise between avoiding potential small exponent attacks and still allowing efficient encryptions (or signature verification). The NIST Special Publication on Computer Security (SP 800-78 Rev 1 of August 2007) does not allow public exponents e smaller than 65537, but does not state a reason for this restriction.
+
+[edit] Speed
+RSA is much slower than DES and other symmetric cryptosystems. In practice, Bob typically encrypts a secret message with a symmetric algorithm, encrypts the (comparatively short) symmetric key with RSA, and transmits both the RSA-encrypted symmetric key and the symmetrically-encrypted message to Alice.
+This procedure raises additional security issues. For instance, it is of utmost importance to use a strong random number generator for the symmetric key, because otherwise Eve (an eavesdropper wanting to see what was sent) could bypass RSA by guessing the symmetric key.
+
+[edit] Key distribution
+As with all ciphers, how RSA public keys are distributed is important to security. Key distribution must be secured against a man-in-the-middle attack. Suppose Eve has some way to give Bob arbitrary keys and make him believe they belong to Alice. Suppose further that Eve can intercept transmissions between Alice and Bob. Eve sends Bob her own public key, which Bob believes to be Alice's. Eve can then intercept any ciphertext sent by Bob, decrypt it with her own private key, keep a copy of the message, encrypt the message with Alice's public key, and send the new ciphertext to Alice. In principle, neither Alice nor Bob would be able to detect Eve's presence. Defenses against such attacks are often based on digital certificates or other components of a public key infrastructure.
+
+[edit] Timing attacks
+Kocher described a new attack on RSA in 1995: if the attacker Eve knows Alice's hardware in sufficient detail and is able to measure the decryption times for several known ciphertexts, she can deduce the decryption key d quickly. This attack can also be applied against the RSA signature scheme. In 2003, Boneh and Brumley demonstrated a more practical attack capable of recovering RSA factorizations over a network connection (e.g., from a Secure Socket Layer (SSL)-enabled webserver). This attack takes advantage of information leaked by the Chinese remainder theorem optimization used by many RSA implementations.
+One way to thwart these attacks is to ensure that the decryption operation takes a constant amount of time for every ciphertext. However, this approach can significantly reduce performance. Instead, most RSA implementations use an alternate technique known as cryptographic blinding. RSA blinding makes use of the multiplicative property of RSA. Instead of computing cdmod n, Alice first chooses a secret random value r and computes (rec)dmod n. The result of this computation is rmmod n and so the effect of r can be removed by multiplying by its inverse. A new value of r is chosen for each ciphertext. With blinding applied, the decryption time is no longer correlated to the value of the input ciphertext and so the timing attack fails.
+
+[edit] Adaptive chosen ciphertext attacks
+In 1998, Daniel Bleichenbacher described the first practical adaptive chosen ciphertext attack, against RSA-encrypted messages using the PKCS #1 v1 padding scheme (a padding scheme randomizes and adds structure to an RSA-encrypted message, so it is possible to determine whether a decrypted message is valid.) Due to flaws with the PKCS #1 scheme, Bleichenbacher was able to mount a practical attack against RSA implementations of the Secure Socket Layer protocol, and to recover session keys. As a result of this work, cryptographers now recommend the use of provably secure padding schemes such as Optimal Asymmetric Encryption Padding, and RSA Laboratories has released new versions of PKCS #1 that are not vulnerable to these attacks.
+
+[edit] Branch prediction analysis attacks
+Branch prediction analysis is also called BPA. Many processors use a branch predictor to determine whether a conditional branch in the instruction flow of a program is likely to be taken or not. Usually these processors also implement simultaneous multithreading (SMT). Branch prediction analysis attacks use a spy process to discover (statistically) the private key when processed with these processors.
+Simple Branch Prediction Analysis (SBPA) claims to improve BPA in a non-statistical way. In their paper, "On the Power of Simple Branch Prediction Analysis", the authors of SBPA (Onur Aciicmez and Cetin Kaya Koc) claim to have discovered 508 out of 512 bits of an RSA key in 10 iterations.
+
+[edit] See also
+
+Quantum cryptography
+Cryptographic key length
+Computational complexity theory
+Diffie-Hellman key exchange
+List of software patents
+
+
+[edit] Notes
+
+
+^ a b SIAM News, Volume 36, Number 5, June 2003, "Still Guarding Secrets after Years of Attacks, RSA Earns Accolades for its Founders", by Sara Robinson
+^ Boneh, Dan (1999). "Twenty Years of attacks on the RSA Cryptosystem". Notices of the American Mathematical Society (AMS) 46 (2): 203–213. http://crypto.stanford.edu/~dabo/abstracts/RSAattack-survey.html. 
+^ Johan Håstad, "On using RSA with Low Exponent in a Public Key Network", Crypto 85
+^ Don Coppersmith, "Small Solutions to Polynomial Equations, and Low Exponent RSA Vulnerabilities", Journal of Cryptology, v. 10, n. 4, Dec. 1997
+^ Preliminary Design of Post-Sieving Processing for RSA-768
+^ 518-bit GNFS with msieve
+^ Wiener, Michael J. (May 1990), "Cryptanalysis of short RSA secret exponents", Information Theory, IEEE Transactions on 36 (3): 553–558, doi:10.1109/18.54902 
+
+
+
+[edit] References
+
+Menezes, Alfred; Paul C. van Oorschot; Scott A. Vanstone (October 1996). Handbook of Applied Cryptography. CRC Press. ISBN 0-8493-8523-7. 
+Rivest, R.; A. Shamir; L. Adleman (1978). "A Method for Obtaining Digital Signatures and Public-Key Cryptosystems". Communications of the ACM 21 (2): pp.120–126. doi:10.1145/359340.359342. http://theory.lcs.mit.edu/~rivest/rsapaper.pdf. 
+Cormen, Thomas H.; Charles E. Leiserson; Ronald L. Rivest; Clifford Stein (2001). Introduction to Algorithms (2e ed.). MIT Press and McGraw-Hill. pp. pp.881–887. ISBN 0-262-03293-7. 
+
+
+[edit] External links
+
+The Original RSA Patent as filed with the U.S. Patent Office by Rivest; Ronald L. (Belmont, MA), Shamir; Adi (Cambridge, MA), Adleman; Leonard M. (Arlington, MA), December 14, 1977, U.S. Patent 4,405,829 .
+PKCS #1: RSA Cryptography Standard (RSA Laboratories website)
+
+The PKCS #1 standard "provides recommendations for the implementation of public-key cryptography based on the RSA algorithm, covering the following aspects: cryptographic primitives; encryption schemes; signature schemes with appendix; ASN.1 syntax for representing keys and for identifying the schemes".
+
+
+Thorough walk through of RSA
+Online RSA Encryption application
+RSA demo with Java and Javascript with 1000 bit numbers
+RSA demo Applet
+pidCrypt Crypto Library, JavaScript implementation. ISC Licensed
+How the RSA Cipher Works
+Menezes, Oorschot, Vanstone, Scott: Handbook of Applied Cryptography (free PDF downloads), see Chapter 8
+Onur Aciicmez, Cetin Kaya Koc, Jean-Pierre Seifert: On the Power of Simple Branch Prediction Analysis
+A New Vulnerability In RSA Cryptography, CAcert NEWS Blog
+Example of an RSA implementation with PKCS#1 padding (LGPL source code)
+Kocher's article about timing attacks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+ 
+Public-key cryptography
+
+
+
+
+
+
+
+Algorithms: Benaloh | Blum-Goldwasser | Cayley–Purser | CEILIDH | Cramer-Shoup | Damgaard-Jurik | DH | DSA | EPOC | ECDH | ECDSA | EKE | ElGamal encryption | ElGamal signature scheme | GMR | Goldwasser-Micali | HFE | IES | Lamport | McEliece | Merkle-Hellman | MQV | Naccache-Stern | NTRUEncrypt | NTRUSign | Paillier | Rabin | RSA | Okamoto-Uchiyama | Schnorr | SPEKE | SRP | STS | Three-pass protocol | XTR
+
+
+
+
+
+
+
+
+
+Theory: Discrete logarithm | Elliptic curve cryptography | RSA problem
+
+
+
+
+
+
+
+
+
+Standardization: ANS X9F1 | CRYPTREC | IEEE P1363 | NESSIE | NSA Suite B
+
+
+
+
+
+
+
+
+
+Misc: Digital signature | Fingerprint | PKI | Web of trust | Key size
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+ 
+Cryptography
+
+
+
+
+
+
+History of cryptography · Cryptanalysis · Cryptography portal · Topics in cryptography
+
+
+
+
+
+
+
+Symmetric-key algorithm · Block cipher · Stream cipher · Public-key cryptography · Cryptographic hash function · Message authentication code · Random numbers · Steganography
+
+
+
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/RSA"
+Categories: Public-key cryptography | Asymmetric-key cryptosystems | Electronic commerceHidden categories: All articles with unsourced statements | Articles with unsourced statements since January 2009 | Articles containing potentially dated statements from 2008 | All articles containing potentially dated statements | Articles with unsourced statements since March 2009 | Articles with Alice and Bob explanations 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Български
+Català
+Česky
+Dansk
+Deutsch
+Eesti
+Ελληνικά
+Español
+Esperanto
+Euskara
+فارسی
+Français
+Galego
+한국어
+Hrvatski
+Bahasa Indonesia
+Íslenska
+Italiano
+עברית
+ქართული
+Latviešu
+Lietuvių
+Magyar
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Română
+Русский
+Simple English
+Slovenščina
+Српски / Srpski
+Suomi
+Svenska
+ไทย
+Tiếng Việt
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 April 2009, at 20:27.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

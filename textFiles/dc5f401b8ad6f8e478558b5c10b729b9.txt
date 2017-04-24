@@ -1,0 +1,495 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Edge detection - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Edge_detection";
+		var wgTitle = "Edge detection";
+		var wgAction = "view";
+		var wgArticleId = "331680";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274160578;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Edge detection
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+Feature detection
+
+
+
+Output of a typical corner detection algorithm
+
+
+Edge detection
+
+
+Canny
+
+
+Canny-Deriche
+
+
+Differential
+
+
+Sobel
+
+
+Interest point detection
+
+
+Corner detection
+
+
+Harris operator
+
+
+Shi and Tomasi
+
+
+Level curve curvature
+
+
+SUSAN
+
+
+FAST
+
+
+Blob detection
+
+
+Laplacian of Gaussian (LoG)
+
+
+Difference of Gaussians (DoG)
+
+
+Determinant of Hessian (DoH)
+
+
+Maximally stable extremal regions
+
+
+Ridge detection
+
+
+Affine invariant feature detection
+
+
+Affine shape adaptation
+
+
+Harris affine
+
+
+Hessian affine
+
+
+Feature description
+
+
+SIFT
+
+
+SURF
+
+
+GLOH
+
+
+LESH
+
+
+Scale-space
+
+
+Scale-space axioms
+
+
+Implementation details
+
+
+Pyramids
+
+
+
+This box: view • talk
+
+
+
+Edge detection is a terminology in image processing and computer vision, particularly in the areas of feature detection and feature extraction, to refer to algorithms which aim at identifying points in a digital image at which the image brightness changes sharply or more formally has discontinuities.
+
+
+
+
+Contents
+
+
+1 Motivations
+2 Edge properties
+3 A simple edge model
+4 Why edge detection is a non-trivial task
+5 Approaches to edge detection
+
+5.1 Canny edge detection
+5.2 Other first-order methods
+5.3 Thresholding and linking
+5.4 Second-order approaches to edge detection
+
+5.4.1 Differential edge detection
+
+
+5.5 Phase Congruency Based Edge Detection
+
+
+6 References
+7 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Motivations
+The purpose of detecting sharp changes in image brightness is to capture important events and changes in properties of the world. It can be shown that under rather general assumptions for an image formation model, discontinuities in image brightness are likely to correspond to:
+
+discontinuities in depth,
+discontinuities in surface orientation,
+changes in material properties and
+variations in scene illumination.
+
+In the ideal case, the result of applying an edge detector to an image may lead to a set of connected curves that indicate the boundaries of objects, the boundaries of surface markings as well curves that correspond to discontinuities in surface orientation. Thus, applying an edge detector to an image may significantly reduce the amount of data to be processed and may therefore filter out information that may be regarded as less relevant, while preserving the important structural properties of an image. If the edge detection step is successful, the subsequent task of interpreting the information contents in the original image may therefore be substantially simplified. Unfortunately, however, it is not always possible to obtain such ideal edges from real life images of moderate complexity. Edges extracted from non-trivial images are often hampered by fragmentation, meaning that the edge curves are not connected, missing edge segments as well as false edges not corresponding to interesting phenomena in the image -- thus complicating the subsequent task of interpreting the image data.
+
+[edit] Edge properties
+The edges extracted from a two-dimensional image of a three-dimensional scene can be classified as either viewpoint dependent or viewpoint independent. A viewpoint independent edge typically reflects inherent properties of the three-dimensional objects, such as surface markings and surface shape. A viewpoint dependent edge may change as the viewpoint changes, and typically reflects the geometry of the scene, such as objects occluding one another.
+A typical edge might for instance be the border between a block of red color and a block of yellow. In contrast a line (as can be extracted by a ridge detector) can be a small number of pixels of a different color on an otherwise unchanging background. For a line, there may therefore usually be one edge on each side of the line.
+Edges play quite an important role in many applications of image processing, in particular for machine vision systems that analyze scenes of man-made objects under controlled illumination conditions. During recent years, however, substantial (and successful) research has also been made on computer vision methods that do not explicitly rely on edge detection as a pre-processing step.
+
+[edit] A simple edge model
+Although certain literature has considered the detection of ideal step edges, the edges obtained from natural images are usually not at all ideal step edges. Instead they are normally affected by one or several of the following effects:
+
+focal blur caused by a finite depth-of-field and finite point spread function.
+penumbral blur caused by shadows created by light sources of non-zero radius.
+shading at a smooth object edge.
+local specularities or interreflections in the vicinity of object edges.
+
+Although the following model does not capture the full variability of real-life edges, the error function  has been used by a number of researchers as the simplest extension of the ideal step edge model for modeling the effects of edge blur in practical applications (Zhang and Bergholm 1997, Lindeberg 1998). Thus, a one-dimensional image f which has exactly one edge placed at x = 0 may be modeled as:
+
+At the left side of the edge, the intensity is , and right of the edge it is . The scale parameter σ is called the blur scale of the edge.
+
+[edit] Why edge detection is a non-trivial task
+To illustrate why edge detection is not a trivial task, let us consider the problem of detecting edges in the following one-dimensional signal. Here, we may intuitively say that there should be an edge between the 4th and 5th pixels.
+
+
+
+5
+7
+6
+4
+152
+148
+149
+
+
+
+
+
+
+
+
+
+
+
+
+If the intensity difference were smaller between the 4th and the 5th pixels and if the intensity differences between the adjacent neighbouring pixels were higher, it would, however, not be as easy to say that there should be an edge in the corresponding region or, indeed, if there even could be multiple edges. Hence, to firmly state a specific threshold on how large the intensity change between two neighbouring pixels must be for us to say that there should be an edge between these pixels is not always a simple problem. Indeed, this is one of the reasons why edge detection may be a non-trivial problem unless the objects in the scene are particularly simple and the illumination conditions can be well controlled.
+
+[edit] Approaches to edge detection
+There are many methods for edge detection, but most of them can be grouped into two categories, search-based and zero-crossing based. The search-based methods detect edges by first computing a measure of edge strength, usually a first-order derivative expression such as the gradient magnitude, and then searching for local directional maxima of the gradient magnitude using a computed estimate of the local orientation of the edge, usually the gradient direction. The zero-crossing based methods search for zero crossings in a second-order derivative expression computed from the image in order to find edges, usually the zero-crossings of the Laplacian or the zero-crossings of a non-linear differential expression, as will be described in the section on differential edge detection following below. As a pre-processing step to edge detection, a smoothing stage, typically Gaussian smoothing, is almost always applied (see also noise reduction).
+The edge detection methods that have been published mainly differ in the types of smoothing filters that are applied and the way the measures of edge strength are computed. As many edge detection methods rely on the computation of image gradients, they also differ in the types of filters used for computing gradient estimates in the x- and y-directions.
+
+[edit] Canny edge detection
+Canny (1986) considered the mathematical problem of deriving an optimal smoothing filter given the criteria of detection, localization and minimizing multiple responses to a single edge. He showed that the optimal filter given these assumptions is a sum of four exponential terms. He also showed that this filter can be well approximated by first-order derivatives of Gaussians. Canny also introduced the notion of non-maximum suppression, which means that given the presmoothing filters, edge points are defined as points where the gradient magnitude assumes a local maximum in the gradient direction.
+Although his work was done in the early days of computer vision, the Canny edge detector (including its variations) is still a state-of-the-art edge detector. Unless the preconditions are particularly suitable, it is hard to find an edge detector that performs significantly better than the Canny edge detector.
+The Canny-Deriche detector (Deriche 1987) was derived from similar mathematical criteria as the Canny edge detector, although starting from a discrete viewpoint and then leading to a set of recursive filters for image smoothing instead of exponential filters or Gaussian filters.
+The differential edge detector described below can be seen as a reformulation of Canny's method from the viewpoint of differential invariants computed from a scale-space representation.
+
+[edit] Other first-order methods
+For estimating image gradients from the input image or a smoothed version of it, different gradient operators can be applied. The simplest approach is to use central differences:
+
+
+
+
+corresponding to the application of the following filter masks to the image data:
+
+
+
+The well-known and earlier Sobel operator is based on the following filters:
+
+
+
+Given such estimates of first- order derivatives, the gradient magnitude is then computed as:
+
+
+
+while the gradient orientation can be estimated as
+
+
+
+Other first-order difference operators for estimating image gradient have been proposed in the Prewitt operator and Roberts cross.
+
+[edit] Thresholding and linking
+Once we have computed a measure of edge strength (typically the gradient magnitude), the next stage is to apply a threshold, to decide whether edges are present or not at an image point. The lower the threshold, the more edges will be detected, and the result will be increasingly susceptible to noise, and also to picking out irrelevant features from the image. Conversely a high threshold may miss subtle edges, or result in fragmented edges.
+If the edge thresholding is applied to just the gradient magnitude image, the resulting edges will in general be thick and some type of edge thinning post-processing is necessary. For edges detected with non-maximum suppression however, the edge curves are thin by definition and the edge pixels can be linked into edge polygon by an edge linking (edge tracking) procedure. On a discrete grid, the non-maximum suppression stage can be implemented by estimating the gradient direction using first-order derivatives, then rounding off the gradient direction to multiples of 45 degrees, and finally comparing the values of the gradient magnitude in the estimated gradient direction.
+A commonly used approach to handle the problem of appropriate thresholds for thresholding is by using thresholding with hysteresis. This method uses multiple thresholds to find edges. We begin by using the upper threshold to find the start of an edge. Once we have a start point, we then trace the path of the edge through the image pixel by pixel, marking an edge whenever we are above the lower threshold. We stop marking our edge only when the value falls below our lower threshold. This approach makes the assumption that edges are likely to be in continuous curves, and allows us to follow a faint section of an edge we have previously seen, without meaning that every noisy pixel in the image is marked down as an edge. Still, however, we have the problem of choosing appropriate thresholding parameters, and suitable thresholding values may vary over the image.
+
+[edit] Second-order approaches to edge detection
+Some edge-detection operators are instead based upon second-order derivatives of the intensity. This essentially captures the rate of change in the intensity gradient. Thus, in the ideal continuous case, detection of zero-crossings in the second derivative captures local maxima in the gradient.
+The early Marr-Hildreth operator is based on the detection of zero-crossings of the Laplacian operator applied to a Gaussian-smoothed image. It can be shown, however, that this operator will also return false edges corresponding to local minima of the gradient magnitude. Moreover, this operator will give poor localization at curved edges. Hence, this operator is today mainly of historical interest.
+
+[edit] Differential edge detection
+A more refined second-order edge detection approach, which also automatically gives edges with sub-pixel accuracy, is by using the following differential approach of detecting zero-crossings of the second-order directional derivative in the gradient direction: Following a differential geometric way of expressing the requirement of non-maximum suppression (Lindeberg 1994, 1998), let us introduce at every image point a local coordinate system (u,v), with the v-direction parallel to the gradient direction. Assuming that the image has been presmoothed by Gaussian smoothing and a scale-space representation L(x,y;t) at scale t has been computed, we can require that the gradient magnitude of the scale-space representation, which is equal to the first-order directional derivative in the v-direction Lv, should have its first order directional derivative in the v-direction equal to zero
+
+
+
+while the second-order directional derivative in the v-direction of Lv should be negative, i.e.,
+
+.
+
+Written out as an explicit expression in terms of local partial derivatives Lx, Ly ... Lyyy, this edge definition can be expressed as the zero-crossing curves of the differential invariant
+
+
+
+that satisfy a sign-condition on the following differential invariant
+
+
+
+where Lx, Ly ... Lyyy denote partial derivatives computed from a scale-space representation L obtained by smoothing the original image with a Gaussian kernel. In this way, the edges will be automatically obtained as continuous curves with subpixel accuracy. Hysteresis thresholding can also be applied to these differential and subpixel edge segments.
+In practice, first-order derivative approximations can be computed by central differences as described above, while second-order derivatives can be computed from the scale-space representation L according to:
+
+
+
+
+
+corresponding to the following filter masks:
+
+
+
+Higher-order derivatives for the third-order sign condition can be obtained in an analogous fashion.
+
+[edit] Phase Congruency Based Edge Detection
+A recent development in edge detection techniques takes a frequency domain approach to finding edge locations. Phase congruency (also known as phase coherence) methods attempt to find locations in an image where all sinusoids in the frequency domain are in phase. These locations will generally correspond to the location of a perceived edge, regardless of whether the edge is represented by a large change in intensity in the spatial domain. A key benefit of this technique is that it responds strongly to Mach bands, and avoids false positives typically found around roof edges.
+
+[edit] References
+
+Canny, J., A Computational Approach To Edge Detection, IEEE Trans. Pattern Analysis and Machine Intelligence, 8:679-714, 1986.
+R. Deriche, Using Canny's criteria to derive an optimal edge detector recursively implemented, Int. J. Computer Vision, Vol. 1, pp. 167-187, April 1987.
+Lindeberg, T., "Edge detection and ridge detection with automatic scale selection", International Journal of Computer Vision, 30, 2, pp 117--154, 1998.
+Lindeberg, Tony, Scale-Space Theory in Computer Vision, Kluwer Academic Publishers, 1994, ISBN 0-7923-9418-6]
+Mahinda Pathegama & Ö Göl, ‘Edge-based image segmentation’, Proceedings of the International Conference on Computational Intelligence, 2004, ISBN 975-98458-0-6
+W. Zhang and F. Bergholm: Multi-Scale Blur Estimation and Edge Type Classification for Scene Analysis, International Journal of Computer Vision, Volume 24, Issue 3, pages 219 - 250, 1997
+Ziou, D. and Tabbone, S.: Edge Detection Techniques An Overview, International Journal of Pattern Recognition and Image Analysis, 8(4):537--559, 1998 (Contains an extensive set of references.)
+
+
+[edit] See also
+
+Atomic line filter for line detection
+Canny edge detector
+Hough transform for detecting straight lines, circles or ellipses from edge points
+Feature detection (computer vision) for other low-level feature detectors
+Image noise reduction
+Prewitt
+Ridge detection for relations between edge detectors and ridge detectors
+Roberts Cross
+Scale-space for theory of Gaussian image smoothing and multi-scale feature detection
+Sobel operator
+Convolution#Applications
+Entry on edge detection in Encyclopedia of Mathematics.
+Entry on edge detection in Encyclopedia of Computer Science and Engineering
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Edge_detection"
+Categories: Image processing | Computer vision 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+فارسی
+Français
+Italiano
+日本語
+Русский
+سنڌي
+Suomi
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 1 March 2009, at 15:39.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

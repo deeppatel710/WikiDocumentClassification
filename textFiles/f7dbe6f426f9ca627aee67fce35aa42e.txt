@@ -1,0 +1,333 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MySQL Cluster - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "MySQL_Cluster";
+		var wgTitle = "MySQL Cluster";
+		var wgAction = "view";
+		var wgArticleId = "1202462";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 285026099;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); MySQL Cluster
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (February 2008)
+
+
+MySQL Cluster is a technology which provides shared-nothing clustering capabilities for the MySQL database management system. It was first included in the production release of MySQL 4.1 in November 2004. It is designed to provide high availability and high performance, while allowing for nearly linear scalability. MySQL Cluster is implemented through an additional storage engine available within MySQL called NDB or NDBCLUSTER ("NDB" stands for Network Database).
+
+
+
+
+Contents
+
+
+1 Architecture
+
+1.1 Replication
+1.2 Horizontal Data Partitioning
+1.3 Hybrid Storage
+1.4 Shared Nothing
+
+
+2 Implementation
+3 Limitations
+4 Requirements
+5 History
+6 Reference Manual
+7 Prominent Users
+8 References
+9 External links
+
+9.1 MySQL AB
+9.2 Other
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Architecture
+MySQL Cluster has a few important concepts behind its design, which give both benefits and disadvantages.
+
+[edit] Replication
+MySQL Cluster uses synchronous replication through a two-phase commit mechanism in order to guarantee that data is written to multiple nodes upon committing the data. (This is in contrast to what is usually referred to as "MySQL Replication", which is asynchronous.) Two copies (known as replicas) of the data are required to guarantee availability; however, the cluster can be configured to store one or two copies at any single time.
+Starting with MySQL 5.1, it is also possible to replicate asynchronously between clusters; this is sometimes referred to as "MySQL Cluster Replication" or "geographical replication". See MySQL Cluster Replication.
+
+[edit] Horizontal Data Partitioning
+Data within NDB tables is automatically partitioned across all of the data nodes in the system. This is done based on a hashing algorithm based on the PRIMARY KEY on the table, and is transparent to the end application.
+In the 5.1 release, users can define their own partitioning schemes.
+
+[edit] Hybrid Storage
+MySQL Cluster can store data either in memory or on disk. All data and indexes can be stored in memory, writing the data to disk asynchronously. The reason it can do this safely is due to the first point above, replication.
+
+[edit] Shared Nothing
+MySQL Cluster is designed to have no single point of failure. Provided that the cluster is set up correctly, any single node, system, or piece of hardware can fail without the entire cluster failing. Shared disk (SAN) is not required. The interconnects between nodes can be standard Ethernet. Gigabit Ethernet and SCI interconnects are also supported.
+
+[edit] Implementation
+MySQL Cluster uses three different types of nodes:
+
+Data node (ndbd process): These nodes store the data.
+Management node (ndb_mgmd process): Used for configuration and monitoring of the cluster. They are required only during node startup.
+SQL node (mysqld process): A MySQL server (mysqld) that connects to all of the data nodes in order to perform data storage and retrieval.
+
+Generally, it is expected that each node will run on a separate host computer.
+
+[edit] Limitations
+In the 5.1 release, non-indexed columns can be stored on disk and do not require dedicated RAM. However, in 5.0 all indexes as well as all data are still in main memory.
+In the 5.1 release, a maximum of 255 nodes can belong to a single MySQL Cluster with up to 48 of those being data nodes. In the 5.0 release the total number of nodes cannot exceed 63. It is possible to change this at compile time, but that has not been thoroughly tested at this point.
+The cluster can not be expanded dynamically, and has to be restarted to introduce new nodes. This limits availability in a dynamic setting.
+Versions up to and including 5.0 do not have support for variable-width columns, instead using the entire storage width of the column declaration, effectively making a VARCHAR(255) column into a CHAR(255) column. MySQL 5.1 adds true VARCHAR support for NDB tables.
+Beginning with MySQL 5.0.6, the maximum number of metadata objects has increased to 20320.[1] This includes database tables, system tables, and indexes.
+Other limitations are listed here
+MySQL Cluster Limitations 5.0.
+MySQL Cluster Limitations 5.1.
+
+[edit] Requirements
+Minimum system requirements are as follows (for each node) 3 Machines Minimum
+
+OS: Linux (Red Hat, SUSE), Solaris, AIX, HP-UX, Mac OS X
+CPU: Intel/AMD x86
+Memory: 512MB RAM
+HDD: 3GB
+Network: 1+ nodes (Standard Ethernet - TCP/IP)
+
+Preferred system requirements are as follows (for each node) 4 Machines Preferred
+
+OS: Linux (Red Hat, SUSE), Solaris, AIX, HP-UX, Mac OS X
+CPU: 2x Intel Xeon, Intel Itanium, AMD Opteron, Sun SPARC, IBM PowerPC
+Memory: 16GB RAM
+HDD: 4x 36GB SCSI (RAID 1 Controller)
+Network: 1-8 Nodes (Gigabit Ethernet); 8+ Nodes (Dedicated Cluster Interconnect e.g. SCI)
+
+
+
+[edit] History
+MySQL AB acquired the technology behind MySQL Cluster from Alzato, a small venture company started by Ericsson. NDB was originally designed for the telecom market, with its High availability and high performance requirements. The original press release is still available from MySQL AB
+NDB has since been integrated into the MySQL product, with its first release being in MySQL 4.1.
+
+[edit] Reference Manual
+
+MySQL Cluster Reference Manual 5.1
+MySQL Cluster Reference Manual 5.0
+
+
+[edit] Prominent Users
+
+Bredbandsbolaget (B2) - a broadband internet provider in Sweden uses MySQL Cluster for the storage of subscriber profiles and authentication services
+Viasuisse AG - provides real-time traffic information
+Neckermann.de GmbH - uses MySQL cluster to store the customer profiles and session data of their online web shop
+Vodafone UK - uses MySQL cluster for a range of IN Applications
+Alcatel- uses MySQL Cluster for HSS and Home Location Register (HLR) applications
+PanTerra Networks - uses MySQL Cluster 5.0 for its On Demand Unified Communications
+LAKSHYA- uses MySQL Cluster 5.1 for its Billing Solution for Hosted IP Call Centre Service Providers
+Voice Peering Fabric (VPF) - the world's largest peering and interconnect system for VoIP uses MySQL Cluster for collecting traffic utilization information and running its ENUM registry. VPF handles over 500 billion minutes annually.
+
+
+[edit] References
+
+MySQL Cluster Reference Manual 5.1
+
+
+^ MySQL :: MySQL 5.0 Reference Manual :: 16.12.10 Previous MySQL Cluster Issues Resolved in MySQL 5.0
+
+
+[edit] External links
+
+[edit] MySQL AB
+
+MySQL Webinar on Clustering
+Cluster Product Overview
+MySQL Cluster Documentation
+MySQL Cluster API Developers' Guide
+MySQL Cluster tutorial
+
+
+[edit] Other
+
+Install and Management Tool for MySQL Cluster
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/MySQL_Cluster"
+Categories: MySQLHidden categories: Articles lacking sources from February 2008 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+
+
+
+
+
+
+
+
+
+ This page was last modified on 20 April 2009, at 15:09 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

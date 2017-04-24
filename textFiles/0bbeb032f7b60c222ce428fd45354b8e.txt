@@ -1,0 +1,277 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Graham scan - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Graham_scan";
+		var wgTitle = "Graham scan";
+		var wgAction = "view";
+		var wgArticleId = "393372";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283351862;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Graham scan
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Graham scan is a method of computing the convex hull of a finite set of points in the plane with time complexity O(n log n). It is named after Ronald Graham, who published the original algorithm in 1972[1]. The algorithm finds all vertices of the convex hull ordered along its boundary. It may also be easily modified to report all input points that lie on the boundary of their convex hull.
+
+
+
+
+Contents
+
+
+1 Algorithm
+2 Time complexity
+3 Pseudocode
+4 Notes
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Algorithm
+
+
+As one can see, A to B and B to C are counterclockwise, but C to D isn't. The algorithm detects this situation and discards previously chosen segments until the turn taken is counterclockwise (B to D in this case.)
+
+
+The first step in this algorithm is to find the point with the lowest y-coordinate. If there is a tie, the point with the lowest x-coordinate out of the tie breaking candidates should be chosen. Call this point P. This step takes O(n), where n is the number of points in question.
+Next, the set of points must be sorted in increasing order of the angle they and the point P make with the x-axis. Any general-purpose sorting algorithm is appropriate for this, for example heapsort (which is O(n log n)). In order to speed up the calculations, it is not actually necessary to calculate the actual angle these points make with the x-axis; instead, it suffices to calculate the cotangent of this angle: it is a monotonically decreasing function in the domain in question (which is 0 to 180 degrees, due to the first step) and may be calculated with simple arithmetic.
+The algorithm proceeds by considering each of the points in the sorted array in sequence. For each point, it is determined whether moving from the two previously considered points to this point is a "left turn" or a "right turn". If it is a "right turn", this means that the second-to-last point is not part of the convex hull and should be removed from consideration. This process is continued for as long as the set of the last three points is a "right turn". As soon as a "left turn" is encountered, the algorithm moves on to the next point in the sorted array. (If at any stage the three points are collinear, one may opt either to discard or to report it, since in some applications it is required to find all points on the boundary of the convex hull.)
+Again, determining whether three points constitute a "left turn" or a "right turn" does not require computing the actual angle between the two line segments, and can actually be achieved with simple arithmetic only. For three points (x1,y1), (x2,y2) and (x3,y3), simply compute the direction of the cross product of the two vectors defined by points (x1,y1), (x2,y2) and (x1,y1), (x3,y3), characterized by the sign of the expression (x2 − x1)(y3 − y1) − (y2 − y1)(x3 − x1). If the result is 0, the points are collinear; if it is positive, the three points constitute a "left turn", otherwise a "right turn".
+This process will eventually return to the point at which it started, at which point the algorithm is completed and the stack now contains the points on the convex hull in counterclockwise order.
+
+[edit] Time complexity
+Sorting the points has time complexity O(n log n). While it may seem that the time complexity of the loop is O(n2), because for each point it goes back to check if any of the previous points make a "right turn", it is actually O(n), because each point is considered only once. Each point considered either terminates the inner loop, or it is removed from the array and thus never considered again. The overall time complexity is therefore O(n log n), since the time to sort dominates the time to actually compute the convex hull.
+
+[edit] Pseudocode
+The result will be stored on Stack.
+
+Find pivot P;
+Sort Points by angle (with points with equal angle further sorted by distance from P);
+ 
+# Points[1] is the pivot
+Stack.push(Points[1]);
+Stack.push(Points[2]);
+FOR i = 3 TO Points.length
+        WHILE (Stack.length >= 2) and (Cross_product(Stack.second, Stack.top, Points[i]) <= 0)
+                Stack.pop;
+        ENDWHILE
+        Stack.push(Points[i]);
+NEXT i
+ 
+FUNCTION Cross_product(p1, p2, p3)
+        RETURN (p2.x - p1.x)*(p3.y - p1.y) - (p3.x - p1.x)*(p2.y - p1.y);
+ENDFUNCTION
+
+Note 1: it may be necessary to check whether the last point added to the stack (stack.Top) does not fall inside the hull by comparing it to the next-to-last point (stack.Second) and to the point at the bottom of the stack.
+Note 2: to handle the degenerate case of resulting hulls that have less than three points, only one point should be pushed onto the stack to start and if the stack ever has less than two (it will always have at least one) points on it then top should also be popped if the new point is equal to it. In other words the while condition should be
+
+Stack.length >= 2 ? Cross_Product(Stack.second, Stack.top, Points[i]) <= 0 : Stack.top == Points[i]
+
+
+[edit] Notes
+The same basic idea works also if the input is sorted on x-coordinate instead of angle, and the hull is computed in two steps producing the upper and the lower parts of the hull respectively.
+The stack technique used in the Graham scan algorithm is very similar to that for the all nearest smaller values problem, and parallel algorithms for all nearest smaller values may also be used (like the Graham scan) to compute convex hulls of sorted sequences of points efficiently.[2]
+
+[edit] References
+
+
+^ Graham, R.L. (1972). An Efficient Algorithm for Determining the Convex Hull of a Finite Planar Set. Information Processing Letters 1, 132-133
+^ Berkman, Omer; Schieber, Baruch; Vishkin, Uzi (1993), "Optimal double logarithmic parallel algorithms based on finding all nearest smaller values", Journal of Algorithms 14 (3): 344–370, doi:10.1006/jagm.1993.1018 .
+
+
+
+
+Cormen, Thomas H.; Leiserson, Charles E., Rivest, Ronald L., Stein, Clifford (2001) [1990]. "33.3: Finding the convex hull". Introduction to Algorithms (2nd ed.). MIT Press and McGraw-Hill. pp. pp. 949–955. ISBN 0-262-03293-7. 
+
+
+
+[edit] External links
+
+C++ and Object Pascal Graham Scan Implementations
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Graham_scan"
+Categories: Geometric algorithms | Convex geometry | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+עברית
+Polski
+Português
+Српски / Srpski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 12 April 2009, at 12:41 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

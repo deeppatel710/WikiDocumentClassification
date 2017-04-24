@@ -1,0 +1,345 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MX record - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "MX_record";
+		var wgTitle = "MX record";
+		var wgAction = "view";
+		var wgArticleId = "66511";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278522914;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); MX record
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+An MX record or Mail exchanger record is a type of resource record in the Domain Name System (DNS) specifying how Internet e-mail should be routed using the Simple Mail Transfer Protocol (SMTP). Each MX record contains a preference and a host name, so that the collection of MX records for a given domain name point to the servers that should receive e-mail for that domain, and their priority relative to each other.
+
+
+
+
+Contents
+
+
+1 Overview
+2 MX preference, distance, and priority
+
+2.1 The Basics
+2.2 Load distribution among an array of mail servers
+2.3 The backup MX
+2.4 Why have priority?
+2.5 Spammers
+2.6 The preference debate
+
+
+3 History of fallback to A
+4 See also
+5 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+The host name contained in an MX record must have an address, i.e. an A or AAAA DNS record. CNAME aliases are prohibited in an MX record data, while CNAME is allowed for the MX record label, that is for the domain name leading to the MX record itself.[1] It is also not permitted to use an IP address directly in an MX record;[2] while some mail servers will send mail to domains with IP-based MX records, many (most notably Exim) will refuse to do so.
+When an e-mail message is sent through the Internet, the sending mail transfer agent makes a DNS query requesting the MX records for each recipient's domain name, which is the portion of the e-mail address following the "@". This query returns a list of host names of mail exchange servers accepting incoming mail for that domain, together with a preference number. The sending agent then attempts to establish an SMTP connection to one of these servers, starting with the one with the smallest preference number, delivering the message to the first server with which a connection can be made. If no MX records were present, the server falls back to A, that is to say, it makes a request for the A record of the same domain.
+The MX mechanism provides the ability to run multiple mail servers for a single domain, and allows administrators to specify an order in which they should be tried. This ability to run multiple mail servers proves very valuable for high-availability clusters of inexpensive mail gateways, which can then process hundreds of messages per second in aggregate to quarantine or remove spam and/or viruses.
+The MX mechanism does not grant the ability to provide mail service on alternative ports, nor does it provide the ability to distribute mail delivery across a set of equal-priority mail servers by assigning a weighting value to each one.
+
+[edit] MX preference, distance, and priority
+According to RFC2821, the lowest-numbered records are the most preferred.[3] This phrasing can be confusing, and so the preference number is sometimes referred to as the distance: smaller distances are more preferable. An older RFC, RFC974, indicates that when the preference numbers are the same for two servers, they have the same priority, hence those two terms are used interchangeably.
+
+[edit] The Basics
+When a server decides to send SMTP mail, the relative priority of an MX server is determined by the preference number present in the DNS MX record of the recipient's domain. When a remote client (typically another mail server) does an MX lookup for the domain name, it gets a list of servers and their preference numbers. The smallest preference number has the highest priority and any server with the highest priority must be tried first. To provide reliable mail transmission, the SMTP client must be able to try (and retry) each of the relevant addresses in this list in order, until a delivery attempt succeeds.[3] If there is more than one MX record with the same preference number, all of those must be tried before moving on to lower-priority entries.
+
+[edit] Load distribution among an array of mail servers
+One technique used to distribute the load of incoming mail over an array of servers is to return the same preference number for each server in the set. When determining which server of equal preference to send mail to, "the sender-SMTP MUST randomize them to spread the load across multiple mail exchangers for a specific organization."[3] This technique mainly addresses routing problems; other types of server load can be addressed by using an SMTP proxy.
+The other alternative mentioned in the RFC is to use what appears to be a multi-homed A record for a mail server. It may in fact be an array of mail servers that share the same host name. This method places the burden on the DNS system rather than the SMTP-sender to perform the load balancing, which in this case will present a list of IP addresses in a specific order to the clients querying the A record of the mail exchanger. Since the RFC requires that the SMTP-sender use the order given in the A record query, the DNS server is free to carefully manipulate its balancing based on any method, including round robin DNS, mail server load, or some undisclosed priority scheme.
+
+[edit] The backup MX
+A target server, i.e. one that knows how to deliver to the relevant user's e-mail mailbox is typically one which is the most preferred. Lower priority servers, a.k.a. backup MX or secondary MX, usually keep the messages in a queue waiting for the primary server to become available. If both servers are online or in some way connected to one another, the backup MX will typically queue a message briefly and immediately forward it to the primary MX. The backup MX acts as a store-and-forward mail server.
+
+[edit] Why have priority?
+A common misconception about the MX preference ordering is that it is intended to increase the likelihood that mail may be delivered, however merely having multiple MX records with the same preference provides this benefit. Because the MX preference ordering specifies that some servers should be tried first, it is, if anything, a means of establishing load imbalance. Another common misinterpretation of MX preference ordering is that it is intended to provide a means of "failover" in the case of server overload. While it can be used that way, it is a poor resource management technique because it intentionally creates overload and does not fully exploit the available hardware. Assigning the same preference value to all of the available servers provides the same benefit and may even help avoid overload situations and thereby increase system throughput by decreasing latency.
+The SMTP protocol establishes a store-and-forward network, and if a domain's mail servers are all offline, sending servers are required to queue messages destined for that domain to retry later. However, these sending servers have no way of being notified that a previously offline domain's servers are now available. The sending servers will only discover that the domain is available whenever delivery of the delayed messages is next attempted. The delay between when a domain's servers come online and when delayed messages are finally delivered can be anywhere from minutes to days, depending on the retry schedule of the sending servers. This is the problem that backup MX records are uniquely qualified to solve. The idea is that the servers listed as secondary MX servers have some out-of-band way of knowing when the primary servers are back online. Thus, they are a more useful place to queue messages when the primary servers are offline than the original sender's queue.
+The question then becomes: if the secondary servers are still online, why not give them the same priority as the rest of the domain's MX records? Secondary servers are ones that, for whatever reason, cannot or should not be used normally, but that can be used if the primary servers are offline. Reasons for them to not be used normally can vary wildly, but here are some examples:
+
+the backup server is owned by a different company or organization
+the backup server does not have direct access to the primary mail storage
+the backup server cannot determine valid recipient addresses
+the backup server's Internet bandwidth costs more
+the backup server has significantly less Internet bandwidth
+the backup server has a high-latency Internet connection
+
+
+[edit] Spammers
+A favorite technique of spammers is to connect to the backup (high distance) MX servers for a domain first in order to avoid any anti-spam filters that may be running on the primary (lowest distance/highest preference) MX. Backup MX servers often have different anti-spam techniques, and using them can hide the spammer's IP address from the primary MX servers. This behavior can be used against spammers by using bogus high-distance MX servers. Alternately, sometimes spammers only target the lowest-distance MX records for domains, and do not fall back to higher-distance MX records when the lowest-distance MX records are unreachable. This behavior can also be used against spammers, using a technique called nolisting.
+
+[edit] The preference debate
+The SMTP RFC[3] is ambiguous about exactly what kinds of delivery failure must result in re-attempting delivery via more distant MX records (those with higher preference values).
+For example, sometimes servers indicate temporary failures, either by explicitly sending a 4xx error or by ending the connection unexpectedly (which must be treated as a 451 error, according to Section 3.10 of the RFC). If there is a temporary failure, should a more distant MX record be attempted, or should the server wait and retry later? According to Section 4.5.4.1:
+
+ The sender MUST delay retrying a particular destination after one
+ attempt has failed.
+
+But when the sender retries later, the RFC is silent about whether the sender should retry the same server that gave the previous temporary error or a more distant MX record. It does say, in Section 5:
+
+ When the lookup succeeds, the mapping can result in a list of
+ alternative delivery addresses rather than a single address, because
+ of multiple MX records, multihoming, or both.   To provide reliable
+ mail transmission, the SMTP client MUST be able to try (and retry)
+ each of the relevant addresses in this list in order, until a
+ delivery attempt succeeds.
+
+It is not specific about what should cause the sender to use a higher-preference MX record, merely that the sender must be able to use higher-preference MX records. Some servers (such as Sendmail and Postfix 2.1 or later [4]) will attempt the next-furthest MX server after some types of temporary delivery failures, such as greeting failures[5]. Other servers (such as qmail and Postfix 2.0 or earlier) will only use more distant MX records if the servers specified in the shortest-distance MX records could not be contacted at all.
+Both behaviors are valid, since the RFC is not specific. Re-attempting with more distant MX records makes a lot of sense if the primary MX's failure is considered non-authoritative; that is, if there is an expectation that the message may yet be delivered by the backup MX servers. This is often phrased as "if the alternative is giving up and not delivering the mail, why not try the higher-preference MXs?"[6] However, if the primary MX's failure is considered authoritative (i.e. it is the primary server for a non-arbitrary reason), attempting to deliver to secondary MX servers is not only a waste of time but potentially a waste of expensive resources, depending on the reason why the secondary servers have higher preference values.
+The different MX-handling behaviors of email servers (MTAs) often comes up in discussions of nolisting and similar anti-spam strategies that rely on manipulating the MX order and exercising MTA failure handling mechanisms.
+Regardless of how one interprets the RFCs there is an advantage to choosing to deliver to higher numbered MX records when receiving a 4xx error from a primary mail server. If the primary server is overloaded or experiencing some other temporary failure the backup server can accept the email and process it. This means the email is delivered faster that waiting to retry the primary server until it recovers. Some front end spam filtering services apply gray listing techniques only on the primary server to discourage spam bot email. Sending servers that retry the higher MX records will be able to deliver they outgoing mail immediately where servers like qmail will be delayed typically for an hour till the primary server allows it. So servers that retry higher numbered MX records gain a performance advantage.
+
+[edit] History of fallback to A
+RFC 821 came out in 1982. It makes only passing references to DNS, because at the time the transition from HOSTS.TXT to the DNS had not yet started. RFC 883, the first description of the DNS, came out over a year later in late 1983. It described the experimental and little used MD and MF records. According to RFC 897 and RFC 921, the transition to DNS started in 1983, but HOSTS.TXT wasn't scheduled to go away until the end of 1985 and wasn't totally phased out until the late 1980s.
+In January 1986, RFC 973 and RFC 974 deprecated the MD and MF records, replaced them with MX, and defined the MX lookup with fallback to A. RFC 974 recommends that clients do a WKS lookup on each MX host to see if it actually supports SMTP and discard the MX entry if it doesn't. However, RFC 1123 changed this to say that WKS "SHOULD NOT" be checked.
+This means that SMTP had been in use for at least a year using HOSTS.TXT, and then another couple of years using A, MD, and MF, before MX came along. MD and MF were hard to use, so most people just used the A record. Under the circumstances, MX without fallback to A wouldn't have worked because of the substantial installed base of mail servers using A records. The early use of MX was to identify gateways to other networks, but it didn't come into wide use until the DNS was well established in the early 1990s.[7]
+RFC 2821 sec. 5 now clearly states that:
+
+SMTP clients must look up for an MX record;
+if no MX record for domain is present, look up for an A RR record, and if such record is present, treat it as an MX record;
+if an MX record is present, clients MUST NOT use an A RR record.
+
+
+  RFC 2821, sec. 5, page 60
+  5. Address Resolution and Mail Handling
+  Once an SMTP client lexically identifies a domain to which mail will
+  be delivered for processing (as described in sections 3.6 and 3.7), a
+  DNS lookup MUST be performed to resolve the domain name [22].  The
+  names are expected to be fully-qualified domain names (FQDNs):
+  mechanisms for inferring FQDNs from partial names or local aliases
+  are outside of this specification and, due to a history of problems,
+  are generally discouraged.  The lookup first attempts to locate an MX
+  record associated with the name.  If a CNAME record is found instead,
+  the resulting name is processed as if it were the initial name.  If
+  no MX records are found, but an A RR is found, the A RR is treated as
+  if it was associated with an implicit MX RR, with a preference of 0,
+  pointing to that host.  If one or more MX RRs are found for a given
+  name, SMTP systems MUST NOT utilize any A RRs associated with that
+  name unless they are located using the MX RRs; the "implicit MX" rule
+  above applies only if there are no MX records present.  If MX records
+  are present, but none of them are usable, this situation MUST be
+  reported as an error.
+
+
+[edit] See also
+
+SRV record - a similar DNS record for advertising other network services
+Sender Policy Framework - some what of a reverse MX record, saying where mail gets sent from, rather than sent to.
+List of DNS record types
+A record
+
+Spam related MX systems:
+
+Nolisting
+Null MX
+
+Relevant RFCs:
+
+RFC 974 (1986), Mail Routing and the Domain System (obsolete)
+RFC 1035 (1987), Domain Names - Implementation and Specification
+RFC 2821 (2001), Simple Mail Transfer Protocol
+RFC 1912 (1996), Common DNS Operational and Configuration Errors
+
+
+[edit] References
+
+
+^ The prohibition on labels in the data that resolve to CNAMEs is discussed in RFC 2181, Section 10.3; its rationale is to allow a backup MX to recognize itself by name, thereby simplifying the algorithm used to determine the target host. See also RFC 1034.
+^ per RFC 974 and RFC 1035 Section 3.3.9
+^ a b c d RFC 2821
+^ [1] If the primary MX responds, but fails mid-transaction, Postfix 1.2 and 2.0 will not try a backup MX.
+^ A greeting failure is an error-code that is sent instead of or in response to the standard SMTP greeting handshake.
+^ This argument ignores the fact that in most cases (such as with Sendmail and Postfix) the more distant MXs may be used long before the server gets close to giving up.
+^ This section is adapted from John Levine ietf-smtp message
+
+
+.
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/MX_record"
+Categories: Domain name system | E-mail 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+Français
+Magyar
+Nederlands
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 20 March 2009, at 12:54 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

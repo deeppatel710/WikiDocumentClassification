@@ -1,0 +1,430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Viterbi algorithm,802.11,Algorithm,Andrew Viterbi,Argmax,Baum-Welch algorithm,Bioinformatics,CDMA,Computational linguistics,Convolutional code,Dial-up" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Viterbi_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Viterbi_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Viterbi algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Viterbi_algorithm";
+		var wgTitle = "Viterbi algorithm";
+		var wgAction = "view";
+		var wgArticleId = "228015";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283267157;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+<style type="text/css">/*<![CDATA[*/
+.source-python {line-height: normal;}
+.source-python li, .source-python pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for python
+ * CSS class: source-python, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-python .de1, .source-python .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-python  {}
+.source-python .head {}
+.source-python .foot {}
+.source-python .imp {font-weight: bold; color: red;}
+.source-python .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-python li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-python li.li2 {font-weight: bold;}
+.source-python .kw1 {color: #ff7700;font-weight:bold;}
+.source-python .kw2 {color: #008000;}
+.source-python .kw3 {color: #dc143c;}
+.source-python .kw4 {color: #0000cd;}
+.source-python .co1 {color: #808080; font-style: italic;}
+.source-python .coMULTI {color: #808080; font-style: italic;}
+.source-python .es0 {color: #000099; font-weight: bold;}
+.source-python .br0 {color: #66cc66;}
+.source-python .st0 {color: #483d8b;}
+.source-python .nu0 {color: #ff4500;}
+.source-python .me1 {color: black;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style>		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Viterbi_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Viterbi algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>The <b>Viterbi algorithm</b> is a <a href="/wiki/Dynamic_programming" title="Dynamic programming">dynamic programming</a> <a href="/wiki/Algorithm" title="Algorithm">algorithm</a> for finding the most <a href="/wiki/Likelihood_function" title="Likelihood function">likely</a> sequence of hidden states – called the <b>Viterbi path</b> – that results in a sequence of observed events, especially in the context of <a href="/wiki/Markov_information_source" title="Markov information source">Markov information sources</a>, and more generally, <a href="/wiki/Hidden_Markov_model" title="Hidden Markov model">hidden Markov models</a>. The <b>forward algorithm</b> is a closely related algorithm for computing the probability of a sequence of observed events. These algorithms belong to the realm of <a href="/wiki/Information_theory" title="Information theory">information theory</a>.</p>
+<p>The algorithm makes a number of assumptions. First, both the observed events and hidden events must be in a sequence. This sequence often corresponds to time. Second, these two sequences need to be aligned, and an instance of an observed event needs to correspond to exactly one instance of a hidden event. Third, computing the most likely hidden sequence up to a certain point <i>t</i> must depend only on the observed event at point <i>t</i>, and the most likely sequence at point <i>t</i> − 1. These assumptions are all satisfied in a first-order hidden Markov model.</p>
+<p>The terms "Viterbi path" and "Viterbi algorithm" are also applied to related dynamic programming algorithms that discover the single most likely explanation for an observation. For example, in <a href="/wiki/Statistical_parsing" title="Statistical parsing">statistical parsing</a> a dynamic programming algorithm can be used to discover the single most likely context-free derivation (parse) of a string, which is sometimes called the "Viterbi parse".</p>
+<p>The Viterbi algorithm was conceived by <a href="/wiki/Andrew_Viterbi" title="Andrew Viterbi">Andrew Viterbi</a> in 1967 as an <a href="/wiki/Error-correction" title="Error-correction" class="mw-redirect">error-correction</a> scheme for noisy digital communication links, finding universal application in decoding the <a href="/wiki/Convolutional_code" title="Convolutional code">convolutional codes</a> used in both <a href="/wiki/CDMA" title="CDMA" class="mw-redirect">CDMA</a> and <a href="/wiki/GSM" title="GSM">GSM</a> digital cellular, <a href="/wiki/Dial-up" title="Dial-up" class="mw-redirect">dial-up</a> modems, satellite, deep-space communications, and <a href="/wiki/802.11" title="802.11" class="mw-redirect">802.11</a> wireless LANs. It is now also commonly used in <a href="/wiki/Speech_recognition" title="Speech recognition">speech recognition</a>, <a href="/wiki/Keyword_spotting" title="Keyword spotting">keyword spotting</a>, <a href="/wiki/Computational_linguistics" title="Computational linguistics">computational linguistics</a>, and <a href="/wiki/Bioinformatics" title="Bioinformatics">bioinformatics</a>. For example, in <a href="/wiki/Speech-to-text" title="Speech-to-text" class="mw-redirect">speech-to-text</a> (speech recognition), the acoustic signal is treated as the observed sequence of events, and a string of text is considered to be the "hidden cause" of the acoustic signal. The Viterbi algorithm finds the most likely string of text given the acoustic signal.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Overview"><span class="tocnumber">1</span> <span class="toctext">Overview</span></a></li>
+<li class="toclevel-1"><a href="#Example"><span class="tocnumber">2</span> <span class="toctext">Example</span></a></li>
+<li class="toclevel-1"><a href="#Extensions"><span class="tocnumber">3</span> <span class="toctext">Extensions</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Overview" id="Overview"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Viterbi_algorithm&amp;action=edit&amp;section=1" title="Edit section: Overview">edit</a>]</span> <span class="mw-headline">Overview</span></h2>
+<p>The assumptions listed above can be elaborated as follows. The Viterbi algorithm operates on a state machine assumption. That is, at any time the system being modeled is in some state. There are a finite number of states, however large, that can be listed. Each state is represented as a node. Multiple sequences of states (paths) can lead to a given state, but one is the most likely path to that state, called the "survivor path". This is a fundamental assumption of the algorithm because the algorithm will examine all possible paths leading to a state and only keep the one most likely. This way the algorithm does not have to keep track of all possible paths, only one per state.</p>
+<p>A second key assumption is that a transition from a previous state to a new state is marked by an incremental metric, usually a number. This transition is computed from the event. The third key assumption is that the events are cumulative over a path in some sense, usually additive. So the crux of the algorithm is to keep a number for each state. When an event occurs, the algorithm examines moving forward to a new set of states by combining the metric of a possible previous state with the incremental metric of the transition due to the event and chooses the best. The incremental metric associated with an event depends on the transition possibility from the old state to the new state. For example in data communications, it may be possible to only transmit half the symbols from an odd numbered state and the other half from an even numbered state. Additionally, in many cases the state transition graph is not fully connected. A simple example is a car that has 3 states — forward, stop and reverse — and a transition from forward to reverse is not allowed. It must first enter the stop state. After computing the combinations of incremental metric and state metric, only the best survives and all other paths are discarded. There are modifications to the basic algorithm which allow for a forward search in addition to the backwards one described here.</p>
+<p>Path history must be stored. In some cases, the search history is complete because the state machine at the encoder starts in a known state and there is sufficient memory to keep all the paths. In other cases, a programmatic solution must be found for limited resources: one example is convolutional encoding, where the decoder must truncate the history at a depth large enough to keep performance to an acceptable level. Although the Viterbi algorithm is very efficient and there are modifications that reduce the computational load, the memory requirements tend to remain constant.</p>
+<p><a name="Example" id="Example"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Viterbi_algorithm&amp;action=edit&amp;section=2" title="Edit section: Example">edit</a>]</span> <span class="mw-headline">Example</span></h2>
+<p>Consider two friends, Alice and Bob, who live far apart from each other and who talk together daily over the telephone about what they did that day. Bob is only interested in three activities: walking in the park, shopping, and cleaning his apartment. The choice of what to do is determined exclusively by the weather on a given day. Alice has no definite information about the weather where Bob lives, but she knows general trends. Based on what Bob tells her he did each day, Alice tries to guess what the weather must have been like.</p>
+<p>Alice believes that the weather operates as a discrete <a href="/wiki/Markov_chain" title="Markov chain">Markov chain</a>. There are two states, "Rainy" and "Sunny", but she cannot observe them directly, that is, they are <i>hidden</i> from her. On each day, there is a certain chance that Bob will perform one of the following activities, depending on the weather: "walk", "shop", or "clean". Since Bob tells Alice about his activities, those are the <i>observations</i>. The entire system is that of a hidden Markov model (HMM).</p>
+<p>Alice knows the general weather trends in the area, and what Bob likes to do on average. In other words, the parameters of the HMM are known. They can be written down in the <a href="/wiki/Python_programming_language" title="Python programming language" class="mw-redirect">Python programming language</a>:</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-python">
+states = <span class="br0">(</span><span class="st0">'Rainy'</span>, <span class="st0">'Sunny'</span><span class="br0">)</span>
+ 
+observations = <span class="br0">(</span><span class="st0">'walk'</span>, <span class="st0">'shop'</span>, <span class="st0">'clean'</span><span class="br0">)</span>
+ 
+start_probability = <span class="br0">{</span><span class="st0">'Rainy'</span>: <span class="nu0">0.6</span>, <span class="st0">'Sunny'</span>: <span class="nu0">0.4</span><span class="br0">}</span>
+ 
+transition_probability = <span class="br0">{</span>
+   <span class="st0">'Rainy'</span> : <span class="br0">{</span><span class="st0">'Rainy'</span>: <span class="nu0">0.7</span>, <span class="st0">'Sunny'</span>: <span class="nu0">0.3</span><span class="br0">}</span>,
+   <span class="st0">'Sunny'</span> : <span class="br0">{</span><span class="st0">'Rainy'</span>: <span class="nu0">0.4</span>, <span class="st0">'Sunny'</span>: <span class="nu0">0.6</span><span class="br0">}</span>,
+   <span class="br0">}</span>
+ 
+emission_probability = <span class="br0">{</span>
+   <span class="st0">'Rainy'</span> : <span class="br0">{</span><span class="st0">'walk'</span>: <span class="nu0">0.1</span>, <span class="st0">'shop'</span>: <span class="nu0">0.4</span>, <span class="st0">'clean'</span>: <span class="nu0">0.5</span><span class="br0">}</span>,
+   <span class="st0">'Sunny'</span> : <span class="br0">{</span><span class="st0">'walk'</span>: <span class="nu0">0.6</span>, <span class="st0">'shop'</span>: <span class="nu0">0.3</span>, <span class="st0">'clean'</span>: <span class="nu0">0.1</span><span class="br0">}</span>,
+   <span class="br0">}</span>
+</pre></div>
+<p>In this piece of code, <code>start_probability</code> represents Alice's belief about which state the HMM is in when Bob first calls her (all she knows is that it tends to be rainy on average). The particular probability distribution used here is not the equilibrium one, which is (given the transition probabilities) actually approximately <code>{'Rainy': 0.571, 'Sunny': 0.429}</code>. The <code>transition_probability</code> represents the change of the weather in the underlying Markov chain. In this example, there is only a 30% chance that tomorrow will be sunny if today is rainy. The <code>emission_probability</code> represents how likely Bob is to perform a certain activity on each day. If it is rainy, there is a 50% chance that he is cleaning his apartment; if it is sunny, there is a 60% chance that he is outside for a walk.</p>
+<div class="center">
+<div class="floatnone"><a href="/wiki/File:HMMGraph.png" class="image" title="Graphical representation of the given HMM"><img alt="Graphical representation of the given HMM" src="http://upload.wikimedia.org/wikipedia/commons/thumb/d/db/HMMGraph.png/400px-HMMGraph.png" width="400" height="298" border="0" class="thumbborder" /></a></div>
+</div>
+<p>Alice talks to Bob three days in a row and discovers that on the first day he went for a walk, on the second day he went shopping, and on the third day he cleaned his apartment. Alice has two questions: What is the overall probability of this sequence of observations? And what is the most likely sequence of rainy/sunny days that would explain these observations? The first question is answered by the forward algorithm; the second question is answered by the Viterbi algorithm. These two algorithms are structurally so similar (in fact, they are both instances of the same abstract algorithm) that they can be implemented in a single function:</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-python">
+<span class="kw1">def</span> forward_viterbi<span class="br0">(</span>obs, states, start_p, trans_p, emit_p<span class="br0">)</span>:
+   T = <span class="br0">{</span><span class="br0">}</span>
+   <span class="kw1">for</span> state <span class="kw1">in</span> states:
+       <span class="co1">##          prob.           V. path  V. prob.</span>
+       T<span class="br0">[</span>state<span class="br0">]</span> = <span class="br0">(</span>start_p<span class="br0">[</span>state<span class="br0">]</span>, <span class="br0">[</span>state<span class="br0">]</span>, start_p<span class="br0">[</span>state<span class="br0">]</span><span class="br0">)</span>
+   <span class="kw1">for</span> output <span class="kw1">in</span> obs:
+       U = <span class="br0">{</span><span class="br0">}</span>
+       <span class="kw1">for</span> next_state <span class="kw1">in</span> states:
+           total = <span class="nu0">0</span>
+           argmax = <span class="kw2">None</span>
+           valmax = <span class="nu0">0</span>
+           <span class="kw1">for</span> source_state <span class="kw1">in</span> states:
+               <span class="br0">(</span>prob, v_path, v_prob<span class="br0">)</span> = T<span class="br0">[</span>source_state<span class="br0">]</span>
+               p = emit_p<span class="br0">[</span>source_state<span class="br0">]</span><span class="br0">[</span>output<span class="br0">]</span> * trans_p<span class="br0">[</span>source_state<span class="br0">]</span><span class="br0">[</span>next_state<span class="br0">]</span>
+               prob *= p
+               v_prob *= p
+               total += prob
+               <span class="kw1">if</span> v_prob &gt; valmax:
+                   argmax = v_path + <span class="br0">[</span>next_state<span class="br0">]</span>
+                   valmax = v_prob
+           U<span class="br0">[</span>next_state<span class="br0">]</span> = <span class="br0">(</span>total, argmax, valmax<span class="br0">)</span>
+       T = U
+   <span class="co1">## apply sum/max to the final states:</span>
+   total = <span class="nu0">0</span>
+   argmax = <span class="kw2">None</span>
+   valmax = <span class="nu0">0</span>
+   <span class="kw1">for</span> state <span class="kw1">in</span> states:
+       <span class="br0">(</span>prob, v_path, v_prob<span class="br0">)</span> = T<span class="br0">[</span>state<span class="br0">]</span>
+       total += prob
+       <span class="kw1">if</span> v_prob &gt; valmax:
+           argmax = v_path
+           valmax = v_prob
+   <span class="kw1">return</span> <span class="br0">(</span>total, argmax, valmax<span class="br0">)</span>
+</pre></div>
+<p>The function <code>forward_viterbi</code> takes the following arguments: <code>obs</code> is the sequence of observations, e.g. <code>['walk', 'shop', 'clean']</code>; <code>states</code> is the set of hidden states; <code>start_p</code> is the start probability; <code>trans_p</code> are the transition probabilities; and <code>emit_p</code> are the emission probabilities.</p>
+<p>The algorithm works on the mappings <code>T</code> and <code>U</code>. Each is a mapping from a state to a triple <code>(prob, v_path, v_prob)</code>, where <code>prob</code> is the total probability of all paths from the start to the current state (constrained by the observations), <code>v_path</code> is the Viterbi path up to the current state, and <code>v_prob</code> is the probability of the Viterbi path up to the current state. The mapping <code>T</code> holds this information for a given point <i>t</i> in time, and the main loop constructs <code>U</code>, which holds similar information for time <i>t</i>+1. Because of the <a href="/wiki/Markov_property" title="Markov property">Markov property</a>, information about any point in time prior to <i>t</i> is not needed.</p>
+<p>The algorithm begins by initializing <i>T</i> to the start probabilities: the total probability for a state is just the start probability of that state; and the Viterbi path to a start state is the singleton path consisting only of that state; the probability of the Viterbi path is the same as the start probability.</p>
+<p>The main loop considers the observations from <code>obs</code> in sequence. Its <a href="/wiki/Loop_invariant" title="Loop invariant">loop invariant</a> is that <code>T</code> contains the correct information up to but excluding the point in time of the current observation. The algorithm then computes the triple <code>(prob, v_path, v_prob)</code> for each possible next state. The total probability of a given next state, <code>total</code> is obtained by adding up the probabilities of all paths reaching that state. More precisely, the algorithm iterates over all possible source states. For each source state, <code>T</code> holds the total probability of all paths to that state. This probability is then multiplied by the emission probability of the current observation and the transition probability from the source state to the next state. The resulting probability <code>prob</code> is then added to <code>total</code>. The probability of the Viterbi path is computed in a similar fashion, but instead of adding across all paths one performs a discrete maximization. Initially the maximum value <code>valmax</code> is zero. For each source state, the probability of the Viterbi path to that state is known. This too is multiplied with the emission and transition probabilities and replaces <code>valmax</code> if it is greater than its current value. The Viterbi path itself is computed as the corresponding <a href="/wiki/Argmax" title="Argmax" class="mw-redirect">argmax</a> of that maximization, by extending the Viterbi path that leads to the current state with the next state. The triple <code>(prob, v_path, v_prob)</code> computed in this fashion is stored in <code>U</code> and once <code>U</code> has been computed for all possible next states, it replaces <code>T</code>, thus ensuring that the loop invariant holds at the end of the iteration.</p>
+<p>In the end another summation/maximization is performed (this could also be done inside the main loop by adding a pseudo-observation after the last real observation).</p>
+<p>In the running example, the forward/Viterbi algorithm is used as follows:</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-python">
+<span class="kw1">def</span> example<span class="br0">(</span><span class="br0">)</span>:
+    <span class="kw1">return</span> forward_viterbi<span class="br0">(</span>observations,
+                           states,
+                           start_probability,
+                           transition_probability,
+                           emission_probability<span class="br0">)</span>
+<span class="kw1">print</span> example<span class="br0">(</span><span class="br0">)</span>
+</pre></div>
+<p>This reveals that the total probability of <code>['walk', 'shop', 'clean']</code> is 0.033612 and that the Viterbi path is <code>['Sunny', 'Rainy', 'Rainy', 'Rainy']</code>, with probability 0.009408. The Viterbi path contains four states because the fourth observation was generated by the third state and a transition to the fourth state. In other words, given the observed activities, it was most likely sunny when Bob went for a walk and then it started to rain the next day and kept on raining.</p>
+<p>When implementing this algorithm, it should be noted that many languages use <a href="/wiki/Floating_Point" title="Floating Point" class="mw-redirect">Floating Point</a> arithmetic - as p is small, this may lead to underflow in the results. A common technique to avoid this is to take the logarithm of the probabilities and use it throughout the computation, the same technique used in the <a href="/wiki/Logarithmic_Number_System" title="Logarithmic Number System" class="mw-redirect">Logarithmic Number System</a>. Once the algorithm has terminated, an accurate value can be obtained by performing the appropriate exponentiation.</p>
+<p>If you like to implement this algorithm in a way it can accept any number of states, observations, and probabilities from the keyboard, substitute the parameters declaration part with this one:</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-python">
+states = <span class="br0">[</span><span class="br0">]</span>
+number_of_states=<span class="kw2">input</span><span class="br0">(</span><span class="st0">'how many states? Please write an integer different from 0 or 1'</span><span class="br0">)</span>
+index=<span class="nu0">0</span>
+<span class="kw1">while</span> index&lt;number_of_states:
+   states.<span class="me1">append</span><span class="br0">(</span><span class="kw2">str</span><span class="br0">(</span><span class="kw2">raw_input</span><span class="br0">(</span><span class="st0">'give a name to the state number'</span>+<span class="kw2">str</span><span class="br0">(</span>index<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+   index=index<span class="nu0">+1</span>
+ 
+observations = <span class="br0">[</span><span class="br0">]</span>
+number_of_observations=<span class="kw2">input</span><span class="br0">(</span><span class="st0">'how many observations? Please write an integer different from 0 or 1'</span><span class="br0">)</span>
+index=<span class="nu0">0</span>
+<span class="kw1">while</span> index&lt;number_of_observations:
+   observations.<span class="me1">append</span><span class="br0">(</span><span class="kw2">str</span><span class="br0">(</span><span class="kw2">raw_input</span><span class="br0">(</span><span class="st0">'give a name to the observation number '</span>+<span class="kw2">str</span><span class="br0">(</span>index<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+   index=index<span class="nu0">+1</span>
+ 
+start_probability = <span class="br0">{</span><span class="br0">}</span>
+<span class="kw1">for</span> state <span class="kw1">in</span> states:
+   start_probability<span class="br0">[</span>state<span class="br0">]</span> = <span class="kw2">input</span><span class="br0">(</span><span class="st0">'give a value for the start probability of the state '</span>+state<span class="br0">)</span>
+ 
+transition_probability = <span class="br0">{</span><span class="br0">}</span>
+<span class="kw1">for</span> initial_state <span class="kw1">in</span> states:
+   transition_probability<span class="br0">[</span>initial_state<span class="br0">]</span> = <span class="br0">{</span><span class="br0">}</span>
+   <span class="kw1">for</span> final_state <span class="kw1">in</span> states:
+      transition_probability<span class="br0">[</span>initial_state<span class="br0">]</span><span class="br0">[</span>final_state<span class="br0">]</span>=<span class="kw2">input</span><span class="br0">(</span><span class="st0">'give a value for the transition probability from the state '</span>+initial_state+<span class="st0">' to the state '</span>+final_state<span class="br0">)</span>
+ 
+emission_probability = <span class="br0">{</span><span class="br0">}</span>       
+<span class="kw1">for</span> state <span class="kw1">in</span> states:
+   emission_probability<span class="br0">[</span>state<span class="br0">]</span>= <span class="br0">{</span><span class="br0">}</span>
+   <span class="kw1">for</span> observation <span class="kw1">in</span> observations:
+      emission_probability<span class="br0">[</span>state<span class="br0">]</span><span class="br0">[</span>observation<span class="br0">]</span>=<span class="kw2">input</span><span class="br0">(</span><span class="st0">'give a value for the emission probability from the state '</span>+state+<span class="st0">' to the observation '</span>+observation<span class="br0">)</span>
+</pre></div>
+<p><a name="Extensions" id="Extensions"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Viterbi_algorithm&amp;action=edit&amp;section=3" title="Edit section: Extensions">edit</a>]</span> <span class="mw-headline">Extensions</span></h2>
+<p>With the algorithm called <a href="/wiki/Iterative_Viterbi_decoding" title="Iterative Viterbi decoding">iterative Viterbi decoding</a> one can find the subsequence of an observation that matches best (on average) to a given HMM. Iterative Viterbi decoding works by iteratively invoking a modified Viterbi algorithm, reestimating the score for a filler until convergence.</p>
+<p>An alternate algorithm, the <a href="/w/index.php?title=Lazy_Viterbi_algorithm&amp;action=edit&amp;redlink=1" class="new" title="Lazy Viterbi algorithm (page does not exist)">Lazy Viterbi algorithm</a>, has been proposed recently. This works by not expanding any nodes until it really needs to, and usually manages to get away with doing a lot less work (in software) than the ordinary Viterbi algorithm for the same result - however, it is not so easy to parallelize in hardware.</p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Viterbi_algorithm&amp;action=edit&amp;section=4" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Baum-Welch_algorithm" title="Baum-Welch algorithm">Baum-Welch algorithm</a></li>
+<li><a href="/wiki/Forward-backward_algorithm" title="Forward-backward algorithm">Forward-backward algorithm</a></li>
+<li><a href="/wiki/Error-correcting_code" title="Error-correcting code" class="mw-redirect">Error-correcting code</a></li>
+<li><a href="/wiki/Soft_output_Viterbi_algorithm" title="Soft output Viterbi algorithm">Soft output Viterbi algorithm</a></li>
+<li><a href="/wiki/Viterbi_decoder" title="Viterbi decoder">Viterbi decoder</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Viterbi_algorithm&amp;action=edit&amp;section=5" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li>Andrew J. Viterbi. <a href="http://ieeexplore.ieee.org/search/wrapper.jsp?arnumber=1054010" class="external text" title="http://ieeexplore.ieee.org/search/wrapper.jsp?arnumber=1054010" rel="nofollow">Error bounds for convolutional codes and an asymptotically optimum decoding algorithm</a>, <i>IEEE Transactions on Information Theory</i> 13(2):260–269, April 1967. (The Viterbi decoding algorithm is described in section IV.)</li>
+</ul>
+<ul>
+<li>G. D. Forney. <a href="http://ieeexplore.ieee.org/search/wrapper.jsp?arnumber=1450960" class="external text" title="http://ieeexplore.ieee.org/search/wrapper.jsp?arnumber=1450960" rel="nofollow">The Viterbi algorithm</a>. <i>Proceedings of the IEEE</i> 61(3):268–278, March 1973.</li>
+</ul>
+<ul>
+<li>L. R. Rabiner. <a href="http://dx.doi.org/10.1109/5.18626" class="external text" title="http://dx.doi.org/10.1109/5.18626" rel="nofollow">A tutorial on hidden Markov models and selected applications in speech recognition</a> . <i>Proceedings of the IEEE</i> 77(2):257–286, February 1989. (Describes the forward algorithm and Viterbi algorithm for HMMs).</li>
+</ul>
+<ul>
+<li>J Feldman, I Abou-Faycal and M Frigo. A Fast Maximum-Likelihood Decoder for Convolutional Codes.</li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Viterbi_algorithm&amp;action=edit&amp;section=6" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.cambridge.org/resources/0521882672/5872_kaeslin_dynpro.pdf" class="external text" title="http://www.cambridge.org/resources/0521882672/5872_kaeslin_dynpro.pdf" rel="nofollow">A Gentle Introduction to Dynamic Programming and the Viterbi Algorithm</a></li>
+<li><a href="http://search.cpan.org/dist/Algorithm-Viterbi/" class="external text" title="http://search.cpan.org/dist/Algorithm-Viterbi/" rel="nofollow">An implementation of the Viterbi algorithm in Perl</a></li>
+<li><a href="http://www.biais.org/blog/index.php/2007/09/05/52-viterbi-algorithm-variant-in-python" class="external text" title="http://www.biais.org/blog/index.php/2007/09/05/52-viterbi-algorithm-variant-in-python" rel="nofollow">An implementation of a variant of the Viterbi algorithm in Python</a></li>
+<li><a href="http://pcarvalho.com/forward_viterbi/" class="external text" title="http://pcarvalho.com/forward_viterbi/" rel="nofollow">An implementation of the demonstrated Viterbi algorithm in C#</a></li>
+<li><a href="http://bozskyfilip.blogspot.com/2009/01/viterbi-algorithm-in-c-and-using-stl.html" class="external text" title="http://bozskyfilip.blogspot.com/2009/01/viterbi-algorithm-in-c-and-using-stl.html" rel="nofollow">An implementation of the demonstrated Viterbi algorithm in C++</a></li>
+<li><a href="http://codingplayground.blogspot.com/2009/02/viterbi-algorithm-in-boost-and-c.html" class="external text" title="http://codingplayground.blogspot.com/2009/02/viterbi-algorithm-in-boost-and-c.html" rel="nofollow">An implementation of the demonstrated Viterbi algorithm in C++ and Boost</a></li>
+<li><a href="http://psubi.com/viterbi.html" class="external text" title="http://psubi.com/viterbi.html" rel="nofollow">An implementation of the demonstrated Viterbi algorithm in Java</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 27/1000000
+Post-expand include size: 2307/2048000 bytes
+Template argument size: 97/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:228015-0!1!0!default!!en!2 and timestamp 20090411232907 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Viterbi_algorithm">http://en.wikipedia.org/wiki/Viterbi_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Error_detection_and_correction" title="Category:Error detection and correction">Error detection and correction</a></span> | <span dir='ltr'><a href="/wiki/Category:Machine_learning" title="Category:Machine learning">Machine learning</a></span> | <span dir='ltr'><a href="/wiki/Category:Dynamic_programming" title="Category:Dynamic programming">Dynamic programming</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Viterbi_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Viterbi_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Viterbi_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Viterbi_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Viterbi_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Viterbi_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Viterbi_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Viterbi_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Viterbi_algorithm&amp;oldid=283267157" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Viterbi_algorithm&amp;id=283267157">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-af"><a href="http://af.wikipedia.org/wiki/Viterbi_algoritme">Afrikaans</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Viterbi-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_de_Viterbi">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_de_Viterbi">Français</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Algoritmo_di_Viterbi">Italiano</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%83%93%E3%82%BF%E3%83%93%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_Viterbiego">Polski</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC_%D1%81%D0%B2%D1%91%D1%80%D1%82%D0%BE%D1%87%D0%BD%D0%BE%D0%B3%D0%BE_%D0%B4%D0%B5%D0%BA%D0%BE%D0%B4%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F_%D0%92%D0%B8%D1%82%D0%B5%D1%80%D0%B1%D0%B8">Русский</a></li>
+				<li class="interwiki-sv"><a href="http://sv.wikipedia.org/wiki/Viterbis_algoritm">Svenska</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 11 April 2009, at 23:29 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv204 in 0.039 secs. --></body></html>

@@ -1,0 +1,381 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Virtual memory - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Virtual_memory";
+		var wgTitle = "Virtual memory";
+		var wgAction = "view";
+		var wgArticleId = "32354";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282115431;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Virtual memory
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about the computational technique.  For the TBN game show, see Virtual Memory (game show).
+
+
+
+
+The program thinks it has a large range of contiguous addresses; but in reality the parts it is currently using are scattered around RAM, and the inactive parts are saved in a disk file.
+
+
+Virtual memory is a computer system technique which gives an application program the impression that it has contiguous working memory (an address space), while in fact it may be physically fragmented and may even overflow on to disk storage. Systems that use this technique make programming of large applications easier and use real physical memory (e.g. RAM) more efficiently than those without virtual memory.
+Note that "virtual memory" is more than just "using disk space to extend physical memory size" - that is merely the extension of the memory hierarchy to include hard disk drives. Extending memory to disk is a normal consequence of using virtual memory techniques, but could be done by other means such as overlays or swapping programs and their data completely out to disk while they are inactive. The definition of "virtual memory" is based on redefining the address space with a contiguous virtual memory addresses to "trick" programs into thinking they are using large blocks of contiguous addresses.
+All modern general-purpose computer operating systems use virtual memory techniques for ordinary applications, such as word processors, spreadsheets, multimedia players, accounting, etc. Older operating systems, such as DOS and Microsoft Windows[1] of the 1980s, or those for the mainframes of the 1960s, generally had no virtual memory functionality - notable exceptions being the Atlas, B5000 and Apple Computer's Lisa.
+Embedded systems and other special-purpose computer systems which require very fast and/or very consistent response times may choose not to use virtual memory due to decreased determinism.
+
+
+
+
+Contents
+
+
+1 History
+2 Paged virtual memory
+
+2.1 Page tables
+2.2 Paging
+2.3 Dynamic address translation
+2.4 Paging supervisor
+2.5 Permanently resident pages
+
+2.5.1 Virtual=real operation
+
+
+
+
+3 Segmented virtual memory
+4 Avoiding thrashing
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+In the 1940s and 1950s, before the development of a virtual memory, all larger programs had to contain logic for managing two-level storage (primary and secondary, today's analogies being RAM and hard disk), such as overlaying techniques. Programs were responsible for moving overlays back and forth from secondary storage to primary.
+The main reason for introducing virtual memory was therefore not simply to extend primary memory, but to make such an extension as easy to use for programmers as possible.[2]
+Many systems already had the ability to divide the memory between multiple programs (required for multiprogramming and multiprocessing), provided for example by "base and bounds registers" on early models of the PDP-10, without providing virtual memory. That gave each application a private address space starting at an address of 0, with an address in the private address space being checked against a bounds register to make sure it's within the section of memory allocated to the application and, if it is, having the contents of the corresponding base register being added to it to give an address in main memory. This is a simple form of segmentation without virtual memory.
+Virtual memory was developed in approximately 1959–1962, at the University of Manchester for the Atlas Computer, completed in 1962.[3] However, Fritz-Rudolf Güntsch, one of Germany's pioneering computer scientists and later the developer of the Telefunken TR 440 mainframe, claims to have invented the concept in 1957 in his doctoral dissertation Logischer Entwurf eines digitalen Rechengerätes mit mehreren asynchron laufenden Trommeln und automatischem Schnellspeicherbetrieb (Logic Concept of a Digital Computing Device with Multiple Asynchronous Drum Storage and Automatic Fast Memory Mode).
+In 1961, Burroughs released the B5000, the first commercial computer with virtual memory.[4][5] It used segmentation rather than paging.
+Like many technologies in the history of computing, virtual memory was not accepted without challenge. Before it could be implemented in mainstream operating systems, many models, experiments, and theories had to be developed to overcome the numerous problems. Dynamic address translation required a specialized, expensive, and hard to build hardware, moreover initially it slightly slowed down the access to memory.[2] There were also worries that new system-wide algorithms of utilizing secondary storage would be far less effective than previously used application-specific ones.
+By 1969 the debate over virtual memory for commercial computers was over.[2] An IBM research team led by David Sayre showed that the virtual memory overlay system consistently worked better than the best manually controlled systems.
+Possibly the first minicomputer to introduce virtual memory was the Norwegian NORD-1. During the 1970s, other minicomputers implemented virtual memory, notably VAX models running VMS.
+Virtual memory was introduced to the x86 architecture with the protected mode of the Intel 80286 processor. At first it was done with segment swapping, which became inefficient with larger segments. The Intel 80386 introduced support for paging underneath the existing segmentation layer. The page fault exception could be chained with other exceptions without causing a double fault.
+
+[edit] Paged virtual memory
+Almost all implementations of virtual memory divide the virtual address space of an application program into pages; a page is a block of contiguous virtual memory addresses. Pages are usually at least 4K bytes in size, and systems with large virtual address ranges or large amounts of real memory (e.g. RAM) generally use larger page sizes.
+
+[edit] Page tables
+Almost all implementations use page tables to translate the virtual addresses seen by the application program into physical addresses (also referred to as "real addresses") used by the hardware to process instructions. Each entry in the page table contains a mapping for a virtual page to either the real memory address at which the page is stored, or an indicator that the page is currently held in a disk file. (Although most do, some systems may not support use of a disk file for virtual memory.)
+Systems can have one page table for the whole system or a separate page table for each application. If there is only one, different applications which are running at the same time share a single virtual address space, i.e. they use different parts of a single range of virtual addresses. Systems which use multiple page tables provide multiple virtual address spaces - concurrent applications think they are using the same range of virtual addresses, but their separate page tables redirect to different real addresses.
+
+[edit] Paging
+Paging is the process of saving inactive virtual memory pages to disk and restoring them to real memory when required.
+Most virtual memory systems enable programs to use virtual address ranges which in total exceed the amount of real memory (e.g. RAM). To do this they use disk files to save virtual memory pages which are not currently active, and restore them to real memory when they are needed. Pages are not necessarily restored to the same real addresses from which they were saved - applications are aware only of virtual addresses. Usually when a page is going to be restored to real memory, the real memory already contains another virtual memory page which will be saved to disk before the restore takes place.
+
+[edit] Dynamic address translation
+If, while executing an instruction, a CPU fetches an instruction located at a particular virtual address, fetches data from a specific virtual address or stores data to a particular virtual address, the virtual address must be translated to the corresponding physical address. This is done by a hardware component, sometimes called a memory management unit, which looks up the real address (from the page table) corresponding to a virtual address and passes the real address to the parts of the CPU which execute instructions. If the page tables indicate that the virtual memory page is not currently in real memory, the hardware raises a page fault exception (special internal signal) which invokes the paging supervisor component of the operating system (see below).
+
+[edit] Paging supervisor
+This part of the operating system creates and manages the page tables. If the dynamic address translation hardware raises a page fault exception, the paging supervisor searches the page space on secondary storage for the page containing the required virtual address, reads it into real physical memory, updates the page tables to reflect the new location of the virtual address and finally tells the dynamic address translation mechanism to start the search again. Usually all of the real physical memory is already in use and the paging supervisor must first save an area of real physical memory to disk and update the page table to say that the associated virtual addresses are no longer in real physical memory but saved on disk. Paging supervisors generally save and overwrite areas of real physical memory which have been least recently used, because these are probably the areas which are used least often. So every time the dynamic address translation hardware matches a virtual address with a real physical memory address, it must put a time-stamp in the page table entry for that virtual address.
+
+[edit] Permanently resident pages
+All virtual memory systems have memory areas that are "pinned down", i.e. cannot be swapped out to secondary storage, for example:
+
+Interrupt mechanisms generally rely on an array of pointers to the handlers for various types of interrupt (I/O completion, timer event, program error, page fault, etc.). If the pages containing these pointers or the code that they invoke were pageable, interrupt-handling would become even more complex and time-consuming; and it would be especially difficult in the case of page fault interrupts.
+The page tables are usually not pageable.
+Data buffers that are accessed outside of the CPU, for example by peripheral devices that use direct memory access (DMA) or by I/O channels. Usually such devices and the buses (connection paths) to which they are attached use physical memory addresses rather than virtual memory addresses. Even on buses with an IOMMU, which is a special memory management unit that can translate virtual addresses used on an I/O bus to physical addresses, the transfer cannot be stopped if a page fault occurs and then restarted when the page fault has been processed. So pages containing locations to which or from which a peripheral device is transferring data are either permanently pinned down or pinned down while the transfer is in progress.
+Timing-dependent kernel/application areas cannot tolerate the varying response time caused by paging.
+
+
+[edit] Virtual=real operation
+In MVS, z/OS, and similar OSes, some parts of the systems memory are managed in virtual=real mode, where every virtual address corresponds to a real address. Those are:
+
+interrupt mechanisms
+paging supervisor and page tables
+all data buffers accessed by I/O channels[citation needed]
+application programs which use non-standard methods of managing I/O and therefore provide their own buffers and communicate directly with peripherals (programs that create their own channel command words).
+
+In IBM's early virtual memory operating systems virtual=real mode was the only way to "pin down" pages. z/OS has 3 modes, V=V (virtual=virtual; fully pageable), V=R and V=F (virtual = fixed, i.e. "pinned down" but with DAT operating).[6]
+
+[edit] Segmented virtual memory
+Some systems, such as the Burroughs large systems, do not use paging to implement virtual memory. Instead, they use segmentation, so that an application's virtual address space is divided into variable-length segments. A virtual address consists of a segment number and an offset within the segment.
+Memory is still physically addressed with a single number (called absolute or linear address). To obtain it, the processor looks up the segment number in a segment table to find a segment descriptor.[7] The segment descriptor contains a flag indicating whether the segment is present in main memory and, if it is, the address in main memory of the beginning of the segment (segment's base address) and the length of the segment. It checks whether the offset within the segment is less than the length of the segment and, if it isn't, an interrupt is generated. If a segment is not present in main memory, a hardware interrupt is raised to the operating system, which may try to read the segment into main memory, or to swap in. The operating system might have to remove other segments (swap out) from main memory in order to make room in main memory for the segment to be read in.
+Notably, the Intel 80286 supported a similar segmentation scheme as an option, but it was unused by most operating systems.
+It is possible to combine segmentation and paging, usually dividing each segment into pages. In systems that combine them, such as Multics and the IBM System/38 and IBM System i machines, virtual memory is usually implemented with paging, with segmentation used to provide memory protection.[8][9][10] With the Intel 80386 and later IA-32 processors, the segments reside in a 32-bit linear paged address space, so segments can be moved into and out of that linear address space, and pages in that linear address space can be moved in and out of main memory, providing two levels of virtual memory; however, few if any operating systems do so. Instead, they only use paging.
+The difference between virtual memory implementations using pages and using segments is not only about the memory division with fixed and variable sizes, respectively. In some systems, e.g. Multics, or later System/38 and Prime machines, the segmentation was actually visible to the user processes, as part of the semantics of a memory model. In other words, instead of a process just having a memory which looked like a single large vector of bytes or words, it was more structured. This is different from using pages, which doesn't change the model visible to the process. This had important consequences.
+A segment wasn't just a "page with a variable length", or a simple way to lengthen the address space (as in Intel 80286). In Multics, the segmentation was a very powerful mechanism that was used to provide a single-level virtual memory model, in which there was no differentiation between "process memory" and "file system" - a process' active address space consisted only a list of segments (files) which were mapped into its potential address space, both code and data. [11] It is not the same as the later mmap function in Unix, because inter-file pointers don't work when mapping files into semi-arbitrary places. Multics had such addressing mode built into most instructions. In other words it could perform relocated inter-segment references, thus eliminating the need for a linker completely.[2] This also worked when different processes mapped the same file into different places in their private address spaces.[12]
+
+[edit] Avoiding thrashing
+All implementations need to avoid a problem called "thrashing", where the computer spends too much time shuffling blocks of virtual memory between real memory and disks, and therefore appears to work slower. Better design of application programs can help, but ultimately the only cure is to install more real memory. For more information see Paging.
+
+[edit] See also
+
+Physical memory and its physical address
+Memory address
+
+Address space
+Virtual address space
+
+
+CPU design
+Page (computing)
+
+Page table
+Paging
+Working set
+Memory management unit
+Cache algorithms
+Page replacement algorithm
+
+
+Segmentation (memory)
+
+System/38
+
+
+Memory management
+Memory allocation
+Protected mode, a x86's name of virtual memory addressing
+
+
+[edit] References
+
+
+^ "Windows Version History". Microsoft. Last Review: July 19, 2005. http://support.microsoft.com/kb/32905. Retrieved on 2008-12-03. 
+^ a b c d Denning, Peter (1997). "Before Memory Was Virtual" (PDF). In the Beginning: Recollections of Software Pioneers. http://cs.gmu.edu/cne/pjd/PUBS/bvm.pdf. 
+^ http://www.computer50.org/kgill/atlas/atlas.html Atlas design includes virtual memory
+^ http://web.mac.com/joynerian/iWeb/Ian%20Joyner/Burroughs.html Ian Joyner on Burroughs B5000
+^ Cragon, Harvey G. (1996), Memory Systems and Pipelined Processors, Jones and Bartlett Publishers, pp. 113, ISBN 0867204745, http://books.google.com/books?id=q2w3JSFD7l4C 
+^ "z/OS Basic Skills Information Center: z/OS Concepts" (PDF). http://publib.boulder.ibm.com/infocenter/zoslnctr/v1r7/topic/com.ibm.zconcepts.doc/zconcepts.pdf. 
+^ (PDF)The Operational Characteristics of the Processors for the Burroughs B5000. http://computer-refuge.org/bitsavers/pdf/burroughs/B5000_5500_5700/5000-21005_B5000_operChar.pdf. Retrieved on 2007-11-13. 
+^ (PDF)GE-645 System Manual. January 1968. pp. pp21–30. http://computer-refuge.org/bitsavers/pdf/ge/GE-645/GE-645_SystemMan_Jan68.pdf. Retrieved on 2007-11-13. 
+^ F. J. Corbató, V. A. Vyssotsky. "Introduction and Overview of the Multics System". http://www.multicians.org/fjcc1.html. Retrieved on 2007-11-13. 
+^ E. L. Glaser, J. F. Couleur, G. A. Oliver. "System Design of a Computer for Time Sharing Applications". http://www.multicians.org/fjcc2.html. 
+^ Bensoussan, A.; Clingen, C. T. (May 1972), "The Multics Virtual Memory: Concepts and Design", Communications of the ACM 15 (5): 308–318, doi:10.1145/355602.361306, http://www.multicians.org/multics-vm.html 
+^ Organick, E.I. (1972), The Multics System: An Examination of Its Structure, MIT Press 
+
+
+
+John L. Hennessy, David A. Patterson, Computer Architecture, A Quantitative Approach (ISBN 1-55860-724-2)
+Virtual Memory Secrets by Murali
+
+
+[edit] External links
+
+Linux Memory Management
+Linux Kernel Mailing List Discussion
+Pointers to virtual memory visualizations
+The Virtual-Memory Manager in Windows NT
+
+This article was originally based on material from the Free On-line Dictionary of Computing, which is licensed under the GFDL.
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Virtual_memory"
+Categories: Virtual memoryHidden categories: All articles with unsourced statements | Articles with unsourced statements since November 2007 | Wikipedia articles incorporating text from FOLDOC 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Беларуская (тарашкевіца)
+Català
+Česky
+Dansk
+Deutsch
+Español
+Euskara
+فارسی
+Français
+Galego
+한국어
+Bahasa Indonesia
+Italiano
+עברית
+Lietuvių
+Magyar
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Simple English
+Slovenčina
+Slovenščina
+Suomi
+Svenska
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 April 2009, at 14:27.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

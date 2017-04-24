@@ -1,0 +1,384 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Covariance and contravariance (computer science) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Covariance_and_contravariance_(computer_science)";
+		var wgTitle = "Covariance and contravariance (computer science)";
+		var wgAction = "view";
+		var wgArticleId = "1104704";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 287616456;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Covariance and contravariance (computer science)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Within the type system of a programming language, an operator from types to types is covariant if it preserves the ordering, ≤, of types, which orders types from more specific ones to more generic ones; it is contravariant if it reverses this ordering. If neither of these apply, the operator is invariant. These terms come from category theory, which has a general definition of covariance and contravariance that unifies the computer science definition of these terms with the definition used in vector spaces.
+This distinction is important in considering argument and return types of methods in class hierarchies. In object-oriented languages such as C++, if class B is a subtype of class A, then all member functions of B must return the same or narrower set of types as A; the return type is said to be covariant. On the other hand, the member functions of B must take the same or broader set of arguments compared with the member functions of A; the argument type is said to be contravariant. The problem for instances of B is how to be perfectly substitutable for instances of A. The only way to guarantee type safety and substitutability is to be equally or more liberal than A on inputs, and to be equally or more strict than A on outputs. Note that not all programming languages guarantee both properties in every context, and that some are unnecessarily strict; they are said not to support covariance or contravariance in a given context; the behavior of some programming languages is discussed below.
+Typical examples:
+
+The operator which constructs array types from element types is usually covariant on the base type: since String ≤ Object then ArrayOf(String) ≤ ArrayOf(Object). Note that this is only correct (i.e. type safe) if the array is immutable; if insert and remove operators are permitted, then the insert operator is covariant (e.g. one can insert a String into an ArrayOf(Object)) and the remove operator is contravariant (e.g. one can remove an Object from an ArrayOf(String)). Since the mutators have conflicting variance, mutable arrays should be invariant on the base type.
+A function with a parameter of type T (defined as fun f (x : T) : Integer) can be replaced by a function g (defined as fun g (x : S) : Integer) if T ≤ S. In other words, if g cares less about the type of its parameter, then it can replace f anywhere, since both return an Integer. So, in a language accepting function arguments, g ≤ f and the type of the parameter to f is said to be contravariant.
+In the general case, the type of the result is covariant.
+
+In object-oriented programming, substitution is also implicitly invoked by overriding methods in subclasses: the new method can be used where the old method was invoked in the original code. Programming languages vary widely on their allowed forms of overriding, and on the variance of overridden methods' types.
+
+
+
+
+Contents
+
+
+1 Origin of the terms
+2 Need for covariant argument types?
+3 Avoiding the need for covariant argument types
+4 Overview of covariance/contravariance in some programming languages
+
+4.1 C++
+4.2 Arrays in C# and Java
+4.3 C#
+4.4 D
+4.5 Java
+4.6 Eiffel
+4.7 Nemerle
+4.8 REALbasic
+4.9 Scala
+4.10 Sather
+
+
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Origin of the terms
+The origin of these terms is in category theory, where the types in the type system form a category C, with arrows representing the subtype relationship. The subtype relationship supposedly reflects the substitution principle: that any expression of type t can be substituted by an expression of type s if s ≤ t.
+Defining a function that accepts type p and returns type r creates a new type p → r in the type system which the new function name is associated with. This function definition operator is actually a functor F : C × C → C that creates the said type. From the substitution principle above, this functor must be contravariant in the first argument and covariant in the second.[1]
+
+[edit] Need for covariant argument types?
+In many strictly-typed languages (with the notable exception of Eiffel, see below), subclassing must allow for substitution. That is, a child class can always stand in for a parent class. This places restrictions on the sorts of relationships that subclassing can represent. In particular, it means that arguments to member functions can only be contravariant and return types can only be covariant, as explained in previous section.
+This creates problems in some situations, where argument types should be covariant to model real-life requirements. Suppose you have a class representing a person. A person can see the doctor, so this class might have a method virtual void Person::see(Doctor d). Now suppose you want to make a subclass of the Person class, Child. That is, a Child is a Person. One might then like to make a subclass of Doctor, Pediatrician. If children only visit pediatricians, we would like to enforce that in the type system. However, a naive implementation fails: because a Child is a Person, Child::see(d) must take any Doctor, not just a Pediatrician.
+We could try moving the see() method to the Doctor class hierarchy, but we would have the same problem: If a Doctor could see a Person and a Child is a Person, then there is still no way to enforce that a Child must see a Pediatrician and that a Person who is not a Child cannot see a Pediatrician and must see another Doctor.
+In this case, the visitor pattern could be used to enforce this relationship. Another way to solve the problems, in C++, is using generic programming (see below).
+
+[edit] Avoiding the need for covariant argument types
+The problem arises since different object oriented languages have different strategies to select the actual code used in a particular context and the first parameter is the object itself (which is not contravariant).
+However, Castagna[2] showed that all depends on the correct method fetching algorithm: types used for runtime selection of the right method are covariant; types not used for runtime selection of the method are contravariant. In Castagna's work, examples which would suggest the usage of covariance for parameter types are treated with the usage of multiple dispatch, i.e. overriding where the right method is selected also based on the type of some arguments; applying the rule, covariance is allowed for those argument types. However, this solution cannot be applied to most programming languages, since they do not support multiple dispatch
+Note that for (static) overload resolution, the opposite rule applies: types used for compile-time method selection (i.e. parameter types) are contravariant; types not used to select the method are covariant.
+These terms are also used in the context of modern programming languages that offer other functors to create new types with type variables, e.g., generic programming or parametric polymorphism, and exception handling where method definitions are enriched with annotations that indicate possible failures.
+
+[edit] Overview of covariance/contravariance in some programming languages
+Both the subtype and method overriding concepts are defined differently between programming languages. They do not necessarily follow the substitution principle above, sometimes adding runtime checking instead. What follows is a simple comparison of how overriding methods behave in some common programming languages.
+
+[edit] C++
+C++ supports covariant return types in overridden virtual functions. Adding the covariant return type was the first modification of the C++ language approved by the standards committee in 1998. See Allison, Chuck. "What's New in Standard C++?". http://www.freshsources.com/newcpp.html. 
+With generic programming, C++ allows for what amounts to covariance in argument and return type alike. For example, the argument and return types of member functions of the std::vector<T> class vary with T. The push_back method takes a const T&, so one pushes an int onto a vector<int> but a std::string onto a vector<string>. This is done at compile time (statically) and, strictly speaking, is parametric polymorphism, because neither of vector<int> and vector<string> is a subtype of the other; this allows offering covariance for argument types without the undesirable effects discussed in the introduction.
+
+[edit] Arrays in C# and Java
+In the above discussion we have shown that type safety requires invariance of array types. However, arrays of reference types are covariant in both languages, and this leads to lack of static type safety: for instance, in C# string[] is a subtype of object[], and in Java String[] is a subtype of Object[], although with some caveats. For instance, in C#, we have:
+
+// a is a single-element array of System.String
+string[] a = new string[1];
+
+// b is an array of System.Object
+object[] b = a;
+
+// Assign an integer to b. This would be possible if b really were
+// an array of objects, but since it really is an array of strings,
+// we will get an ArrayTypeMismatchException with the following message:
+// "Attempted to store an element of the incorrect type into the array".
+b[0] = 1;
+
+The same problem exists in Java, too:
+
+// a is a single-element array of String
+String[] a = new String[1];
+
+// b is an array of Object
+Object[] b = a;
+
+// Assign an Integer to b. This would be possible if b really were
+// an array of Object, but since it really is an array of String,
+// we will get a java.lang.ArrayStoreException.
+b[0] = 1;
+
+Note: In the above cases you can read from b without problem. It is only when trying to write to the array that you must know its real type.
+Arrays of primitive types are invariant: int[] is not a subtype of double[], although int is in some sense a subtype of double.
+
+[edit] C#
+In C# it is possible to store an object which is an instance of an equal or smaller type in that storage location.[3]
+Ever since C# 1.0, arrays where the element type is a reference type are covariant.[4]
+Method group to delegate conversions are contravariant in their argument types.[5]
+Generic delegate types are always invariant in C# 3.0[6]
+A variant interface which inherits from another variant interface must do so in a manner which does not introduce problems in the type system[7]
+C# 4.0 is planned to allow co- and contravariance on parameterized interface and delegate types [8]
+
+[edit] D
+The D Programming Language supports covariance for method overriding:
+
+interface IFactory {
+    Object Create();
+}
+
+class X { }
+
+class XFactory : IFactory {
+    // This method implements IFactory.Create
+    X Create() {
+        return new X();
+    }
+}
+
+
+[edit] Java
+Return type covariance is implemented in the Java programming language version J2SE 5.0. Parameter types have to be exactly the same (invariant) for method overriding, otherwise the method is overloaded with a parallel definition instead.
+Generics were introduced in Java in Java 5.0 to allow type-safe generic programming. Unlike arrays, generic classes are neither covariant nor contravariant. For example, neither List<String> nor List<Object> is a subtype of the other:
+
+// a is a single-element List of String
+List<String> a = new ArrayList<String>();
+a.add("foo");
+
+// b is a List of Object
+List<Object> b = a; // This is a compile-time error
+
+However, generic type parameters can contain wildcards (a shortcut for an extra type parameter that is only used once). Example: Given a requirement for a method which operates on Lists, of any object, then the only operations that can be performed on the object are those for which the type relationships can be guaranteed to be safe.
+
+// a is a single-element List of String
+List<String> a = new ArrayList<String>();
+a.add("foo");
+
+// b is a List of anything
+List<?> b = a;
+
+// retrieve the first element
+Object c = b.get(0);
+// This is legal, because we can guarantee
+// that the return type "?" is a subtype of Object
+
+// Add an Integer to b.
+b.add(new Integer (1)); 
+// This is a compile-time error; 
+// we cannot guarantee that Integer is
+// a subtype of the parameter type "?"
+
+Wildcards can also be bound, e.g. "? extends Foo" or "? super Foo" for upper and lower bounds, respectively. This allows to refine permitted performance. Example: given a List<? extends Foo>, then an element can be retrieved and safely assigned to a Foo type (contravariance). Given a List<? super Foo>, then a Foo object can be safely added as an element (covariance).
+
+[edit] Eiffel
+Eiffel allows covariant return and parameter types in overriding methods. This is possible because Eiffel does not require subclasses to be substitutable for superclasses — that is, subclasses are not necessarily subtypes.
+However, this can lead to surprises if subclasses with such covariant parameter types are operated upon presuming they were a more general class (polymorphism), leading to the possibility of compiler errors.
+
+[edit] Nemerle
+Nemerle supports declarations of covariance and contravariance.
+
+[edit] REALbasic
+REALbasic added support for return type covariance in version 5.5. Like with Java, the parameter types of the overriding method must be the same.
+
+[edit] Scala
+Scala supports use-site declarations of covariance and contravariance. Its arrays are invariant in the base type.
+
+[edit] Sather
+Sather supports both covariance and contravariance. Calling convention for overridden methods are covariant with out arguments and return values, and contravariant with normal arguments (with the mode in).
+
+[edit] See also
+
+Polymorphism (computer science)
+Inheritance (computer science)
+
+
+[edit] References
+
+^ Luca Cardelli, "A semantics of multiple inheritance", Inf. Comput. 76, pp. 138–164, 1988
+^ G. Castagna, Covariance and contravariance: conflict without a cause, ACM Transactions on Programming Languages and Systems (TOPLAS), Volume 17, Issue 3, May 1995, pages 431-447.
+^ [1]
+^ [2]
+^ [3]
+^ [4]
+^ [5]
+^ [6]
+
+
+[edit] External links
+
+Fabulous Adventures in Coding: An article series about implementation concerns surrounding co/contravariance in C#
+Contra Vs Co Variance (note this article is not updated about C++)
+Closures for the Java 7 Programming Language (v0.5)
+Concise explanation of Covariance and Contravariance in C#
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)"
+Categories: Object-oriented programming | Type theory 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 May 2009, at 10:12 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

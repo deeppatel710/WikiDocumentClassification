@@ -1,0 +1,301 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SRV record - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "SRV_record";
+		var wgTitle = "SRV record";
+		var wgAction = "view";
+		var wgArticleId = "537440";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 275312863;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); SRV record
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+An SRV record or Service record is a category of data in the Internet Domain Name System specifying information on available services. It is defined in RFC 2782. Newer internet protocols such as SIP and XMPP often require SRV support from clients.
+
+
+
+
+Contents
+
+
+1 Record format
+2 High Availability with SRV
+3 Verifying that a SRV record is created
+4 Usage
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Record format
+An SRV record has the form:
+
+_Service._Proto.Name TTL Class SRV Priority Weight Port Target
+
+
+Service: the symbolic name of the desired service.
+Proto: the protocol of the desired service; this is usually either TCP or UDP.
+Name: the domain name for which this record is valid.
+TTL: standard DNS time to live field.
+Class: standard DNS class field (this is always IN).
+Priority: the priority of the target host, lower value means more preferred.
+Weight: A relative weight for records with the same priority.
+Port: the TCP or UDP port on which the service is to be found.
+Target: the canonical hostname of the machine providing the service.
+
+An example SRV record might look like this:
+
+_sip._tcp.example.com. 86400 IN SRV 0 5 5060 sipserver.example.com.
+
+This points to a server named sipserver.example.com listening on TCP port 5060 for SIP protocol connections. The priority given here is 0, and the weight is 5.
+As with PTR records, SRV records must point to the canonical name of the host. Aliases or CNAMEs cannot be used as valid targets.
+
+[edit] High Availability with SRV
+The priority field is similar to an MX record's priority value. Clients always use the SRV record with the lowest-numbered priority value first, and only fall back to other records if the connection with this record's host fails. Thus a service may have a designated "fallback" server, which will only be used if the primary server fails. Only another SRV record, with a priority field value higher than the primary server's record, is needed.
+If a service has multiple SRV records with the same priority value, clients use the weight field to determine which host to use. The weight value is relevant only in relation to other weight values for the service, and only among records with the same priority value.
+In the following example, both the priority and weight fields are used to provide a combination of load balancing and backup service.
+
+_sip._tcp.example.com. 86400 IN SRV 10 60 5060 bigbox.example.com.
+_sip._tcp.example.com. 86400 IN SRV 10 20 5060 smallbox1.example.com.
+_sip._tcp.example.com. 86400 IN SRV 10 10 5060 smallbox2.example.com.
+_sip._tcp.example.com. 86400 IN SRV 10 10 5066 smallbox2.example.com.
+_sip._tcp.example.com. 86400 IN SRV 20 0 5060 backupbox.example.com.
+
+The first four records share a priority of 10, so the weight field's value will be used by clients to determine which server (host and port combination) to contact. The sum of all four values is 100, so bigbox.example.com will be used 60% of the time. The two hosts smallbox1 and smallbox2 will be used for 20% of requests each, with half of the requests that are sent to smallbox2 (i.e. 10% of the total requests) going to port 5060 and the remaining half to port 5066. If bigbox is unavailable, these two remaining machines will share the load equally, since they will each be selected 50% of the time.
+If all four servers with priority 10 are unavailable, the record with the next highest priority value will be chosen, which is backupbox.example.com. This might be a machine in another physical location, presumably not vulnerable to anything that would cause the first three hosts to become unavailable.
+It should be noted that the load balancing provided by SRV records is inherently limited, since the information is essentially static. Current load of servers is not taken into account.
+
+[edit] Verifying that a SRV record is created
+In Linux or UNIX operating systems you can use dig to verify that the SRV record is created. Example:
+
+dig -t SRV _sip._tcp.example.com
+
+In Windows operating systems you can verify the SRV record as follows:
+
+nslookup
+set type=srv
+_sip._tcp.example.com
+
+
+[edit] Usage
+SRV records are often used by Microsoft Windows 2000 clients to find the domain controller for a given service. SRV Records are also used by Outlook 2007 to locate the Exchange Autodiscover service. [1]
+Further, SRV records are common in conjunction with the following standardised protocols:
+
+Client SMTP Authorization
+IMPS [2]
+Kerberos[3]
+LDAP[4]
+SIP[5]
+XMPP (Jabber)[6]
+
+
+[edit] See also
+
+MX record - an older DNS RR type used for locating the SMTP server
+List of DNS record types
+
+
+[edit] References
+
+
+^ http://support.microsoft.com/kb/940881
+^ http://baraza.im/userguide_pre.htm
+^ Hostnames for the Master and Slave KDCs
+^ RFC 3088 - OpenLDAP Root Service An experimental LDAP referral service
+^ DNS SRV - voip-info.org
+^ XEP-0156: Discovering Alternative XMPP Connection Methods
+
+
+
+[edit] External links
+
+RFC 2782 - definition of the SRV resource record
+Men & Mice's DNS Glossary - SRV Record
+Rick van Rein's articles on SRV resource records
+Comprehensive list of defined SRV service types
+draft-andrews-http-srv-01.txt - Use of SRV records in conjunction with HTTP and URIs (Expired Internet-Draft)
+Resources for DNS Programmers - Libraries for client-side DNS programming with support for SRV records
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/SRV_record"
+Categories: Domain name system 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Français
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 March 2009, at 02:42 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

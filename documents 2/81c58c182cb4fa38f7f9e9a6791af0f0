@@ -1,0 +1,694 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Lazy initialization,Accessor method,Computer programming,Double-checked locking,Factory method pattern,Java (programming language),Memoization,Object-oriented language,Proxy pattern,Ruby (programming language),Singleton pattern" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Lazy_initialization&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Lazy_initialization&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Lazy initialization - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Lazy_initialization";
+		var wgTitle = "Lazy initialization";
+		var wgAction = "view";
+		var wgArticleId = "93427";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282148020;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+<style type="text/css">/*<![CDATA[*/
+.source-java {line-height: normal;}
+.source-java li, .source-java pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for java
+ * CSS class: source-java, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-java .de1, .source-java .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-java  {}
+.source-java .head {}
+.source-java .foot {}
+.source-java .imp {font-weight: bold; color: red;}
+.source-java .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-java li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-java li.li2 {font-weight: bold;}
+.source-java .kw1 {color: #b1b100;}
+.source-java .kw2 {color: #000000; font-weight: bold;}
+.source-java .kw3 {color: #aaaadd; font-weight: bold;}
+.source-java .kw4 {color: #993333;}
+.source-java .co1 {color: #808080; font-style: italic;}
+.source-java .co2 {color: #a1a100;}
+.source-java .coMULTI {color: #808080; font-style: italic;}
+.source-java .es0 {color: #000099; font-weight: bold;}
+.source-java .br0 {color: #66cc66;}
+.source-java .st0 {color: #ff0000;}
+.source-java .nu0 {color: #cc66cc;}
+.source-java .me1 {color: #006600;}
+.source-java .me2 {color: #006600;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style><style type="text/css">/*<![CDATA[*/
+.source-csharp {line-height: normal;}
+.source-csharp li, .source-csharp pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for csharp
+ * CSS class: source-csharp, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-csharp .de1, .source-csharp .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-csharp  {}
+.source-csharp .head {}
+.source-csharp .foot {}
+.source-csharp .imp {font-weight: bold; color: red;}
+.source-csharp .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-csharp li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-csharp li.li2 {font-weight: bold;}
+.source-csharp .kw1 {color: #0600FF;}
+.source-csharp .kw2 {color: #FF8000; font-weight: bold;}
+.source-csharp .kw3 {color: #008000;}
+.source-csharp .kw4 {color: #FF0000;}
+.source-csharp .kw5 {color: #000000;}
+.source-csharp .co1 {color: #008080; font-style: italic;}
+.source-csharp .co2 {color: #008080;}
+.source-csharp .coMULTI {color: #008080; font-style: italic;}
+.source-csharp .es0 {color: #008080; font-weight: bold;}
+.source-csharp .br0 {color: #008000;}
+.source-csharp .st0 {color: #808080;}
+.source-csharp .nu0 {color: #FF0000;}
+.source-csharp .me1 {color: #0000FF;}
+.source-csharp .me2 {color: #0000FF;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style><style type="text/css">/*<![CDATA[*/
+.source-cpp {line-height: normal;}
+.source-cpp li, .source-cpp pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for cpp
+ * CSS class: source-cpp, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-cpp .de1, .source-cpp .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-cpp  {}
+.source-cpp .head {}
+.source-cpp .foot {}
+.source-cpp .imp {font-weight: bold; color: red;}
+.source-cpp .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-cpp li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-cpp li.li2 {font-weight: bold;}
+.source-cpp .kw1 {color: #0000ff;}
+.source-cpp .kw2 {color: #0000ff;}
+.source-cpp .kw3 {color: #0000dd;}
+.source-cpp .kw4 {color: #0000ff;}
+.source-cpp .co1 {color: #ff0000;}
+.source-cpp .co2 {color: #339900;}
+.source-cpp .coMULTI {color: #ff0000; font-style: italic;}
+.source-cpp .es0 {color: #666666; font-weight: bold;}
+.source-cpp .br0 {color: #000000;}
+.source-cpp .st0 {color: #666666;}
+.source-cpp .nu0 {color: #0000dd;}
+.source-cpp .me1 {color: #00eeff;}
+.source-cpp .me2 {color: #00eeff;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style><style type="text/css">/*<![CDATA[*/
+.source-smalltalk {line-height: normal;}
+.source-smalltalk li, .source-smalltalk pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for smalltalk
+ * CSS class: source-smalltalk, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-smalltalk .de1, .source-smalltalk .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-smalltalk  {}
+.source-smalltalk .head {}
+.source-smalltalk .foot {}
+.source-smalltalk .imp {font-weight: bold; color: red;}
+.source-smalltalk .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-smalltalk li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-smalltalk li.li2 {font-weight: bold;}
+.source-smalltalk .kw1 {color: #7f007f;}
+.source-smalltalk .coMULTI {color: #007f00; font-style: italic;}
+.source-smalltalk .es0 {}
+.source-smalltalk .br0 {color: #000066; font-weight:bold;}
+.source-smalltalk .st0 {color: #7f0000;}
+.source-smalltalk .nu0 {color: #7f0000;}
+.source-smalltalk .me0 {}
+.source-smalltalk .sc0 {}
+.source-smalltalk .re0 {color: #0000ff;}
+.source-smalltalk .re1 {color: #7f0000;}
+.source-smalltalk .re2 {color: #7f0000;}
+.source-smalltalk .re3 {color: #00007f;}
+.source-smalltalk .re4 {color: #7f007f;}
+.source-smalltalk .re5 {color: #00007f;}
+.source-smalltalk .re6 {color: #00007f;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style><style type="text/css">/*<![CDATA[*/
+.source-ruby {line-height: normal;}
+.source-ruby li, .source-ruby pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for ruby
+ * CSS class: source-ruby, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-ruby .de1, .source-ruby .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-ruby  {}
+.source-ruby .head {}
+.source-ruby .foot {}
+.source-ruby .imp {font-weight: bold; color: red;}
+.source-ruby .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-ruby li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-ruby li.li2 {font-weight: bold;}
+.source-ruby .kw1 {color:#9966CC; font-weight:bold;}
+.source-ruby .kw2 {color:#0000FF; font-weight:bold;}
+.source-ruby .kw3 {color:#CC0066; font-weight:bold;}
+.source-ruby .kw4 {color:#CC00FF; font-weight:bold;}
+.source-ruby .co1 {color:#008000; font-style:italic;}
+.source-ruby .coMULTI {color:#000080; font-style:italic;}
+.source-ruby .es0 {color:#000099;}
+.source-ruby .br0 {color:#006600; font-weight:bold;}
+.source-ruby .st0 {color:#996600;}
+.source-ruby .nu0 {color:#006666;}
+.source-ruby .me1 {color:#9900CC;}
+.source-ruby .sc0 {}
+.source-ruby .sc1 {}
+.source-ruby .sc2 {}
+.source-ruby .re0 {color:#ff6633; font-weight:bold;}
+.source-ruby .re1 {color:#0066ff; font-weight:bold;}
+.source-ruby .re2 {color:#6666ff; font-weight:bold;}
+.source-ruby .re3 {color:#ff3333; font-weight:bold;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style>		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Lazy_initialization skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Lazy initialization</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>In <a href="/wiki/Computer_programming" title="Computer programming">computer programming</a>, <b>lazy initialization</b> is the tactic of delaying the creation of an object, the calculation of a value, or some other expensive process until the first time it is needed.</p>
+<p>This is typically accomplished by maintaining a flag indicating whether the process has taken place. Each time the desired object is summoned, the flag is tested. If it is ready, it is returned. If not, it is initialized on the spot.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#The_.22lazy_factory.22"><span class="tocnumber">1</span> <span class="toctext">The "lazy factory"</span></a></li>
+<li class="toclevel-1"><a href="#Examples"><span class="tocnumber">2</span> <span class="toctext">Examples</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Java"><span class="tocnumber">2.1</span> <span class="toctext">Java</span></a></li>
+<li class="toclevel-2"><a href="#C.23"><span class="tocnumber">2.2</span> <span class="toctext">C#</span></a></li>
+<li class="toclevel-2"><a href="#C.2B.2B"><span class="tocnumber">2.3</span> <span class="toctext">C++</span></a></li>
+<li class="toclevel-2"><a href="#SmallTalk"><span class="tocnumber">2.4</span> <span class="toctext">SmallTalk</span></a></li>
+<li class="toclevel-2"><a href="#Ruby"><span class="tocnumber">2.5</span> <span class="toctext">Ruby</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">3</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">4</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="The_.22lazy_factory.22" id="The_.22lazy_factory.22"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=1" title="Edit section: The &quot;lazy factory&quot;">edit</a>]</span> <span class="mw-headline">The "lazy factory"</span></h2>
+<p>In a <a href="/wiki/Software_design_pattern" title="Software design pattern" class="mw-redirect">software design pattern</a> view, lazy initialization is often used together with a <a href="/wiki/Factory_method_pattern" title="Factory method pattern">factory method pattern</a>. This combines three ideas:</p>
+<ul>
+<li>using a factory method to get instances of a class (<a href="/wiki/Factory_method_pattern" title="Factory method pattern">factory method pattern</a>)</li>
+<li>storing the instances in a map, so you get the <i>same</i> instance the next time you ask for an instance with <i>same</i> parameter (compare with a <a href="/wiki/Singleton_pattern" title="Singleton pattern">singleton pattern</a>)</li>
+<li>using lazy initialization to instantiate the object the first time it is requested (lazy initialization pattern).</li>
+</ul>
+<p><a name="Examples" id="Examples"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=2" title="Edit section: Examples">edit</a>]</span> <span class="mw-headline">Examples</span></h2>
+<p><a name="Java" id="Java"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=3" title="Edit section: Java">edit</a>]</span> <span class="mw-headline">Java</span></h3>
+<p>Here is a dummy example (in <a href="/wiki/Java_(programming_language)" title="Java (programming language)">Java</a>). The <code>Fruit</code> class itself doesn't do anything here, this is just an example to show the architecture. The class variable <code>types</code> is a map used to store <code>Fruit</code> instances by type.</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-java">
+<span class="co2">import java.util.*;</span>
+ 
+<span class="kw2">public</span> <span class="kw2">class</span> Fruit
+<span class="br0">{</span>
+    <span class="kw2">private</span> <span class="kw2">static</span> <span class="kw2">final</span> Map&lt;String,Fruit&gt; types = <span class="kw2">new</span> HashMap&lt;String,Fruit&gt;<span class="br0">(</span><span class="br0">)</span>;
+    <span class="kw2">private</span> <span class="kw2">final</span> <span class="kw3">String</span> type;
+ 
+    <span class="co1">// using a private constructor to force use of the factory method.</span>
+    <span class="kw2">private</span> Fruit<span class="br0">(</span><span class="kw3">String</span> type<span class="br0">)</span> <span class="br0">{</span>
+      <span class="kw2">this</span>.<span class="me1">type</span> = type;
+    <span class="br0">}</span>
+ 
+    <span class="coMULTI">/**
+     * Lazy Factory method, gets the Fruit instance associated with a
+     * certain type. Instantiates new ones as needed.
+     * @param type Any string that describes a fruit type, e.g. "apple"
+     * @return The Fruit instance associated with that type.
+     */</span>
+    <span class="kw2">public</span> <span class="kw2">static</span> <span class="kw2">synchronized</span> Fruit getFruit<span class="br0">(</span><span class="kw3">String</span> type<span class="br0">)</span> <span class="br0">{</span>
+      <span class="kw1">if</span><span class="br0">(</span>!types.<span class="me1">containsKey</span><span class="br0">(</span>type<span class="br0">)</span><span class="br0">)</span>
+      <span class="br0">{</span>
+        types.<span class="me1">put</span><span class="br0">(</span>type, <span class="kw2">new</span> Fruit<span class="br0">(</span>type<span class="br0">)</span><span class="br0">)</span>; <span class="co1">// Lazy initialization</span>
+      <span class="br0">}</span>
+      <span class="kw2">return</span> types.<span class="me1">get</span><span class="br0">(</span>type<span class="br0">)</span>;
+    <span class="br0">}</span>
+<span class="br0">}</span>
+</pre></div>
+<p><a name="C.23" id="C.23"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=4" title="Edit section: C#">edit</a>]</span> <span class="mw-headline">C#</span></h3>
+<p>Here is the fruit example in C# (based on a C++ example)</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-csharp">
+<span class="kw1">using</span> <span class="kw5">System</span>;
+<span class="kw1">using</span> <span class="kw5">System</span>.<span class="me1">Collections</span>.<span class="me1">Generic</span>;
+ 
+<span class="kw1">public</span> <span class="kw4">class</span> Fruit
+<span class="br0">{</span>
+    <span class="kw1">private</span> <span class="kw1">static</span> Dictionary&lt;string,Fruit&gt; types = <span class="kw3">new</span> Dictionary&lt;string,Fruit&gt;<span class="br0">(</span><span class="br0">)</span>;
+    <span class="kw1">private</span> <span class="kw4">string</span> type;
+ 
+    <span class="co1">/// &lt;summary&gt;</span>
+    <span class="co1">/// using a private constructor to force use of the factory method.</span>
+    <span class="co1">/// &lt;/summary&gt;</span>
+    <span class="co1">/// &lt;param name="type"&gt;Type of fruit&lt;/param&gt;</span>
+    <span class="kw1">private</span> Fruit<span class="br0">(</span><span class="kw4">String</span> type<span class="br0">)</span> <span class="br0">{</span>
+      <span class="kw1">this</span>.<span class="me1">type</span> = type;
+    <span class="br0">}</span>
+ 
+    <span class="co1">/// &lt;/summary&gt;</span>
+    <span class="co1">/// &lt;param name="type"&gt;Any string that describes a fruit type, e.g. "apple"&lt;/param&gt;</span>
+    <span class="co1">/// &lt;returns&gt;The Fruit instance associated with that type.&lt;/returns&gt;</span>
+    <span class="kw1">public</span> <span class="kw1">static</span> Fruit getFruit<span class="br0">(</span><span class="kw4">string</span> type<span class="br0">)</span> <span class="br0">{</span>
+        Fruit f;
+ 
+        <span class="kw1">if</span> <span class="br0">(</span> ! types.<span class="me1">TryGetValue</span><span class="br0">(</span>type, <span class="kw1">out</span> f<span class="br0">)</span> <span class="br0">)</span>
+        <span class="br0">{</span>
+          f = <span class="kw3">new</span> Fruit<span class="br0">(</span>type<span class="br0">)</span>; <span class="co1">// lazy initialization</span>
+          types.<span class="me1">Add</span><span class="br0">(</span>type,f<span class="br0">)</span>;
+        <span class="br0">}</span>
+ 
+      <span class="kw1">return</span> f;
+    <span class="br0">}</span>
+ 
+    <span class="kw1">public</span> <span class="kw1">static</span> <span class="kw1">void</span> printCurrentTypes<span class="br0">(</span><span class="br0">)</span> <span class="br0">{</span>
+        <span class="kw1">if</span> <span class="br0">(</span>types.<span class="me1">Count</span> &gt; <span class="nu0">0</span><span class="br0">)</span> <span class="br0">{</span>
+            Console.<span class="me1">WriteLine</span><span class="br0">(</span><span class="st0">"Number of instances made = {0}"</span>,types.<span class="me1">Count</span><span class="br0">)</span>;
+            <span class="kw1">foreach</span> <span class="br0">(</span>KeyValuePair&lt;string,Fruit&gt; kvp <span class="kw1">in</span> types<span class="br0">)</span> 
+            <span class="br0">{</span>
+                Console.<span class="me1">WriteLine</span><span class="br0">(</span>kvp.<span class="me1">Key</span><span class="br0">)</span>;
+            <span class="br0">}</span>
+            Console.<span class="me1">WriteLine</span><span class="br0">(</span><span class="br0">)</span>;
+        <span class="br0">}</span>
+    <span class="br0">}</span>
+ 
+<span class="br0">}</span>
+ 
+ 
+ 
+<span class="kw4">class</span> Program
+<span class="br0">{</span>
+    <span class="kw1">static</span> <span class="kw1">void</span> Main<span class="br0">(</span><span class="kw4">string</span><span class="br0">[</span><span class="br0">]</span> args<span class="br0">)</span>
+    <span class="br0">{</span>
+        Fruit.<span class="me1">getFruit</span><span class="br0">(</span><span class="st0">"Banana"</span><span class="br0">)</span>;
+        Fruit.<span class="me1">printCurrentTypes</span><span class="br0">(</span><span class="br0">)</span>;
+ 
+        Fruit.<span class="me1">getFruit</span><span class="br0">(</span><span class="st0">"Apple"</span><span class="br0">)</span>;
+        Fruit.<span class="me1">printCurrentTypes</span><span class="br0">(</span><span class="br0">)</span>;
+ 
+        <span class="co1">// returns pre-existing instance from first </span>
+        <span class="co1">// time Fruit with "Banana" was created</span>
+        Fruit.<span class="me1">getFruit</span><span class="br0">(</span><span class="st0">"Banana"</span><span class="br0">)</span>;
+        Fruit.<span class="me1">printCurrentTypes</span><span class="br0">(</span><span class="br0">)</span>;
+ 
+        Console.<span class="me1">ReadLine</span><span class="br0">(</span><span class="br0">)</span>;
+    <span class="br0">}</span>
+<span class="br0">}</span>
+</pre></div>
+<p><a name="C.2B.2B" id="C.2B.2B"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=5" title="Edit section: C++">edit</a>]</span> <span class="mw-headline">C++</span></h3>
+<p>Here is how you could do the fruit example in C++</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-cpp">
+<span class="co2">#include &lt;iostream&gt;</span>
+<span class="co2">#include &lt;string&gt;</span>
+<span class="co2">#include &lt;map&gt;</span>
+ 
+<span class="kw2">using</span> <span class="kw2">namespace</span> std;
+ 
+<span class="kw2">class</span> Fruit <span class="br0">{</span>
+    <span class="kw2">private</span>:
+        <span class="kw4">static</span> map&lt;string,Fruit*&gt; types;
+        string type;
+ 
+        <span class="co1">// note: constructor private forcing one to use static getFruit()</span>
+        Fruit<span class="br0">(</span><span class="kw4">const</span> string&amp; t<span class="br0">)</span> : type<span class="br0">(</span> t <span class="br0">)</span> <span class="br0">{</span><span class="br0">}</span>
+ 
+    <span class="kw2">public</span>:
+        <span class="kw4">static</span> Fruit* getFruit<span class="br0">(</span><span class="kw4">const</span> string&amp; type<span class="br0">)</span>;
+        <span class="kw4">static</span> <span class="kw4">void</span> printCurrentTypes<span class="br0">(</span><span class="br0">)</span>;
+<span class="br0">}</span>;
+ 
+<span class="co1">//declaration needed for using any static member variable</span>
+map&lt;string,Fruit*&gt; Fruit::<span class="me2">types</span>;        
+ 
+<span class="coMULTI">/*
+ * Lazy Factory method, gets the Fruit instance associated with a
+ * certain type. Instantiates new ones as needed.
+ * precondition: type. Any string that describes a fruit type, e.g. "apple"
+ * postcondition: The Fruit instance associated with that type.
+ */</span>
+Fruit* Fruit::<span class="me2">getFruit</span><span class="br0">(</span><span class="kw4">const</span> string&amp; type<span class="br0">)</span> <span class="br0">{</span>
+    Fruit *&amp; f = types<span class="br0">[</span>type<span class="br0">]</span>;   <span class="co1">//try to find a pre-existing instance</span>
+ 
+    <span class="kw1">if</span> <span class="br0">(</span>!f<span class="br0">)</span> <span class="br0">{</span>
+        <span class="co1">// couldn't find one, so make a new instance</span>
+        f = <span class="kw3">new</span> Fruit<span class="br0">(</span>type<span class="br0">)</span>; <span class="co1">// lazy initialization part</span>
+    <span class="br0">}</span>
+    <span class="kw1">return</span> f;
+<span class="br0">}</span>
+ 
+<span class="coMULTI">/*
+ * For example purposes to see pattern in action
+ */</span>
+<span class="kw4">void</span> Fruit::<span class="me2">printCurrentTypes</span><span class="br0">(</span><span class="br0">)</span> <span class="br0">{</span>
+    <span class="kw1">if</span> <span class="br0">(</span>types.<span class="me1">size</span><span class="br0">(</span><span class="br0">)</span> &gt; <span class="nu0">0</span><span class="br0">)</span> <span class="br0">{</span>
+        <span class="kw3">cout</span> &lt;&lt; <span class="st0">"Number of instances made = "</span> &lt;&lt; types.<span class="me1">size</span><span class="br0">(</span><span class="br0">)</span> &lt;&lt; endl;
+        <span class="kw1">for</span> <span class="br0">(</span>map&lt;string,Fruit*&gt;::<span class="me2">iterator</span> iter = types.<span class="me1">begin</span><span class="br0">(</span><span class="br0">)</span>; iter != types.<span class="me1">end</span><span class="br0">(</span><span class="br0">)</span>; ++iter<span class="br0">)</span> <span class="br0">{</span>
+            <span class="kw3">cout</span> &lt;&lt; <span class="br0">(</span>*iter<span class="br0">)</span>.<span class="me1">first</span> &lt;&lt; endl;
+        <span class="br0">}</span>
+        <span class="kw3">cout</span> &lt;&lt; endl;
+    <span class="br0">}</span>
+<span class="br0">}</span>
+ 
+<span class="kw4">int</span> main<span class="br0">(</span><span class="kw4">void</span><span class="br0">)</span> <span class="br0">{</span>
+    Fruit::<span class="me2">getFruit</span><span class="br0">(</span><span class="st0">"Banana"</span><span class="br0">)</span>;
+    Fruit::<span class="me2">printCurrentTypes</span><span class="br0">(</span><span class="br0">)</span>;
+ 
+    Fruit::<span class="me2">getFruit</span><span class="br0">(</span><span class="st0">"Apple"</span><span class="br0">)</span>;
+    Fruit::<span class="me2">printCurrentTypes</span><span class="br0">(</span><span class="br0">)</span>;
+ 
+    <span class="co1">// returns pre-existing instance from first </span>
+    <span class="co1">// time Fruit with "Banana" was created</span>
+    Fruit::<span class="me2">getFruit</span><span class="br0">(</span><span class="st0">"Banana"</span><span class="br0">)</span>;
+    Fruit::<span class="me2">printCurrentTypes</span><span class="br0">(</span><span class="br0">)</span>;
+ 
+    <span class="kw1">return</span> <span class="nu0">0</span>;
+<span class="br0">}</span>
+ 
+ 
+ 
+<span class="coMULTI">/*
+OUTPUT:
+Number of instances made = 1
+Banana
+ 
+Number of instances made = 2
+Apple
+Banana
+ 
+Number of instances made = 2
+Apple
+Banana
+*/</span>
+</pre></div>
+<p><a name="SmallTalk" id="SmallTalk"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=6" title="Edit section: SmallTalk">edit</a>]</span> <span class="mw-headline">SmallTalk</span></h3>
+<p>The following is an example (in <a href="/wiki/Smalltalk_programming_language" title="Smalltalk programming language" class="mw-redirect">Smalltalk</a>) of a typical <a href="/wiki/Accessor_method" title="Accessor method" class="mw-redirect">accessor method</a> to return the value of a variable using lazy initialization.</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-smalltalk">
+    height
+        height ifNil: <span class="br0">[</span><span class="re5">height</span> := <span class="re5"><span class="nu0">2</span></span>.<span class="re5"><span class="nu0">0</span></span><span class="br0">]</span>.
+        ^height
+</pre></div>
+<p>The 'non-lazy' alternative is to use an initialization method that is run when the object is created and then use a simpler accessor method to fetch the value.</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-smalltalk">
+    initialize
+        <span class="re6">height</span> := <span class="re5"><span class="nu0">2</span></span>.<span class="re5"><span class="nu0">0</span></span>
+ 
+    height
+        ^height
+</pre></div>
+<p>Note that lazy initialization can also be used in non-<a href="/wiki/Object-oriented_language" title="Object-oriented language" class="mw-redirect">object-oriented languages</a>.</p>
+<p><a name="Ruby" id="Ruby"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=7" title="Edit section: Ruby">edit</a>]</span> <span class="mw-headline">Ruby</span></h3>
+<p>The following is an example (in <a href="/wiki/Ruby_(programming_language)" title="Ruby (programming language)">Ruby</a>) of lazily initializing an authentication token from a remote service like Google. The way that @auth_token is cached is also an example of <a href="/wiki/Memoization" title="Memoization">memoization</a>.</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-ruby">
+<span class="kw3">require</span> <span class="st0">'net/http'</span>
+<span class="kw1">class</span> Blogger
+  <span class="kw1">def</span> auth_token
+    <span class="kw2">return</span> <span class="re1">@auth_token</span> <span class="kw1">if</span> <span class="re1">@auth_token</span>
+ 
+    res = <span class="re2">Net::HTTP</span>.<span class="me1">post_form</span><span class="br0">(</span>uri, params<span class="br0">)</span>
+    <span class="re1">@auth_token</span> = get_token_from_http_response<span class="br0">(</span>res<span class="br0">)</span>
+  <span class="kw1">end</span>
+ 
+  <span class="co1"># get_token_from_http_response, uri and params are defined later in the class</span>
+<span class="kw1">end</span>
+ 
+b = Blogger.<span class="me1">new</span>
+b.<span class="me1">instance_variable_get</span><span class="br0">(</span>:@auth_token<span class="br0">)</span> <span class="co1"># returns nil</span>
+b.<span class="me1">auth_token</span> <span class="co1"># returns token</span>
+b.<span class="me1">instance_variable_get</span><span class="br0">(</span>:@auth_token<span class="br0">)</span> <span class="co1"># returns token</span>
+</pre></div>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=8" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Proxy_pattern" title="Proxy pattern">Proxy pattern</a></li>
+<li><a href="/wiki/Singleton_pattern" title="Singleton pattern">Singleton pattern</a></li>
+<li><a href="/wiki/Double-checked_locking" title="Double-checked locking">Double-checked locking</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Lazy_initialization&amp;action=edit&amp;section=9" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li>Article "<a href="http://www.javaworld.com/javaworld/javatips/jw-javatip67.html" class="external text" title="http://www.javaworld.com/javaworld/javatips/jw-javatip67.html" rel="nofollow">Java Tip 67: Lazy instantiation</a> - Balancing performance and resource usage" by <a href="/w/index.php?title=Philip_Bishop&amp;action=edit&amp;redlink=1" class="new" title="Philip Bishop (page does not exist)">Philip Bishop</a> and <a href="/w/index.php?title=Nigel_Warren&amp;action=edit&amp;redlink=1" class="new" title="Nigel Warren (page does not exist)">Nigel Warren</a></li>
+<li><a href="http://javapractices.com/Topic34.cjp" class="external text" title="http://javapractices.com/Topic34.cjp" rel="nofollow">Java code examples</a></li>
+<li><a href="http://devx.com/tips/Tip/18007" class="external text" title="http://devx.com/tips/Tip/18007" rel="nofollow">Use Lazy Initialization to Conserve Resources</a></li>
+<li><a href="http://c2.com/cgi/wiki?LazyInitialization" class="external text" title="http://c2.com/cgi/wiki?LazyInitialization" rel="nofollow">Description from the Portland Pattern Repository</a></li>
+<li><a href="http://weblogs.java.net/blog/binod/archive/2005/09/lazy_initializa.html" class="external text" title="http://weblogs.java.net/blog/binod/archive/2005/09/lazy_initializa.html" rel="nofollow">Lazy Initialization of Application Server Services</a></li>
+<li><a href="http://sourceforge.net/projects/jsiner" class="external text" title="http://sourceforge.net/projects/jsiner" rel="nofollow">Lazy Inheritance in JavaScript</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 28/1000000
+Post-expand include size: 0/2048000 bytes
+Template argument size: 0/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:93427-0!1!0!default!!en!2 and timestamp 20090412110540 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Lazy_initialization">http://en.wikipedia.org/wiki/Lazy_initialization</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Software_design_patterns" title="Category:Software design patterns">Software design patterns</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_example_Java_code" title="Category:Articles with example Java code">Articles with example Java code</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Lazy_initialization" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Lazy_initialization" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Lazy_initialization&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Lazy_initialization&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Lazy_initialization" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Lazy_initialization" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Lazy_initialization" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Lazy_initialization&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Lazy_initialization&amp;oldid=282148020" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Lazy_initialization&amp;id=282148020">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-bg"><a href="http://bg.wikipedia.org/wiki/%D0%9A%D1%8A%D1%81%D0%BD%D0%B0_%D0%B8%D0%BD%D0%B8%D1%86%D0%B8%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F">Български</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Lazy_initialization">Italiano</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Leniwa_inicializacja_(wzorzec_projektowy)">Polski</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%9E%D1%82%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%BD%D0%B0%D1%8F_%D0%B8%D0%BD%D0%B8%D1%86%D0%B8%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F_(%D1%88%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD_%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F)">Русский</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 6 April 2009, at 17:28 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv153 in 0.055 secs. --></body></html>

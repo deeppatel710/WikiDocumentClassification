@@ -1,0 +1,438 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pattern matching - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Pattern_matching";
+		var wgTitle = "Pattern matching";
+		var wgAction = "view";
+		var wgArticleId = "279688";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282416014;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Pattern matching
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, pattern matching is the act of checking for the presence of the constituents of a given pattern. In contrast to pattern recognition, the pattern is rigidly specified. Such a pattern concerns conventionally either sequences or tree structures. Pattern matching is used to test whether things have a desired structure, to find relevant structure, to retrieve the aligning parts, and to substitute the matching part with something else. Sequence (or specifically text string) patterns are often described using regular expressions (i.e. backtracking) and matched using respective algorithms. Sequences can also be seen as trees branching for each element into the respective element and the rest of the sequence, or as trees that immediately branch into all elements.
+Tree patterns can be used in programming languages as a general tool to process data based on its structure. Some functional programming languages such as Haskell, ML and the symbolic mathematics language Mathematica have a special syntax for expressing tree patterns and a language construct for conditional execution and value retrieval based on it. For simplicity and efficiency reasons, these tree patterns lack some features that are available in regular expressions. Depending on the languages, pattern matching can be used for function arguments, in case expressions, whenever new variables are bound, or in very limited situations such as only for sequences in assignment (in Python). Often it is possible to give alternative patterns that are tried one by one, which yields a powerful conditional programming construct. Pattern matching can benefit from guards.
+Term rewriting and Graph rewriting languages rely on pattern matching for the fundamental way a program evaluates into a result. Pattern matching benefits most when the underlying datastructures are as simple and flexible as possible. This is especially the case in languages with a strong symbolic flavor. In homoiconic programming languages, patterns are the same kind of datatype as everything else, and can therefore be fed in as arguments to functions.
+
+
+
+
+Contents
+
+
+1 Primitive patterns
+2 Tree patterns
+3 Filtering data with patterns
+4 Pattern matching in Mathematica
+
+4.1 Declarative programming
+
+
+5 Pattern matching and strings
+
+5.1 Tree patterns for strings
+5.2 Example string patterns
+
+
+6 History
+
+6.1 SNOBOL
+
+
+7 See also
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Primitive patterns
+The simplest pattern in pattern matching is an explicit value or a variable. For an example, consider a simple function definition in Haskell syntax (function parameters are not in parentheses but are separated by spaces, = is not assignment but definition):
+
+f 0 = 1
+
+Here, 0 is a single value pattern. Now, whenever f is given 0 as argument the pattern matches and the function returns 1. With any other argument, the matching and thus the function fail. As the syntax supports alternative patterns in function definitions, we can continue the definition extending it to take more generic arguments:
+
+f n = n * f (n-1)
+
+Here, the first n is a single variable pattern, which will match absolutely any argument and bind it to name n to be used in the rest of the definition. In Haskell (unlike at least Hope), patterns are tried in order so the first definition still applies in the very specific case of the input being 0, while for any other argument the function returns n * f (n-1) with n being the argument.
+The wildcard pattern (often written as _) is also simple: like a variable name, it matches any value, but does not bind the value to any name.
+
+[edit] Tree patterns
+
+
+
+The Wikibook Haskell has a page on the topic of
+Pattern matching
+
+
+
+More complex patterns can be built from the primitive ones of the previous section, usually in the same way as values are built by combining other values. The difference then is that with variable and wildcard parts, a pattern doesn't build into single value, but matches a group of values that are the combination of the concrete elements and the elements that are allowed to vary within the structure of the pattern.
+A tree pattern describes a part of a tree by starting with a node and specifying some branches and nodes and leaving some unspecified with a variable or wildcard pattern. It may help to think of the abstract syntax tree of a programming language and algebraic data types.
+In Haskell, the following line defines an algebraic data type Color that has a single data constructor ColorConstructor that wraps an integer and a string.
+
+ data Color = ColorConstructor Integer String
+
+The constructor is a node in a tree and the integer and string are leaves in branches.
+When we want to write functions to make Color an abstract data type, we wish to write functions to interface with the data type, and thus we want to extract some data from the data type, for example, just the string or just the integer part of Color.
+If we pass a variable that is of type Color, how can we get the data out of this variable? For example, for a function to get the integer part of Color, we can use a simple tree pattern and write:
+
+  integerPart (ColorConstructor theInteger _) = theInteger
+
+As well:
+
+  stringPart (ColorConstructor _ theString) = theString
+
+The creations of these functions can be automated by Haskell's data record syntax.
+
+[edit] Filtering data with patterns
+Pattern matching can be used to filter data of a certain structure. For instance, in Haskell a list comprehension could be used for this kind of filtering:
+
+[A x | A x <- [A 1, B 1, A 2, B 2]]
+
+evaluates to
+
+[A 1, A 2]
+
+
+[edit] Pattern matching in Mathematica
+In Mathematica, the only structure that exists is the tree, which is populated by symbols. In the Haskell syntax used thus far, this could be defined as
+
+data SymbolTree = Symbol String [Symbol] 
+
+An example tree could then look like
+
+Symbol "a" [Symbol "b" [], Symbol "c" []] 
+
+In the traditional, more suitable syntax, the symbols are written as they are and the levels of the tree are represented using [], so that for instance a[b,c] is a tree with a as the parent, and b and c as the children.
+A pattern in Mathematica involves putting "_" at positions in that tree. For instance, the pattern
+
+A[_] 
+
+Will match elements such as A[1], A[2], or more generally A[x] where x is any entity. In this case, A is the concrete element, while _ denotes the piece of tree that can be varied. A symbol prepended to _ binds the match to that variable name while a symbol appended to _ restricts the matches to nodes of that symbol.
+The Mathematica function Cases filters elements of the first argument that match the pattern in the second argument:
+
+Cases[{a[1], b[1], a[2], b[2]}, a[_] ]
+
+evaluates to
+
+{a[1], a[2]}
+
+Pattern matching applies to the structure of expressions. In the example below,
+
+Cases[{a[b], a[b, c], a[b[c], d], a[b[c], d[e]], a[b[c], d, e]}, a[b[_], _]]
+
+returns
+
+{a[b[c],d], a[b[c],d[e]}
+
+because only these elements will match the pattern a[b[_],_] above.
+In Mathematica, it is also possible to extract structures as they are created in the course of computation, regardless of how or where they appear. The function Trace can be used to monitor a computation, and return the elements that arise which match a pattern. For example, we can define the Fibonacci sequence as
+
+fib[0|1]:=1
+fib[n_]:= fib[n-1] + fib[n-2]
+
+Then, we can ask the question: Given fib[3], what is the sequence of recursive Fibonacci calls?
+
+Trace[fib[3], fib[[_]]
+
+returns a structure that represents the occurrences of the pattern fib[_] in the computational structure:
+
+ {fib[3],{fib[2],{fib[1]},{fib[0]}},{fib[1]}}
+
+
+[edit] Declarative programming
+In symbolic programming languages, it is easy to have patterns as arguments to functions or as elements of data structures. A consequence of this is the ability to use patterns to declaratively make statements about pieces of data and to flexibly instruct functions how to operate.
+For instance, the Mathematica function Compile can be used to make more efficient versions of the code. In the following example the details do not particularly matter; what matters is that the subexpression {{com[_], _Integer}} instructs Compile that expressions of the form com[_] can be assumed to be integers for the purposes of compilation:
+
+com[i_] := Binomial[2i, i]
+Compile[{x, {i, _Integer}}, x^com[i], {{com[_], _Integer}}]
+
+Mailboxes in Erlang also work this way.
+
+[edit] Pattern matching and strings
+By far the most common form of pattern matching involves strings of characters. In many programming languages, a particular syntax of strings is used to represent regular expressions, which are patterns describing string characters.
+However, it is possible to perform some string pattern matching within the same framework that has been discussed throughout this article.
+
+[edit] Tree patterns for strings
+In Mathematica, strings are represented as trees of root StringExpression and all the characters in order as children of the root. Thus, to match "any amount of trailing characters", a new wildcard ___ is needed in contrast to _ that would match only a single character.
+In Haskell and functional programming languages in general, strings are represented as functional lists of characters. A functional list is defined as an empty list, or an element constructed on an existing list. In Haskell syntax:
+
+[]      -- an empty list
+x:xs    -- an element x constructed on a list xs
+
+The structure for a list with some elements is thus element:list. When pattern matching, we assert that a certain piece of data is equal to a certain pattern. For example, in the function:
+
+head (element:list) = element
+
+we assert that the first element of head's argument is called element, and the function returns this. We know that this is the first element because of the way lists are defined, a single element constructed onto a list. This single element must be the first. The empty list would not match the pattern at all, as an empty list does not have a head (the first element that is constructed).
+In the example, we have no use for list, so we can disregard it, and thus write the function:
+
+head (element:_) = element
+
+The equivalent Mathematica transformation is expressed as
+
+head[element_, ___]:=element
+
+
+[edit] Example string patterns
+In Mathematica, for instance,
+
+StringExpression["a", _]
+
+will match a string that has two characters and begins with "a".
+The same pattern in Haskell:
+
+['a', _]
+
+Symbolic entities can be introduced to represent many different classes of relevant features of a string. For instance,
+
+StringExpression[LetterCharacter, DigitCharacter]
+
+will match a string that consists of a letter first, and then a number.
+In Haskell, guards could be used to achieve the same matches:
+
+[letter, digit] | isAlpha letter && isDigit digit
+
+The main advantage of symbolic string manipulation is that it can be completely integrated with the rest of the programming language, rather than being a separate, special purpose subunit. The entire power of the language can be leveraged to built up the patterns themselves or analyze and transform the programs that contain them.
+
+[edit] History
+
+
+
+This section requires expansion.
+
+
+The first computer programs to use pattern matching were text editors. At Bell Labs, Ken Thompson extended the seeking and replacing features of the QED editor to accept regular expressions. Early programming languages with pattern matching constructs include SNOBOL from 1962, SASL from 1976, NPL from 1977, and KRC from 1981. The first programming language with tree-based pattern matching features was Fred McBride's extension of LISP, in 1970.[1]
+See also: Regular expression#History
+
+[edit] SNOBOL
+Main article: SNOBOL
+SNOBOL (String Oriented Symbolic Language) is a computer programming language developed between 1962 and 1967 at AT&T Bell Laboratories by David J. Farber, Ralph E. Griswold and Ivan P. Polonsky.
+SNOBOL4 stands apart from most programming languages by having patterns as a first-class data type (i.e. a data type whose values can be manipulated in all ways permitted to any other data type in the programming language) and by providing operators for pattern concatenation and alternation. Strings generated during execution can be treated as programs and executed.
+SNOBOL was quite widely taught in larger US universities in the late 1960s and early 1970s and was widely used in the 1970s and 1980s as a text manipulation language in the humanities.
+Since SNOBOL's creation, newer languages such as Awk and Perl have made string manipulation by means of regular expressions fashionable. SNOBOL4 patterns, however, subsume BNF grammars, which are equivalent to Context-free grammars and more powerful than regular expressions [1]
+
+[edit] See also
+
+Pattern recognition for fuzzy patterns
+AIML for an AI language based on matching patterns in speech
+SNOBOL for a programming language based on one kind of pattern matching
+PCRE Perl Compatible Regular Expressions, a common modern implementation of string pattern matching ported to many languages
+Unification, a similar concept in Prolog.
+Tom (pattern matching language)
+glob (programming)
+REBOL parse dialect for pattern matching used to implement language dialects
+
+
+[edit] References
+
+
+The Mathematica Book, chapter Section 2.3: Patterns
+The Haskell 98 Report, chapter 3.17 Pattern Matching.
+Python Reference Manual, chapter 6.3 Assignment statements.
+
+
+
+
+^ Gimpel, J. F. 1973. A theory of discrete patterns and their implementation in SNOBOL4. Commun. ACM 16, 2 (Feb. 1973), 91-100. DOI=http://doi.acm.org/10.1145/361952.361960
+
+
+
+[edit] External links
+
+A Gentle Introduction to Haskell: Patterns
+Views: An Extension to Haskell Pattern Matching
+Nikolaas N. Oosterhof, Philip K. F. Hölzenspies, and Jan Kuper. Application patterns. A presentation at Trends in Functional Programming, 2005
+JMatch: the Java programming language extended with pattern matching
+An incomplete history of the QED Text Editor by Dennis Ritchie - provides the history of regular expressions in computer programs
+The Implementation of Functional Programming Languages, pages 53-103 Simon Peyton Jones, published by Prentice Hall, 1987.
+Nemerle, pattern matching.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Pattern_matching"
+Categories: Conditional constructs | Pattern matching | Articles with example Haskell codeHidden categories: Articles to be expanded since May 2008 | All articles to be expanded 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+বাংলা
+Català
+Deutsch
+Français
+Nederlands
+日本語
+Português
+Русский
+Simple English
+
+
+
+
+
+
+
+
+
+ This page was last modified on 7 April 2009, at 20:43 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

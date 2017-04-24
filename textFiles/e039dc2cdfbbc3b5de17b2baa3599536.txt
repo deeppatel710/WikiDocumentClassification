@@ -1,0 +1,303 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Netfilter - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Netfilter";
+		var wgTitle = "Netfilter";
+		var wgAction = "view";
+		var wgArticleId = "1003802";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 259025085;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Netfilter
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Netfilter is a framework that provides a set of hooks within the Linux kernel for intercepting and manipulating network packets.
+The best-known component on top of Netfilter is the firewall which filters packets, but the hooks are also used by other components which perform network address translation, stateful tracking and packet enqueueing to user space. The name Netfilter also refers to the name of the project that provides a set of firewalling tools for Linux. These components are usually loadable kernel modules, although the project also offers a set of userspace tools and libraries. Backward compatibility support for ipchains has been recently removed.
+iptables is the name of the user space tool by which administrators create rules for the packet filtering (both inbound and outbound) and NAT modules. While technically iptables is merely the tool which controls the packet filtering and NAT rules within the kernel, the name iptables is often used to refer to the entire firewalling infrastructure, including the kernel-level Xtables (sub)framework that provides the API for match and target modules and the actual firewall table traversal for IPv4, IPv6 and ARP. iptables is a standard component of all modern Linux distributions.
+conntrack is the name for the tool that allows manual manipulation of connection tracking and NAT entries. ulogd is a daemon for advanced logging. ipset is a tool to group multiple addresses and ports into collections.
+
+
+
+
+Contents
+
+
+1 History
+2 Connection tracking
+3 Extensions
+
+3.1 ipset
+
+
+4 Netfilter Workshops
+5 See also
+
+5.1 Other firewall solutions
+
+
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+The netfilter/iptables project was started in 1998 by Rusty Russell, also author of the project's predecessor, ipchains. As the project grew, he founded the Netfilter Core Team (or simply coreteam) in 1999. The software they produced (called netfilter from here on) is licensed under the GNU General Public License (GPL), and was merged into Linux 2.3 in March 2000. In August 2003 Harald Welte was made chairman of the coreteam, and in April 2004, following a crack-down by the project on those distributing the project's software embedded in routers without complying with the GPL, Welte was granted a historic injunction by a German court against Sitecom Germany who refused to follow the GPL's terms (see GPL-related disputes). In September 2007 Patrick McHardy, who led development for past years, was elected the new chairman of the coreteam.
+Prior to iptables, the predominant software packages for creating Linux firewalls were ipchains in Linux 2.2 and ipfwadm in Linux 2.0, which in turn was based on BSD's ipfw. Both ipchains and ipfwadm alter the networking code so they could manipulate packets, as there was no general packet-control framework until Netfilter. iptables preserves the basic ideas introduced into Linux with ipfwadm: lists of rules which each specified what to match within a packet, and what to do with such a packet. ipchains added the concept of chains of rules, and iptables extended this further into tables: one table was consulted when deciding whether to NAT a packet, and another consulted when deciding how to filter a packet. In addition, the three points at which filtering is done in a packet's journey were altered, so any packet only passes through one filtering point.
+Whereas ipchains and ipfwadm combine packet filtering and NAT (particularly three specific kinds of NAT, called masquerading, port forwarding and redirection), Netfilter makes it possible to separate packet operations into three parts: packet filtering, connection tracking, and Network Address Translation. Each part connects to the Netfilter hooks at different points to access packets. The connection tracking and NAT subsystems are more general and more powerful than the stunted versions within ipchains and ipfwadm.
+This split allowed iptables, in turn, to use the information which the connection tracking layer had determined about a packet: this information was previously tied to NAT. This makes iptables superior to ipchains because it has the ability to monitor the state of a connection and redirect, modify or stop data packets based on the state of the connection, not just on the source, destination or data content of the packet. A firewall using iptables this way is said to be a stateful firewall versus ipchains, which can only create a stateless firewall (except in very limited cases). It can be said that ipchains is not aware of the full context from which a data packet arises, whereas iptables is, and therefore iptables can make better decisions on the fate of packets and connections.
+A version of iptables for IPv6 was written, called ip6tables after the name of the administration tool.
+
+[edit] Connection tracking
+One of the important features built on top of the Netfilter framework is connection tracking. Connection tracking allows the kernel to keep track of all logical network connections or sessions, and thereby relate all of the packets which may make up that connection. NAT relies on this information to translate all related packets in the same way, and iptables can use this information to act as a stateful firewall.
+Connection tracking classifies each packet as being in a number of different states: new (trying to create a new connection), established (part of an already-existing connection), related (packet initiating a new connection that is related to, but not actually part of an existing connection), invalid (not part of an existing connection) and untracked. A normal example would be that the first packet the conntrack subsystem sees will be classified new, the reply would be classified established and an ICMP error would be related. An ICMP error packet which did not match any known connection would be invalid. untracked is a special state that can be assigned by the administrator to bypass connection tracking for a particular packet.
+The connection state is completely independent of any TCP state. If the host answers with a SYN ACK packet to acknowledge a new incoming TCP connection, the TCP connection itself is not yet established but the tracked connection is — this packet will match the “established” state.
+A tracked connection of a stateless protocol like UDP nevertheless has a connection state.
+Furthermore, through the use of plugin modules, connection tracking can be given knowledge of application layer protocols and thus understand that two or more distinct connections are "related". For example, consider the FTP protocol. A control connection is established, but whenever data is transferred, a separate connection is established to transfer it. When the nf_conntrack_ftp module is loaded, the first packet of an FTP data connection will be classified as “related” instead of “new”, as it is logically part of an existing connection.
+iptables can use the connection tracking information to make packet filtering rules more powerful and easier to manage. The "conntrack" match extension allows iptables rules to examine the connection tracking classification for a packet. For example, one rule might allow NEW packets only from inside the firewall to outside, but allow RELATED and ESTABLISHED in either direction. This allows normal reply packets from the outside (ESTABLISHED), but does not allow new connections to come from the outside to the inside. However, if an FTP data connection needs to come from outside the firewall to the inside, it will be allowed, because the packet will be correctly classified as RELATED to the FTP control connection, rather than a NEW connection.
+
+[edit] Extensions
+iptables, the NAT subsystem and the connection tracking subsystem are also extensible, and many extensions are included in the base iptables package, such as the iptables extension which allows querying of the connection state mentioned above. Additional extensions are distributed in the Xtables-addons package that replaces the older patch-o-matic(-ng). With it, experimental features get tested and possibly later included into the mainline kernel and iptables releases.
+
+[edit] ipset
+ipset is used to set up, maintain and inspect so called “IP sets” in the Linux kernel. An IP set usually contains a set of IP addresses, but can also contain sets of other network numbers, depending on its “type”.
+Any entry in one set can be bound to another set, allowing for sophisticated matching operations. A set can only be removed (destroyed) if there are no iptables rules or other sets referring to it.
+
+[edit] Netfilter Workshops
+The Netfilter project organize an annual meeting for developers which is used to discuss on-going research and development efforts. The last Netfilter Workshop took place in Paris, France, at the end of September 2008.
+
+[edit] See also
+
+
+
+
+Free software portal
+
+
+
+
+
+
+
+Computer security portal
+
+
+
+
+ipchains, the predecessor to iptables
+Netlink, an API used by Netfilter
+
+
+[edit] Other firewall solutions
+
+PF (firewall)
+ipfirewall
+ipfilter
+
+
+[edit] External links
+
+Netfilter/iptables project homepage
+Home of the Netfilter Workshop websites
+
+
+IP Tables Tutorial
+Netfilter's Connection Tracking System by Pablo Neira Ayuso
+Workshop résumé
+Understanding connection tracking in iptables
+Iptables example rulesets
+Netfilter and Iptables -- Stateful Firewalling for Linux
+“Writing Netfilter Modules” e-book
+Programming Netfilter/iptables modules in "Rope"
+Documentation on how to integrate both firewall (IP Tables) and Linux advanced routing
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Netfilter"
+Categories: Free network-related software | Firewall software | Free security software 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Català
+Deutsch
+Español
+Français
+Italiano
+Latviešu
+Македонски
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Suomi
+
+
+
+
+
+
+
+
+
+ This page was last modified on 19 December 2008, at 19:41.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

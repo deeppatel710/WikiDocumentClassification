@@ -1,0 +1,270 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+BrookGPU - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "BrookGPU";
+		var wgTitle = "BrookGPU";
+		var wgAction = "view";
+		var wgArticleId = "3421936";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280642210;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); BrookGPU
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+BrookGPU
+
+Operating system
+Linux, Windows
+
+
+Type
+Compiler/Runtime
+
+
+License
+BSD license (parts are under the GPL
+
+
+Website
+http://graphics.stanford.edu/projects/brookgpu/
+
+
+BrookGPU is the Stanford University Graphics group's compiler and runtime implementation of the Brook stream programming language for using modern graphics hardware for non-graphical, or general purpose computations. Use of Graphics Processing Unit (or GPU) for doing non-graphical or general purpose calculations is also abbreviated as GPGPU, or General Purpose Graphics Processing Unit. It can be used to program a graphics processing unit such as those found on ATI or nVidia graphics cards or increasingly Intel's integrated graphics solutions, which are highly parallel in execution.
+BrookGPU compiles programs written using Brook stream programming language, which is a variant of ANSI C. It can use OpenGL v1.3+, DirectX v9+ or AMD's Close to Metal for the computational backend and runs on both Microsoft Windows, Linux and possibly Mac OS X. It can also simulate a virtual graphics card by itself via a special CPU backend which is useful for debugging Brook kernels.
+Unlike most increasingly proprietary GPGPU frameworks nowadays available, Brook is licensed under the BSD license (parts are under the GNU General Public License) and is free software. This makes it ideal for students interested in GPGPU programming without having to delve into OpenGL or DirectX implementation details.
+
+
+
+
+Contents
+
+
+1 Status
+2 Performance Comparison
+3 Applications and games that use BrookGPU
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Status
+Brook has been in beta for a long time. The last major beta release (v0.4) was all the way back in October 2004 but renewed development has begun, and stopped again in November 2007 with a v0.5 beta 1 release.
+The new features of v0.5 include a much upgraded and faster OpenGL backend which uses framebuffer objects instead of PBuffers and harmonised the code around standard OpenGL interfaces instead of using proprietary vendor extensions. GLSL support was added which brings all the functionality (complex branching and loops) previously only supported by DX9 to OpenGL. In particular, this means that Brook is now just as capable on Linux as Windows.
+Other improvements in the v0.5 series include multi-backend usage whereby different threads can run different Brook programs concurrently (this allows a multi-GPU setup to be maxed out) and SSE and OpenMP support for the CPU backend (this allows near maximal usage of modern CPUs).
+Later versions might include Brook+, a version supporting integer and double precision processing for AMD GPUs, possibly with scatter support.
+
+[edit] Performance Comparison
+A like for like comparison between desktop CPUs and GPGPUs is problematic because of algorithmic & structural differences.
+To explain, a 2.66 GHz Intel Core 2 Duo can perform a maximum of 25 GFLOPs (25 billion single precision floating point operations per second) if optimally using SSE and streaming memory access so the prefetcher works perfectly. However, traditionally (due to shader program length limits) most GPGPU kernels tend to perform relatively small amounts of work on large amounts of data in parallel, so the big problem with directly executing GPGPU algorithms on desktop CPUs is vastly lower memory bandwidth as generally speaking the CPU spends most of its time waiting on RAM. As an example, dual channel PC2-6400 DDR2 RAM can throughput about 11Gb/sec which is around 1.5 GFLOPs maximum given that there is a total of 3 GFLOPs total bandwidth and one must both read and write. As a result, if memory bandwidth constrained, Brook's CPU backend won't exceed 2 GFLOPs. In practice, it's even lower than that most especially for anything other than float4 which is the only data type which can be SSE accelerated.
+On an ATI HD 2900 XT (740 MHz core 1000 MHz memory), Brook can perform a maximum of 410 GFLOPs via its DX9 backend. OpenGL is currently (due to driver and Cg compiler limitations) much less efficient as a GPGPU backend and Brook can only manage 210 GFLOPs via OpenGL. On paper, this looks like around twenty times faster than the CPU, but as just explained it isn't as easy as that. GPUs currently have major branch and read/write access penalties so expect a reasonable maximum of one third of the peak maximum in real world code - this still leaves that ATI card at around 125 GFLOPs some five times faster than the Intel Core 2 Duo.
+However this discounts the important part of transferring the data to be processed to and from the GPU. With a PCI Express 1.0 x8 interface, the memory of an ATI HD 2900 XT can be written to at about 730Mb/sec and read from at about 311Mb/sec which is significantly slower than normal PC memory. For large datasets, this can greatly diminish the speed increase of using a GPU over a well-tuned CPU implementation. Of course, as GPUs become faster far more quickly than CPUs and the PCI Express interface improves, it will make more sense to offload large processing to GPUs.
+
+[edit] Applications and games that use BrookGPU
+
+Folding@home
+
+
+[edit] See also
+
+
+
+
+Free software portal
+
+
+
+
+GPGPU
+CUDA
+Close to Metal
+OpenCL
+Lib Sh
+
+
+[edit] External links
+
+Official BrookGPU website - Stanford University's BrookGPU website
+Link to download BrookGPU package
+GPGPU General Purpose computation using GPUs, a common use of BrookGPU.
+[1] AMD Brook+ Presentation (.pdf).
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/BrookGPU"
+Categories: GPGPU 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Español
+
+
+
+
+
+
+
+
+
+ This page was last modified on 30 March 2009, at 13:26 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Needleman-Wunsch algorithm,Algorithm,Array,BLAST,Bioinformatics,Christian Wunsch,Digital object identifier,Dynamic programming,Dynamic time warping,Gap penalty,Hirschberg&#039;s algorithm" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Needleman-Wunsch algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Needleman-Wunsch_algorithm";
+		var wgTitle = "Needleman-Wunsch algorithm";
+		var wgAction = "view";
+		var wgArticleId = "1004679";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 271485965;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Needleman-Wunsch_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Needleman-Wunsch algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>The <b>Needleman–Wunsch algorithm</b> performs a <a href="/wiki/Sequence_alignment#Global_alignment" title="Sequence alignment">global alignment</a> on two sequences (called A and B here). It is commonly used in <a href="/wiki/Bioinformatics" title="Bioinformatics">bioinformatics</a> to align <a href="/wiki/Protein" title="Protein">protein</a> or <a href="/wiki/Nucleotide" title="Nucleotide">nucleotide</a> sequences. The algorithm was published in 1970 by <a href="/wiki/Saul_Needleman" title="Saul Needleman">Saul Needleman</a> and <a href="/wiki/Christian_Wunsch" title="Christian Wunsch">Christian Wunsch</a><sup id="cite_ref-Needleman_0-0" class="reference"><a href="#cite_note-Needleman-0" title=""><span>[</span>1<span>]</span></a></sup>.</p>
+<p>The Needleman–Wunsch <a href="/wiki/Algorithm" title="Algorithm">algorithm</a> is an example of <a href="/wiki/Dynamic_programming" title="Dynamic programming">dynamic programming</a>, and was the first application of dynamic programming to biological sequence comparison.</p>
+<p>Scores for aligned characters are specified by a <a href="/wiki/Similarity_matrix" title="Similarity matrix">similarity matrix</a>. Here, <span class="texhtml"><i>S</i>(<i>i</i>,<i>j</i>)</span> is the similarity of characters i and j. It uses a linear <a href="/wiki/Gap_penalty" title="Gap penalty">gap penalty</a>, here called d.</p>
+<p>For example, if the similarity matrix was</p>
+<table>
+<tr>
+<th>-</th>
+<th>A</th>
+<th>G</th>
+<th>C</th>
+<th>T</th>
+</tr>
+<tr>
+<th>A</th>
+<td align="right">10</td>
+<td>-1</td>
+<td>-3</td>
+<td>-4</td>
+</tr>
+<tr>
+<th>G</th>
+<td>-1</td>
+<td align="right">7</td>
+<td>-5</td>
+<td>-3</td>
+</tr>
+<tr>
+<th>C</th>
+<td>-3</td>
+<td>-5</td>
+<td align="right">9</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<th>T</th>
+<td>-4</td>
+<td>-3</td>
+<td align="right">0</td>
+<td align="right">8</td>
+</tr>
+</table>
+<p>then the alignment:</p>
+<pre>
+  AGACTAGTTAC
+  CGA---GACGT
+</pre>
+<p>with a gap penalty of -5, would have the following score...</p>
+<pre>
+  <img class="tex" alt="S(A,C) + S(G,G) + S(A,A) + 3\times d + S(G,G) + S(T,A) + S(T,C) + S(A,G) + S(C,T)" src="http://upload.wikimedia.org/math/a/3/7/a37eb6ccb264474fda8f5fa298800727.png" />
+  <img class="tex" alt="= -3 + 7 + 10 - 3\times 5 + 7 + -4 + 0 + -1 + 0 = 1" src="http://upload.wikimedia.org/math/c/f/2/cf29bdc95e1c5a451f40ba47e2189672.png" />
+</pre>
+<p>To find the alignment with the highest score, a two-dimensional <a href="/wiki/Array" title="Array">array</a> (or <a href="/wiki/Matrix_(mathematics)" title="Matrix (mathematics)">matrix</a>) is allocated. This matrix is often called the F matrix, and its (i,j)th entry is often denoted <span class="texhtml"><i>F</i><sub><i>i</i><i>j</i></sub></span> There is one column for each character in sequence A, and one row for each character in sequence B. Thus, if we are aligning sequences of sizes n and m, the running time of the algorithm is O(nm) and the amount of memory used is in O(nm). (However, there is a modified version of the algorithm which uses only O(m + n) space, at the cost of a higher running time. This modification is in fact a general technique which applies to many dynamic programming algorithms; this method was introduced in <a href="/wiki/Hirschberg%27s_algorithm" title="Hirschberg's algorithm">Hirschberg's algorithm</a> for solving the <a href="/wiki/Longest-common_subsequence_problem" title="Longest-common subsequence problem" class="mw-redirect">longest common subsequence problem</a>.)</p>
+<p>As the algorithm progresses, the <span class="texhtml"><i>F</i><sub><i>i</i><i>j</i></sub></span> will be assigned to be the optimal score for the alignment of the first i characters in A and the first j characters in B. The principle of optimality is then applied as follows.</p>
+<pre>
+  Basis:
+  <span class="texhtml"><i>F</i><sub>0<i>j</i></sub> = <i>d</i> * <i>j</i></span>
+  <span class="texhtml"><i>F</i><sub><i>i</i>0</sub> = <i>d</i> * <i>i</i></span>
+  Recursion, based on the principle of optimality:
+  <span class="texhtml"><i>F</i><sub><i>i</i><i>j</i></sub> = max(<i>F</i><sub><i>i</i> − 1,<i>j</i> − 1</sub> + <i>S</i>(<i>A</i><sub><i>i</i></sub>,<i>B</i><sub><i>j</i></sub>),<i>F</i><sub><i>i</i>,<i>j</i> − 1</sub> + <i>d</i>,<i>F</i><sub><i>i</i> − 1,<i>j</i></sub> + <i>d</i>)</span>
+</pre>
+<p>The pseudo-code for the algorithm to compute the F matrix therefore looks like this (the sequence indexes start at 1, the F array starts at 0 to include the boundary values defined above):</p>
+<pre>
+  <b>for</b> i=0 <b>to</b> <b>length</b>(A)
+    F(i,0) ← d*i
+  <b>for</b> j=0 <b>to</b> <b>length</b>(B)
+    F(0,j) ← d*j
+  <b>for</b> i=1 <b>to</b> <b>length</b>(A)
+    <b>for</b> j = 1 <b>to</b> <b>length</b>(B)
+    {
+      Choice1 ← F(i-1,j-1) + S(A(i), B(j))
+      Choice2 ← F(i-1, j) + d
+      Choice3 ← F(i, j-1) + d
+      F(i,j) ← <b>max</b>(Choice1, Choice2, Choice3)
+    }
+</pre>
+<p>Once the F matrix is computed, note that the bottom right hand corner of the matrix is the maximum score for any alignments. To compute which alignment actually gives this score, you can start from the bottom right cell, and compare the value with the three possible sources(Choice1, Choice2, and Choice3 above) to see which it came from. If Choice1, then A(i) and B(j) are aligned, if Choice2, then A(i) is aligned with a gap, and if Choice3, then B(j) is aligned with a gap. (In general several choices may have the same value, leading to alternative optimal alignments.)</p>
+<pre>
+  AlignmentA ← ""
+  AlignmentB ← ""
+  i ← <b>length</b>(A)
+  j ← <b>length</b>(B)
+  <b>while</b> (i &gt; 0 <b>and</b> j &gt; 0)
+  {
+    Score ← F(i,j)
+    ScoreDiag ← F(i - 1, j - 1)
+    ScoreUp ← F(i, j - 1)
+    ScoreLeft ← F(i - 1, j)
+    <b>if</b> (Score == ScoreDiag + S(A(i), B(j)))
+    {
+      AlignmentA ← A(i-1) + AlignmentA
+      AlignmentB ← B(j-1) + AlignmentB
+      i ← i - 1
+      j ← j - 1
+    }
+    <b>else</b> <b>if</b> (Score == ScoreLeft + d)
+    {
+      AlignmentA ← A(i-1) + AlignmentA
+      AlignmentB ← "-" + AlignmentB
+      i ← i - 1
+    }
+    <b>otherwise</b> (Score == ScoreUp + d)
+    {
+      AlignmentA ← "-" + AlignmentA
+      AlignmentB ← B(j-1) + AlignmentB
+      j ← j - 1
+    }
+  }
+  <b>while</b> (i &gt; 0)
+  {
+    AlignmentA ← A(i-1) + AlignmentA
+    AlignmentB ← "-" + AlignmentB
+    i ← i - 1
+  }
+  <b>while</b> (j &gt; 0)
+  {
+    AlignmentA ← "-" + AlignmentA
+    AlignmentB ← B(j-1) + AlignmentB
+    j ← j - 1
+  }
+
+</pre>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;action=edit&amp;section=1" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ol class="references">
+<li id="cite_note-Needleman-0"><b><a href="#cite_ref-Needleman_0-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFNeedleman_SB.2C_Wunsch_CD.1970">Needleman SB, Wunsch CD. (1970). "<a href="http://linkinghub.elsevier.com/retrieve/pii/0022-2836(70)90057-4" class="external text" title="http://linkinghub.elsevier.com/retrieve/pii/0022-2836(70)90057-4" rel="nofollow">A general method applicable to the search for similarities in the amino acid sequence of two proteins</a>". <i>J Mol Biol</i> <b>48</b> (3): 443-53. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1016%2F0022-2836%2870%2990057-4" class="external text" title="http://dx.doi.org/10.1016%2F0022-2836%2870%2990057-4" rel="nofollow">10.1016/0022-2836(70)90057-4</a></span>. <a href="http://www.ncbi.nlm.nih.gov/pubmed/5420325" class="external" title="http://www.ncbi.nlm.nih.gov/pubmed/5420325">PMID 5420325</a><span class="printonly">. <a href="http://linkinghub.elsevier.com/retrieve/pii/0022-2836(70)90057-4" class="external free" title="http://linkinghub.elsevier.com/retrieve/pii/0022-2836(70)90057-4" rel="nofollow">http://linkinghub.elsevier.com/retrieve/pii/0022-2836(70)90057-4</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+general+method+applicable+to+the+search+for+similarities+in+the+amino+acid+sequence+of+two+proteins&amp;rft.jtitle=J+Mol+Biol&amp;rft.aulast=Needleman+SB%2C+Wunsch+CD.&amp;rft.au=Needleman+SB%2C+Wunsch+CD.&amp;rft.date=1970&amp;rft.volume=48&amp;rft.issue=3&amp;rft.pages=443-53&amp;rft_id=info:doi/10.1016%2F0022-2836%2870%2990057-4&amp;rft_id=info:pmid/5420325&amp;rft_id=http%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2F0022-2836%2870%2990057-4&amp;rfr_id=info:sid/en.wikipedia.org:Needleman-Wunsch_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;action=edit&amp;section=2" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.bigbold.com/snippets/posts/show/2199" class="external text" title="http://www.bigbold.com/snippets/posts/show/2199" rel="nofollow">Needleman-Wunsch Algorithm as Ruby Code</a></li>
+<li><a href="http://www25.brinkster.com/denshade/NeedlemanWunsch.java.htm" class="external text" title="http://www25.brinkster.com/denshade/NeedlemanWunsch.java.htm" rel="nofollow">Java Implementation of the Needleman-Wunsch Algorithm</a></li>
+<li><a href="http://baba.sourceforge.net/" class="external text" title="http://baba.sourceforge.net/" rel="nofollow">B.A.B.A.</a> — an applet (with source) which visually explains the algorithm.</li>
+<li><a href="http://www.ludwig.edu.au/course/lectures2005/Likic.pdf" class="external text" title="http://www.ludwig.edu.au/course/lectures2005/Likic.pdf" rel="nofollow">A clear explanation of NW and its applications to sequence alignment</a></li>
+<li><a href="http://technology66.blogspot.com/2008/08/sequence-alignment-techniques.html" class="external text" title="http://technology66.blogspot.com/2008/08/sequence-alignment-techniques.html" rel="nofollow">Sequence Alignment Techniques at Technology Blog</a></li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;action=edit&amp;section=3" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Smith-Waterman_algorithm" title="Smith-Waterman algorithm">Smith-Waterman algorithm</a></li>
+<li><a href="/wiki/BLAST" title="BLAST">BLAST</a></li>
+<li><a href="/wiki/Levenshtein_distance" title="Levenshtein distance">Levenshtein distance</a></li>
+<li><a href="/wiki/Dynamic_time_warping" title="Dynamic time warping">Dynamic time warping</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 576/1000000
+Post-expand include size: 5348/2048000 bytes
+Template argument size: 1945/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1004679-0!1!0!default!!en!2 and timestamp 20090404061605 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Needleman-Wunsch_algorithm">http://en.wikipedia.org/wiki/Needleman-Wunsch_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Bioinformatics_algorithms" title="Category:Bioinformatics algorithms">Bioinformatics algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Algorithms_on_strings" title="Category:Algorithms on strings">Algorithms on strings</a></span> | <span dir='ltr'><a href="/wiki/Category:Computational_phylogenetics" title="Category:Computational phylogenetics">Computational phylogenetics</a></span> | <span dir='ltr'><a href="/wiki/Category:Dynamic_programming" title="Category:Dynamic programming">Dynamic programming</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Needleman-Wunsch_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Needleman-Wunsch_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Needleman-Wunsch_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Needleman-Wunsch_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Needleman-Wunsch_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Needleman-Wunsch_algorithm&amp;oldid=271485965" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Needleman-Wunsch_algorithm&amp;id=271485965">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Needleman-Wunsch-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-el"><a href="http://el.wikipedia.org/wiki/%CE%91%CE%BB%CE%B3%CF%8C%CF%81%CE%B9%CE%B8%CE%BC%CE%BF%CF%82_Needleman-Wunsch">Ελληνικά</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_Needleman-Wunsch">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_de_Needleman-Wunsch">Français</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Algoritmo_Needleman-Wunsch">Português</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 18 February 2009, at 02:26.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv129 in 0.064 secs. --></body></html>

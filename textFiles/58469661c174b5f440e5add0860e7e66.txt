@@ -1,0 +1,303 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bitmap index - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Bitmap_index";
+		var wgTitle = "Bitmap index";
+		var wgAction = "view";
+		var wgArticleId = "2017214";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284203460;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Bitmap index
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A bitmap index is a special kind of database index that uses bitmaps.
+Bitmap indexes have traditionally been considered to work well for data such as gender, which has a small number of distinct values, e.g., male and female, but many occurrences of those values. This would happen if, for example, you had gender data for each resident in a city. However, some researchers argue that Bitmap indexes are also useful for unique valued data which is not updated frequently.[1] Bitmap indexes have a significant space and performance advantage over other structures for such data. Bitmap indexes use bit arrays (commonly called "bitmaps") and answer queries by performing bitwise logical operations on these bitmaps.
+Bitmap indexes are also useful in the data warehousing applications for joining a large fact table to smaller dimension tables[2] such as those arranged in a star schema. In other scenarios, a B-tree index would be more appropriate.
+
+
+
+
+Contents
+
+
+1 Example
+2 Compression
+3 Encoding
+4 Binning
+5 History
+6 In-memory bitmaps
+7 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Example
+Continuing the gender example, a bitmap index may be logically viewed as follows:
+
+
+Identifier
+Gender
+Bitmaps
+
+
+F
+M
+
+
+1
+Female
+1
+0
+
+
+2
+Male
+0
+1
+
+
+3
+Male
+0
+1
+
+
+4
+Unspecified
+0
+0
+
+
+5
+Female
+1
+0
+
+
+On the left, "identifier" refers to the unique number assigned to each customer, "gender" is the data to be indexed, the content of the bitmap index is shown as two columns under the heading bitmaps. Each column in the above illustration is a bitmap in the bitmap index. In this case, there are two such bitmaps, one for gender Female and one for gender Male. It is easy to see that each bit in bitmap M shows whether a particular row refers to a male. This is the simplest form of bitmap index. Most columns will have more distinct values. For example, the sales amount is likely to have a much larger number of distinct values. Variations on the bitmap index can effectively index this data as well. We briefly review three such variations.
+Note: many of the references cited here are reviewed at.[3] For those who might be interested in experimenting with some of the ideas mentioned here, many of them are implemented in an open source software called FastBit or in the Lemur Bitmap Index C++ Library.
+
+
+[edit] Compression
+Software can compress each bitmap in a bitmap index to save space. There has been considerable amount of work on this subject.[4][5] Bitmap compression algorithms typically employ run-length encoding, such as the Byte-aligned Bitmap Code (BBC) and Word-Aligned Hybrid code (WAH). These compression methods require very little effort to compress and decompress. More importantly, bitmaps compressed with BBC and WAH can directly participate in bitwise operations without decompression. This gives them considerable advantages over generic compression techniques such as LZ77. BBC compression and its derivatives are used in a commercial database system. BBC was shown by Johnson (1999) to be effective in both reducing index sizes and maintaining query performance. BBC encodes the bitmaps in bytes, while WAH encodes in words, better matching current CPUs. According to a published report, "On both synthetic data and real application data, the new word aligned schemes use only 50% more space, but perform logical operations on compressed data 12 times faster than BBC."[6]
+The performance of schemes such as BBC and WAH is dependent on the order of the rows. A simple lexicographical sort can divide the index size by 9 and make indexes several times faster.[7] The larger the table, the more important it is to sort the rows.
+
+[edit] Encoding
+Basic bitmap indexes use one bitmap for each distinct value. It is possible to reduce the number of bitmaps used by using a different encoding method.[8][9] For example, it is possible to encode C distinct values using log(C) bitmaps with binary encoding.[10] This reduces the number of bitmaps, further saving space, but to answer any query, most of the bitmaps have to be accessed. This makes it potentially not as effective as scanning a vertical projection of the base data, also known as a materialized view or projection index. Finding the optimal encoding method that balances query performance and index size remains an interesting challenge.
+Without considering compression, Chan and Ioannidis analyzed a class of multi-component encoding methods and came to the conclusion that two-component encoding sits at the kink of the performance vs. index size curve and therefore represents the best trade-off between index size and query performance.
+
+[edit] Binning
+For high-cardinality columns, it is useful to bin the values, where each bin covers multiple values and build the bitmaps to represent the values in each bin. This approach reduces the number of bitmaps used regardless of encoding method.[11] However, binned indexes can only answer some queries without examining the base data. For example, if a bin covers the range from 0.1 to 0.2, then when the user asks for all values less than 0.15, all rows that fall in the bin are possible hits and have to be checked to verify whether they are actually less than 0.15. The process of checking the base data is known as the candidate check. In most cases, the time used by the candidate check is significantly longer than the time needed to work with the bitmap index. Therefore, binned indexes exhibit irregular performance. They can be very fast for some queries, but much slower if the query doesn't exactly match a bin.
+
+[edit] History
+The first commercial database product to implement a bitmap index is Computer Corporation of America's Model 204. Professor Patrick O'Neil implemented the bitmap index around 1982.[12] This implementation is a hybrid between the basic bitmap index (without compression) and the list of Row Identifiers (RID-list). Overall, the index is organized as a B+tree. When the column cardinality is low, each leaf node of the B-tree would contain long list of RIDs. In this case, it requires less space to represent the RID-lists as bitmaps. Since each bitmap represents one distinct value, this is the basic bitmap index. As the column cardinality increases, each bitmap becomes sparse and it may take more disk space to store the bitmaps than to store the same content as RID-lists. In this case, it switches to use the RID-lists, which makes it a B+tree index.[13][14]
+
+[edit] In-memory bitmaps
+One of the strongest reasons for using bitmap indexes is that the intermediate results produced from them are also bitmaps and can be efficiently combined to answer more complex queries. For this reason, some database systems that do not offer persistent bitmap indexes use bitmaps internally to speed up query processing. For example, PostgreSQL versions 8.1 and later implement a "bitmap index scan" optimization to speed up arbitrarily complex logical operations between available indexes on a single table. For a table with n columns, the total number of distinct indexes to satisfy all possible queries is n!.[dubious – discuss] A bitmap index scan combines expressions on different indexes, thus requiring only one index per column to support all possible queries on a table.
+In this approach, a temporary in-memory bitmap is created with one bit for each row in the table (1 MiB can thus store over 8 million entries). Next, the results from each index are combined into the bitmap using bitwise operations. After all conditions are evaluated, the bitmap contains a "1" for rows that matched the expression. Finally, the bitmap is traversed and matching rows are retrieved. In addition to efficiently combining indexes, this also improves locality of reference of table accesses, because all rows are fetched sequentially.[15] The internal bitmap is discarded after the query. If there are too many rows in the table to use 1 bit per row, a "lossy" bitmap is created instead, with a single bit per disk page. In this case, the bitmap is just used to determine which pages to fetch; the filter criteria are then applied to all rows in matching pages.
+
+[edit] References
+
+
+^ Bitmap Index vs. B-tree Index: Which and When?, Vivek Sharma, Oracle Technical Network.
+^ http://www.dwoptimize.com/2007/06/101010-answer-to-life-universe-and.html
+^ John Wu (2007). "Annotated References on Bitmap Index". http://www.cs.umn.edu/~kewu/annotated.html. 
+^ T. Johnson (1999). "Performance Measurements of Compressed Bitmap Indices". 278–289. http://www.informatik.uni-trier.de/~ley/db/conf/vldb/Johnson99.html. 
+^ K. Wu, E. Otoo and A. Shoshani (2004). "On the performance of bitmap indices for high cardinality attributes". http://www.osti.gov/energycitations/product.biblio.jsp?osti_id=822860. 
+^ K. Wu, E. Otoo and A. Shoshani (2001). "A Performance Comparison of bitmap indexes". http://doi.acm.org/10.1145/502585.502689. 
+^ O. Kaser, D. Lemire, K. Aouiche (2008). "Histogram-Aware Sorting for Enhanced Word-Aligned Compression in Bitmap Indexes". http://arxiv.org/abs/0808.2083. 
+^ C.-Y. Chan and Y. E. Ioannidis (1998). "Bitmap index design and evaluation". http://doi.acm.org/10.1145/276304.276336. 
+^ C.-Y. Chan and Y. E. Ioannidis (1999). "An efficient bitmap encoding scheme for selection queries". http://doi.acm.org/10.1145/304182.304201. 
+^ P. E. O'Neil and D. Quass (1997). "Improved Query Performance with Variant Indexes". http://doi.acm.org/10.1145/253260.253268. 
+^ N. Koudas (2000). "Space efficient bitmap indexing". http://doi.acm.org/10.1145/354756.354819. 
+^ O'Neil, Patrick (1987). "Model 204 Architecture and Performance". Proceedings of the 2nd International Workshop on High Performance Transaction Systems: 40 - 59, Springer-Verlag. 
+^ D. Rinfret, P. O'Neil and E. O'Neil (2001). "Bit-sliced index arithmetic".. 
+^ E. O'Neil, P. O'Neil and K. Wu (2007). "Bitmap Index Design Choices and Their Performance Implications". IDEAS. 
+^ Tom Lane (2005-12-26). "Re: Bitmap indexes etc.". PostgreSQL mailing lists. http://archives.postgresql.org/pgsql-performance/2005-12/msg00623.php. Retrieved on 2007-04-06. 
+
+
+
+
+O'Connell, S. (2005) Advanced Databases Course Notes, Southampton, University of Southampton.
+O'Neil, P. and O'Neil, E. (2001) Database Principles, Programming, and Performance, Morgan Kaufmann Publishers.
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Bitmap_index"
+Categories: Data managementHidden categories: All pages needing cleanup | Articles with disputed statements from April 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 April 2009, at 13:03 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

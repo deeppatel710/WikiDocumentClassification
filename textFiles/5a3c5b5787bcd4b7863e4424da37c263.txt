@@ -1,0 +1,525 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Difference map algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Difference_map_algorithm";
+		var wgTitle = "Difference map algorithm";
+		var wgAction = "view";
+		var wgArticleId = "10145406";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281645255;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Difference map algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+Iterations 0, 100, 200, 300 and 400 in the difference map reconstruction of a grayscale image from its Fourier transform modulus
+
+
+The difference map algorithm is a search algorithm for general constraint satisfaction problems. It is a meta-algorithm in the sense that it is built from more basic algorithms that perform projections onto constraint sets. From a mathematical perspective, the difference map algorithm is a dynamical system based on a mapping of Euclidean space. Solutions are encoded as fixed points of the mapping.
+Although originally conceived as a general method for solving the phase problem, the difference map algorithm has been used for the boolean satisfiability problem, protein structure prediction, Ramsey numbers, diophantine equations, and Sudoku[1], as well as sphere- and disk-packing problems[2]. Since these applications include NP-complete problems, the scope of the difference map is that of an incomplete algorithm. Whereas incomplete algorithms can efficiently verify solutions (once a candidate is found), they cannot prove that a solution does not exist.
+The difference map algorithm is a generalization of two iterative methods: Fienup's hybrid input-output phase retrieval algorithm[3] and the Douglas-Rachford algorithm[4] for convex optimization. Iterative methods, in general, have a long history in phase retrieval and convex optimization. The use of this style of algorithm for hard, non-convex problems is a more recent development.
+
+
+
+
+Contents
+
+
+1 Algorithm
+2 Example: logical satisfiability
+3 Chaotic dynamics
+4 Phase retrieval
+5 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Algorithm
+The problem to be solved must first be formulated as a set intersection problem in Euclidean space: find an x in the intersection of sets A and B. Another prerequisite is an implementation of the projections PA and PB that, given an arbitrary input point x, return a point in the constraint set A or B that is nearest to x. One iteration of the algorithm is given by the mapping:
+
+x → D(x) = x + β [ PA( fB(x)) - PB( fA(x)) ] ,
+
+
+
+
+fA(x) = PA(x) - (PA(x)-x)/β ,
+
+
+
+
+
+
+fB(x) = PB(x) + (PB(x)-x)/β .
+
+
+
+The real parameter β can have either sign; optimal values depend on the application and are determined through experimentation. As a first guess, the choice β = 1 (or β = -1) is recommended because it reduces the number of projection computations per iteration:
+
+D(x) = x + PA(2 PB(x) - x) - PB(x) .
+
+The progress of the algorithm is monitored by inspecting the norm of the difference of the two projections:
+
+Δ = | PA( fB(x)) - PB( fA(x)) | .
+
+When this vanishes, at fixed points of the map, a point common to both constraint sets has been found and the algorithm is terminated. The set of fixed points in a particular application will normally have a large dimension, even when the solution set is a single point.
+
+[edit] Example: logical satisfiability
+Incomplete algorithms, such as stochastic local search, are widely used for finding satisfying truth assignments to boolean formulas. As an example of solving an instance of 2-SAT with the difference map algorithm, consider the following formula (~ indicates NOT):
+
+(q1 or q2) and (~q1 or q3) and (~q2 or ~q3) and (q1 or ~q2)
+
+To each of the eight literals in this formula we assign one real variable in an eight dimensional Euclidean space. The structure of the 2-SAT formula can be recovered when these variables are arranged in a table:
+
+
+
+
+x11
+x12
+
+
+
+(x21)
+
+x22
+
+
+
+(x31)
+(x32)
+
+
+x41
+(x42)
+
+
+
+
+
+Rows are the clauses in the 2-SAT formula and literals corresponding to the same boolean variable are arranged in columns, with negation indicated by parentheses. For example, the real variables x11, x21 and x41 correspond to the same boolean variable (q1) or its negation, and are called replicas. It is convenient to associate the values 1 and -1 with TRUE and FALSE rather than the traditional 1 and 0. With this convention, the compatibility between the replicas takes the form of the following linear equations:
+
+x11 = -x21 = x41
+x12 = -x31 = -x42
+x22 = -x32
+
+The linear subspace where these equations are satisfied is one of the constraint spaces, say A, used by the difference map. To project to this constraint we replace each replica by the signed replica average, or its negative:
+
+a1 = (x11 - x21 + x41) / 3
+x11 → a1   x21 → -a1   x41 → a1
+
+The second difference map constraint applies to the rows of the table, the clauses. In a satisfying assignment, the two variables in each row must be assigned the values (1, 1), (1, -1), or (-1, 1). The corresponding constraint set, B, is thus a set of 34 = 729 points. In projecting to this constraint the following operation is applied to each row. First, the two real values are rounded to 1 or -1; then, if the outcome is (-1, -1), the larger of the two original values is replaced by 1. Examples:
+
+(-.2, 1.2) → (-1, 1)
+(-.2, -.8) → (1, -1)
+
+It is a straightforward exercise to check that both of the projection operations described minimize the Euclidean distance between input and output values. Moreover, if the algorithm succeeds in finding a point x that lies in both constraint sets, then we know that (i) the clauses associated with x are all TRUE, and (ii) the assignments to the replicas are consistent with a truth assignment to the original boolean variables.
+To run the algorithm one first generates an initial point x0, say
+
+
+
+
+-0.5
+-0.8
+
+
+
+(-0.4)
+
+-0.6
+
+
+
+(0.3)
+(-0.8)
+
+
+0.5
+(0.1)
+
+
+
+
+
+Using β = 1, the next step is to compute PB(x0) :
+
+
+
+
+1
+-1
+
+
+
+(1)
+
+-1
+
+
+
+(1)
+(-1)
+
+
+1
+(1)
+
+
+
+
+
+This is followed by 2PB(x0) - x0,
+
+
+
+
+2.5
+-1.2
+
+
+
+(2.4)
+
+-1.4
+
+
+
+(1.7)
+(-1.2)
+
+
+1.5
+(1.9)
+
+
+
+
+
+and then projected onto the other constraint, PA(2PB(x0) - x0) :
+
+
+
+
+0.53333
+-1.6
+
+
+
+(-0.53333)
+
+-0.1
+
+
+
+(1.6)
+(0.1)
+
+
+0.53333
+(1.6)
+
+
+
+
+
+Incrementing x0 by the difference of the two projections gives the first iteration of the difference map, D(x0) = x1 :
+
+
+
+
+-0.96666
+-1.4
+
+
+
+(-1.93333)
+
+0.3
+
+
+
+(0.9)
+(0.3)
+
+
+0.03333
+(0.7)
+
+
+
+
+
+Here is the second iteration, D(x1) = x2 :
+
+
+
+
+-0.3
+-1.4
+
+
+
+(-2.6)
+
+-0.7
+
+
+
+(0.9)
+(-0.7)
+
+
+0.7
+(0.7)
+
+
+
+
+
+This is a fixed point: D(x2) = x2. The iterate is unchanged because the two projections agree. From PB(x2) ,
+
+
+
+
+1
+-1
+
+
+
+(-1)
+
+1
+
+
+
+(1)
+(-1)
+
+
+1
+(1)
+
+
+
+
+
+we can read off the satisfying truth assignment: q1 = TRUE, q2 = FALSE, q3 = TRUE.
+
+[edit] Chaotic dynamics
+
+
+
+
+Time series of the norm of the difference map increment Δ in the course of solving a random 3-SAT instance with 1000 variables and 4200 clauses.
+
+
+In the simple 2-SAT example above, the norm of the difference map increment Δ decreased monotonically to zero in three iterations. This contrasts the behavior of Δ when the difference map is given a hard instance of 3-SAT, where it fluctuates strongly prior to the discovery of the fixed point. As a dynamical system the difference map is believed to be chaotic, and that the space being searched is a strange attractor.
+
+[edit] Phase retrieval
+
+
+
+
+Fourier transform modulus (diffraction pattern) of the grayscale image shown being reconstructed at the top of the page.
+
+
+In phase retrieval a signal or image is reconstructed from the modulus (absolute value, magnitude) of its discrete Fourier transform. For example, the source of the modulus data may be the Fraunhofer diffraction pattern formed when an object is illuminated with coherent light.
+The projection to the Fourier modulus constraint, say PA, is accomplished by first computing the discrete Fourier transform of the signal or image, rescaling the moduli to agree with the data, and then inverse transforming the result. This is a projection, in the sense that the Euclidean distance to the constraint is minimized, because (i) the discrete Fourier transform, as a unitary transformation, preserves distance, and (ii) rescaling the modulus (without modifying the phase) is the smallest change that realizes the modulus constraint.
+To recover the unknown phases of the Fourier transform the difference map relies on the projection to another constraint, PB. This may take several forms, as the object being reconstructed may be known to be positive, have a bounded support, etc. In the reconstruction of the surface image, for example, the effect of the projection PB was to nullify all values outside a rectangular support, and also to nullify all negative values within the support.
+
+[edit] References
+
+
+^ V. Elser, I. Rankenburg, and P. Thibault, "Searching with iterated maps". Proceedings of the National Academy of Sciences USA. (2007). 104:418-423. http://www.pnas.org/cgi/content/short/104/2/418
+^ S. Gravel, V. Elser, "Divide and concur: A general approach to constraint satisfaction". Physical Review E. (2004). 78:036706. http://link.aps.org/doi/10.1103/PhysRevE.78.036706
+^ J.R. Fienup, "Phase retrieval algorithms: a comparison". Applied Optics. (1982). 21:2758-2769.
+^ H.H. Bauschke, P.L. Combettes, and D.R. Luke, "Phase retrieval, error reduction algorithm, and Fienup variants: a view from convex optimization". Journal of the Optical Society of America A. (2002). 19:1334-1345.
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Difference_map_algorithm"
+Categories: Search algorithms | Constraint satisfaction 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+Bahasa Indonesia
+Italiano
+Nederlands
+日本語
+Português
+Suomi
+Tiếng Việt
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 April 2009, at 05:32.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

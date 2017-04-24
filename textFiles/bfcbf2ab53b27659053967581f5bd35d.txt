@@ -1,0 +1,535 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Elliptic curve cryptography - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Elliptic_curve_cryptography";
+		var wgTitle = "Elliptic curve cryptography";
+		var wgAction = "view";
+		var wgArticleId = "9966";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279646398;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Elliptic curve cryptography
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Elliptic curve cryptography (ECC) is an approach to public-key cryptography based on the algebraic structure of elliptic curves over finite fields. The use of elliptic curves in cryptography was suggested independently by Neal Koblitz[1] and Victor S. Miller[2] in 1985.
+Elliptic curves are also used in several integer factorization algorithms that have applications in cryptography, such as Lenstra elliptic curve factorization, but this use of elliptic curves is not usually referred to as "elliptic curve cryptography", being rather a cryptanalysis tool for factorisation-based public key cryptosystems.
+
+
+
+
+Contents
+
+
+1 Introduction
+2 Mathematical introduction
+3 Cryptographic schemes
+4 Implementation considerations
+
+4.1 Domain parameters
+4.2 Key sizes
+4.3 Projective coordinates
+4.4 Fast reduction (NIST curves)
+4.5 NIST-recommended elliptic curves
+4.6 Side-channel attacks
+4.7 Patents
+
+
+5 Implementations
+
+5.1 Open source
+5.2 Proprietary/commercial
+
+
+6 See also
+7 Notes
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Introduction
+Public-key cryptography is based on the intractability of certain mathematical problems. Early public key systems, such as the RSA algorithm, used the product of two large prime numbers as the puzzle: a user picks two large random primes as his private key, and publishes their product as his public key. While finding large primes and multiplying them together is computationally easy, reversing the process is thought to be hard. It is generally recommended that RSA public keys be 1024 bits in length to render integer factoring algorithms infeasible.[3]
+For elliptic curves, the problem assumed to be intractable is finding the discrete logarithm of an element. Given P and Q find 'a such that aP=Q. The size of the elliptic curve determines the difficulty of the problem. It it believed that a smaller group can be used to obtain the same level of security as RSA-based systems. Using a small group reduces bandwidth.
+An elliptic curve is a plane curve which is isomorphic to a curve defined by an equation of the form
+y2 = x3 + ax + b.
+The set of points on such a curve — all solutions of the above equation together with a point at infinity — form an Abelian group, with the point at infinity as identity element. If the coordinates x and y are chosen from a finite field, the solutions form a finite abelian group. If the finite field is large, the discrete logarithm problem on such elliptic curve groups is believed to be more difficult than the corresponding problem in the underlying finite field's multiplicative group. Thus keys in elliptic curve cryptography can be chosen to be much shorter for a comparable level of security compared to integer-based methods. (See: cryptographic key length)
+As for other popular public key cryptosystems, no mathematical proof of difficulty has been published for ECC as of 2006[update]. However, the U.S. National Security Agency has endorsed ECC technology by including it in its Suite B set of recommended algorithms and allows their use for protecting information classified up to top secret with 384-bit keys.[4] Although the RSA patent has expired, there are patents in force covering some aspects of ECC.
+
+[edit] Mathematical introduction
+Elliptic curves used in cryptography are typically defined over two types of finite fields: fields of odd characteristic (, where p > 3 is a large prime number) and fields of characteristic two (). When the distinction is not important we denote both of them as , where q = p or q = 2m. In  the elements are integers () which are combined using modular arithmetic. The case of  is slightly more complicated (see finite field arithmetic for details): one obtains different representations of the field elements as bitstrings for each choice of irreducible binary polynomial f(x) of degree m.
+The set of all pairs of affine coordinates (x,y) for  form the affine plane . An elliptic curve is the locus of points in the affine plane whose coordinates satisfy a certain cubic equation together with a point at infinity O (the point at which the locus in the projective plane intersects the line at infinity). In the case of characteristic p > 3 the defining equation of  can be written:
+
+
+
+where  and  are constants such that . In the binary case the defining equation of  can be written:
+
+
+
+where  and  are constants and . Although the point at infinity O has no affine coordinates, it is convenient to represent it using a pair of coordinates which do not satisfy the defining equation, for example, O = (0,0) if  and O = (0,1) otherwise. According to Hasse's theorem on elliptic curves the number of points on a curve is close to the size of the underlying field; more precisely: . There are also algorithms for counting points on elliptic curves.
+The points on an elliptic curve form an Abelian group  with O, the distinguished point at infinity, playing the role of additive identity. In other words, given two points , there is a third point, denoted by  on , and the following relations hold for all 
+
+P + Q = Q + P (commutativity)
+(P + Q) + R = P + (Q + R) (associativity)
+P + O = O + P = P (existence of an identity element)
+there exists ( − P) such that − P + P = P + ( − P) = O (existence of inverses)
+
+We already specified how O is defined. If we define the negative of a point P = (x,y) to be − P = (x, − y) for  and − P = (x,x + y) for , we can define the addition operation as follows:
+
+if Q = O then P + Q = P
+if Q = − P then P + Q = O
+if  then P + Q = R, where
+
+in the prime case xR = λ2 − xP − xQ, yR = λ(xP − xR) − yP, and , or
+in the binary case xR = λ2 + λ + xP + xQ + a, yR = λ(xP + xR) + xR + yP, and 
+
+
+
+(Geometrically, P + Q is the inverse of the third point of intersection of the cubic with the line through P and Q.)
+
+if Q = P then P + Q = R, where
+
+in the prime case xR = λ2 − 2xP, yR = λ(xP − xR) − yP, and , or
+in the binary case xR = λ2 + λ + a, , and 
+
+
+
+(Geometrically, 2P is the inverse of the second point of intersection of the cubic with its tangent line at P.)
+Certicom's Online ECC Tutorial contains a Java applet that can be used to experiment with addition in different EC groups.
+We already described the underlying field  and the group of points of elliptic curve  but there is yet another mathematical structure commonly used in cryptography — a cyclic subgroup of . For any point G the set
+
+
+
+is a cyclic group. It is convenient to use the following notation: 0G = O, 1G = G, 2G = G + G, 3G = G + G + G, etc. The calculation of kG, where k is an integer and G is a point, is called scalar multiplication.
+
+[edit] Cryptographic schemes
+Since the (additive) cyclic group described above can be considered similar to the (multiplicative) group of powers of an integer g modulo prime p: , the problem of finding k given points kG and G is called the elliptic curve discrete logarithm problem (ECDLP). The assumed hardness of several problems related to the discrete logarithm in the subgroup of  allows cryptographic use of elliptic curves. Most of the elliptic curve cryptographic schemes are related to the discrete logarithm schemes which were originally formulated for usual modular arithmetic:
+
+the Elliptic Curve Diffie-Hellman key agreement scheme is based on the Diffie-Hellman scheme,
+the Elliptic Curve Digital Signature Algorithm is based on the Digital Signature Algorithm,
+the ECMQV key agreement scheme is based on the MQV key agreement scheme.
+
+Not all the DLP schemes should be ported to the elliptic curve domain. For example, the well known ElGamal encryption scheme was never standardized by official bodies and should not be directly used over an elliptic curve (the standard encryption scheme for ECC is called Elliptic Curve Integrated Encryption Scheme). The main reason is that although it is straightforward to convert an arbitrary message (of limited length) to an integer modulo p, it is not that simple to convert a bitstring to a point of a curve (it is not true that for every x there is a y such that ). (Another factor is that ElGamal scheme is vulnerable to chosen-ciphertext attacks.)
+Some believe that ECDLP-based cryptography is going to replace cryptography based on integer factorization (e.g., RSA) and finite-field cryptography (e.g., DSA). At the RSA Conference 2005, the National Security Agency (NSA) announced Suite B which exclusively uses ECC for digital signature generation and key exchange. The suite is intended to protect both classified and unclassified national security systems and information.[5]
+Recently, a large number of cryptographic primitives based on bilinear mappings on various elliptic curve groups (such as the Weil and Tate, eta and ate pairings) have been introduced. Schemes based on these primitives provide efficient identity-based encryption as well as pairing-based signatures, signcryption, key agreement, and proxy re-encryption (see The Pairing-Based Crypto Lounge as well as P1363.3).
+
+[edit] Implementation considerations
+Although the details of each particular elliptic curve scheme are described in the article referenced above some common implementation considerations are discussed here.
+
+[edit] Domain parameters
+To use ECC all parties must agree on all the elements defining the elliptic curve, that is domain parameters of the scheme. The field is defined by p in the prime case and the pair of m and f in the binary case. The elliptic curve is defined by the constants a and b used in its defining equation. Finally, the cyclic subgroup is defined by its generator (aka. base point) G. For cryptographic application the order of G, that is the smallest non-negative number n such that nG = O, must be prime. Since n is the size of a subgroup of  it follows from the Lagrange's theorem that the number  is integer. In cryptographic applications this number h, called cofactor, at least must be small () and, preferably, h = 1. Let us summarize: in the prime case the domain parameters are (p,a,b,G,n,h) and in the binary case they are (m,f,a,b,G,n,h).
+Unless there is an assurance that domain parameters were generated by a party trusted with respect to their use, the domain parameters must be validated before use.
+The generation of domain parameters is not usually done by each participant since this involves counting the number of points on a curve which is time-consuming and troublesome to implement. As a result several standard bodies published domain parameters of elliptic curves for several common field sizes:
+
+NIST, Recommended Elliptic Curves for Government Use
+SECG, SEC 2: Recommended Elliptic Curve Domain Parameters
+
+Test vectors are also available [1].
+If one (despite the said above) wants to build his own domain parameters he should select the underlying field and then use one of the following strategies to find a curve with appropriate (i.e., near prime) number of points using one of the following methods:
+
+select a random curve and use a general point-counting algorithm, for example, Schoof's algorithm or Schoof-Elkies-Atkin algorithm,
+select a random curve from a family which allows easy calculation of the number of points (e.g., Koblitz curves), or
+select the number of points and generate a curve with this number of points using complex multiplication technique.[6]
+
+Several classes of curves are weak and shall be avoided:
+
+curves over  with non-prime m are vulnerable to Weil descent attacks.[7][8]
+curves such that n divides pB − 1 (where p is the characteristic of the field – q for a prime field, or 2 for a binary field) for sufficiently small B are vulnerable to MOV attack[9][10] which applies usual DLP in a small degree extension field of  to solve ECDLP. The bound B should be chosen so that discrete logarithms in the field  are at least as difficult to compute as discrete logs on the elliptic curve .[11]
+curves such that  are vulnerable to the attack that maps the points on the curve to the additive group of [12][13][14]
+
+
+[edit] Key sizes
+Since all the fastest known algorithms that allow to solve the ECDLP (baby-step giant-step, Pollard's rho, etc.), need  steps, it follows that the size of the underlying field shall be roughly twice the security parameter. For example, for 128-bit security one needs a curve over , where . This can be contrasted with finite-field cryptography (e.g., DSA) which requires[15] 3072-bit public keys and 256-bit private keys, and integer factorization cryptography (e.g., RSA) which requires 3072-bit public and private keys. The hardest ECC scheme (publicly) broken to date had a 109-bit key (that is about 55 bits of security). For the prime field case, it was broken near the beginning of 2003 using over 10,000 Pentium class PCs running continuously for over 540 days (see [2]). For the binary field case, it was broken in April 2004 using 2600 computers for 17 months (see [3]).
+
+[edit] Projective coordinates
+A close examination of the addition rules shows that in order to add two points one needs not only several additions and multiplications in  but also an inversion operation. The inversion (for given  find  such that xy = 1) is one to two orders of magnitude slower[16] than multiplication. Fortunately, points on a curve can be represented in different coordinate systems which do not require an inversion operation to add two points. Several such systems were proposed: in the projective system each point is represented by three coordinates (X,Y,Z) using the following relation: , ; in the Jacobian system a point is also represented with three coordinates (X,Y,Z), but a different relation is used: , ; in the López-Dahab system the relation is , ; in the modified Jacobian system the same relations are used but four coordinates are stored and used for calculations (X,Y,Z,aZ4); and in the Chudnovsky Jacobian system five coordinates are used (X,Y,Z,Z2,Z3). Note that there may be different naming conventions, for example, IEEE P1363-2000 standard uses "projective coordinates" to refer to what is commonly called Jacobian coordinates. An additional speed-up is possible if mixed coordinates are used.[17]
+
+[edit] Fast reduction (NIST curves)
+Reduction modulo p (which is needed for addition and multiplication) can be executed much faster if the prime p is a pseudo-Mersenne prime that is , for example, p = 2521 − 1 or p = 2256 − 232 − 29 − 28 − 27 − 26 − 24 − 1. Compared to Barrett reduction there can be an order of magnitude speed-up.[18] The curves over  with pseudo-Mersenne p are recommended by NIST. Yet another advantage of the NIST curves is the fact that they use a = − 3 which improves addition in Jacobian coordinates.
+
+[edit] NIST-recommended elliptic curves
+NIST recommends fifteen elliptic curves. Specifically, FIPS 186-2 has ten recommended finite fields. There are five prime fields  for p192, p224, p256, p384 and p521. For each of the prime fields one elliptic curve is recommended. There are five binary fields  for 2163, 2233, 2283, 2409, and 2571. For each of the binary fields one elliptic curve and one Koblitz curve was selected. Thus five prime curves and ten binary curves. The curves were chosen for optimal security and implementation efficiency.[19]
+
+[edit] Side-channel attacks
+Unlike DLP systems (where it is possible to use the same procedure for squaring and multiplication) the EC addition is significantly different for doubling (P = Q) and general addition () depending on the coordinate system used. Consequently, it is important to counteract side channel attacks (e.g., timing and simple power analysis attacks) using, for example, fixed pattern window (aka. comb) methods[20] (note that this does not increase the computation time).
+
+[edit] Patents
+Main article: ECC patents
+At least one ECC scheme (ECMQV) and some implementation techniques are covered by patents. Uncertainty about the availability of unencumbered ECC has limited the acceptance of ECC.
+
+[edit] Implementations
+
+[edit] Open source
+
+OpenSSL: Open source library written in C with ECC library
+Crypto++ : Open source library written in C++ with ECC
+NSS: Open source crypto libraries with ECC
+seccure: minimal footprint GPLed ECC tool with public key encryption and digital signatures
+SKS: very small open source tool for ECC (like a simplified PGP)
+eccGnuPG: An experimental patch to GnuPG
+Curve25519: A state-of-the-art Diffie-Hellman function by Dan Bernstein
+TinyECC: a software package providing ECC operations on TinyOS
+libecc: Open source ECC library
+Bouncy Castle: Open source crypto package for Java and C# that includes ECC
+
+
+[edit] Proprietary/commercial
+
+MIRACL: Multiprecision Integer and Rational Arithmetic C/C++ Library
+CNG API in Windows Vista and Windows Server 2008 with managed wrappers for CNG in .NET Framework 3.5
+Sun Java System Web Server 7.0 and later
+Java SE 6
+Java Card
+Security Builder Crypto
+
+
+[edit] See also
+
+Public-key cryptography
+ECDSA
+ECDH
+ECMQV
+DNSCurve
+
+
+[edit] Notes
+
+^ N. Koblitz, Elliptic curve cryptosystems, in Mathematics of Computation 48, 1987, pp. 203–209
+^ V. Miller, Use of elliptic curves in cryptography, CRYPTO 85, 1985.
+^ FIPS 186-3, February, 2006, public comment version
+^ http://www.nsa.gov/ia/programs/suiteb_cryptography/index.shtml Fact Sheet NSA Suite B Cryptography, U.S. National Security Agency
+^ The Case for Elliptic Curve Cryptography, NSA
+^ G. Lay and H. Zimmer, Constructing elliptic curves with given group order over large finite fields, Algorithmic Number Theory Symposium, 1994.
+^ S.D. Galbraith and N.P. Smart, A cryptographic application of the Weil descent, Cryptography and Coding, 1999.
+^ P. Gaudry, F. Hess, and N.P. Smart, Constructive and destructive facets of Weil descent on elliptic curves, Hewlett Packard Laboratories Technical Report, 2000.
+^ A. Menezes, T. Okamoto, and S.A. Vanstone, Reducing elliptic curve logarithms to logarithms in a finite field, IEEE Transactions on Information Theory, Volume 39, 1993.
+^ L. Hitt, On an Improved Definition of Embedding Degree, IACR ePrint report 2006/415.
+^ IEEE P1363, section A.12.1
+^ I. Semaev, Evaluation of discrete logarithm in a group of P-torsion points of an elliptic curve in characteristic P, Mathematics of Computation, number 67, 1998.
+^ N. Smart, The discrete logarithm problem on elliptic curves of trace one, Journal of Cryptology, Volume 12, 1999.
+^ T. Satoh and K. Araki, Fermat quotients and the polynomial time discrete log algorithm for anomalous elliptic curves, Commentarii Mathematici Universitatis Sancti Pauli, Volume 47, 1998.
+^ NIST, Recommendation for Key Management — Part 1: general, Special Publication 800-57, August 2005.
+^ Y. Hitchcock, E. Dawson, A. Clark, and P. Montague, Implementing an efficient elliptic curve cryptosystem over GF(p) on a smart card, 2002.
+^ H. Cohen, A. Miyaji, T. Ono, Efficient Elliptic Curve Exponentiation Using Mixed Coordinates, ASIACRYPT 1998.
+^ M. Brown, D. Hankerson, J. Lopez, and A. Menezes, Software Implementation of the NIST Elliptic Curves Over Prime Fields.
+^ FIPS PUB 186-2, Digital Signature Standard (DSS).
+^ M. Hedabou, P. Pinel, and L. Beneteau, A comb method to render ECC resistant against Side Channel Attacks, 2004.
+
+
+[edit] References
+
+Standards for Efficient Cryptography Group (SECG), SEC 1: Elliptic Curve Cryptography, Version 1.0, September 20, 2000.
+D. Hankerson, A. Menezes, and S.A. Vanstone, Guide to Elliptic Curve Cryptography, Springer-Verlag, 2004.
+I. Blake, G. Seroussi, and N. Smart, Elliptic Curves in Cryptography, London Mathematical Society 265, Cambridge University Press, 1999.
+I. Blake, G. Seroussi, and N. Smart, editors, Advances in Elliptic Curve Cryptography, London Mathematical Society 317, Cambridge University Press, 2005.
+L. Washington, Elliptic Curves: Number Theory and Cryptography, Chapman & Hall / CRC, 2003.
+Anoop MS, Elliptic Curve Cryptography -- An Implementation Tutorial, Tata Elxsi, India, January 5, 2007.
+The Case for Elliptic Curve Cryptography, National Security Agency
+Online Elliptic Curve Cryptography Tutorial, Certicom Corp.
+K. Malhotra, S. Gardner, and R. Patz, Implementation of Elliptic-Curve Cryptography on Mobile Healthcare Devices, Networking, Sensing and Control, 2007 IEEE International Conference on, London, 15-17 April 2007 Page(s):239 - 244
+
+
+[edit] External links
+
+
+
+Wikimedia Commons has media related to: Elliptic curve
+
+
+
+Interactive Introduction to elliptic curves and ECC
+Certicom ECC Tutorial
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+ 
+Public-key cryptography
+
+
+
+
+
+
+
+Algorithms: Benaloh | Blum-Goldwasser | Cayley–Purser | CEILIDH | Cramer-Shoup | Damgaard-Jurik | DH | DSA | EPOC | ECDH | ECDSA | EKE | ElGamal encryption | ElGamal signature scheme | GMR | Goldwasser-Micali | HFE | IES | Lamport | McEliece | Merkle-Hellman | MQV | Naccache-Stern | NTRUEncrypt | NTRUSign | Paillier | Rabin | RSA | Okamoto-Uchiyama | Schnorr | SPEKE | SRP | STS | Three-pass protocol | XTR
+
+
+
+
+
+
+
+
+
+Theory: Discrete logarithm | Elliptic curve cryptography | RSA problem
+
+
+
+
+
+
+
+
+
+Standardization: ANS X9F1 | CRYPTREC | IEEE P1363 | NESSIE | NSA Suite B
+
+
+
+
+
+
+
+
+
+Misc: Digital signature | Fingerprint | PKI | Web of trust | Key size
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+ 
+Cryptography
+
+
+
+
+
+
+History of cryptography · Cryptanalysis · Cryptography portal · Topics in cryptography
+
+
+
+
+
+
+
+Symmetric-key algorithm · Block cipher · Stream cipher · Public-key cryptography · Cryptographic hash function · Message authentication code · Random numbers · Steganography
+
+
+
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Elliptic_curve_cryptography"
+Categories: Cryptography | Asymmetric-key cryptosystems | Finite fieldsHidden categories: Articles containing potentially dated statements from 2006 | All articles containing potentially dated statements 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Ελληνικά
+Español
+Français
+한국어
+Italiano
+עברית
+日本語
+Polski
+Português
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 March 2009, at 19:26.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

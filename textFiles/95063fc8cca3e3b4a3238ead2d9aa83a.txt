@@ -1,0 +1,351 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ACID - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "ACID";
+		var wgTitle = "ACID";
+		var wgAction = "view";
+		var wgArticleId = "60776";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281447151;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); ACID
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For other uses, see Acid (disambiguation).
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (March 2008)
+
+
+In computer science, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties that guarantee that database transactions are processed reliably. In the context of databases, a single logical operation on the data is called a transaction. An example of a transaction is a transfer of funds from one bank account to another, even though it might consist of multiple individual operations (such as debiting one account and crediting another).
+Although Jim Gray is credited with defining, in the late 1970s, these key transaction properties of a reliable system, and with helping to develop the technologies that automatically achieve these,[1] the acronym ACID was coined by Andreas Reuter and Theo Haerder in 1983.[2]
+
+
+
+
+Contents
+
+
+1 Properties
+
+1.1 Atomicity
+1.2 Consistency
+1.3 Isolation
+1.4 Durability
+
+
+2 Implementation
+3 See also
+4 Notes
+5 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Properties
+
+[edit] Atomicity
+Atomicity refers to the ability of the DBMS to guarantee that either all of the tasks of a transaction are performed or none of them are. For example, the transfer of funds from one account to another can be completed or it can fail for a multitude of reasons, but atomicity guarantees that one account won't be debited if the other is not credited.
+Atomicity states that database modifications must follow an “all or nothing” rule. Each transaction is said to be “atomic.” If one part of the transaction fails, the entire transaction fails. It is critical that the database management system maintain the atomic nature of transactions in spite of any DBMS, operating system or hardware failure.
+
+[edit] Consistency
+The Consistency property ensures that the database remains in a consistent state before the start of the transaction and after the transaction is over (whether successful or not).
+Consistency states that only valid data will be written to the database. If, for some reason, a transaction is executed that violates the database’s consistency rules, the entire transaction will be rolled back and the database will be restored to a state consistent with those rules. On the other hand, if a transaction successfully executes, it will take the database from one state that is consistent with the rules to another state that is also consistent with the rules.
+
+[edit] Isolation
+Isolation refers to the requirement that other operations cannot access or see the data in an intermediate state during a transaction. This constraint is required to maintain the performance as well as the consistency between transactions in a DBMS.
+
+[edit] Durability
+Durability refers to the guarantee that once the user has been notified of success, the transaction will persist, and not be undone. This means it will survive system failure, and that the database system has checked the integrity constraints and won't need to abort the transaction. Many databases implement durability by writing all transactions into a transaction log that can be played back to recreate the system state right before a failure. A transaction can only be deemed committed after it is safely in the log.
+
+[edit] Implementation
+Implementing the ACID properties correctly is not simple. Processing a transaction often requires a number of small changes to be made, including updating indices that are used by the system to speed up searches. This sequence of operations is subject to failure for a number of reasons; for instance, the system may have no room left on its disk drives, or it may have used up its allocated CPU time.
+ACID suggests that the database be able to perform all of these operations at once. In fact this is difficult to arrange. There are two popular families of techniques: write ahead logging and shadow paging. In both cases, locks must be acquired on all information that is updated, and depending on the implementation, possibly on all data that is being read as well. In write ahead logging, atomicity is guaranteed by ensuring that information about all changes is written to a log before it is written to the database. That allows the database to return to a consistent state in the event of a crash. In shadowing, updates are applied to a copy of the database, and the new copy is activated when the transaction commits. The copy refers to unchanged parts of the old version of the database, rather than being an entire duplicate.
+Until recently almost all databases relied upon locking to provide ACID capabilities. This means that a lock must always be acquired before processing data in a database, even on read operations. Maintaining a large number of locks, however, results in substantial overhead as well as hurting concurrency. If user A is running a transaction that has read a row of data that user B wants to modify, for example, user B must wait until user A's transaction is finished.
+An alternative to locking is multiversion concurrency control, in which the database maintains separate copies of any data that is modified. This allows users to read data without acquiring any locks. Going back to the example of user A and user B, when user A's transaction gets to data that user B has modified, the database is able to retrieve the exact version of that data that existed when user A started their transaction. This ensures that user A gets a consistent view of the database even if other users are changing data that user A needs to read. A natural implementation of this idea results in a relaxation of the isolation property, namely snapshot isolation.
+It is difficult to guarantee ACID properties in a network environment. Network connections might fail, or two users might want to use the same part of the database at the same time.
+Two-phase commit is typically applied in distributed transactions to ensure that each participant in the transaction agrees on whether the transaction should be committed or not.
+Care must be taken when running transactions in parallel. Two phase locking is typically applied to guarantee full isolation.
+
+[edit] See also
+
+Open Systems Interconnection
+Transactional NTFS
+
+
+[edit] Notes
+
+^ "Gray to be Honored With A. M. Turing Award This Spring". Microsoft PressPass. 1998-11-23. http://www.microsoft.com/presspass/features/1998/11-23gray.mspx. Retrieved on 2009-01-16. 
+^ Reuter, Andreas; Haerder, Theo (December 1983). "Principles of Transaction-Oriented Database Recovery" (PDF). ACM Computing Surveys (ACSUR) 15 (4): pp. 287-317. http://portal.acm.org/ft_gateway.cfm?id=291&type=pdf&coll=GUIDE&dl=GUIDE&CFID=18545439&CFTOKEN=99113095. Retrieved on 2009-01-16.  "These four properties, atomicity, consistency, isolation, and durability (ACID), describe the major highlights of the transaction paradigm, which has influenced many aspects of development in database systems.". 
+
+
+[edit] References
+
+
+Gray, Jim (September 1981). "The Transaction Concept: Virtues and Limitations" (PDF). Proceedings of the 7th International Conference on Very Large Databases: pages 144–154, 19333 Vallco Parkway, Cupertino CA 95014: Tandem Computers. Retrieved on 2006-11-09. 
+
+
+
+
+Gray, Jim; and Reuter, Andreas; Distributed Transaction Processing: Concepts and Techniques, Morgan Kaufman, 1993 (ISBN 1558601902)
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Database management systems
+
+
+
+
+
+Database models · Database normalization · Database storage · Distributed DBMS · Referential integrity · Relational algebra · Relational calculus · Relational database · Relational DBMS · Relational model · Object-relational database · Transaction processing
+
+
+
+
+
+Concepts
+
+Database · ACID · CRUD · Null · Candidate key · Foreign key · Primary key · Superkey · Surrogate key
+
+
+
+
+
+
+Objects
+
+Trigger · View · Table · Cursor · Log · Transaction · Index · Stored procedure · Partition
+
+
+
+
+
+
+SQL
+
+Select · Insert · Update · Merge · Delete · Join · Union · Create · Drop · Begin work · Commit · Rollback · Truncate · Alter
+
+
+
+
+
+
+Components
+
+Concurrency control · Data dictionary · JDBC · ODBC · Query language · Query optimizer · Query plan
+
+
+
+
+
+
+Database products: Object-oriented (comparison) · Relational (comparison) · Document-oriented
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/ACID"
+Categories: Database management systems | Transaction processingHidden categories: Articles needing additional references from March 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+Français
+한국어
+Italiano
+עברית
+Magyar
+Nederlands
+日本語
+Polski
+Português
+Русский
+Simple English
+Tiếng Việt
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 April 2009, at 05:41.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Spinlock,80386,Atomic operation,Busy waiting,Context switch,Cyrix,Deadlock,FreeBSD,High-level programming language,I486,IA64" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Spinlock&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Spinlock&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Spinlock - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Spinlock";
+		var wgTitle = "Spinlock";
+		var wgAction = "view";
+		var wgArticleId = "244603";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279701455;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Spinlock skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Spinlock</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>In <a href="/wiki/Software_engineering" title="Software engineering">software engineering</a>, a <b>spinlock</b> is a <a href="/wiki/Lock_(computer_science)" title="Lock (computer science)">lock</a> where the <a href="/wiki/Thread_(computer_science)" title="Thread (computer science)">thread</a> simply waits in a loop ("spins") repeatedly checking until the lock becomes available. As the thread remains active but isn't performing a useful task, the use of such a lock is a kind of <a href="/wiki/Busy_waiting" title="Busy waiting">busy waiting</a>. Once acquired, spinlocks will usually be held until they are explicitly released, although in some implementations they may be automatically released if the thread being waited on (that which holds the lock) blocks, or "goes to sleep".</p>
+<p>Spinlocks are efficient if <a href="/wiki/Thread_(computer_science)" title="Thread (computer science)">threads</a> are only likely to be blocked for a short period of time, as they avoid overhead from <a href="/wiki/Operating_system" title="Operating system">operating system</a> <a href="/wiki/Scheduler" title="Scheduler" class="mw-redirect">process re-scheduling</a> or <a href="/wiki/Context_switch" title="Context switch">context switching</a>. For this reason, spinlocks are often used inside <a href="/wiki/Operating_system_kernel" title="Operating system kernel" class="mw-redirect">operating system kernels</a>. However, spinlocks become wasteful if held for longer durations, both preventing other threads from running and requiring re-scheduling. The longer a lock is held by a thread, the greater the risk that it will be interrupted by the O/S scheduler while holding the lock. If this happens, other threads will be left "spinning" (repeatedly trying to acquire the lock), while the thread holding the lock is not making progress towards releasing it. The result is a semi-deadlock until the thread holding the lock can finish and release it. This is especially true on a single-processor system, where each waiting thread of the same priority is likely to waste its quantum (allocated time where a thread can run) spinning until the thread that holds the lock is finally finished.</p>
+<p>Implementing spin locks correctly is difficult because one must take into account the possibility of simultaneous access to the lock to prevent <a href="/wiki/Race_condition" title="Race condition">race conditions</a>. Generally this is only possible with special <a href="/wiki/Machine_language" title="Machine language" class="mw-redirect">machine language</a> instructions, such as <a href="/wiki/Atomic_operation" title="Atomic operation">atomic</a> <a href="/wiki/Test-and-set" title="Test-and-set">test-and-set</a> operations, and cannot be easily implemented in <a href="/wiki/High-level_programming_language" title="High-level programming language">high-level programming languages</a> or those languages which don't support truly atomic operations.<sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup> On architectures without such operations, or if high-level language implementation is required, a non-atomic locking algorithm may be used, e.g. <a href="/wiki/Peterson%27s_algorithm" title="Peterson's algorithm">Peterson's algorithm</a>. But note that such an implementation may require more memory than a spinlock, be slower to allow progress after unlocking, and may not be implementable in a high-level language if <a href="/wiki/Out-of-order_execution" title="Out-of-order execution">out-of-order execution</a> is allowed.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Example_implementation"><span class="tocnumber">1</span> <span class="toctext">Example implementation</span></a></li>
+<li class="toclevel-1"><a href="#Significant_optimizations"><span class="tocnumber">2</span> <span class="toctext">Significant optimizations</span></a></li>
+<li class="toclevel-1"><a href="#Alternatives"><span class="tocnumber">3</span> <span class="toctext">Alternatives</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Example_implementation" id="Example_implementation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Spinlock&amp;action=edit&amp;section=1" title="Edit section: Example implementation">edit</a>]</span> <span class="mw-headline">Example implementation</span></h2>
+<p>The following example uses x86 assembly language to implement a spinlock. It will work on any <a href="/wiki/Intel" title="Intel" class="mw-redirect">Intel</a> <a href="/wiki/80386" title="80386" class="mw-redirect">80386</a> compatible processor.</p>
+<pre>
+lock:                       # The lock variable. 1 = locked, 0 = unlocked.
+    dd      0
+
+spin_lock:
+    mov     eax, 1          # Set the EAX register to 1.
+
+loop:
+    xchg    eax, [lock]     # Atomically swap the EAX register with
+                            #  the lock variable.
+                            # This will always store 1 to the lock, leaving
+                            #  previous value in the EAX register.
+
+    test    eax, eax        # Test EAX with itself. Among other things, this will
+                            #  set the processor's Zero Flag if EAX is 0.
+                            # If EAX is 0, then the lock was unlocked and
+                            #  we just locked it.
+                            # Otherwise, EAX is 1 and we didn't acquire the lock.
+
+    jnz     loop            # Jump back to the XCHG instruction if the Zero Flag is
+                            #  not set, the lock was locked, and we need to spin.
+
+    ret                     # The lock has been acquired, return to the calling
+                            #  function.
+
+spin_unlock:
+    mov     eax, 0          # Set the EAX register to 0.
+
+    xchg    eax, [lock]     # Atomically swap the EAX register with
+                            #  the lock variable.
+
+    ret                     # The lock has been released.
+</pre>
+<p><a name="Significant_optimizations" id="Significant_optimizations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Spinlock&amp;action=edit&amp;section=2" title="Edit section: Significant optimizations">edit</a>]</span> <span class="mw-headline">Significant optimizations</span></h2>
+<p>The above is a simple implementation which is easy to understand (for a programmer who understands <a href="/wiki/X86" title="X86">x86</a> assembler) and works on all x86 architecture CPUs. However a number of performance optimizations are possible:</p>
+<p>On later implementations of the x86 architecture, <i>spin_unlock</i> can safely use an unlocked MOV instead of the locked XCHG, which is much faster. This is due to subtle <a href="/wiki/Memory_ordering" title="Memory ordering" class="mw-redirect">memory ordering</a> rules which support this, even though MOV isn't a full <a href="/wiki/Memory_barrier" title="Memory barrier">memory barrier</a>. However some processors (some <a href="/wiki/Cyrix" title="Cyrix">Cyrix</a> processors, some revisions of the <a href="/wiki/Intel" title="Intel" class="mw-redirect">Intel</a> <a href="/wiki/Pentium_Pro" title="Pentium Pro">Pentium Pro</a> (due to bugs), and earlier <a href="/wiki/Pentium" title="Pentium">Pentium</a> and <a href="/wiki/I486" title="I486" class="mw-redirect">i486</a> <a href="/wiki/SMP" title="SMP">SMP</a> systems) will do the wrong thing and data protected by the lock could be corrupted. On most non-x86 architectures, explicit memory barrier instructions or atomic instructions (like in the example) must be used, or there may be special "unlock" instructions (as on <a href="/wiki/IA64" title="IA64" class="mw-redirect">IA64</a>) which provide the necessary memory ordering.</p>
+<p>To reduce inter-CPU <a href="/w/index.php?title=Bus_traffic&amp;action=edit&amp;redlink=1" class="new" title="Bus traffic (page does not exist)">bus traffic</a>, when the lock is not acquired, the code should loop reading without trying to write anything, until it reads a changed value. Because of <a href="/wiki/MESI" title="MESI" class="mw-redirect">MESI</a> caching protocols, this causes the cache line for the lock to become "Shared"; then there is remarkably <i>no</i> bus traffic while a CPU is waiting for the lock. This optimization is effective on all CPU architectures that have a cache per CPU, because MESI is so ubiquitous.</p>
+<p><a name="Alternatives" id="Alternatives"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Spinlock&amp;action=edit&amp;section=3" title="Edit section: Alternatives">edit</a>]</span> <span class="mw-headline">Alternatives</span></h2>
+<p>The primary disadvantage of a spinlock is that it wastes time while waiting to acquire the lock that might be productively spent elsewhere. There are two alternatives that avoid this:</p>
+<ol>
+<li>Do not acquire the lock. In many situations it is possible to design data structures that <a href="/wiki/Non-blocking_synchronization" title="Non-blocking synchronization">do not require locking</a>, e.g. by using per thread data, or by using per-cpu data and disabling interrupts.</li>
+<li>Switch to a different thread while waiting (sometimes called <i><a href="/w/index.php?title=Sleeplock&amp;action=edit&amp;redlink=1" class="new" title="Sleeplock (page does not exist)">sleeplocks</a></i>). This typically involves attaching the current thread to a queue of threads waiting for the lock, then switching to another one. This scheme also has the advantages that it guarantees that <a href="/wiki/Resource_starvation" title="Resource starvation">resource starvation</a> does not occur as long as all threads eventually relinquish locks they acquire and scheduling decisions can be made about which thread should progress first.</li>
+</ol>
+<p>Most operating systems (for example <a href="/wiki/Solaris_(operating_system)" title="Solaris (operating system)">Solaris</a>, <a href="/wiki/Mac_OS_X" title="Mac OS X">Mac OS X</a> and <a href="/wiki/FreeBSD" title="FreeBSD">FreeBSD</a>) use a hybrid approach called "adaptive mutex". The idea is to use a spinlock when trying to access a resource locked by a currently-running thread, but will sleep if the thread is not currently running (which always happens on single-processor systems).<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup></p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Spinlock&amp;action=edit&amp;section=4" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Synchronization_(computer_science)" title="Synchronization (computer science)">synchronization</a></li>
+<li><a href="/wiki/Deadlock" title="Deadlock">deadlock</a></li>
+<li><a href="/wiki/Seqlock" title="Seqlock">seqlock</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Spinlock&amp;action=edit&amp;section=5" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="book" id="CITEREFSilberschatzGalvin.2C_Peter_B.1994">Silberschatz, Abraham; Galvin, Peter B. (1994). <i>Operating System Concepts</i> (Fourth Edition ed.). Addison-Wesley. pp.&#160;176–179. <a href="/wiki/Special:BookSources/0201592924" class="internal">ISBN 0-201-59292-4</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Operating+System+Concepts&amp;rft.aulast=Silberschatz&amp;rft.aufirst=Abraham&amp;rft.au=Silberschatz%2C+Abraham&amp;rft.au=Galvin%2C+Peter+B.&amp;rft.date=1994&amp;rft.pages=pp.%26nbsp%3B176%E2%80%93179&amp;rft.edition=Fourth+Edition&amp;rft.pub=Addison-Wesley&amp;rft.isbn=0-201-59292-4&amp;rfr_id=info:sid/en.wikipedia.org:Spinlock"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <cite style="font-style:normal" class="book" id="CITEREFSilberschatzGalvin.2C_Peter_B.1994">Silberschatz, Abraham; Galvin, Peter B. (1994). <i>Operating System Concepts</i> (Fourth Edition ed.). Addison-Wesley. pp.&#160;198. <a href="/wiki/Special:BookSources/0201592924" class="internal">ISBN 0-201-59292-4</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Operating+System+Concepts&amp;rft.aulast=Silberschatz&amp;rft.aufirst=Abraham&amp;rft.au=Silberschatz%2C+Abraham&amp;rft.au=Galvin%2C+Peter+B.&amp;rft.date=1994&amp;rft.pages=pp.%26nbsp%3B198&amp;rft.edition=Fourth+Edition&amp;rft.pub=Addison-Wesley&amp;rft.isbn=0-201-59292-4&amp;rfr_id=info:sid/en.wikipedia.org:Spinlock"><span style="display: none;">&#160;</span></span></li>
+</ol>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Spinlock&amp;action=edit&amp;section=6" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.opengroup.org/onlinepubs/009695399/functions/pthread_spin_lock.html" class="external text" title="http://www.opengroup.org/onlinepubs/009695399/functions/pthread_spin_lock.html" rel="nofollow">Description</a> from The Open Group Base Specifications Issue 6, IEEE Std 1003.1, 2004 Edition</li>
+<li>Article "<a href="http://codeproject.com/threads/spinlocks.asp" class="external text" title="http://codeproject.com/threads/spinlocks.asp" rel="nofollow">User-Level Spin Locks - Threads, Processes &amp; IPC</a>" by <a href="/w/index.php?title=Gert_Boddaert&amp;action=edit&amp;redlink=1" class="new" title="Gert Boddaert (page does not exist)">Gert Boddaert</a></li>
+<li>Paper "<a href="http://www.cs.washington.edu/homes/tom/pubs/spinlock.html" class="external text" title="http://www.cs.washington.edu/homes/tom/pubs/spinlock.html" rel="nofollow">The Performance of Spin Lock Alternatives for Shared-Memory Multiprocessors</a>" by <a href="/wiki/Thomas_Anderson" title="Thomas Anderson">Thomas Anderson</a></li>
+<li>Paper "<a href="http://portal.acm.org/citation.cfm?id=103727.103729" class="external text" title="http://portal.acm.org/citation.cfm?id=103727.103729" rel="nofollow">Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors</a>" by <a href="/w/index.php?title=John_M._Mellor-Crummey&amp;action=edit&amp;redlink=1" class="new" title="John M. Mellor-Crummey (page does not exist)">John M. Mellor-Crummey</a> and <a href="/wiki/Michael_L._Scott" title="Michael L. Scott">Michael L. Scott</a>. This paper received the <a href="http://www.podc.org/dijkstra/2006.html" class="external text" title="http://www.podc.org/dijkstra/2006.html" rel="nofollow">2006 Dijkstra Prize in Distributed Computing</a>.</li>
+<li><a href="http://msdn.microsoft.com/en-us/magazine/cc163726.aspx" class="external text" title="http://msdn.microsoft.com/en-us/magazine/cc163726.aspx" rel="nofollow">Spin-Wait Lock</a> by <a href="/wiki/Jeffrey_Richter" title="Jeffrey Richter">Jeffrey Richter</a></li>
+<li><a href="http://austria.sourceforge.net/dox/html/classSpinLock.html" class="external text" title="http://austria.sourceforge.net/dox/html/classSpinLock.html" rel="nofollow">Austria C++ SpinLock Class Reference</a></li>
+<li><a href="http://msdn2.microsoft.com/en-us/library/ms684122(VS.85).aspx" class="external text" title="http://msdn2.microsoft.com/en-us/library/ms684122(VS.85).aspx" rel="nofollow">Interlocked Variable Access(Windows)</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 1065/1000000
+Post-expand include size: 5728/2048000 bytes
+Template argument size: 1456/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:244603-0!1!0!default!!en!2 and timestamp 20090416121113 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Spinlock">http://en.wikipedia.org/wiki/Spinlock</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Concurrency_control" title="Category:Concurrency control">Concurrency control</a></span> | <span dir='ltr'><a href="/wiki/Category:Programming_constructs" title="Category:Programming constructs">Programming constructs</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Spinlock" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Spinlock" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Spinlock&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Spinlock&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Spinlock" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Spinlock" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Spinlock" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Spinlock&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Spinlock&amp;oldid=279701455" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Spinlock&amp;id=279701455">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-cs"><a href="http://cs.wikipedia.org/wiki/Spinlock">Česky</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Spinlock">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Spinlock">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Spinlock">Français</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Spinlock">Italiano</a></li>
+				<li class="interwiki-lt"><a href="http://lt.wikipedia.org/wiki/Suktukinis_rakinimas">Lietuvių</a></li>
+				<li class="interwiki-nl"><a href="http://nl.wikipedia.org/wiki/Busy_waiting">Nederlands</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%82%B9%E3%83%94%E3%83%B3%E3%83%AD%E3%83%83%E3%82%AF">日本語</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/Spinlock">Русский</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 26 March 2009, at 00:13 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv151 in 0.081 secs. --></body></html>

@@ -1,0 +1,494 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Scheduling (computing) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Scheduling_(computing)";
+		var wgTitle = "Scheduling (computing)";
+		var wgAction = "view";
+		var wgArticleId = "231920";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281113780;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Scheduling (computing)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about processes assignment in operating systems.  For other uses, see Scheduling.
+
+
+
+
+
+This article may require cleanup to meet Wikipedia's quality standards. Please improve this article if you can. (April 2008)
+
+
+Scheduling is a key concept in computer multitasking and multiprocessing operating system design, and in real-time operating system design. In modern operating systems, there are typically many more processes running than there are CPUs available to run them. Scheduling refers to the way processes are assigned to run on the available CPUs. This assignment is carried out by software known as a scheduler.
+The scheduler is concerned mainly with:
+
+CPU utilization - to keep the CPU as busy as possible.
+Throughput - number of process that complete their execution per time unit.
+Turnaround - amount of time to execute a particular process.
+Waiting time - amount of time a process has been waiting in the ready queue.
+Response time - amount of time it takes from when a request was submitted until the first response is produced.
+Fairness - Equal CPU time to each thread.
+
+In real-time environments, such as mobile devices for automatic control in industry (for example robotics), the scheduler also must ensure that processes can meet deadlines; this is crucial for keeping the system stable. Scheduled tasks are sent to mobile devices and managed through an administrative back end.
+
+
+
+
+Contents
+
+
+1 Types of operating system schedulers
+
+1.1 Long-term Scheduler
+1.2 Mid-term Scheduler
+1.3 Short-term Scheduler
+
+
+2 Scheduling disciplines
+3 Operating system scheduler implementations
+
+3.1 Windows
+3.2 Mac
+3.3 Linux
+3.4 FreeBSD
+3.5 Solaris
+3.6 Summary
+
+
+4 Further reading
+5 See also
+6 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Types of operating system schedulers
+Operating systems may feature up to 3 distinct types of schedulers: a long-term scheduler (also known as an admission scheduler or high-level scheduler), a mid-term or medium-term scheduler and a short-term scheduler (also known as a dispatcher). The names suggest the relative frequency with which these functions are performed.
+
+[edit] Long-term Scheduler
+The long-term, or admission, scheduler decides which jobs or processes are to be admitted to the ready queue; that is, when an attempt is made to execute a program, its admission to the set of currently executing processes is either authorized or delayed by the long-term scheduler. Thus, this scheduler dictates what processes are to run on a system, and the degree of concurrency to be supported at any one time - ie: whether a high or low amount of processes are to be executed concurrently, and how the split between IO intensive and CPU intensive processes is to be handled. In modern OS's, this is used to make sure that real time processes get enough CPU time to finish their tasks. Without proper real time scheduling, modern GUI interfaces would seem sluggish. Need to find a link[Stallings, 399].
+Long-term scheduling is also important in large-scale systems such as batch processing systems, computer clusters, supercomputers and render farms. In these cases, special purpose job scheduler software is typically used to assist these functions, in addition to any underlying admission scheduling support in the operating system.
+
+[edit] Mid-term Scheduler
+The mid-term scheduler, present in all systems with virtual memory, temporarily removes processes from main memory and places them on secondary memory (such as a disk drive) or vice versa. This is commonly referred to as "swapping out" or "swapping in" (also incorrectly as "paging out" or "paging in"). The mid-term scheduler may decide to swap out a process which has not been active for some time, or a process which has a low priority, or a process which is page faulting frequently, or a process which is taking up a large amount of memory in order to free up main memory for other processes, swapping the process back in later when more memory is available, or when the process has been unblocked and is no longer waiting for a resource. [Stallings, 396] [Stallings, 370]
+In many systems today (those that support mapping virtual address space to secondary storage other than the swap file), the mid-term scheduler may actually perform the role of the long-term scheduler, by treating binaries as "swapped out processes" upon their execution. In this way, when a segment of the binary is required it can be swapped in on demand, or "lazy loaded". [Stallings, 394]
+
+[edit] Short-term Scheduler
+The short-term scheduler (also known as the dispatcher) decides which of the ready, in-memory processes are to be executed (allocated a CPU) next following a clock interrupt, an IO interrupt, an operating system call or another form of signal. Thus the short-term scheduler makes scheduling decisions much more frequently than the long-term or mid-term schedulers - a scheduling decision will at a minimum have to be made after every time slice, and these are very short. This scheduler can be preemptive, implying that it is capable of forcibly removing processes from a CPU when it decides to allocate that CPU to another process, or non-preemptive (also known as "voluntary" or "co-operative"), in which case the scheduler is unable to "force" processes off the CPU. [Stallings, 396].
+
+[edit] Scheduling disciplines
+Main article: Scheduling algorithm
+Scheduling disciplines are algorithms used for distributing resources among parties which simultaneously and asynchronously request them. Scheduling disciplines are used in routers (to handle packet traffic) as well as in operating systems (to share CPU time among threads,processes),Disk Drives(I/O scheduling), Printers, most embedded systems, etc...
+The main purposes of scheduling algorithms are to minimize resource starvation and to ensure fairness amongst the parties utilizing the resources.
+
+[edit] Operating system scheduler implementations
+
+[edit] Windows
+Very early MS-DOS and Microsoft Windows systems were non-multitasking, and as such did not feature a scheduler. Windows 3.1x used a non-preemptive scheduler, meaning that it didn't interrupt programs. It relied on the program to end or tell the OS that it didn't need processor so that it could move on to another process. This is usually called cooperative multitasking.Windows 95 introduced a rudimentary preemptive scheduler; however, for legacy support opted to let 16 bit applications run without preemption. [1]
+
+Windows NT-based operating systems use a multilevel feedback queue. 32 priority levels are defined, 0 through to 31, with priorities 0 through 15 being "normal" priorities and priorities 16 through 31 being soft real-time priorities, requiring privileges to assign. 0 is reserved for the Operating System. Users can select 5 of these priorities to assign to a running application from the Task Manager application, or through thread management APIs. The kernel may change the priority level of a thread depending on its I/O and CPU usage and whether it is interactive (i.e. accepts and responds to input from humans), raising the priority of interactive and I/O bounded processes and lowering that of CPU bound processes, to increase the responsiveness of interactive applications.[2] The scheduler was modified in Windows Vista to use the cycle counter register of modern processors to keep track of exactly how many CPU cycles a thread has executed, rather than just using an interval-timer interrupt routine.[3] Vista also uses a priority scheduler for the I/O queue so that disk defragmenters and other such programs don't interfere with foreground operations.[4]
+
+[edit] Mac
+Mac OS 9 uses cooperative scheduling, where one process controls multiple cooperative threads. The kernel schedules the process using a Round-robin scheduling algorithm. Then, each process has its own copy of the thread manager that schedules each thread. The kernel then, using a preemptive scheduling algorithm, schedules all tasks to have processor time. Mac OS X uses cooperative Mach (kernel) threads, and each thread is linked to its own separate process. If threads are being cooperative, then only one can run at a time. The thread must give up its right to the processor for other processes to run. [5]
+
+[edit] Linux
+Since version 2.5 of the kernel, Linux has used a multilevel feedback queue with priority levels ranging from 0-140. 0-99 are reserved for real-time tasks and 100-140 are considered nice task levels. For real-time tasks, the time quantum for switching processes is approximately 200 ms and 10 ms for nice (Unix) tasks. The scheduler will run through the queue of all ready processes, letting the highest ones go first and run through their time slice, and afterwards they will be placed in an expired queue. Then when the active queue is empty the expired queue will then be the active and vice versa. From versions 2.6 to 2.6.23, the kernel used the O(1) scheduler. In version 2.6.23, they replaced this method with the Completely Fair Scheduler that uses Red Black trees instead of queues.[6]
+
+[edit] FreeBSD
+Like Linux, FreeBSD uses a multilevel feedback queue with priorities ranging from 0-255. 0-63 are reserved for interrupts, 64-127 for the top half of the kernel, 128-159 for real-time user threads, 160-223 for time-shared user threads, and 224-255 for idle user threads. Also, like Linux, it uses the active queue setup, but it also has an idle queue.[7]
+
+[edit] Solaris
+Like Linux, Solaris uses a multilevel feedback queue with priorities ranging from 0-169. 0-59 are reserved for time-shared threads, 60-99 for system threads, 100-159 for real-time threads, and 160-169 for low priority interrupts. Unlike Linux, when a process is done using its time quantum, it's given a new priority and put back in the queue.
+
+[edit] Summary
+
+
+Operating System
+Preemption
+Algorithm
+
+
+Windows 3.1x
+None
+Cooperative Scheduler
+
+
+Windows 95,98,ME
+Half
+Only for 32 bit operations
+
+
+Windows NT,XP,Vista
+Yes
+Multilevel Feedback Queue
+
+
+Mac OS pre 9
+None
+Cooperative Scheduler
+
+
+Mac OS X
+Yes
+Cooperative Mach (kernel)
+
+
+Linux pre 2.5
+Yes
+Multilevel Feedback Queue
+
+
+Linux 2.5-2.6.23
+Yes
+O(1) scheduler
+
+
+Linux post 2.6.23
+Yes
+Completely Fair Scheduler
+
+
+Solaris
+Yes
+Multilevel feedback queue
+
+
+FreeBSD
+Yes
+Multilevel feedback queue
+
+
+
+[edit] Further reading
+
+Brief discussion of Job Scheduling algorithms
+Understanding the Linux Kernel: Chapter 10 Process Scheduling
+Kerneltrap: Linux kernel scheduler articles
+
+
+[edit] See also
+
+Scheduling algorithm
+Process (computing)
+Process states
+Automated planning and scheduling
+Cyclic executive
+I/O scheduling
+Computer multitasking
+
+
+[edit] References
+
+
+^ Early Windows
+^ Windows NT
+^ Inside the Windows Vista Kernel: Part 1, Microsoft Technet
+^ Vista Kernel Vista Kernel
+^ Mac OS X
+^ Information on CFS
+^ Comparison of linux schedulers
+
+
+
+
+Blazewicz, J., Ecker, K.H., Pesch, E., Schmidt, G. und J. Weglarz, Scheduling Computer and Manufacturing Processes, Berlin (Springer) 2001, ISBN 3-540-41931-4
+Stallings, William (2004). Operating Systems Internals and Design Principles (fifth international edition). Prentice Hall. ISBN 0-13-147954-7. 
+Stallings, William (2004). Operating Systems Internals and Design Principles (fourth edition). Prentice Hall. ISBN 0-13-031999-6. 
+Information on the Linux 2.6 O(1)-scheduler
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Operating system
+
+
+
+
+
+General
+
+History · Timeline · List · Comparison · Usage share · Development · Advocacy
+
+
+
+
+
+
+Kernel
+
+
+
+
+
+General
+
+
+Monolithic kernel · Microkernel
+
+
+
+
+
+
+
+Types
+
+
+exokernel · nanokernel · hybrid
+
+
+
+
+
+
+
+Components
+
+
+Kernel space · Loadable kernel module · device driver · User space · Userland
+
+
+
+
+
+
+
+
+
+Process management
+
+Process · Multiprogramming · Process control block · Interrupt · Modes: (Protected mode · Supervisor mode) · Computer multitasking · Scheduling · Context switch · Cooperative multitasking · Preemptive multitasking · CPU modes · Thread (computer science)
+
+
+
+
+
+
+Memory management
+
+Memory protection · Segmentation · Paging · Segmentation fault · General protection fault · Bus error
+
+
+
+
+
+
+Examples
+
+AmigaOS 4 · BeOS · IBM OS/2 · MS-DOS · Windows · Linux · UNIX · OpenSolaris · Mac OS X · ReactOS · more…
+
+
+
+
+
+
+Miscellaneous concepts
+
+Boot loader · PXE · API · Virtual file system · Virtual tape library · Computer network · CLI · TUI · GUI · HAL
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Scheduling_(computing)"
+Categories: Operations research | Scheduling (computing)Hidden categories: Cleanup from April 2008 | All pages needing cleanup 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Česky
+Deutsch
+Ελληνικά
+Eesti
+Español
+Français
+한국어
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+Slovenščina
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 1 April 2009, at 17:33.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

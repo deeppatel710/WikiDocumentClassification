@@ -1,0 +1,426 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+x86 assembly language - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "X86_assembly_language";
+		var wgTitle = "X86 assembly language";
+		var wgAction = "view";
+		var wgArticleId = "214948";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 285226422;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); x86 assembly language
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For a specific list of x86 assembly language instructions, see x86 instruction listings.
+x86 assembly language is the family of backwards-compatible assembly languages for the x86 class of processors, which includes Intel's Pentium series and AMD's Athlon series. Like all assembly languages, it uses short mnemonics to represent the fundamental operations that the CPU in a computer can perform. Compilers often produce assembly code as an intermediate step when translating a high level program into machine code. Regarded as a programming language, assembly coding is machine specific and low level. It is therefore mainly used for detailed or time critical applications such as bootloaders, operating system kernels, and device drivers, as well as for real time or small embedded systems.
+
+
+
+
+Contents
+
+
+1 History
+2 Mnemonics and opcodes
+
+2.1 Syntax
+
+
+3 Registers
+4 Segmented addressing
+5 Execution modes
+
+5.1 Switching modes
+
+
+6 Instruction types
+
+6.1 Stack instructions
+6.2 Integer ALU instructions
+6.3 Floating point instructions
+6.4 SIMD instructions
+6.5 Data manipulation instructions
+
+
+7 Program flow
+8 Examples
+
+8.1 Using the flags register
+8.2 Using the instruction pointer register
+
+
+9 See also
+10 References
+11 Further reading
+12 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+The Intel 8088 and 8086 CPUs were 16-bit CPU's that first had an instruction set that is now commonly referred to as x86. They were an evolutionary step up from the previous generation of 8-bit CPUs such as the 8080 and inherited many characteristics and instructions which were extended for the 16-bit era. Both CPUs contained a 20-bit address bus and 16-bit internal register width. The 8086 had a 16-bit data bus and 8-bit for the 8088 which was intended as a low-cost option targeted at the embedded market. The x86 assembly language also refers to the many different versions of CPUs that followed from Intel, such as 80188, 80186, 80286, 80386, 80486, Pentium and non-Intel CPUs from AMD and Cyrix. The term x86 refers to all the CPUs that can run the same original assembly language.
+The modern x86 instruction set is really a series of extensions of instruction sets that began with the Intel 8008 microprocessor. Nearly full binary backward compatibility is present between the Intel 8086 chip through to the modern Pentium 4, Intel Core Core i7, AMD Athlon 64, Opteron, etc. processors. (There are certain unusual exceptions, such as the counted shift instructions, corrections to the original PUSHA instruction, some orphaned Intel 80286 semantics, the dropped LOADALL instruction, and the Pentium 4 giving up on precise FPU operation counts.) This is accomplished through its use of two ISAs, something which is commonly criticized. Compatibility of assembly language programs with older processors depends upon whether the program includes instructions only available on later processors.
+
+[edit] Mnemonics and opcodes
+Further information: x86 instruction listings
+Each x86 assembly instruction is represented by a mnemonic, which in turn directly translates to a series of bytes which represent that instruction, called an opcode. For example, the NOP instruction translates to 0x90 and the HLT instruction translates to 0xF4. Some opcodes have no mnemonics named after them and are undocumented. Different processors in the x86-family may interpret undocumented opcodes differently, making a program using them behave differently on different processors. Some undocumented opcodes may generate processor exceptions on some processors.
+
+[edit] Syntax
+x86 assembly language has two main syntax branches: Intel syntax, originally used for documentation of the x86 platform, and AT&T syntax.[1] Intel syntax is dominant in the Windows world. In the Unix/Linux world, both are used because GCC only supported AT&T-syntax in former times.[citation needed] Here is a summarized list of the main differences between Intel syntax and AT&T syntax:
+
+in AT&T syntax, the source comes before the destination, in the opposite style from Intel syntax[1]
+in AT&T syntax, the mnemonics are suffixed with a letter indicating the size of the operands (e.g. "q" for qword, "l" for dword, "w" for word, and "b" for byte)[1]
+in AT&T syntax, immediate values must be prefixed with a "$", and registers must be prefixed with a "%"[1]
+in AT&T syntax, effective addresses use the general syntax DISP(BASE,INDEX,SCALE), whereas in Intel syntax, effective addresses use variables, and need to be in square brackets; additionally, size keywords like 'byte', 'word' or 'dword' have to be used.[1] For example, the following are equivalent:
+
+in AT&T syntax: movl mem_location(%ebx,%ecx,4), %eax
+in Intel syntax: mov eax, dword [ebx + ecx*4 + mem_location]
+
+
+
+Most x86 assemblers use Intel syntax including MASM, TASM, NASM, FASM and YASM. GAS has supported both syntaxes since version 2.10 via the .intel_syntax directive.[1][2][3]
+
+[edit] Registers
+Further information: X86 architecture, MOV (x86 instruction)
+x86 processors have a collection of registers available to be used as stores for binary data. Collectively the data and address registers are called the general registers.
+With the general registers, there are additionally the:
+
+segment registers (CS, DS, ES, FS, GS, SS)
+other registers (IP instruction pointer, FLAGS)
+extra extension registers (MMX, 3DNow!, SSE, etc).
+
+The IP register points to where in the program the processor is currently executing its code. The IP register cannot be accessed by the programmer directly.
+The x86 registers can be used by using the MOV instructions. For example:
+
+   mov ax, 1234h
+   mov bx, ax
+
+copies the value 1234h into register ax and then copies the value of the ax register into the bx register. (Intel syntax)
+
+[edit] Segmented addressing
+The x86 architecture in real and virtual 8086 mode uses a process known as segmentation to address memory, and not a linear method as used in other architectures. Segmentation involves decomposing a linear address into two parts - a segment and an offset. The segment address points to the beginning of a 64K group of addresses and an offset from the base address of the specified segment. In real mode, to translate back into a linear address, the segment address is shifted four bits left (i.e. multiplied by 16) and then added to the offset.
+Two registers are used for a memory address: one to hold the segment, and one to hold the offset.
+In real mode only, for example, if DS contains the hexadecimal number 0xDEAD and DX contains the number 0xCAFE they would together point to the memory address 0xDEAD * 0x10 + 0xCAFE = 0xEB5CE. In real mode the CPU can address up to 1,048,576 bytes. This applies to 20-bit address space. By combining segment and offset values we find a 20-bit address.
+In protected mode, the segment selector can be broken down into three parts: A 13-bit index, a TI (Table Indicator) bit that indicates whether the entry is in the GDT or LDT (which when loaded, looked up for the base), and a 2-bit RPL (Requested Privilege Level). See x86 memory segmentation.
+In referring to an address with a segment and an offset, the notation of segment:offset is used, in the above example (for real mode only), the linear address 0xEB5CE can be written as 0xDEAD:0xCAFE, or if one has a segment and offset register pair, DS:DX.
+There are some special combinations of segment registers and general registers that point to important addresses:
+
+CS:IP points to the address where the processor will fetch the next byte of code.
+SS:SP points to the location of the last item pushed onto the stack.
+DS:SI is often used to point to data that is about to be copied to ES:DI
+
+
+[edit] Execution modes
+Further information: X86 architecture
+The processor supports numerous modes of operation for x86 code in which some instructions are available and some are not. A 16-bit subset of instructions are available in "real mode" (available in all x86 processors), "16-bit protected mode" (available since the 80286), or "v86 mode" (available since the Intel 80386). In "32-bit protected mode" (available in processors starting with the Intel 80386) or "legacy mode" (available when 64 bit extensions are enabled), 32-bit instructions (plus SIMD instructions) are available. In "long mode" (available since the AMD Opteron processor) 64-bit instructions are available. The instruction set is based on similar ideas in each mode, but involves different ways of accessing memory and thus employs different programming strategies.
+The modes in which x86 code can be executed in are:
+
+Real mode (16-bit)
+Protected mode (16-bit and 32-bit)
+Virtual 8086 mode (16-bit)
+System Management Mode (16-bit)
+Long mode (64-bit)
+
+
+[edit] Switching modes
+By default, the processor starts in real mode; an operating system kernel, or other program, must explicitly switch to protected mode if it is to run in that mode, and, on x86-64 processors, must then switch to long mode if it is to run in that mode. Switching modes can be accomplished by modifying certain bits of the processor's control registers.
+
+[edit] Instruction types
+In general, the features of the modern x86 instruction set are:
+
+A compact encoding
+
+Variable length and alignment independent (encoded as little endian, as is all data in the x86 architecture)
+Mainly one-address and two-address instructions, that is to say, the first operand is also the destination.
+Memory operands as both source and destination are supported (frequently used to read/write stack elements addressed using small immediate offsets).
+Both general and implicit register usage; although all seven (counting ebp) general registers can be freely used as accumulators or for addressing, most of them are also implicitly used by certain (more or less) special instructions; affected registers must therefore be temporarily preserved (normally stacked), if active during such instruction sequences.
+
+
+Produces conditional flags implicitly through most integer ALU instructions.
+Supports various addressing modes including immediate, offset, and scaled index, but not PC-relative (except jumps) until x86-64.
+Includes floating point to a stack of registers.
+Contains special support for atomic instructions (XCHG, CMPXCHG(8B), XADD, and integer instructions which combine with the LOCK prefix)
+SIMD instructions (instructions which perform parallel simultaneous single instructions on many operands encoded in adjacent cells of wider registers).
+
+
+[edit] Stack instructions
+The x86 architecture has hardware support for an execution stack mechanism. Instructions such as push, call, pop, ret, etc are used with the properly set up stack to pass parameters, to allocate space for local data, and to save and restore call-return points. The ret size instruction is very useful for implementing space efficient (and thereby fast) calling conventions where the callee is responsible for reclaiming stack space occupied by parameters.
+When setting up a stack frame to hold local data of a recursive procedure there are several choices; the high level enter instruction takes a procedure-nesting-depth argument as well as a local size argument, and may be faster than more explicit manipulations of the registers (such as push bp, mov bp,sp, sub sp,size). It depends on the particular x86 implementation (i.e. chip), as well as the calling convention and language compiled; the differences are not great however.
+The full range of addressing modes (including immediate and base+offset) even for instructions such as push and pop, makes direct usage of the stack for integer, floating point, and address quantities simple. This also means that ABI specifications and mechanisms are fairly simple compared to some RISC architectures, which must be more explicit about call stack details.
+
+[edit] Integer ALU instructions
+x86 assembly has the standard mathematical operations, add, sub, mul, with idiv; the logical operators and, or, xor, neg; bitshift arithmetic and logical, sal/sar, shl/shr; rotate with and without carry, rcl/rcr, rol/ror, a complement of BCD arithmetic instructions, aaa, aad, daa and others.
+
+[edit] Floating point instructions
+x86 assembly language includes instructions for a stack-based floating point unit. They include addition, subtraction, negation, multiplication, division, remainder, square roots, integer truncation, fraction truncation, and scale by power of two. The operations also include conversion instructions which can load or store a value from memory in any of the following formats: Binary coded decimal, 32-bit integer, 64-bit integer, 32-bit floating point, 64-bit floating point or 80-bit floating point (upon loading, the value is converted to the currently used floating point mode). The x86 also includes a number of transcendental functions including sine, cosine, tangent, arctangent, exponentiation with the base 2 and logarithms to bases 2, 10, or e.
+The stack register to stack register format of the instructions is usually F(OP) st, st(*) or F(OP) st(*), st. Where st is equivalent to st(0), and st(*) is one of the 8 stack registers (st(0), st(1), ..., st(7)) Like the integers, the first operand is both the first source operand and the destination operand. FSUBR and FDIVR should be singled out as first swapping the source operands before performing the subtraction or division. The addition, subtraction, multiplication, division, store and comparison instructions include instruction modes that will pop the top of the stack after their operation is complete. So for example FADDP st(1), st performs the calculation st(1) = st(1) + st(0), then removes st(0) from the top of stack, thus making what was the result in st(1) the top of the stack in st(0).
+
+[edit] SIMD instructions
+Modern x86 CPUs contain SIMD instructions, which largely perform the same operation in parallel on many values encoded in a wide SIMD register. Various instruction technologies support different operations on different register sets, but taken as complete whole (from MMX to SSE4.2) they include general computations on integer or floating point arithmetic (addition, subtraction, multiplication, shift, minimization, maximization, comparison, division or square root). So for example, PADDW MM0, MM1 performs 4 parallel 16-bit (indicated by the W) integer adds (indicated by the PADD) of mm0 values to mm1 and stores the result in mm0. SSE also includes a floating point mode in which only the very first value of the registers is actually modified (expanded in SSE2). Some other unusual instructions have been added including a sum of absolute differences (used for motion estimation in video compression, such as is done in MPEG) and a 16-bit multiply accumulation instruction (useful for software-based alpha-blending and digital filtering). SSE (since SSE3) and 3DNow! extensions include addition and subtraction instructions for treating paired floating point values like complex numbers.
+These instruction sets also include numerous fixed sub-word instructions for shuffling, inserting and extracting the values around within the registers. In addition there are instructions for moving data between the integer registers and XMM (used in SSE)/FPU (used in MMX) registers.
+
+[edit] Data manipulation instructions
+The x86 processor also includes complex addressing modes for addressing memory with an immediate offset, a register, a register with an offset, a scaled register with or without an offset, and a register with an optional offset and another scaled register. So for example, one can encode mov eax, [Table + ebx + esi*4] as a single instruction which loads 32 bits of data from the address computed as (Table + ebx + esi * 4) offset from the DS selector, and stores it to the eax register. In general the x86 processor can load and use memory matched to the size of any register it is operating on. (The SIMD instructions also include half-load instructions.)
+The x86 instruction set includes string load, store and move instructions (LODS, STOS, and MOVS) which perform each operation to a specified size (B for 8-bit byte, W for 16-bit word, D for 32-bit double word) then increments/decrements (depending on DF, direction flag) the implicit address register (SI for LODS, DI for STOS, and both for MOVS). For the load and store, the implicit target/source register is in the AL, AX or EAX register (depending on size). The implicit segment used is DS for LODS, ES for STOS and both for MOVS. In modern x86 processors, these complex instructions don't offer any performance advantage over more simply implemented separate load/store and address increment instructions.
+The stack is implemented with an implicitly decrementing (push) and incrementing (pop) stack pointer. In 16-bit mode, this implicit stack pointer is addressed as SS:[SP], in 32-bit mode it's SS:[ESP], and in 64-bit mode it's [RSP]. The stack pointer actually points to the last value that was stored, under the assumption that its size will match the operating mode of the processor (i.e., 16, 32, or 64 bits) to match the default width of the PUSH/POP/CALL/RET instructions. Also included are the instructions ENTER and LEAVE which reserve and remove data from the top of the stack while setting up a stack frame pointer in BP/EBP/RBP. However, direct setting, or addition and subtraction to the SP/ESP/RSP register is also supported, so the ENTER/LEAVE instructions are generally unnecessary. Other instructions for manipulating the stack include PUSHF/POPF for storing and retrieving the (E)FLAGS register. The PUSHA/POPA instructions will store and retrieve the entire integer register state to and from the stack.
+Values for a SIMD load or store are assumed to be packed in adjacent positions for the SIMD register and will align them in sequential little-endian order. Some SSE load and store instructions require 16-byte alignment to function properly. The SIMD instruction sets also include "prefetch" instructions which perform the load but do not target any register, used for cache loading. The SSE instruction sets also include non-temporal store instructions which will perform stores straight to memory without performing a cache allocate if the destination is not already cached (otherwise it will behave like a regular store.)
+Most generic integer and floating point (but no SIMD) instructions can use one parameter as a complex address as the second source parameter. Integer instructions can also accept one memory parameter as a destination operand.
+
+[edit] Program flow
+The x86 assembly has an unconditional jump operation, jmp, which can take an immediate address, a register or an indirect address as a parameter. (Note that most RISC processors only support a link register or short immediate displacement for jumping.)
+Also supported are several conditional jumps, including je (jump on equality), jne (jump on inequality), jg (jump on greater than, signed), jl (jump on less than, signed), ja (jump on above/greater than, unsigned), jb (jump on below/less than, unsigned). These conditional operations are based on the state of specific bits in the (E)FLAGS register. Many arithmetic and logic operations set, clear or complement these flags depending on their result. The comparison cmp (compare) and test instructions set the flags as if they had performed a subtraction or a bitwise AND operation, respectively, without altering the values of the operands. There are also instructions such as clc (clear carry flag) and cmc (complement carry flag) which work on the flags directly. Floating point comparisons are performed via FCOM or FICOM instructions which eventually have to be converted to integer flags.
+Each jump operation has three different forms, depending on the size of the operand. A short jump uses an 8-bit signed operand, which is a relative offset from the current instruction. A near jump is similar to a short jump but uses a 16-bit signed operand (in real or protected mode) or a 32-bit signed operand (in 32-bit protected mode only). A far jump is one that uses the full segment base:offset value as an absolute address. There are also indirect and indexed forms of each of these.
+In addition to the simple jump operations, there are the call (call a subroutine) and ret (return from subroutine) instructions. Before transferring control to the subroutine, call pushes the segment offset address of the instruction following the call onto the stack; ret pops this value off the stack, and jumps to it, effectively returning the flow of control to that part of the program. In the case of a far call, the segment base is pushed following the offset; far ret pops the offset and then the segment base to return.
+There are also two similar instructions, int (interrupt), which saves the current (E)FLAGS register value on the stack, then performs a far call, except that instead of an address, it uses an interrupt vector, an index into a table of interrupt handler addresses. Typically, the interrupt handler saves all other CPU registers it uses, unless they are used to return the result of an operation to the calling program (in software called interrupts). The matching return from interrupt instruction is iret, which restores the flags after returning. Soft Interrupts of the type described above are used by some operating systems for system calls, and can also be used in debugging hard interrupt handlers. Hard interrupts are triggered by external hardware events, and must preserve all register values as the state of the currently executing program is unknown. In Protected Mode, interrupts may be set up by the OS to trigger a task switch, which will automatically save all registers of the active task.
+
+[edit] Examples
+
+[edit] Using the flags register
+Flags are notably used in the x86 architecture for comparisons. A comparison is made between two registers, for example, and in comparison of their difference a flag is raised. A jump instruction then checks the respective flag and jumps if the flag has been raised: for example
+
+    cmp eax, ebx
+    jne do_something
+
+Flags are also used in the x86 architecture to turn on and off certain features or execution modes. For example, to disable the processing of interrupts you can use the command:
+
+    cli
+
+The flags register can also be directly accessed. The low 8 bits of the flag register can be loaded into AH using the LAHF instruction. The entire flags register can also be moved on and off the stack using the instructions PUSHF, POPF, INT (including INTO) and IRET.
+
+[edit] Using the instruction pointer register
+There is also a 32-bit instruction pointer, named EIP. The EIP register points to where in the program the processor is currently executing its code. The EIP register cannot be accessed by the programmer directly. Instead, a sequence like the following can be done to retrieve the address of next_line into EAX:
+
+    call next_line
+next_line:
+    pop eax
+
+This works even in position-independent code because call takes an EIP-relative immediate operand. To write to EIP is simple:
+
+    jmp eax
+
+
+[edit] See also
+
+assembly language
+X86 instruction listings
+X86 architecture
+CPU design
+List of assemblers
+self-modifying code
+DOS
+
+
+[edit] References
+
+
+^ a b c d e f Ram Narayam (2007-10-17). "Linux assemblers: A comparison of GAS and NASM". http://www.ibm.com/developerworks/library/l-gas-nasm.html. Retrieved on 2008-07-02. 
+^ Randall Hyde. "Which Assembler is the Best?". http://webster.cs.ucr.edu/AsmTools/WhichAsm.html. Retrieved on 2008-05-18. 
+^ "GNU Assembler News, v2.1 supports Intel syntax". 2008-04-04. http://sourceware.org/cgi-bin/cvsweb.cgi/src/gas/NEWS?rev=1.93&content-type=text/x-cvsweb-markup&cvsroot=src. Retrieved on 2008-07-02. 
+
+
+
+[edit] Further reading
+
+Intel 64 and IA-32 Software Developer Manuals
+AMD64 Architecture Programmer's Manual Volume 1: Application Programming (PDF)
+AMD64 Architecture Programmer's Manual Volume 2: System Programming (PDF)
+AMD64 Architecture Programmer's Manual Volume 3: General-Purpose and System Instructions (PDF)
+AMD64 Architecture Programmer's Manual Volume 4: 128-Bit Media Instructions (PDF)
+AMD64 Architecture Programmer's Manual Volume 5: 64-Bit Media and x87 Floating-Point Instructions (PDF)
+
+
+[edit] External links
+
+
+
+Wikibooks has a book on the topic of
+x86 Assembly
+
+
+
+
+An Introduction to Writing 32-bit Applications Using the x86 Assembly Language
+
+
+Novice and Advanced Assembly resources for x86 Platform
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/X86_assembly_language"
+Categories: Assembly languages | X86 architectureHidden categories: All articles with unsourced statements | Articles with unsourced statements since July 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 21 April 2009, at 13:14 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

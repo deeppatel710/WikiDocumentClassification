@@ -1,0 +1,347 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Demosaicing - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Demosaicing";
+		var wgTitle = "Demosaicing";
+		var wgAction = "view";
+		var wgArticleId = "3078751";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283817334;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Demosaicing
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (September 2007)
+
+
+A demosaicing algorithm is a digital image process used to reconstruct a full color image from the incomplete color samples output from an image sensor overlaid with a color filter array (CFA). Also known as CFA interpolation or color reconstruction, another common spelling is demosaicking.
+Most modern digital cameras acquire images using a single image sensor overlaid with a CFA, so demosaicing is part of the processing pipeline required to render these images into a viewable format.
+Many modern digital cameras can save images in a raw format allowing the user to demosaic it using software, rather than using the camera's built-in firmware.
+
+
+
+
+Contents
+
+
+1 Goal
+2 Color filter array
+3 Illustration
+4 Algorithms
+
+4.1 Simple interpolation
+4.2 Pixel correlation within an image
+4.3 Video super-resolution/demosaicing
+4.4 Proprietary
+4.5 Tradeoffs
+
+
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Goal
+The aim of a demosaicing algorithm is to reconstruct a full color image (i.e. a full set of color triples) from the spatially undersampled color channels output from the CFA. The algorithm should have the following traits:
+
+Avoidance of the introduction of false color artifacts, such as chromatic aliases, zippering (abrupt unnatural changes of intensity over a number of neighboring pixels) and purple fringing
+Maximum preservation of the image resolution
+Low computational complexity for fast processing or efficient in-camera hardware implementation
+Amenability to analysis for accurate noise reduction
+
+
+[edit] Color filter array
+Main article: Color filter array
+
+
+
+
+The Bayer arrangement of color filters on the pixel array of an image sensor. Each two-by-two cell contains two green, one blue, and one red filter.
+
+
+A color filter array is a mosaic of color filters in front of the image sensor. Commercially, the most commononly used CFA configuration is the Bayer filter illustrated here. This has alternating red (R) and green (G) filters for odd rows and alternating green (G) and blue (B) filters for even rows. There are twice as many green filters as red or blue ones, exploiting the human eye's higher sensitivity to green light.
+Since the color subsampling of a CFA by its nature results in aliasing, an optical anti-aliasing filter is typically placed in the optical path between the image sensor and the lens to reduce the false color artifacts (chromatic aliases) introduced by interpolation.[1]
+Since each pixel of the sensor is behind a color filter, the output is an array of pixel values, each indicating a raw intensity of one of the three filter colors. Thus, an algorithm is needed to estimate for each pixel the color levels for all color components, rather than a single component.
+
+[edit] Illustration
+To reconstruct a full color image from the data collected by the color filtering array, a form of interpolation is needed to fill in the blanks. The mathematics here is subject to individual implementation, and is called demosaicing.
+In this example, we use Adobe Photoshop's bicubic interpolation to simulate the circuitry of a Bayer filter device such as a digital camera.
+The image below simulates the output from a a Bayer filtered image sensor; each pixel has only a red, green or blue component. The corresponding original image is shown alongside the demosaiced reconstruction at the end of this section.
+
+
+
+
+
+
+
+Bayer filter samples
+
+
+
+
+
+
+
+
+Red
+Green
+Blue
+
+
+A digital camera typically has means to reconstruct a whole RGB image using the above information. The resulting image could be something like this:
+
+
+
+
+
+
+Original
+Reconstructed
+
+
+The reconstructed image is typically accurate in uniform-colored areas, but has a loss of resolution (detail and sharpness) and has edge artifacts (for example, the edges of letters have visible color fringes and some roughness).
+
+[edit] Algorithms
+
+[edit] Simple interpolation
+These algorithms are examples of multivariate interpolation on a uniform grid, using relatively straightforward mathematical operations on nearby instances of the same color component. The simplest method is nearest-neighbor interpolation which simply copies an adjacent pixel of the same color channel. It is unsuitable for any application where quality matters, but can be useful for generating previews given limited computational resources. Another simple method is bilinear interpolation, whereby the red value of a non-red pixel is computed as the average of the two or four adjacent red pixels, and similarly for blue and green. More complex methods that interpolate independently within each color plane include bicubic interpolation, spline interpolation, and Lanczos resampling.
+Although these methods can obtain good results in homogenous image regions, they are prone to severe demosaicing artifacts in regions with edges and details when used with pure-color CFAs.[2] However, linear interpolation can obtain very good results when combined with a spatio-spectral (panchromatic) CFA.[3]
+
+[edit] Pixel correlation within an image
+More sophisticated demosaicing algorithms exploit the spatial and/or spectral correlation of pixels within a color image.[4] Spatial correlation is the tendency of pixels to assume similar color values within a small homogeneous region of an image. Spectral correlation is the dependency between the pixel values of different color planes in a small image region.
+These algorithms include:
+
+Variable Number of Gradients[5] interpolation computes gradients near the pixel of interest and uses the lower gradients (representing smoother and more similar parts of the image) to make an estimate. It is used in first versions of dcraw, and suffers from color artifacts.
+Pixel Grouping[6] uses assumptions about natural scenery in making estimates. It has fewer color artifacts on natural images than the Variable Number of Gradients method; it was introduced in dcraw from rel. 8.71 as "Patterned Pixel Grouping".
+Adaptive homogeneity-directed interpolation selects the direction of interpolation so as to maximize a homogeneity metric, thus typically minimizing color artifacts.[7] It has been implemented in recent versions of dcraw.[8]
+
+
+[edit] Video super-resolution/demosaicing
+It has recently been shown that super-resolution and demosaicing are two faces of the same problem and it is reasonable to address them in a unified context.[9] Note that both these problems address the aliasing issue. Therefore, especially in the case of video (multi-frame) reconstruction, a joint super-resolution and demosaicing approach provides the optimal solution.
+
+[edit] Proprietary
+Various commercial products implement proprietary estimation methods about which little is publicly known, and which may or may not be similar to publicly known algorithms.[citation needed]
+
+[edit] Tradeoffs
+Some methods may produce better results for natural scenes, and some for printed material, for instance. This reflects the inherent problem in estimating pixels that we do not really know for certain. Naturally there is also the ubiquitous tradeoff of speed versus quality of estimation.
+If you have a RAW image, you can use different demosaicing from that which is built into the camera, sometimes yielding higher quality.
+
+[edit] References
+
+
+^ Adrian Davies and Phil Fennessy (2001). Digital imaging for photographers (Fourth ed.). Focal Press. ISBN 0240515900. http://books.google.com/books?vid=ISBN0240515900&id=wsxk03-gceUC&pg=PA30&lpg=PA30&ots=BlxgR6ZXmz&dq=anti-aliasing+lithium-niobate&sig=YUsQZMtxjtq70oOYWmU1K2yfoNY#PPA30,M1. 
+^ Lanlan Chang and Yap-Peng Tan. Hybrid color filter array demosaicking for effective artifact suppression. pp. p 2. http://www3.ntu.edu.sg/home5/CHAN0069/JEI013003.pdf. 
+^ Keigo Hirakawa and Patrick J. Wolfe. Spatio-Spectral Color Filter Array Design for Enhanced Image Fidelity. http://sisl.seas.harvard.edu/files/pub/HirakawaWolfe2007.pdf. 
+^ Lanlan Chang and Yap-Peng Tan. Hybrid color filter array demosaicking for effective artifact suppression. http://www3.ntu.edu.sg/home5/CHAN0069/JEI013003.pdf. 
+^ Ting Chen. "Interpolation using a Threshold-based variable number of gradients". http://scien.stanford.edu/class/psych221/projects/99/tingchen/algodep/vargra.html. 
+^ Chuan-kai Lin, Portland State University (2004). "Pixel Grouping for Color Filter Array Demosaicing". http://www.cs.pdx.edu/~cklin/demosaic/. 
+^ Kiego Hirakawa; Thomas W. Parks (PDF). Adaptive homogeneity-directed demosaicing algorithm. http://www.accidentalmark.com/research/papers/Hirakawa03MNdemosaicICIP.pdf. 
+^ Decoding raw digital photos in Linux, Dave Coffin.
+^ Sina Farsiu, Michael Elad, Peyman Milanfar (2006). "Multi-Frame Demosaicing and Super-Resolution of Color Images". IEEE Trans. On Image Processing 15 (1): 141–159. doi:10.1109/TIP.2005.860336. http://www.duke.edu/%7Esf59/TIP_Demos_Final_Color.pdf. 
+
+
+
+[edit] External links
+
+Comparison of different interpolations, ImagEval Consulting LLC
+A Study of Spatial Color Interpolation Algorithms for Digital Cameras and especially description of Variable Number of Gradients algorithm by Ting Chen, Stanford University
+K. Parulsi and K. Spaulding (2003). Color image processing for digital cameras. In Digital Color Imaging, G. Sharma, ed. Boca Raton, Florida: CRC Press. 727–757.
+HowStuffWorks: How Digital Cameras Work, More on Capturing Color, with a demosaicing algorithm at work animation
+Demosaicing in the Kodak DC210 Digital Camera, Cleve Cheng, Mar 13 1998
+Roger W. Ehrich. "Evaluating Algorithms for the Demosaicing of Bayer Arrays". Computer Science Courses. Virginia Tech CS Department. http://pixel.cs.vt.edu/courses/5814/p3b.html. (broken link)
+Interpolation of RGB components in Bayer CFA images, by Eric Dubois
+Color Demosaicing Using Variance of Color Differences by King-Hong Chung and Yuk-Hee Chan
+Hybrid color filter array demosaicking for effective artifact suppression by Lanlan Chang and Yap-Peng Tan
+Image Demosaicing: A Systematic Survey by Xin Li, Bahadir Gunturk and Lei Zhang
+Demosaicking: Color Filter Array Interpolation in Single-Chip Digital Cameras, B. K. Gunturk, J. Glotzbach, Y. Altunbasak, R. W. Schafer, and R. M. Mersereau
+Spatio-Spectral Color Filter Array Design for Enhanced Image Fidelity, Keigo Hirakawa and Patrick J. Wolfe
+Effective Soft-Decision Demosaicking Using Directional Filtering and Embedded Artifact Refinement, Wen-Tsung Huang, Wen-Jan Chen and Shen-Chuan Tai
+
+
+A list of existing demosaicing techniques
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Demosaicing"
+Categories: Color | Image sensors | Digital photographyHidden categories: Articles lacking sources from September 2007 | All articles lacking sources | All articles with unsourced statements | Articles with unsourced statements since September 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Français
+Italiano
+
+
+
+
+
+
+
+
+
+ This page was last modified on 14 April 2009, at 17:24 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

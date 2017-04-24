@@ -1,0 +1,291 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Parchive - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Parchive";
+		var wgTitle = "Parchive";
+		var wgAction = "view";
+		var wgArticleId = "526495";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284913561;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Parchive
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article may require copy-editing for grammar, style, cohesion, tone or spelling. You can assist by editing it now. A how-to guide is available. (August 2008)
+
+
+
+Parchive
+
+Filename extension
+.par, .par2, .p??
+
+
+Type of format
+forward error correction
+
+
+Parchive (a contraction of parity archive volume set) is an open source software project that emerged in 2001 to develop a parity file format, as conceived by Tobias Rieper and Stefan Wehlus.[1] These parity files use a forward error correction-style system that can be used to perform data verification, and allow recovery when data is lost or corrupted.
+The project is currently administered by Ryan Gallagher (binerman), Roger Harrison (kbalore), Willem Monsuwe (monsuwe), and Stefan Wehlus (wehlus).
+
+
+
+
+Contents
+
+
+1 Overview
+2 History
+3 Versions
+
+3.1 Version 1
+3.2 Version 2
+
+
+4 See also
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+Parchive was written to solve the problem of reliably sending large files on Usenet.
+Usenet newsgroups were originally designed for informal conversations and the underlying protocol, NNTP was not designed to be a reliable transmission medium. Another limitation, which was acceptable for conversations but not for files, was that messages were normally fairly short in length and limited to 7-bit ASCII text.
+Various techniques were devised to send files over Usenet, such as uuencoding and Base64. Later Usenet software allowed 8 bit Extended ASCII, which permitted new techniques like yEnc. Large files were broken up to reduce the effect of a corrupted download, but the unreliable nature of Usenet remained.
+With the introduction of Parchive, Parity Files could be created that were then uploaded along with the original data files. If any of the data files were damaged or lost whilst being propagated between Usenet servers, users could download Parity Files and use them to reconstruct the damaged or missing files. Parchive included the construction of small index files (*.par in version 1 and *.par2 in version 2) that do not contain any recovery data. These indexes contain file hashes that can be used to quickly identify the target files and verify their integrity.
+Because the index files were so small, they minimized the amount of extra data that had to be downloaded from Usenet to verify that the data files were all present and undamaged, or to determine how many parity volumes were required to repair any damage or reconstruct any missing files. They were most useful in version 1 where the parity volumes were much larger than the short index files. The larger parity volumes contain the actual recovery data along with a duplicate copy of the information in the index files (which allows them to be used on their own to verify the integrity of the data files if there is no small index file available).
+
+[edit] History
+In July 2001, Tobias Rieper and Stefan Wehlus proposed the Parity Volume Set specification, and with the assistance of other project members, version 1.0 of the specification was published in October 2001.[2] Par1 used Reed-Solomon error correction to create new recovery files. An end user could use any of the recovery files to rebuild a missing file from an incomplete download.
+Version 1 became widely used on Usenet, but it did suffer some limitations:
+
+It was restricted to handle at most 255 files.
+The recovery files had to be the size of the largest input file, so it did not work well when the input files were of various sizes. (This limited its usefulness when not paired with the proprietary RAR compression tool.)
+The recovery algorithm had a bug, due to a flaw[3] in the academic paper[4] it was based on.
+It was strongly tied to Usenet and it was felt that a more general tool might have a wider audience.
+
+In January 2002, Howard Fukada proposed that a new PAR2 specification should be devised with the significant changes that data verification and repair should work on blocks of data rather than whole files, and that the algorithm should switch to using 16 bit numbers rather than the 8 bit numbers that PAR 1 used. Michael Nahas and Peter Clements took up these ideas in July 2002, with additional input from Paul Nettle and Ryan Gallagher (who both wrote Par1 clients). Version 2.0 of the Parchive specification was published by Michael Nahas in September 2002.[5]
+Peter Clements then went on to write the first two PAR2 implementations: QuickPar and par2cmdline.
+
+[edit] Versions
+Versions 1 and 2 of the file format are incompatible. (Although many clients support both.)
+
+[edit] Version 1
+For version 1, given files f1, f2, ..., fn, the Parchive consists of an index file (f.par) and a number of "parity volumes" (f.p01, f.p02, et cetera). Given all of the original files except for one (for example, f2), it is possible to create the missing f2 given all of the other original files and any one of the parity volumes. Alternatively, it is possible to recreate two missing files from any two of the parity volumes and so forth.
+Version 1 supports up to 256 recovery files. Each recovery file must be the size of the largest input file.
+
+[edit] Version 2
+Version 2 files generally use this naming/extension system: filename.vol000+01.PAR2, filename.vol001+02.PAR2, filename.vol003+04.PAR2, filename.vol007+06.PAR2, etc. The +01, +02, etc. in the filename indicates how many blocks it contains, and the vol000, vol001, vol003 etc. indicates the number of the first recovery block within the PAR2 file. If an index file of a download states that 4 blocks are missing, the easiest way to repair the files would be by downloading filename.vol003+04.PAR2. However, due to the redundancy, filename.vol007+06.PAR2 is also acceptable.
+Version 2 supports up to 32768 (2^15) recovery blocks. Input files are split into multiple equal-sized blocks so that recovery files do not need to be the size of the largest input file.
+
+[edit] See also
+
+Comparison of file archivers
+RAID
+
+
+[edit] References
+
+
+^ "parchive: File Format Specification". SourceForge.net. http://sourceforge.net/forum/forum.php?thread_id=117765&forum_id=96282. Retrieved on 2009-04-07. 
+^ "parchive: Parity Volume Set specification 1.0". SourceForge.net. 2001-10-14. http://sourceforge.net/docman/display_doc.php?docid=7273&group_id=30568. Retrieved on 2009-04-07. 
+^ "``Note: Correction to the 1997 Tutorial on Reed-Solomon Coding". http://www.cs.utk.edu/~plank/plank/papers/CS-03-504.html. 
+^ "``A Tutorial on Reed-Solomon Coding for Fault-Tolerance in RAID-like Systems". http://www.cs.utk.edu/~plank/plank/papers/SPE-9-97.html. 
+^ Michael Nahas (2003-05-11). "Parity Volume Set Specification 2.0". Parchive.sourceforge.net. http://parchive.sourceforge.net/docs/specifications/parity-volume-spec/article-spec.html. Retrieved on 2009-04-07. 
+
+
+
+[edit] External links
+
+Parchive project - full specifications and math behind it
+Slyck's Guide to The Newsgroups - PAR files
+What is ICE ECC?
+Overview of the DVD Disaster project
+PAR & PAR2 Files Explained in Plain English
+QuickPar, a par creation and recover tool
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Parchive"
+Categories: Archive formats | Data management | UsenetHidden categories: Wikipedia articles needing copy edit from August 2008 | All articles needing copy edit 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+
+
+
+
+
+
+
+
+
+ This page was last modified on 20 April 2009, at 00:33 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

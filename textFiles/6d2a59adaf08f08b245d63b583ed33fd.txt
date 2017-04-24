@@ -1,0 +1,355 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Transaction processing - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Transaction_processing";
+		var wgTitle = "Transaction processing";
+		var wgAction = "view";
+		var wgArticleId = "212409";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279251492;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Transaction processing
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+For other meanings, see the disambiguation page at Transaction.
+
+In computer science, transaction processing is information processing that is divided into individual, indivisible operations, called transactions. Each transaction must succeed or fail as a complete unit; it cannot remain in an intermediate state.
+
+
+
+
+Contents
+
+
+1 Description
+2 Methodology
+
+2.1 Rollback
+2.2 Rollforward
+2.3 Deadlocks
+
+
+3 ACID criteria (Atomicity, Consistency, Isolation, Durability)
+4 Implementations
+5 See also
+6 External References
+7 Books
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Description
+Transaction processing is designed to maintain a computer system (typically, but not limited to, a database or some modern filesystems) in a known, consistent state, by ensuring that any operations carried out on the system that are interdependent are either all completed successfully or all canceled successfully.
+For example, consider a typical banking transaction that involves moving £500 from a customer's savings account to a customer's checking account. This transaction is a single operation in the eyes of the bank, but it involves at least two separate operations in computer terms: debiting the savings account by £500, and crediting the checking account by £500. If the debit operation succeeds but the credit does not (or vice versa), the books of the bank will not balance at the end of the day. There must therefore be a way to ensure that either both operations succeed or both fail, so that there is never any inconsistency in the bank's database as a whole. Transaction processing is designed to provide this.
+Transaction processing allows multiple individual operations to be linked together automatically as a single, indivisible transaction. The transaction-processing system ensures that either all operations in a transaction are completed without error, or none of them are. If some of the operations are completed but errors occur when the others are attempted, the transaction-processing system “rolls back” all of the operations of the transaction (including the successful ones), thereby erasing all traces of the transaction and restoring the system to the consistent, known state that it was in before processing of the transaction began. If all operations of a transaction are completed successfully, the transaction is committed by the system, and all changes to the database are made permanent; the transaction cannot be rolled back once this is done.
+Transaction processing guards against hardware and software errors that might leave a transaction partially completed, with the system left in an unknown, inconsistent state. If the computer system crashes in the middle of a transaction, the transaction processing system guarantees that all operations in any uncommitted (i.e., not completely processed) transactions are cancelled.
+Transactions are processed in a strict chronological order. If transaction n+1 intends to touch the same portion of the database as transaction n, transaction n+1 does not begin until transaction n is committed. Before any transaction is committed, all other transactions affecting the same part of the system must also be committed; there can be no “holes” in the sequence of preceding transactions.
+
+[edit] Methodology
+The basic principles of all transaction-processing systems are the same. However, the terminology may vary from one transaction-processing system to another, and the terms used below are not necessarily universal.
+
+[edit] Rollback
+Transaction-processing systems ensure database integrity by recording intermediate states of the database as it is modified, then using these records to restore the database to a known state if a transaction cannot be committed. For example, copies of information on the database prior to its modification by a transaction are set aside by the system before the transaction can make any modifications (this is sometimes called a before image). If any part of the transaction fails before it is committed, these copies are used to restore the database to the state it was in before the transaction began (rollback).
+
+[edit] Rollforward
+It is also possible to keep a separate journal of all modifications to a database (sometimes called after images); this is not required for rollback of failed transactions, but it is useful for updating the database in the event of a database failure, so some transaction-processing systems provide it. If the database fails entirely, it must be restored from the most recent back-up. The back-up will not reflect transactions committed since the back-up was made. However, once the database is restored, the journal of after images can be applied to the database (rollforward) to bring the database up to date. Any transactions in progress at the time of the failure can then be rolled back. The result is a database in a consistent, known state that includes the results of all transactions committed up to the moment of failure.
+
+[edit] Deadlocks
+In some cases, two transactions may, in the course of their processing, attempt to access the same portion of a database at the same time, in a way that prevents them from proceeding. For example, transaction A may access portion X of the database, and transaction B may access portion Y of the database. If, at that point, transaction A then tries to access portion Y of the database while transaction B tries to access portion X, a deadlock occurs, and neither transaction can move forward. Transaction-processing systems are designed to detect these deadlocks when they occur. Typically both transactions will be cancelled and rolled back, and then they will be started again in a different order, automatically, so that the deadlock doesn't occur again. Or sometimes, just one of the deadlocked transactions will be cancelled, rolled back, and automatically re-started after a short delay.
+Deadlocks can also occur between three or more transactions. The more transactions involved, the more difficult they are to detect, to the point that transaction processing systems find there is a practical limit to the deadlocks they can detect.
+
+[edit] ACID criteria (Atomicity, Consistency, Isolation, Durability)
+Main article: ACID
+Transaction processing has these benefits:
+
+It allows sharing of computer resources among many users
+It shifts the time of job processing to when the computing resources are less busy
+It avoids idling the computing resources without minute-by-minute human interaction and supervision
+It is used on expensive classes of computers to help amortize the cost by keeping high rates of utilization of those expensive resources
+A transaction is an atomic unit of processing.
+
+
+[edit] Implementations
+Main article: Transaction processing system
+Standard transaction-processing software, notably IBM's Information Management System, was first developed in the 1960s, and was often closely coupled to particular database management systems. Client-server computing implemented similar principles in the 1980s with mixed success. However, in more recent years, the distributed client-server model has become considerably more difficult to maintain. As the number of transactions grew in response to various online services (especially the Web), a single distributed database was not a practical solution. In addition, most online systems consist of a whole suite of programs operating together, as opposed to a strict client-server model where the single server could handle the transaction processing. Today a number of transaction processing systems are available that work at the inter-program level and which scale to large systems, including mainframes.
+An important open industry standard is the X/Open Distributed Transaction Processing (DTP) (see JTA). However, proprietary transaction-processing environments such as IBM's CICS are still very popular, although CICS has evolved to include open industry standards as well.
+A modern transaction processing implementation combines elements of both object-oriented persistence with traditional transaction monitoring. One such implementation is the commercial DTS/S1 product from Obsidian Dynamics.
+
+[edit] See also
+
+ACID
+ACMS
+Audit trail
+CICS
+Database transaction
+Obsidian Dynamics DTS/S1 product web site
+Extreme Transaction Processing (XTP)
+IMS
+Java EE (e.g. WebSphere Application Server)
+Java Transaction API (JTA)
+Two-phase commit
+Transaction Processing Facility
+Tuxedo (software)
+
+
+[edit] External References
+
+Nuts and Bolts of Transaction Processing
+
+
+[edit] Books
+
+Jim Gray, Andreas Reuter, Transaction Processing - Concepts and Techniques, 1993, Morgan Kaufmann, ISBN 1-55860-190-2
+Philip A. Bernstein, Eric Newcomer, Principles of Transaction Processing, 1997, Morgan Kaufmann, ISBN 1-55860-415-4
+Ahmed K. Elmagarmid (Editor), Transaction Models for Advanced Database Applications, Morgan-Kaufmann, 1992, ISBN 1-55860-214-3
+
+
+
+
+
+
+
+
+v • d • e
+
+Database management systems
+
+
+
+
+
+Database models · Database normalization · Database storage · Distributed DBMS · Referential integrity · Relational algebra · Relational calculus · Relational database · Relational DBMS · Relational model · Object-relational database · Transaction processing
+
+
+
+
+
+Concepts
+
+Database · ACID · CRUD · Null · Candidate key · Foreign key · Primary key · Superkey · Surrogate key
+
+
+
+
+
+
+Objects
+
+Trigger · View · Table · Cursor · Log · Transaction · Index · Stored procedure · Partition
+
+
+
+
+
+
+SQL
+
+Select · Insert · Update · Merge · Delete · Join · Union · Create · Drop · Begin work · Commit · Rollback · Truncate · Alter
+
+
+
+
+
+
+Components
+
+Concurrency control · Data dictionary · JDBC · ODBC · Query language · Query optimizer · Query plan
+
+
+
+
+
+
+Database products: Object-oriented (comparison) · Relational (comparison) · Document-oriented
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Transaction_processing"
+Categories: Database management systems | Databases | Transaction processing 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+Nederlands
+日本語
+Português
+
+
+
+
+
+
+
+
+
+ This page was last modified on 23 March 2009, at 22:56.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,267 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Radix tree - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Radix_tree";
+		var wgTitle = "Radix tree";
+		var wgAction = "view";
+		var wgArticleId = "1481659";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = "277442274";
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Radix tree
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+A radix tree, Patricia trie/tree, or crit bit tree is a specialized set data structure based on the trie that is used to store a set of strings. In contrast with a regular trie, the edges of a Patricia trie are labelled with sequences of characters rather than with single characters. These can be strings of characters, bit strings such as integers or IP addresses, or generally arbitrary sequences of objects in lexicographical order. Sometimes the names radix tree and crit bit tree are only applied to trees storing integers and Patricia trie is retained for more general inputs, but the structure works the same way in all cases.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Applications
+3 History
+4 Comparison to other data structures
+5 Variants
+6 References
+7 External links
+
+7.1 Implementations
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+
+The radix tree is easiest to understand as a space-optimized trie where each node with only one child is merged with its child. The result is that every internal node has at least two children. Unlike in regular tries, edges can be labeled with sequences of characters as well as single characters. This makes them much more efficient for small sets (especially if the strings are long) and for sets of strings that share long prefixes.
+It supports the following main operations, all of which are O(k), where k is the maximum length of all strings in the set:
+
+Lookup: Determines if a string is in the set. This operation is identical to tries except that some edges consume multiple characters.
+Insert: Add a string to the tree. We search the tree until we can make no further progress. At this point we either add a new outgoing edge labeled with all remaining characters in the input string, or if there is already an outgoing edge sharing a prefix with the remaining input string, we split it into two edges (the first labeled with the common prefix) and proceed. This splitting step ensures that no node has more children than there are possible string characters.
+Delete: Delete a string from the tree. First, we delete the corresponding leaf. Then, if its parent only has one child remaining, we delete the parent and merge the two incident edges.
+Find predecessor: Locates the largest string less than a given string, by lexicographic order.
+Find successor: Locates the smallest string greater than a given string, by lexicographic order.
+
+A common extension of radix trees uses two colors of nodes, 'black' and 'white'. To check if a given string is stored in the tree, the search starts from the top and follows the edges of the input string until no further progress can be made. If the search-string is consumed and the final node is a black node, the search has failed; if it is white, the search has succeeded. This enables us to add a large range of strings with a common prefix to the tree, using white nodes, then remove a small set of "exceptions" in a space-efficient manner by inserting them using black nodes..
+
+[edit] Applications
+As mentioned, radix trees are useful for constructing associative arrays with keys that can be expressed as strings. They find particular application in the area of IP routing, where the ability to contain large ranges of values with a few exceptions is particularly suited to the hierarchical organization of IP addresses.[1] They are also used for inverted indexes of text documents in information retrieval.
+
+[edit] History
+Donald R. Morrison first described what he called "Patricia tries" in 1968;[2] the name comes from the acronym PATRICIA, which stands for "Practical Algorithm To Retrieve Information Coded In Alphanumeric". Gernot Gwehenberger independently invented and described the data structure at about the same time.
+
+[edit] Comparison to other data structures
+(In the following comparisons, it is assumed that the keys are of length k and the data structure contains n elements.)
+Unlike balanced trees, radix trees permit lookup, insertion, and deletion in O(k) time rather than O(log n). This doesn't seem like an advantage, since normally k ≥ log n, but in a balanced tree every comparison is a string comparison requiring O(k) worst-case time, many of which are slow in practice due to long common prefixes. In a trie, all comparisons require constant time, but it takes m comparisons to look up a string of length m. Radix trees can perform these operations with fewer comparisons and require many fewer nodes.
+Radix trees also share the disadvantages of tries, however: as they can only be applied to strings of elements or elements with an efficiently reversible mapping (injection) to strings, they lack the full generality of balanced search trees, which apply to any data type with a total ordering. A reversible mapping to strings can be used to produce the required total ordering for balanced search trees, but not the other way around. This can also be problematic if a data type only provides a comparison operation, but not a (de)serialization operation.
+Hash tables are commonly said to have expected O(1) insertion and deletion times, but this is only true when considering computation of the hash of the key to be a constant time operation. When hashing the key is taken into account, hash tables have expected O(k) insertion and deletion times, but will take longer in the worst-case depending on how collisions are handled. Radix trees have worst-case O(k) insertion and deletion. The successor/predecessor operations of radix trees are also not implemented by hash tables.
+
+[edit] Variants
+The HAT-trie is a radix tree based cache-conscious data structure that offers efficient string storage and retrieval, and ordered iterations. Performance, with respect to both time and space, is comparable to the cache-conscious hashtable. [3]
+
+[edit] References
+
+^ Knizhnik, Konstantin. "Patricia Tries: A Better Index For Prefix Searches", Dr. Dobb's Journal, June, 2008.
+^ Morrison, Donald R. Practical Algorithm to Retrieve Information Coded in Alphanumeric
+^ Askitis, Nikolas; Sinha, Ranjan (2007), "HAT-trie: A Cache-conscious Trie-based Data Structure for Strings", Proceedings of the 30th Australasian Conference on Computer science 62: pp. 97-105, ISBN 1-920-68243-0, http://portal.acm.org/citation.cfm?id=1273749.1273761&coll=GUIDE&dl= 
+
+
+[edit] External links
+
+Algorithms and Data Structures Research & Reference Material: PATRICIA, by Lloyd Allison, Monash University
+Patricia Tree, NIST Dictionary of Algorithms and Data Structures
+Crit-bit trees, by Daniel J. Bernstein
+Radix Tree API in the Linux Kernel, by Jonathan Corbet
+
+
+[edit] Implementations
+
+A heavily commented dictionary implementation with a binary Radix Tree, by Herbert Glarner (in Linoleum, a cross platform assembler)
+Java implementation of Radix Tree, by Tahseen Ur Rehman
+Practical Algorithm Template Library, a C++ library on PATRICIA tries (VC++ >=2003, GCC G++ 3.x), by Roman S. Klyujkov
+Patricia Trie C++ template class implementation, by Radu Gruian
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Radix_tree"
+Categories: Trees (structure) 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+日本語
+Polski
+Português
+
+
+
+
+
+
+
+
+
+ This page was last modified on 15 March 2009, at 17:30.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

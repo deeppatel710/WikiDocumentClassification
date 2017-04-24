@@ -1,0 +1,333 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chord (distributed hash table) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Chord_(distributed_hash_table)";
+		var wgTitle = "Chord (distributed hash table)";
+		var wgAction = "view";
+		var wgArticleId = "322132";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278327335;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Chord (distributed hash table)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+The introduction to this article provides insufficient context for those unfamiliar with the subject.
+Please help improve the article with a good introductory style.
+
+
+
+Chord is one of the original distributed hash table protocols. Chord is being developed at MIT and the current Chord source code can be downloaded and used under the MIT License.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Potential uses
+3 Proof sketches
+4 Pseudocode
+5 See also
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+Using the Chord lookup protocol, node keys are arranged in a circle. The circle cannot have more than 2m nodes. The circle can have ids/keys ranging from 0 to 2m − 1.
+IDs and keys are assigned an m-bit identifier using what is known as consistent hashing. The SHA-1 algorithm is the base hashing function for consistent hashing. The consistent hashing is integral to the probability of the robustness and performance because both keys and IDs (IP addresses) are uniformly distributed and in the same identifier space. Consistent hashing is also necessary to let nodes join and leave the network without disrupting the network.
+Each node has a successor and a predecessor. The successor to a node or key is the next node in the identifier circle when you move clockwise. The predecessor of a node or key is the next node in the id circle when you move counter-clockwise. If there is a node for each possible ID, the successor of node 2 is node 3, and the predecessor of node 1 is node 0; however, normally there are holes in the sequence, so, for example, the successor of node 153 may be node 167 (and nodes from 154 to 166 will not exist); in this case, the predecessor of node 167 will be node 153. Since the successor (or predecessor) node may disappear from the network (because of failure or departure), each node records a whole segment of the circle adjacent to it, i.e. the K nodes preceding it and the K nodes following it. One successor and predecessor are kept in a list to maintain a high probability that the successor and predecessor pointers actually point to the correct nodes after possible failure or departure of the initial successor or predecessor.
+
+[edit] Potential uses
+
+Cooperative Mirroring: A load balancing mechanism by a local network hosting information available to computers outside of the local network. This scheme could allow developers to balance the load between many computers instead of a central server to ensure availability of their product.
+
+
+Time-shared storage: In a network, once a computer joins the network its available data is distributed throughout the network for retrieval when that computer disconnects from the network. As well as other computers' data is sent to the computer in question for offline retrieval when they are no longer connected to the network. Mainly for nodes without the ability to connect full time to the network.
+
+
+Distributed Indices: Retrieval of files over the network within a searchable database. eg. P2P file transfer clients.
+
+
+Large scale combinatorial searches: Keys being candidate solutions to a problem and each key mapping to the node, or computer, that is responsible for evaluating them as a solution or not. eg. Code Breaking
+
+
+[edit] Proof sketches
+Chord must contact at most O(log N) nodes to find a successor in an N-node network, with high probability
+Define a node n that has a query for a key k. Suppose node p is the node that the key k maps to in Chord (n  p). Therefore, node n forwards its query to node f, the closest predecessor of k in its finger table, call it the i-th interval of node n, somewhere between n and p. The new distance between f and p is then at most 2i − 1. Reiterating, each time the distance at least halves and within m steps (with m as defined above) the query will arrive at node p. Since the identifiers are random after 'log N' forwardings, the probability is  and the expected number of identifiers in this interval is 1 with high probability, so only O(log N) nodes need to be contacted.
+If Chord keeps track of r = O(log N) predecessors/successors, then with high probability, if each node has probability of 1/4 of failing, find_successor (see below) and find_predecessor (see below) will return the correct nodes
+Simply, the probability that all r nodes fail is , which is a low probability; so with high probability at least one of them is alive and the node will have the correct pointer.
+
+[edit] Pseudocode
+Definitions for pseudocode:
+
+finger[k]: first node that succeeds 
+successor: the next node from the node in question on the identifier ring
+predecessor: the previous node from the node in question on the identifier ring
+
+The pseudocode to find the successor node of an id is given below:
+
+ // ask node n to find the successor of id
+ n.find_successor(id)
+   if (id(n, successor])
+     return successor;
+   else
+     // forward the query around the circle
+     n0 = closest_preceding_node(id);
+     return n0.find_successor(id);
+ 
+ // search the local table for the highest predecessor of id
+ n.closest_preceding_node(id)
+   for i = m downto 1
+     if (finger[i](n,id))
+       return finger[i];
+   return n;
+
+The pseudocode to stabilize the chord ring/circle after node joins and departures is as follows:
+
+ // create a new Chord ring.
+ n.create()
+   predecessor = nil;
+   successor = n;
+ 
+ // join a Chord ring containing node n'.
+ n.join(n')
+   predecessor = nil;
+   successor = n'.find_successor(n);
+ 
+ // called periodically. verifies n’s immediate
+ // successor, and tells the successor about n.
+ n.stabilize()
+   x = successor.predecessor;
+   if (x(n, successor))
+     successor = x;
+   successor.notify(n);
+ 
+ // n' thinks it might be our predecessor.
+ n.notify(n')
+   if (predecessor is nil or n'(predecessor, n))
+     predecessor = n';
+ 
+ // called periodically. refreshes finger table entries.
+ // next stores the index of the finger to fix
+ n.fix_fingers()
+   next = next + 1;
+   if (next > m)
+     next = 1;
+   finger[next] = find_successor(n+2next − 1);
+ 
+ // called periodically. checks whether predecessor has failed.
+ n.check_predecessor()
+   if (predecessor has failed)
+     predecessor = nil;
+
+
+[edit] See also
+
+CAN
+Kademlia
+Pastry (DHT)
+Tapestry (DHT)
+Koorde
+
+
+OverSim - the overlay simulation framework
+
+
+[edit] External links
+
+The Chord Project
+Paper proposing Chord: "Chord: A Scalable Peer-to-peer Lookup Service for Internet Applications"
+Updated version of the above paper
+Open Chord - An Open Source Java Implementation
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Chord_(distributed_hash_table)"
+Categories: Articles with example pseudocode | Distributed computing | Distributed data sharingHidden categories: Wikipedia articles needing context | Wikipedia introduction cleanup 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+日本語
+‪Norsk (bokmål)‬
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 19 March 2009, at 13:50.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

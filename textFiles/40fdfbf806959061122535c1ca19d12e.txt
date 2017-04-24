@@ -1,0 +1,323 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Subset sum problem - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Subset_sum_problem";
+		var wgTitle = "Subset sum problem";
+		var wgAction = "view";
+		var wgArticleId = "36811";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 267719174;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Subset sum problem
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article is missing citations or needs footnotes. Please help add inline citations to guard against copyright violations and factual inaccuracies. (December 2008)
+
+
+In computer science, the subset sum problem is an important problem in complexity theory and cryptography. The problem is this: given a set of integers, does the sum of some non-empty subset equal exactly zero? For example, given the set { −7, −3, −2, 5, 8}, the answer is YES because the subset { −3, −2, 5} sums to zero. The problem is NP-Complete.
+An equivalent problem is this: given a set of integers and an integer s, does any non-empty subset sum to s? Subset sum can also be thought of as a special case of the knapsack problem. One interesting special case of subset sum is the partition problem, in which s is half of the sum of all elements in the set.
+
+
+
+
+Contents
+
+
+1 General discussion
+2 The complexity of subset sum
+3 Exponential time algorithm
+4 Pseudo-polynomial time dynamic programming solution
+5 Polynomial time approximate algorithm
+6 Further reading
+7 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] General discussion
+The subset sum problem is a good introduction to the NP-complete class of problems. There are two reasons for this
+
+It is a decision and not an optimization problem
+It has a very simple formal definition and problem statement.
+
+A solution that has a ± 1% precision is good enough for many physical problems. Being asked to solve a subset sum problem for 100-digit numbers with a precision of ±10−100 might seem silly and irrelevant. There are reasons why this is not the case.
+First, the number of place values in the problem is essentially equivalent to the number of simultaneous constraints that need to be solved. A numerical precision of 1% means solving the problem to just the first 7 base two place values (any numerical error after that is less than 1/128 of the first digit). However, if there are 100 base 2 place values in the problem, solving just 7 of them amounts to solving only 7% of the constraints. Moreover, given that the volume of the solution space in this case would be 2100, and you have only covered a volume of 27, then there is still a solution space of 293 left uncovered. In this way a solution with a 1% numerical precision has covered essentially none of the real problem. The only way that a solution to the Subset Sum Problem can be used as a solution to other NP problems is to solve all of the problem (and all of the constraints) exactly.
+Second, in at least one context, it is actually important to solve real subset sum problems exactly. In cryptography, Subset Sum problem comes up when a codebreaker attempts, given a message and ciphertext, to deduce the secret key. A key that is not equal to but within ± 1% of the real key is essentially useless for the codebreaker due to the avalanche effect, which causes very similar keys to produce very different results.
+Lastly, from a theoretical point of view it is the exact problem and its solutions that are of interest.
+Although the subset sum problem is a decision problem, the cases when an approximate solution is sufficient have also been studied, in the field of approximations algorithms. One algorithm for the approximate version of the subset sum problem is given below.
+
+[edit] The complexity of subset sum
+The complexity (difficulty of solution) of subset sum can be viewed as depending on two parameters, N, the number of decision variables, and P, the precision of the problem (stated as the number of binary place values that it takes to state the problem). (Note: here the letters N and P mean something different than what they mean in the NP class of problems.)
+The complexity of the best known algorithms is exponential in the smaller of the two parameters N and P. Thus, the problem is most difficult if N and P are of the same order. It only becomes easy if either N or P becomes very small.
+If N (the number of variables) is small, then an exhaustive search for the solution is practical. If P (the number of place values) is a small fixed number, then there are dynamic programming algorithms that can solve it exactly.
+What is happening is that the problem becomes seemingly non-exponential when it is practical to count the entire solution space. There are two ways to count the solution space in the subset sum problem. One is to count the number of ways the variables can be combined. There are 2N possible ways to combine the variables. However, with N = 10, there are only 1024 possible combinations to check. These can be counted easily with a branching search. The other way is to count all possible numerical values that the combinations can take. There are 2P possible numerical sums. However, with P = 5 there are only 32 possible numerical values that the combinations can take. These can be counted easily with a dynamic programming algorithm. When N = P and both are large, then there is no aspect of the solution space that can be counted easily.
+Efficient algorithms for both small N and small P cases are given below.
+
+[edit] Exponential time algorithm
+There are several ways to solve subset sum in time exponential in N. The most naïve algorithm would be to cycle through all subsets of N numbers and, for every one of them, check if the subset sums to the right number. The running time is of order O(2NN), since there are 2N subsets and, to check each subset, we need to sum at most N elements.
+A better exponential time algorithm is known, which runs in time O(2N/2N). The algorithm splits arbitrarily the N elements into two sets of N/2 each. For each of these two sets, it calculates sums of all 2N/2 possible subsets of its elements and stores them in an array of length 2N/2. It then sorts each of these two arrays, which can be done in time O(2N/2N). When arrays are sorted, the algorithm can check if an element of the first array and an element of the second array sum up to s in time O(2N/2). To do that, the algorithm passes through the first array in decreasing order (starting at the largest element) and the second array in increasing order (starting at the smallest element). Whenever the sum of the current element in the first array and the current element in the second array is more than s, the algorithm moves to the next element in the first array. If it is less than s, the algorithm moves to the next element in the second array. If two elements with sum s are found, it stops.
+No better algorithm has been found since Horowitz and Sahni first published this algorithm in 1974[1], suggesting that this improved algorithm may have the best running-time possible of all algorithms which solve the subset sum problem. If true, this would imply that , which is one of the most famous long standing unsolved problems (see P = NP problem).
+
+[edit] Pseudo-polynomial time dynamic programming solution
+The problem can be solved as follows using dynamic programming. Suppose the sequence is
+
+x1, ..., xn
+
+and we wish to find a nonempty subset which sums to zero.
+Let N be the sum of the negative values and P the sum of the positive values. Define the function Q(i,s) to be 0 if there is no subset of x1, ..., xi which sums to s; 1 if there is a nonempty such subset; or 2 if only empty subset sums to s (i.e. when s is zero).
+(Thus, the question we really want to know is whether Q(n,0) equals 1.)
+Clearly: Q(i,s) = 0 for s<N or s>P.
+Create an array to hold the values Q(i,s) for 1≤i≤n and N≤s≤P. The array can now be filled in using a simple recursion.
+Initialize all Q(1,s) to 0. Let Q(1,0) be 2. Let Q(1, x1) be 1. For i>1, if Q(i-1,s-xi) is nonzero, let Q(i,s) be 1 otherwise let it be value of Q(i-1,s).
+(Note that Q(i,s) can be made a boolean valued function if we are interested in subset which sums to something other than zero.)
+The total number of arithmetic operations is
+
+O(n(P − N)).
+
+For example, if all the values are
+
+O(nk)
+
+for some k, then the time required is
+
+O(nk+1).
+
+This solution does not count as polynomial time in complexity theory because P-N is not polynomial in the size of the problem, which is the number of bits used to represent it. This algorithm is polynomial in the value of N and P, which are exponential in their numbers of bits. In fact, when the input data is bounded by a constant, linear time algorithms for this problem are known[2].
+
+[edit] Polynomial time approximate algorithm
+An approximate version of the subset sum would be: given a set of N numbers x1, x2, ..., xN and a number s, output
+
+yes, if there is a subset that sums up to s;
+no, if there is no subset summing up to a number between (1-c)s and s for some small c>0;
+any answer, if there is a subset summing up to a number between (1-c)s and s but no subset summing up to s.
+
+If all numbers are non-negative, the approximate subset sum is solvable in time polynomial in N and 1/c.
+The solution for subset sum also provides the solution for the original subset sum problem in the case where the numbers are small (again, for nonnegative numbers). If any sum of the numbers can be specified with at most P bits, then solving the problem approximately with c=2-P is equivalent to solving it exactly. Then, the polynomial time algorithm for approximate subset sum becomes an exact algorithm with running time polynomial in N and 2P (i.e., exponential in P).
+The algorithm for the approximate subset sum problem is as follows:
+
+ initialize a list S to contain one element 0.
+ for each i from 1 to N do
+   let T be a list consisting of xi+y, for all y in S
+   let U be the union of T and S
+   sort U
+   make S empty 
+   let y be the smallest element of U 
+   add y to S 
+   for each element z of U in increasing order do //trim the list by eliminating numbers close one to another
+     if y<(1-c/N)z, set y=z and add z to S 
+ if S contains a number between (1-c)s and s, output yes, otherwise no
+
+The algorithm is polynomial time because the lists S, T and U always remain of size polynomial in N and 1/c and, as long as they are of polynomial size, all operations on them can be done in polynomial time. The size of lists is kept polynomial by the trimming step, in which we only include a number z into S if the previous y is at most
+
+(1 − c/N)z.
+
+This step ensures that each element in S is smaller than the next one by at least a factor of (1 − c/N) and any list with that property is of at most polynomial size.
+The algorithm is correct because each step introduces a multiplicative error of at most (1 −c/N) and N steps together introduce the error of at most
+
+(1 − c/N)N < 1 − c.
+
+
+[edit] Further reading
+
+Cormen, Thomas H.; Leiserson, Charles E., Rivest, Ronald L., Stein, Clifford (2001) [1990]. "35.5: The subset-sum problem". Introduction to Algorithms (2nd ed.). MIT Press and McGraw-Hill. ISBN 0-262-03293-7. 
+Michael R. Garey and David S. Johnson (1979). Computers and Intractability: A Guide to the Theory of NP-Completeness. W.H. Freeman. ISBN 0-7167-1045-5.  A3.2: SP13, pg.223.
+
+
+[edit] References
+
+
+^ Ellis Horowitz and Sartaj Sahni (1974). "Computing Partitions with Applications to the Knapsack Problem". JACM, Volume 21, Issue 2, 277-292, April 1974
+^ Pisinger D (1999). "Linear Time Algorithms for Knapsack Problems with Bounded Weights". Journal of Algorithms, Volume 33, Number 1, October 1999, pp. 1-14
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Subset_sum_problem"
+Categories: Weakly NP-complete problems | Dynamic programmingHidden categories: Articles with unsourced statements since December 2008 | All articles with unsourced statements 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Deutsch
+Español
+فارسی
+Français
+한국어
+日本語
+Polski
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 31 January 2009, at 23:12.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

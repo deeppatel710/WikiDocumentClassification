@@ -1,0 +1,396 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Exokernel - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Exokernel";
+		var wgTitle = "Exokernel";
+		var wgAction = "view";
+		var wgArticleId = "95757";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283355869;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Exokernel
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+Graphical overview of Exokernel
+
+
+Exokernel is an operating system kernel developed by the MIT Parallel and Distributed Operating Systems group, and also a class of similar operating systems.
+The idea behind exokernels is to force as few abstractions as possible[clarification needed] on developers, enabling them to make as many decisions as possible about hardware abstractions. Exokernels are tiny, since functionality is limited to ensuring protection and multiplexing of resources, which are vastly simpler than conventional microkernels' implementation of message passing and monolithic kernels' implementation of abstractions.
+Implemented Applications are called library operating systems; they may request specific memory addresses, disk blocks, etc. The kernel only ensures that the requested resource is free, and the application is allowed to access it. This low-level hardware access allows the programmer to implement custom abstractions, and omit unnecessary ones, most commonly to improve a program's performance. It also allows programmers to choose what level of abstraction they want, high, or low.
+Exokernels can be seen as an application of the end-to-end principle to operating systems, in that they do not force an application program to layer its abstractions on top of other abstractions that were designed with different requirements in mind. For example, in the MIT Exokernel project, the Cheetah web server stores preformatted Internet Protocol packets on the disk, the kernel provides safe access to the disk by preventing unauthorized reading and writing, but how the disk is abstracted is up to the application or the libraries the application uses.
+
+
+
+
+Contents
+
+
+1 Motivation
+2 MIT exokernel
+
+2.1 Design
+
+2.1.1 Processor
+2.1.2 Memory
+2.1.3 Disk storage
+2.1.4 Networking
+
+
+2.2 Applications
+
+
+3 History
+4 See also
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Motivation
+Traditionally kernel designers have sought to make individual hardware resources invisible to application programs by requiring the programs to interact with the hardware via some conceptual model. These models include file systems for disk storage, virtual address spaces for memory, schedulers for task management, and sockets for network communication. These abstractions of the hardware make it easier to write programs in general, but limit performance and stifle experimentation in new abstractions. A security-oriented application might need a file system that does not leave old data on the disk, while a reliability-oriented application might need a file system that keeps such data for failure recovery.
+One option is to remove the kernel completely and program directly to the hardware, but then the entire machine would be dedicated to the application being written (and, conversely, the entire application codebase would be dedicated to that machine). The exokernel concept is a compromise: let the kernel allocate the basic physical resources of the machine (e.g. disk blocks, memory pages, and processor time) to multiple application programs, and let each program decide what to do with these resources. The program can then link to a support library that implements the abstractions it needs (or it can implement its own).
+
+[edit] MIT exokernel
+MIT developed two exokernel-based operating systems, using two kernels: Aegis, a proof of concept with limited support for storage, and XOK, which applied the exokernel concept more thoroughly.
+An essential idea of the MIT exokernel system is that the operating system should act as an executive for small programs provided by the application software, which are constrained only by the requirement that the exokernel must be able to guarantee that they use the hardware safely.
+
+[edit] Design
+The MIT exokernel manages hardware resources as follows:
+
+[edit] Processor
+The kernel represents the processor resources as a timeline from which programs can allocate intervals of time. A program can yield the rest of its time slice to another designated program. The kernel notifies programs of processor events, such as interrupts, hardware exceptions, and the beginning or end of a time slice. If a program takes a long time to handle an event, the kernel will penalize it on subsequent time slice allocations; in extreme cases the kernel can abort the program.
+
+[edit] Memory
+The kernel allocates physical memory pages to programs and controls the translation lookaside buffer. A program can share a page with another program by sending it a capability to access that page. The kernel ensures that programs access only pages for which they have a capability.
+
+[edit] Disk storage
+The kernel identifies disk blocks to the application program by their physical block address, allowing the application to optimize data placement. When the program initializes its use of the disk, it provides the kernel with a function that the kernel can use to determine which blocks the program controls. The kernel uses this callback to verify that when it allocates a new block, the program claims only the block that was allocated in addition to those it already controlled.
+
+[edit] Networking
+The kernel implements a programmable packet filter, which executes programs in a byte code language designed for easy security-checking by the kernel.
+
+[edit] Applications
+The available library operating systems for Exokernel include the custom ExOS system and an emulator for BSD. In addition to these, the exokernel team created the Cheetah web server, which uses the kernel directly.
+
+[edit] History
+The exokernel concept has been around since at least 1994,[1] but as of 2005[update] exokernels are still a research effort and have not been used in any major commercial operating systems. A concept operating exokernel system is Nemesis, written by University of Cambridge, University of Glasgow, Citrix Systems, and the Swedish Institute of Computer Science. MIT has also built several exokernel based systems, including ExOS.
+
+[edit] See also
+
+Hybrid kernel
+Hypervisor
+Kernel (computer science)
+Microkernel
+Monolithic kernel
+Nanokernel
+Paravirtualization
+Single address space operating system (SASOS)
+Dalex
+
+
+[edit] References
+
+
+Engler, Dawson R. (1998) (PostScript). The Exokernel Operating System Architecture. http://pdos.csail.mit.edu/exo/theses/engler/thesis.ps. Retrieved on 2006-09-22. 
+Engler, Dawson R.; Kaashoek, M. Frans (1996) (PostScript). Exterminate All Operating System Abstractions. http://pdos.csail.mit.edu/papers/hotos-jeremiad.ps. Retrieved on 2006-09-22. 
+Engler, Dawson R.; Kaashoek, M. Frans; O’Toole Jr., James (1995). "Exokernel: An Operating System Architecture for Application-Level Resource Management" (PDF). Proceedings of the fifteenth ACM symposium on Operating systems principles: 251–266. doi:10.1145/230000/224076/p251-engler.pdf. ISBN 0-89791-715-4. http://delivery.acm.org/10.1145/230000/224076/p251-engler.pdf?key1=224076&key2=2519598511&coll=&dl=ACM&CFID=15151515&CFTOKEN=6184618. Retrieved on 2006-09-22. 
+
+
+
+
+^ Exokernel: An Operating System Architecture for Application-Level Resource Management - Engler, Kaashoek, Jr (ResearchIndex)
+
+
+
+[edit] External links
+
+Microkernels. The extent to which simple, efficient operations are a good choice in a kernel interface design. by Úlfar Erlingsson and Athanasios Kyparlis
+MIT Exokernel Operating System Putting the Application in Control
+Nemesis at Cambridge An operating system with principles
+IntraServices
+
+
+
+
+
+
+
+
+v • d • e
+
+Operating system
+
+
+
+
+
+General
+
+History · Timeline · List · Comparison · Usage share · Development · Advocacy
+
+
+
+
+
+
+Kernel
+
+
+
+
+
+General
+
+
+Monolithic kernel · Microkernel
+
+
+
+
+
+
+
+Types
+
+
+exokernel · nanokernel · hybrid
+
+
+
+
+
+
+
+Components
+
+
+Kernel space · Loadable kernel module · device driver · User space · Userland
+
+
+
+
+
+
+
+
+
+Process management
+
+Process · Multiprogramming · Process control block · Interrupt · Modes: (Protected mode · Supervisor mode) · Computer multitasking · Scheduling · Context switch · Cooperative multitasking · Preemptive multitasking · CPU modes · Thread (computer science)
+
+
+
+
+
+
+Memory management
+
+Memory protection · Segmentation · Paging · Segmentation fault · General protection fault · Bus error
+
+
+
+
+
+
+Examples
+
+AmigaOS 4 · BeOS · IBM OS/2 · MS-DOS · Windows · Linux · UNIX · OpenSolaris · Mac OS X · ReactOS · more…
+
+
+
+
+
+
+Miscellaneous concepts
+
+Boot loader · PXE · API · Virtual file system · Virtual tape library · Computer network · CLI · TUI · GUI · HAL
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Exokernel"
+Categories: Operating system technology | Operating system kernelsHidden categories: All pages needing cleanup | Wikipedia articles needing clarification from March 2009 | Articles containing potentially dated statements from 2005 | All articles containing potentially dated statements 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Português
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 12 April 2009, at 13:15 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

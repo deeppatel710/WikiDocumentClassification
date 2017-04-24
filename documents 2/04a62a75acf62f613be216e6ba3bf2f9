@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Dekker&#039;s algorithm,Articles lacking sources from September 2008,Algorithm,Busy wait,Busy waiting,CPU,Concurrent programming,Critical section,Deadlock,Dutch people,Infinite loop" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Dekker's algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Dekker\'s_algorithm";
+		var wgTitle = "Dekker\'s algorithm";
+		var wgAction = "view";
+		var wgArticleId = "36826";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 273397597;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Dekker_s_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Dekker's algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p><b>Dekker's algorithm</b> is a <a href="/wiki/Concurrent_programming" title="Concurrent programming" class="mw-redirect">concurrent programming</a> <a href="/wiki/Algorithm" title="Algorithm">algorithm</a> for <a href="/wiki/Mutual_exclusion" title="Mutual exclusion">mutual exclusion</a> derived by the <a href="/wiki/Dutch_people" title="Dutch people">Dutch</a> <a href="/wiki/Mathematician" title="Mathematician">mathematician</a> <a href="/wiki/Theodorus_Dekker" title="Theodorus Dekker">T. J. Dekker</a> in 1964 that allows two threads to share a single-use resource without conflict, using only <a href="/wiki/Shared_memory" title="Shared memory">shared memory</a> for communication.</p>
+<p>It avoids the strict alternation of a naive turn-taking algorithm, and was one of the first mutual exclusion algorithms to be invented.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Introduction"><span class="tocnumber">1</span> <span class="toctext">Introduction</span></a></li>
+<li class="toclevel-1"><a href="#Pseudocode"><span class="tocnumber">2</span> <span class="toctext">Pseudocode</span></a></li>
+<li class="toclevel-1"><a href="#Note"><span class="tocnumber">3</span> <span class="toctext">Note</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Introduction" id="Introduction"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit&amp;section=1" title="Edit section: Introduction">edit</a>]</span> <span class="mw-headline">Introduction</span></h2>
+<p>If two processes attempt to enter a <a href="/wiki/Critical_section" title="Critical section">critical section</a> at the same time, the algorithm will allow only one process in, based on whose turn it is. If one process is already in the critical section, the other process will <a href="/wiki/Busy_wait" title="Busy wait" class="mw-redirect">Busy wait</a> for the first process to exit. This is done by the use of two flags f0 and f1 which indicate an intention to enter the critical section and a turn variable which indicates who has priority between the two processes.</p>
+<p><a name="Pseudocode" id="Pseudocode"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit&amp;section=2" title="Edit section: Pseudocode">edit</a>]</span> <span class="mw-headline">Pseudocode</span></h2>
+<pre>
+ f0 := false
+ f1 := false
+ turn := 0   // or 1
+
+ p0:                                 p1:
+     f0 := true                          f1 := true
+     <b>while</b> f1 {                          <b>while</b> f0 {
+         <b>if</b> turn ≠ 0 {                       <b>if</b> turn ≠ 1 {
+             f0 := false                         f1 := false
+             <b>while</b> turn ≠ 0 {                    <b>while</b> turn ≠ 1 {
+             }                                   }
+             f0 := true                          f1 := true
+          }                                  }
+     }                                    }
+
+    // critical section                   // critical section 
+    ...                                   ...
+    // remainder section                  // remainder section
+    turn := 1                             turn := 0
+    f0 := false                           f1 := false
+</pre>
+<p>Processes indicate an intention to enter the critical section which is tested by the outer while loop. If the other process has not flagged intent, the critical section can be entered safely irrespective of the current turn. Mutual exclusion will still be guaranteed as neither process can become critical before setting their flag (implying at least one process will enter the while loop). This also guarantees progress as waiting will not occur on a process which has withdrawn intent to become critical. Alternatively, if the other process's variable was set the while loop is entered and the turn variable will establish who is permitted to become critical. Processes without priority will withdraw their intention to enter the critical section until they are given priority again (the inner while loop). Processes with priority will break from the while loop and enter their critical section.</p>
+<p>Dekker's algorithm guarantees <a href="/wiki/Mutual_exclusion" title="Mutual exclusion">mutual exclusion</a>, freedom from <a href="/wiki/Deadlock" title="Deadlock">deadlock</a>, and freedom from <a href="/wiki/Resource_starvation" title="Resource starvation">starvation</a>. Let us see why the last property holds. Suppose p0 is stuck inside the "while f1" loop forever. There is freedom from deadlock, so eventually p1 will proceed to its critical section and set turn = 0 (and the value of turn will remain unchanged as long as p0 doesn't progress). Eventually p0 will break out of the inner "while turn ≠ 0" loop (if it was ever stuck on it). After that it will set f0&#160;:= true and settle down to waiting for f1 to become false (since turn = 0, it will never do the actions in the while loop). The next time p1 tries to enter its critical section, it will be forced to execute the actions in its "while f0" loop. In particular, it will eventually set f1 = false and get stuck in the "while turn ≠ 1" loop (since turn remains 0). The next time control passes to p0, it will exit the "while f1" loop and enter its critical section.</p>
+<p>If the algorithm were modified by performing the actions in the "while f1" loop without checking if turn = 0, then there is a possibility of starvation. Thus all the steps in the algorithm are necessary.</p>
+<p><a name="Note" id="Note"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit&amp;section=3" title="Edit section: Note">edit</a>]</span> <span class="mw-headline">Note</span></h2>
+<p>One advantage of this algorithm is that it doesn't require special <a href="/wiki/Test-and-set" title="Test-and-set">Test-and-set</a> (atomic read/modify/write) instructions and is therefore highly portable between languages and machine architectures. One disadvantage is that it is limited to two processes and makes use of <a href="/wiki/Busy_waiting" title="Busy waiting">Busy waiting</a> instead of process suspension. (The use of busy waiting suggests that processes should spend a minimum of time inside the critical section.)</p>
+<p>Modern operating systems provide mutual exclusion primitives that are more general and flexible than Dekker's algorithm. However, it should be noted that in the absence of actual contention between the two processes, the entry and exit from critical section is extremely efficient when Dekker's algorithm is used.</p>
+<p>Many modern <a href="/wiki/CPU" title="CPU" class="mw-redirect">CPUs</a> execute their instructions in an out-of-order fashion. This algorithm won't work on <a href="/wiki/Symmetric_multiprocessing" title="Symmetric multiprocessing">SMP</a> machines equipped with these CPUs without the use of <a href="/wiki/Memory_barrier" title="Memory barrier">memory barriers</a>.</p>
+<p>Additionally, many optimizing compilers can perform transformations that will cause this algorithm to fail regardless of the platform. In many languages, it is legal for a compiler to detect that the flag variables <i>f0</i> and <i>f1</i> are never accessed in the loop. It can then remove the writes to those variables from the loop, using a process called <a href="/wiki/Loop-invariant_code_motion" title="Loop-invariant code motion">Loop-invariant code motion</a>. It would also be possible for many compilers to detect that the <i>turn</i> variable is never modified by the inner loop, and perform a similar transformation, resulting in a potential <a href="/wiki/Infinite_loop" title="Infinite loop">infinite loop</a>. If either of these transformations is performed, the algorithm will fail, regardless of architecture.</p>
+<p>To alleviate this problem, <a href="/wiki/Volatile_variable" title="Volatile variable">volatile</a> variables should be marked as modifiable outside the scope of the currently executing context. For example, in Java, one would annotate these variables as 'volatile'. Note however that the C/C++ "volatile" attribute only guarantees that the compiler generates code with the proper ordering; it does not include the necessary <a href="/wiki/Memory_barrier#Out-of-order_execution_versus_compiler_reordering_optimizations" title="Memory barrier">memory barriers</a> to guarantee in-order <i>execution</i> of that code.</p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit&amp;section=4" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Peterson%27s_algorithm" title="Peterson's algorithm">Peterson's algorithm</a></li>
+<li><a href="/wiki/Lamport%27s_bakery_algorithm" title="Lamport's bakery algorithm">Lamport's bakery algorithm</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit&amp;section=5" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<table class="metadata plainlinks ambox ambox-content" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Question_book-new.svg" class="image" title="Question book-new.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/9/99/Question_book-new.svg/50px-Question_book-new.svg.png" width="50" height="39" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article <b>does not <a href="/wiki/Wikipedia:Citing_sources" title="Wikipedia:Citing sources">cite</a> any <a href="/wiki/Wikipedia:Verifiability" title="Wikipedia:Verifiability">references or sources</a></b>. Please help <a href="http://en.wikipedia.org/w/index.php?title=Dekker%27s_algorithm&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Dekker%27s_algorithm&amp;action=edit" rel="nofollow">improve this article</a> by adding citations to <a href="/wiki/Wikipedia:Reliable_sources" title="Wikipedia:Reliable sources">reliable sources</a> (ideally, using <i><a href="/wiki/Wikipedia:Footnotes" title="Wikipedia:Footnotes">inline citations</a></i>). Unsourced material may be <a href="/wiki/Template:Fact" title="Template:Fact">challenged</a> and <a href="/wiki/Wikipedia:BURDEN" title="Wikipedia:BURDEN" class="mw-redirect">removed</a>. <small><i>(September 2008)</i></small></td>
+</tr>
+</table>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 144/1000000
+Post-expand include size: 3526/2048000 bytes
+Template argument size: 1242/2048000 bytes
+Expensive parser function count: 1/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:36826-0!1!0!default!!en!2 and timestamp 20090403134145 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Dekker%27s_algorithm">http://en.wikipedia.org/wiki/Dekker%27s_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Concurrency_control" title="Category:Concurrency control">Concurrency control</a></span> | <span dir='ltr'><a href="/wiki/Category:Concurrent_algorithms" title="Category:Concurrent algorithms">Concurrent algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Distributed_systems" title="Category:Distributed systems">Distributed systems</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Articles_lacking_sources_from_September_2008" title="Category:Articles lacking sources from September 2008">Articles lacking sources from September 2008</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_lacking_sources" title="Category:All articles lacking sources">All articles lacking sources</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Dekker%27s_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Dekker%27s_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Dekker%27s_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Dekker%27s_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Dekker%27s_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Dekker%27s_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Dekker%27s_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Dekker%27s_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Dekker%27s_algorithm&amp;oldid=273397597" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Dekker%27s_algorithm&amp;id=273397597">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-ca"><a href="http://ca.wikipedia.org/wiki/Algorisme_de_Dekker">Català</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Dekker-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_de_Dekker">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_de_Dekker">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%EB%8D%B0%EC%BB%A4%EC%9D%98_%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98">한국어</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Algoritmo_di_Dekker">Italiano</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%83%87%E3%83%83%E3%82%AB%E3%83%BC%E3%81%AE%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_Dekkera">Polski</a></li>
+				<li class="interwiki-tr"><a href="http://tr.wikipedia.org/wiki/Dekker_algoritmas%C4%B1">Türkçe</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 26 February 2009, at 10:28.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv198 in 0.214 secs. --></body></html>

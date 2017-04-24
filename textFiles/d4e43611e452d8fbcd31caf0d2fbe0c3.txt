@@ -1,0 +1,379 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Google File System - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Google_File_System";
+		var wgTitle = "Google File System";
+		var wgAction = "view";
+		var wgArticleId = "1419735";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281148820;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Google File System
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article is in need of attention from an expert on the subject. WikiProject Software or the Software Portal may be able to help recruit one. (November 2008)
+
+
+Not to be confused with Global File System or GmailFS.
+Google File System (GFS) is a proprietary distributed file system developed by Google Inc. for its own use.[1] It is designed to provide efficient, reliable access to data using large clusters of commodity hardware.
+
+
+
+
+Contents
+
+
+1 Design
+2 See also
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Design
+GFS is optimized for Google's core data storage and usage needs (primarily the search engine), which can generate enormous amounts of data that needs to be retained;[2] Google File System grew out of an earlier Google effort, "BigFiles", developed by Larry Page and Sergey Brin in the early days of Google, while it was still located in Stanford.[2] Files are divided into chunks of 64 megabytes, which are only extremely rarely overwritten, or shrunk; files are usually appended to or read. It is also designed and optimized to run on Google's computing clusters, the nodes of which consist of cheap, "commodity" computers, which means precautions must be taken against the high failure rate of individual nodes and the subsequent data loss. Other design decisions select for high data throughputs, even when it comes at the cost of latency.
+The nodes are divided into two types: one Master node and a large number of Chunkservers. Chunkservers store the data files, with each individual file broken up into fixed size chunks (hence the name) of about 64 megabytes,[3] similar to clusters or sectors in regular file systems. Each chunk is assigned a unique 64-bit label, and logical mappings of files to constituent chunks are maintained. Each chunk is replicated several times throughout the network, with the minimum being three, but even more for files that have high demand or need more redundancy.
+The Master server doesn't usually store the actual chunks, but rather all the metadata associated with the chunks, such as the tables mapping the 64-bit labels to chunk locations and the files they make up, the locations of the copies of the chunks, what processes are reading or writing to a particular chunk, or taking a "snapshot" of the chunk pursuant to replicating it (usually at the instigation of the Master server, when, due to node failures, the number of copies of a chunk has fallen beneath the set number). All this metadata is kept current by the Master server periodically receiving updates from each chunk server ("Heart-beat messages").
+Permissions for modifications are handled by a system of time-limited, expiring "leases", where the Master server grants permission to a process for a finite period of time during which no other process will be granted permission by the Master server to modify the chunk. The modified chunkserver, which is always the primary chunk holder, then propagates the changes to the chunkservers with the backup copies. The changes are not saved until all chunkservers acknowledge, thus guaranteeing the completion and atomicity of the operation.
+Programs access the chunks by first querying the Master server for the locations of the desired chunks; if the chunks are not being operated on (if there are no outstanding leases), the Master replies with the locations, and the program then contacts and receives the data from the chunkserver directly (similar to Kazaa and its supernodes).
+As opposed to many filesystems, GFS is not implemented in the kernel of an operating system, but is instead provided as a userspace library.
+
+[edit] See also
+
+BigTable
+MapReduce
+Fossil, the native file system of Plan 9
+List of Google products
+Hadoop and its "Hadoop Distributed File System" (HDFS), an open source Java product similar to GFS.
+CloudStore
+Cloud storage
+
+
+[edit] References
+
+
+
+
+
+This article needs references that appear in reliable third-party publications. Primary sources or sources affiliated with the subject are generally not sufficient for a Wikipedia article. Please add more appropriate citations from reliable sources. (November 2007)
+
+
+
+
+^ "Despite having published details on technologies like the Google File System, Google has not released the software as open source and shows little interest in selling it. The only way it is available to another enterprise is in embedded form--if you buy a high-end version of the Google Search Appliance, one that is delivered as a rack of servers, you get Google's technology for managing that cluster as part of the package.""How Google Works"
+^ a b "All this analysis requires a lot of storage. Even back at Stanford, the Web document repository alone was up to 148 gigabytes, reduced to 54 gigabytes through file compression, and the total storage required, including the indexes and link database, was about 109 gigabytes. That may not sound like much today, when you can buy a Dell laptop with a 120-gigabyte hard drive, but in the late 1990s commodity PC hard drives maxed out at about 10 gigabytes." "How Google Works".
+^ "The files managed by the system typically range from 100 megabytes to several gigabytes. So, to manage disk space efficiently, the GFS organizes data into 64-megabyte "chunks," which are roughly analogous to the "blocks" on a conventional file system--the smallest unit of data the system is designed to support. For comparison, a typical Linux block size is 4,096 bytes. It's the difference between making each block big enough to store a few pages of text, versus several fat shelves full of books." "How Google Works"
+
+
+
+
+"The Google File System" (PDF), Sanjay Ghemawat, Howard Gobioff, and Shun-Tak Leung; pub. 19th ACM Symposium on Operating Systems Principles, Lake George, NY, October, 2003.
+
+
+
+[edit] External links
+
+A Google published research paper about GFS
+Google File System Eval: Part I at StorageMojo
+"How Google Works"
+ZDnet article on GFS
+
+
+
+
+
+
+
+
+v • d • e
+
+                  Google Inc.  [full navpage]
+
+
+
+
+
+Chairman/CEO: Eric E. Schmidt · Director/Technology President/Co-Founder: Sergey Brin · Director/Products President/Co-Founder: Larry Page
+Other Directors: John Doerr · John L. Hennessy · Arthur D. Levinson · Ann Mather · Paul Otellini · Ram Shriram · Shirley M. Tilghman · CFO: Patrick Pichette · Senior Advisor: Al Gore
+
+
+
+
+
+Advertising
+
+Adscape · AdSense · Advertising Professionals · AdWords · Analytics · Checkout · DoubleClick · Insights for Search · Trends
+
+
+
+
+
+
+Communication
+
+Alerts · Calendar · Friend Connect · Gmail (history) · Groups · Gtalk · Latitude · Orkut · Q & A · Reader · Translate · Voice
+
+
+
+
+
+
+Software
+
+Chrome · Desktop · Earth · Gadgets · Gmail Mobile · Pack · Picasa · SketchUp · Talk · Toolbar · Updater
+
+
+
+
+
+
+Platforms
+
+Account · Android · App Engine · Apps · Base · BigTable · Caja · Co-op · Gears · GFS · Health · Native Client · OpenSocial
+
+
+
+
+
+
+Development tools
+
+Code · Gadgets API · GData · Googlebot · Guice · GWS · I/O · Image Labeler · KML · MapReduce · Pinyin · SketchUp Ruby · Sitemaps · Summer of Code · TechTalks · Web Toolkit · Website Optimizer
+
+
+
+
+
+
+Publishing
+
+Blogger · Bookmarks · Docs · FeedBurner · iGoogle · Jaiku · Knol · Map Maker · Panoramio · Picasa Web Albums · Sites (JotSpot) · YouTube
+
+
+
+
+
+
+Search (PageRank)
+
+Appliance · Audio · Books (Library Project) · Code · Desktop · Finance · GOOG-411 · Images · Maps (Street View) · News · Patents · Products · Scholar · SearchWiki · Usenet · Video · Web
+
+
+
+
+
+
+Discontinued
+
+Answers · Browser Sync · Click-to-Call · Dodgeball · Joga Bonito · Lively · Mashup Editor · Notebook · Page Creator · Video Marketplace · Web Accelerator
+
+
+
+
+
+
+See also
+
+Acquisitions · Bomb · Censorship · Criticism · Foundation · Google China · Google.org · Googleplex · History · Hoaxes · I'm Feeling Lucky · Labs · Logo · Lunar X Prize · Products · Ventures · WiFi · Zeitgeist
+
+
+
+
+
+
+Annual revenue: US$21.80 billion (▲31% FY 2008) · Employees: 20,222 full-time (Dec. 31, 2008) · Stock symbol: (NASDAQ: GOOG, LSE: GGEA) · Motto: Don't be evil · Website: www.google.com
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Google_File_System"
+Categories: Linux file systems | Google | Parallel computing | Distributed file systemsHidden categories: Software articles needing expert attention | Articles needing expert attention since November 2008 | Articles lacking reliable references from November 2007 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Български
+Česky
+Deutsch
+Français
+Italiano
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 1 April 2009, at 20:39 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

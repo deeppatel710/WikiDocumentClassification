@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Maze generation algorithm,Cleanup from December 2006,Algorithm,Amortized time,Backtracking,Binary tree,Connected graph,Depth-first search,Disjoint-set data structure,Java (programming language),Kruskal&#039;s algorithm" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Maze generation algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Maze_generation_algorithm";
+		var wgTitle = "Maze generation algorithm";
+		var wgAction = "view";
+		var wgArticleId = "200877";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 287307724;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Maze_generation_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Maze generation algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table class="metadata plainlinks ambox ambox-style" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Ambox_style.png" class="image" title="Ambox style.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/d/d6/Ambox_style.png" width="40" height="40" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article <b>may require <a href="/wiki/Wikipedia:Cleanup" title="Wikipedia:Cleanup">cleanup</a> to meet Wikipedia's <a href="/wiki/Wikipedia:Manual_of_Style" title="Wikipedia:Manual of Style">quality standards</a>.</b> Please <a href="http://en.wikipedia.org/w/index.php?title=Maze_generation_algorithm&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Maze_generation_algorithm&amp;action=edit" rel="nofollow">improve this article</a> if you can. <small><i>(December 2006)</i></small></td>
+</tr>
+</table>
+<p>There are a number of different <b>maze generation <a href="/wiki/Algorithm" title="Algorithm">algorithms</a></b>, that is, automated methods for the creation of <a href="/wiki/Maze" title="Maze">mazes</a>.</p>
+<div class="thumb tright">
+<div class="thumbinner" style="width:202px;"><a href="/wiki/File:Maze.png" class="image" title="This maze generated by modified version of Prim's algorithm, below. Click the Maze for Java source code."><img alt="" src="http://upload.wikimedia.org/wikipedia/en/9/91/Maze.png" width="200" height="200" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">This maze generated by modified version of <a href="/wiki/Prim%27s_algorithm" title="Prim's algorithm">Prim's algorithm</a>, below. Click the Maze for <a href="/wiki/Java_(programming_language)" title="Java (programming language)">Java</a> <a href="/wiki/Source_code" title="Source code">source code</a>.</div>
+</div>
+</div>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Graph_theory_based_methods"><span class="tocnumber">1</span> <span class="toctext">Graph theory based methods</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Depth-first_search"><span class="tocnumber">1.1</span> <span class="toctext">Depth-first search</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Recursive_backtracker"><span class="tocnumber">1.1.1</span> <span class="toctext">Recursive backtracker</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Randomized_Kruskal.27s_algorithm"><span class="tocnumber">1.2</span> <span class="toctext">Randomized Kruskal's algorithm</span></a></li>
+<li class="toclevel-2"><a href="#Randomized_Prim.27s_algorithm"><span class="tocnumber">1.3</span> <span class="toctext">Randomized Prim's algorithm</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Modified_version"><span class="tocnumber">1.3.1</span> <span class="toctext">Modified version</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Recursive_division_method"><span class="tocnumber">2</span> <span class="toctext">Recursive division method</span></a></li>
+<li class="toclevel-1"><a href="#Simple_algorithms"><span class="tocnumber">3</span> <span class="toctext">Simple algorithms</span></a></li>
+<li class="toclevel-1"><a href="#Non-cell-based_algorithm"><span class="tocnumber">4</span> <span class="toctext">Non-cell-based algorithm</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">5</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Graph_theory_based_methods" id="Graph_theory_based_methods"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=1" title="Edit section: Graph theory based methods">edit</a>]</span> <span class="mw-headline">Graph theory based methods</span></h2>
+<p>A maze can be generated by starting with a predetermined arrangement of cells (most commonly a rectangular grid but other arrangements are possible) with wall sites between them. This predeterimined arrangement can be considered as a <a href="/wiki/Connected_graph" title="Connected graph" class="mw-redirect">connected graph</a> with the edges representing possible wall sites and the nodes representing cells. The purpose of the maze generation algorithm can then be considered to be making a subgraph where it is challanging to find a route between two particular nodes.</p>
+<p>If the subgraph is not <a href="/wiki/Connected_graph" title="Connected graph" class="mw-redirect">connected</a>, then there are regions of the graph that are wasted because they do not contribute to the search space. If the graph contains loops, then there may be multiple paths between the chosen paths. Because of this, maze generation is often approached as generating a random <a href="/wiki/Spanning_tree_(mathematics)" title="Spanning tree (mathematics)">spanning tree</a>. Loops which can confound naive maze solvers may be introduced by adding random edges to the result during the course of the algorithm.</p>
+<p><a name="Depth-first_search" id="Depth-first_search"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=2" title="Edit section: Depth-first search">edit</a>]</span> <span class="mw-headline">Depth-first search</span></h3>
+<div class="thumb tright">
+<div class="thumbinner" style="width:182px;"><a href="/wiki/File:Amaze.jpg" class="image" title="A maze running on a Palm emulator"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Amaze.jpg/180px-Amaze.jpg" width="180" height="273" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Amaze.jpg" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+A maze running on a <a href="/wiki/Palm_(PDA)" title="Palm (PDA)">Palm emulator</a></div>
+</div>
+</div>
+<p>This algorithm is a randomized version of the <a href="/wiki/Depth-first_search" title="Depth-first search">depth-first search</a> algorithm. Frequently implemented with a stack, this approach is one of the simplest ways to generate a maze using a computer. Consider the space for a maze being a large grid of cells (like a large chess board), each cell starting with four walls. Starting from a random cell, the computer then selects a random neighbouring cell that has not yet been visited. The computer removes the 'wall' between the two cells and adds the new cell to a stack (this is analogous to drawing the line on the floor). The computer continues this process, with a cell that has no unvisited neighbours being considered a dead-end. When at a dead-end it backtracks through the path until it reaches a cell with an unvisited neighbour, continuing the path generation by visiting this new, unvisited cell (creating a new junction). This process continues until every cell has been visited, causing the computer to backtrack all the way back to the beginning cell. This approach guarantees that the maze space is completely visited.</p>
+<p>As stated, the algorithm is very simple and does not produce overly-complex mazes. More specific refinements to the algorithm can help to generate mazes that are harder to solve.</p>
+<ol>
+<li>Start at a particular cell and call it the "exit."</li>
+<li>Mark the current cell as visited, and get a list of its neighbors. For each neighbor, starting with a randomly selected neighbor:
+<ol>
+<li>If that neighbor hasn't been visited, remove the wall between this cell and that neighbor, and then <a href="/wiki/Recursion" title="Recursion">recurse</a> with that neighbor as the current cell.</li>
+</ol>
+</li>
+</ol>
+<p>As given above this algorithm involves deep recursion which may cause stack overflow issues on some computer architectures. The algorithm can be rearranged into a loop by storing backtracking information in the maze itself. This also provides a quick way to display a solution, by starting at any given point and backtracking to the exit.</p>
+<p>Mazes generated with a depth-first search have a low branching factor and contain many long corridors, which makes depth-first a good algorithm for generating mazes in <a href="/wiki/Video_game" title="Video game">video games</a>.</p>
+<p>In mazes generated by that algorithm, it will typically be relatively easy to find the way to the square that was first picked at the beginning of the algorithm, since most paths lead to or from there, but hard to find the way out.</p>
+<p><a name="Recursive_backtracker" id="Recursive_backtracker"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=3" title="Edit section: Recursive backtracker">edit</a>]</span> <span class="mw-headline">Recursive backtracker</span></h4>
+<p>The depth-first search algorithm of maze generation is frequently implemented using <a href="/wiki/Backtracking" title="Backtracking">backtracking</a>:</p>
+<ol>
+<li>Mark the current cell as 'Visited'</li>
+<li>If the current cell has any neighbours which have not been visited
+<ol>
+<li>Choose randomly one of the unvisited neighbours</li>
+<li>add the current cell to the stack</li>
+<li>remove the wall between the current cell and the chosen cell</li>
+<li>Make the chosen cell the current cell</li>
+<li>Recursively call this function</li>
+</ol>
+</li>
+<li>else
+<ol>
+<li>remove the last current cell from the stack</li>
+<li>Backtrack to the previous execution of this function</li>
+</ol>
+</li>
+</ol>
+<p><a name="Randomized_Kruskal.27s_algorithm" id="Randomized_Kruskal.27s_algorithm"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=4" title="Edit section: Randomized Kruskal's algorithm">edit</a>]</span> <span class="mw-headline">Randomized Kruskal's algorithm</span></h3>
+<p>This algorithm is simply a randomized version of <a href="/wiki/Kruskal%27s_algorithm" title="Kruskal's algorithm">Kruskal's algorithm</a>.</p>
+<ol>
+<li>Create a list of all walls, and create a set for each cell, each containing just that one cell.</li>
+<li>For each wall, in some random order:
+<ol>
+<li>If the cells divided by this wall belong to distinct sets:
+<ol>
+<li>Remove the current wall.</li>
+<li>Join the sets of the formerly divided cells.</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>There are several data structures that can be used to model the sets of cells. An efficient implementation using a <a href="/wiki/Disjoint-set_data_structure" title="Disjoint-set data structure">disjoint-set data structure</a> can perform each union and find operation on two sets in nearly-constant <a href="/wiki/Amortized_time" title="Amortized time" class="mw-redirect">amortized time</a> (specifically, <span class="texhtml"><i>O</i>(α(<i>V</i>))</span> time; <span class="texhtml">α(<i>x</i>) &lt; 5</span> for any plausible value of <span class="texhtml"><i>x</i></span>), so the running time of this algorithm is essentially proportional to the number of walls available to the maze.</p>
+<p>It matters little whether the list of walls is initially randomized or if a wall is randomly chosen from a nonrandom list, either way is just as easy to code.</p>
+<p>Because the effect of this algorithm is to produce a minimal spanning tree from a graph with equally-weighted edges, it tends to produce regular patterns which are fairly easy to solve.</p>
+<p><a name="Randomized_Prim.27s_algorithm" id="Randomized_Prim.27s_algorithm"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=5" title="Edit section: Randomized Prim's algorithm">edit</a>]</span> <span class="mw-headline">Randomized Prim's algorithm</span></h3>
+<p>This algorithm is a randomized version of <a href="/wiki/Prim%27s_algorithm" title="Prim's algorithm">Prim's algorithm</a>.</p>
+<ol>
+<li>Start with a grid full of walls.</li>
+<li>Pick a cell, mark it as part of the maze. Add the walls of the cell to the wall list.</li>
+<li>While there are walls in the list:
+<ol>
+<li>Pick a random wall from the list. If the cell on the opposite side isn't in the maze yet:
+<ol>
+<li>Make the wall a passage and mark the cell on the opposite side as part of the maze.</li>
+<li>Add the neighboring walls of the cell to the wall list.</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>Like the depth-first algorithm, it will usually be relatively easy to find the way to the starting cell, but hard to find the way anywhere else.</p>
+<p>Note that simply running classical Prim's on a graph with random weights would create mazes stylistically identical to Kruskal's, because they are both minimal spanning tree algorithms. Instead, this algorithm introduces stylistic variation because the edges closer to the starting point have a lower effective weight.</p>
+<p><a name="Modified_version" id="Modified_version"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=6" title="Edit section: Modified version">edit</a>]</span> <span class="mw-headline">Modified version</span></h4>
+<p>Although the classical Prim's algorithm keeps a list of edges, for maze generation we could instead maintain a list of adjacent cells. If the randomly chosen cell has multiple edges that connect it to the existing maze, select one of these edges at random. This will tend to branch slightly more than the edge-based version above.</p>
+<p><a name="Recursive_division_method" id="Recursive_division_method"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=7" title="Edit section: Recursive division method">edit</a>]</span> <span class="mw-headline">Recursive division method</span></h2>
+<table class="wikitable" align="right">
+<caption><b>Illustration of Recursive Division</b></caption>
+<tr>
+<th width="110px"><i>original chamber</i></th>
+<th width="110px"><i>division by two walls</i></th>
+<th width="110px"><i>holes in walls</i></th>
+<th width="110px"><i>continue subdividing...</i></th>
+<th width="110px"><i>completed</i></th>
+</tr>
+<tr>
+<td align="center"><a href="/wiki/File:Chamber.png" class="image" title="Chamber.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/6/62/Chamber.png/101px-Chamber.png" width="101" height="141" border="0" /></a></td>
+<td align="center"><a href="/wiki/File:Chamber_division.png" class="image" title="Chamber division.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/1/1b/Chamber_division.png/101px-Chamber_division.png" width="101" height="141" border="0" /></a></td>
+<td align="center"><a href="/wiki/File:Chamber_divided.png" class="image" title="Chamber divided.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/3/38/Chamber_divided.png/101px-Chamber_divided.png" width="101" height="141" border="0" /></a></td>
+<td align="center"><a href="/wiki/File:Chamber_subdivision.png" class="image" title="Chamber subdivision.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/3/37/Chamber_subdivision.png/101px-Chamber_subdivision.png" width="101" height="141" border="0" /></a></td>
+<td align="center"><a href="/wiki/File:Chamber_finished.png" class="image" title="Chamber finished.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/8/8b/Chamber_finished.png/101px-Chamber_finished.png" width="101" height="141" border="0" /></a></td>
+</tr>
+</table>
+<p>Mazes can be created with <i>recursive division</i>, an algorithm which works as follows: Begin with the maze's space with no walls. Call this a chamber. Divide the chamber with a randomly positioned wall (or multiple walls) where each wall contain a randomly positioned passage opening within it. Then recursively repeat the process on the subchambers until all chambers are minimum sized. This method results in mazes with long straight walls crossing their space, making it easier to see which areas to avoid.</p>
+<p>For example, in a rectangular maze, build at random points two walls that are perpendicular to each other. These two walls divide the large chamber into four smaller chambers separated by four walls. Choose three of the four walls at random, and open a one cell-wide hole at a random point in each of the three. Continue in this manner recursively, until every chamber has a width of one cell in either of the two directions.<br clear="all" /></p>
+<p><a name="Simple_algorithms" id="Simple_algorithms"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=8" title="Edit section: Simple algorithms">edit</a>]</span> <span class="mw-headline">Simple algorithms</span></h2>
+<p>Other algorithms exist that require only enough memory to store one line of a 2D maze or one plane of a 3D maze. They prevent loops by storing which cells in the current line are connected through cells in the previous lines, and never remove walls between any two cells already connected.</p>
+<p>Most maze generation algorithms require maintaining relationships between cells within it, to ensure the end result will be solvable. Valid simply connected mazes can however be generated by focusing on each cell independently. A binary tree maze is a standard orthogonal maze where each cell always has a passage leading up or leading left, but never both. To create a binary tree maze, for each cell flip a coin to decide whether to add a passage leading up or left. Always pick the same direction for cells on the boundary, and the end result will be a valid simply connected maze that looks like a <a href="/wiki/Binary_tree" title="Binary tree">binary tree</a>, with the upper left corner its root.</p>
+<p>A related form of flipping a coin for each cell is to create an image using a random mix of forward slash and backslash characters. This doesn't generate a valid simply connected maze, but rather a selection of closed loops and unicursal passages.</p>
+<p><a name="Non-cell-based_algorithm" id="Non-cell-based_algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=9" title="Edit section: Non-cell-based algorithm">edit</a>]</span> <span class="mw-headline">Non-cell-based algorithm</span></h2>
+<p>A maze can also be generated without the use of cells. In year 2000, a shareware called AmorphousMaze, appeared on the Internet that creates mazes with walls placed at totally random angles. <a href="http://www.puz.com/sw/amorphous/theory/amz1.jpg" class="external text" title="http://www.puz.com/sw/amorphous/theory/amz1.jpg" rel="nofollow">Sample picture</a>. The algorithm is based on extending the wall by a small segment at a time without crossing over a pre-existing one. <a href="http://www.puz.com/sw/amorphous/theory/index.htm" class="external text" title="http://www.puz.com/sw/amorphous/theory/index.htm" rel="nofollow">Algorithm detail</a>. The disadvantage of this algorithm is that the number of tests for intersection is <span class="texhtml"><i>O</i>(<i>E</i><sup>2</sup>)</span>, where <span class="texhtml"><i>E</i></span> is the number of line segments being drawn.</p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=10" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Mazes" title="Mazes" class="mw-redirect">Mazes</a></li>
+<li><a href="/wiki/Maze_solving_algorithm" title="Maze solving algorithm">Maze solving algorithm</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit&amp;section=11" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.astrolog.org/labyrnth/algrithm.htm#perfect" class="external text" title="http://www.astrolog.org/labyrnth/algrithm.htm#perfect" rel="nofollow">Think Labyrinth: Maze algorithms</a> (details on these and other maze generation algorithms)</li>
+<li><a href="http://homepages.cwi.nl/~tromp/maze.html" class="external text" title="http://homepages.cwi.nl/~tromp/maze.html" rel="nofollow">Explanation of an Obfuscated C maze algorithm</a> (a program to generate mazes line-by-line, obfuscated in a single physical line of code)</li>
+<li><a href="http://www.mazeworks.com/mazegen/" class="external text" title="http://www.mazeworks.com/mazegen/" rel="nofollow">Maze generation and solving Java applet</a></li>
+<li><a href="http://chiesaclan.spaces.live.com/blog/cns!842434EBE9688900!632.entry" class="external text" title="http://chiesaclan.spaces.live.com/blog/cns!842434EBE9688900!632.entry" rel="nofollow">Maze generator and solver, in C#</a> - print out mazes in various shapes on paper.</li>
+<li><a href="http://solidify.com/public/simple_maze.pdf" class="external text" title="http://solidify.com/public/simple_maze.pdf" rel="nofollow">A simple method of making a circular maze</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 226/1000000
+Post-expand include size: 3098/2048000 bytes
+Template argument size: 953/2048000 bytes
+Expensive parser function count: 1/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:200877-0!1!0!default!!en!2 and timestamp 20090501193207 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Maze_generation_algorithm">http://en.wikipedia.org/wiki/Maze_generation_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Mazes" title="Category:Mazes">Mazes</a></span> | <span dir='ltr'><a href="/wiki/Category:Algorithms" title="Category:Algorithms">Algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Random_graphs" title="Category:Random graphs">Random graphs</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Cleanup_from_December_2006" title="Category:Cleanup from December 2006">Cleanup from December 2006</a></span> | <span dir='ltr'><a href="/wiki/Category:All_pages_needing_cleanup" title="Category:All pages needing cleanup">All pages needing cleanup</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Maze_generation_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Maze_generation_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Maze_generation_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Maze_generation_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Maze_generation_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Maze_generation_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Maze_generation_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Maze_generation_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Maze_generation_algorithm&amp;oldid=287307724" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Maze_generation_algorithm&amp;id=287307724">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-he"><a href="http://he.wikipedia.org/wiki/%D7%90%D7%9C%D7%92%D7%95%D7%A8%D7%99%D7%AA%D7%9E%D7%99%D7%9D_%D7%9C%D7%99%D7%99%D7%A6%D7%95%D7%A8_%D7%9E%D7%91%D7%95%D7%9B%D7%99%D7%9D">עברית</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 1 May 2009, at 19:32 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv218 in 0.043 secs. --></body></html>

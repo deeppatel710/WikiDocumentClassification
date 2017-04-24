@@ -1,0 +1,383 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Alpha-beta pruning - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Alpha-beta_pruning";
+		var wgTitle = "Alpha-beta pruning";
+		var wgAction = "view";
+		var wgArticleId = "159501";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 272757141;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Alpha-beta pruning
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+An illustration of alpha-beta pruning. The grayed-out subtrees need not be explored (when moves are evaluated from left to right), since we know the group of subtrees as a whole yields the value of an equivalent subtree or worse, and as such cannot influence the final result.
+
+
+Alpha-beta pruning is a search algorithm which seeks to reduce the number of nodes that are evaluated in the search tree by the minimax algorithm. It is a search with adversary algorithm used commonly for machine playing of two-player games (Tic-tac-toe, Chess, Go, etc.). It stops completely evaluating a move when at least one possibility has been found that proves the move to be worse than a previously examined move. Such moves need not be evaluated further. Alpha-beta pruning is a sound optimization in that it does not change the result of the algorithm it optimizes.
+
+
+
+
+Contents
+
+
+1 History
+2 Improvements over naive minimax
+3 Pseudocode
+4 Heuristic improvements
+5 Other algorithms
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+Allen Newell and Herbert Simon who used what John McCarthy calls an "approximation"[1] in 1958 wrote that alpha-beta "appears to have been reinvented a number of times".[2] Arthur Samuel had an early version and Richards, Hart, Levine and/or Edwards found alpha-beta independently in the United States.[3] McCarthy proposed similar ideas during the Dartmouth Conference in 1956 and suggested it to a group of his students including Alan Kotok at MIT in 1961.[4] Alexander Brudno independently discovered the alpha-beta algorithm, publishing his results in 1963. [5] Donald Knuth and Ronald W. Moore refined the algorithm in 1975[6][7] and it continued to be advanced.
+
+[edit] Improvements over naive minimax
+The benefit of alpha-beta pruning lies in the fact that branches of the search tree can be eliminated. The search time can in this way be limited to the 'more promising' subtree, and a deeper search can be performed in the same time. Like its predecessor, it belongs to the branch and bound class of algorithms. The optimization reduces the effective depth to slightly more than half that of simple minimax if the nodes are evaluated in an optimal or near optimal order (best choice for side on move ordered first at each node).
+With an (average or constant) branching factor of b, and a search depth of d ply, the maximum number of leaf node positions evaluated (when the move ordering is pessimal) is O(b*b*...*b) = O(bd) – the same as a simple minimax search. If the move ordering for the search is optimal (meaning the best moves are always searched first), the number of leaf node positions evaluated is about O(b*1*b*1*...*b) for odd depth and O(b*1*b*1*...*1) for even depth, or . In the latter case, the effective branching factor is reduced to its square root, or, equivalently, the search can go twice as deep with the same amount of computation.[8] The explanation of b*1*b*1*... is that all the first player's moves must be studied to find the best one, but for each, only the best second player's move is needed to refute all but the first (and best) first player move – alpha-beta ensures no other second player moves need be considered. If b=40 (as in chess), and the search depth is 12 ply, the ratio between optimal and pessimal sorting is a factor of nearly 406 or about 4 billion times.
+Normally during alpha-beta, the subtrees are temporarily dominated by either a first player advantage (when many first player moves are good, and at each search depth the first move checked by the first player is adequate, but all second player responses are required to try and find a refutation), or vice versa. This advantage can switch sides many times during the search if the move ordering is incorrect, each time leading to inefficiency. As the number of positions searched decreases exponentially each move nearer the current position, it is worth spending considerable effort on sorting early moves. An improved sort at any depth will exponentially reduce the total number of positions searched, but sorting all positions at depths near the root node is relatively cheap as there are so few of them. In practice, the move ordering is often determined by the results of earlier, smaller searches, such as through iterative deepening.
+The algorithm maintains two values, alpha and beta, which represent the minimum score that the maximizing player is assured of and the maximum score that the minimizing player is assured of respectively. Initially alpha is negative infinity and beta is positive infinity. As the recursion progresses the "window" becomes smaller. When beta becomes less than alpha, it means that the current position cannot be the result of best play by both players and hence need not be explored further.
+Additionally, this algorithm can be trivially modified to return an entire Principal Variation in addition to the score. Some more aggressive algorithms such as MTD(f) do not easily permit such a modification.
+
+[edit] Pseudocode
+
+function alphabeta(node, depth, α, β)         
+    (* β represents previous player best choice - doesn't want it if α would worsen it *)
+    if node is a terminal node or depth = 0
+        return the heuristic value of node
+    foreach child of node
+        α := max(α, -alphabeta(child, depth-1, -β, -α))     
+        (* use symmetry, -β becomes subsequently pruned α *)
+        if β≤α
+            break                             (* Beta cut-off *)
+    return α
+
+(* Initial call *)
+alphabeta(origin, depth, -infinity, +infinity)
+
+
+[edit] Heuristic improvements
+Further improvement can be achieved without sacrificing accuracy, by using ordering heuristics to search parts of the tree that are likely to force alpha-beta cutoffs early. For example, in chess, moves that take pieces may be examined before moves that do not, or moves that have scored highly in earlier passes through the game-tree analysis may be evaluated before others. Another common, and very cheap, heuristic is the killer heuristic, where the last move that caused a beta-cutoff at the same level in the tree search is always examined first. This idea can be generalized into a set of refutation tables.
+Alpha-beta search can be made even faster by considering only a narrow search window (generally determined by guesswork based on experience). This is known as aspiration search. In the extreme case, the search is performed with alpha and beta equal; a technique known as zero-window search, null-window search, or scout search. This is particularly useful for win/loss searches near the end of a game where the extra depth gained from the narrow window and a simple win/loss evaluation function may lead to a conclusive result. If an aspiration search fails, it is straightforward to detect whether it failed high (high edge of window was too low) or low (lower edge of window was too high). This gives information about what window values might be useful in a re-search of the position.
+
+[edit] Other algorithms
+More advanced algorithms that are even faster while still being able to compute the exact minimax value are known, such as Negascout and MTD-f.
+Since the minimax algorithm and its variants are inherently depth-first, a strategy such as iterative deepening is usually used in conjunction with alpha-beta so that a reasonably good move can be returned even if the algorithm is interrupted before it has finished execution. Another advantage of using iterative deepening is that searches at shallower depths give move-ordering hints that can help produce cutoffs for higher depth searches much earlier than would otherwise be possible.
+Algorithms like SSS*, on the other hand, use the best-first strategy. This can potentially make them more time-efficient, but typically at a heavy cost in space-efficiency.[citation needed]
+
+[edit] See also
+
+Pruning (algorithm)
+Branch and bound
+Minimax
+Combinatorial optimization
+Negamax
+Transposition table
+MTD(f)
+Negascout
+Killer heuristic
+
+
+[edit] References
+
+^ McCarthy, John (LaTeX2HTML 27 November 2006). "Human Level AI Is Harder Than It Seemed in 1955". http://www-formal.stanford.edu/jmc/slides/wrong/wrong-sli/wrong-sli.html. Retrieved on 2006-12-20. 
+^ Newell, Allen and Herbert A. Simon (March 1976). "Computer Science as Empirical Inquiry: Symbols and Search" (PDF). Communications of the ACM, Vol. 19, No. 3. http://archive.computerhistory.org/projects/chess/related_materials/text/2-3.Computer_science_as_empirical_inquiry/2-3.Computer_science_as_empirical_inquiry.newell_simon.1975.ACM.062303007.pdf. Retrieved on 2006-12-21. 
+^ Richards, D.J. and Hart, T.P. (4 December 1961 to 28 October 1963). "The Alpha-Beta Heuristic (AIM-030)". Massachusetts Institute of Technology. http://hdl.handle.net/1721.1/6098. Retrieved on 2006-12-21. 
+^ Kotok, Alan (XHTML 3 December 2004). "MIT Artificial Intelligence Memo 41". http://www.kotok.org/AI_Memo_41.html. Retrieved on 2006-07-01. 
+^ Marsland, T.A. (May 1987). "Computer Chess Methods (PDF) from Encyclopedia of Artificial Intelligence. S. Shapiro (editor)" (PDF). J. Wiley & Sons. 159-171. http://www.cs.ualberta.ca/~tony/OldPapers/encyc.mac.pdf. Retrieved on 2006-12-21. 
+^ * Knuth, D. E., and Moore, R. W. (1975). "An Analysis of Alpha-Beta Pruning". Artificial Intelligence Vol. 6, No. 4: 293–326. 
+
+
+
+Reprinted as Chapter 9 in Knuth, Donald E. (2000). Selected Papers on Analysis of Algorithms. Stanford, California: Center for the Study of Language and Information - CSLI Lecture Notes, no. 102. ISBN 1-57586-212-3. OCLC 222512366. http://www-cs-faculty.stanford.edu/~knuth/aa.html. 
+
+
+
+
+^ Abramson, Bruce (June 1989). "Control Strategies for Two-Player Games". ACM Computing Surveys, Vol. 21, No. 2. http://www.theinformationist.com/pdf/constrat.pdf/. Retrieved on 2008-08-20. 
+^ Russell, Stuart J.; Norvig, Peter (2003), Artificial Intelligence: A Modern Approach (2nd ed.), Upper Saddle River, NJ: Prentice Hall, ISBN 0-13-790395-2, http://aima.cs.berkeley.edu/ 
+
+
+[edit] External links
+
+http://www.emunix.emich.edu/~evett/AI/AlphaBeta_movie/sld001.htm
+http://sern.ucalgary.ca/courses/CPSC/533/W99/presentations/L1_5B_McCullough_Melnyk/
+http://sern.ucalgary.ca/courses/CPSC/533/W99/presentations/L2_5B_Lima_Neitz/search.html
+http://www.maths.nott.ac.uk/personal/anw/G13GAM/alphabet.html
+http://chess.verhelst.org/search.html
+http://www.frayn.net/beowulf/index.html
+http://hal.inria.fr/docs/00/12/15/16/PDF/RR-6062.pdf
+Minimax (with or without alpha-beta pruning) algorithm visualization - game tree solving (Java Applet)
+
+
+
+
+
+
+
+
+v • d • e
+
+Topics in game theory
+
+
+
+
+
+Definitions
+
+Normal-form game · Extensive-form game · Cooperative game · Information set · Preference
+
+
+
+
+
+
+Equilibrium concepts
+
+Nash equilibrium · Subgame perfection · Bayesian-Nash · Perfect Bayesian · Trembling hand · Proper equilibrium · Epsilon-equilibrium · Correlated equilibrium · Sequential equilibrium · Quasi-perfect equilibrium · Evolutionarily stable strategy · Risk dominance · Pareto efficiency · Quantal response equilibrium
+
+
+
+
+
+
+Strategies
+
+Dominant strategies · Pure strategy · Mixed strategy · Tit for tat · Grim trigger · Collusion · Backward induction
+
+
+
+
+
+
+Classes of games
+
+Symmetric game · Perfect information · Dynamic game · Sequential game · Repeated game · Signaling game · Cheap talk · Zero-sum game · Mechanism design · Bargaining problem · Stochastic game · Nontransitive game · Global games
+
+
+
+
+
+
+Games
+
+Prisoner's dilemma · Traveler's dilemma · Coordination game · Chicken · Centipede game · Volunteer's dilemma · Dollar auction · Battle of the sexes · Stag hunt · Matching pennies · Ultimatum game · Minority game · Rock-paper-scissors · Pirate game · Dictator game · Public goods game · Blotto games · War of attrition · El Farol Bar problem · Cake cutting · Cournot game · Deadlock · Diner's dilemma · Guess 2/3 of the average · Kuhn poker · Nash bargaining game · Screening game · Trust game · Princess and monster game
+
+
+
+
+
+
+Theorems
+
+Minimax theorem · Purification theorem · Folk theorem · Revelation principle · Arrow's impossibility theorem
+
+
+
+
+
+
+See also
+
+Tragedy of the commons · All-pay auction · List of games in game theory
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Alpha-beta_pruning"
+Categories: Game artificial intelligence | Graph algorithms | Optimization algorithms | Search algorithms | Articles with example pseudocodeHidden categories: All articles with unsourced statements | Articles with unsourced statements since February 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+Italiano
+Magyar
+日本語
+Polski
+Português
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 23 February 2009, at 17:33.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

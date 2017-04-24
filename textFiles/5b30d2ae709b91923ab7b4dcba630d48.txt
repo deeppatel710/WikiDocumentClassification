@@ -1,0 +1,289 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+General number field sieve - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "General_number_field_sieve";
+		var wgTitle = "General number field sieve";
+		var wgAction = "view";
+		var wgArticleId = "152734";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282947131;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); General number field sieve
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In mathematics, the general number field sieve (GNFS) is the most efficient classical algorithm known for factoring integers larger than 100 digits. Heuristically, its complexity for factoring an integer n (consisting of log n bits) is of the form
+
+
+
+(in O and L notations) for a constant c which depends on the complexity measure and on the variant of the algorithm[1]. It is a generalization of the special number field sieve: while the latter can only factor numbers of a certain special form, the general number field sieve can factor any number (apart from prime powers, but this is a minor issue). When the term number field sieve (NFS) is used without qualification, it refers to the general number field sieve.
+The principle of the number field sieve (both special and general) can be understood as an extension of the simpler rational sieve. When using the rational sieve to factor a large number n, it is necessary to search for smooth numbers (i.e. numbers with small prime factors) of order n; the rarity of these causes the rational sieve to be impractical. The general number field sieve, on the other hand, only requires a search for smooth numbers of order n1/d, where d is some integer greater than one. Since larger numbers are far less likely to be smooth than smaller numbers, this is the key to the efficiency of the number field sieve. But in order to achieve this speed-up, the number field sieve has to perform computations and factorizations in number fields. This results in many rather complicated aspects of the algorithm, as compared to the simpler rational sieve.
+Note that log n is the number of digits in the binary representation of n, that is the size of the input to the algorithm. The (worst-case) running time is therefore super-polynomial in the size of the input. It is an important open problem whether factorization can be done in reasonable time — polynomial time — on a classical computer. On a quantum computer, factorization is a tractable problem using Shor's algorithm.
+
+[edit] Method
+We choose two polynomials f(x) and g(x) of small degrees d and e, which have integer coefficients, which are irreducible over the rationals, and which, when interpreted mod n, have a common root m. An optimal strategy for choosing these polynomials is not known; one simple method is to pick a degree d for a polynomial, consider the expansion of n in base m (allowing digits between −m and m) for a number of different m of order n1/d, and pick f(x) as the polynomial with the smallest coefficients and g(x) as x − m.
+A better method was suggested by Murphy and Brent [2]; they introduce a two-part score for polynomials, based on the presence of roots modulo small primes and on the average value that the polynomial takes over the sieving area.
+The best reported results [3] were achieved by the method of Thorsten Kleinjung [4], which allows g(x) = ax + b, and searches over a composed of small prime factors congruent to 1 modulo 2d and over leading coefficients of f which are divisible by 60.
+Now, we consider the number field rings Z[r1] and Z[r2], where r1 and r2 are roots of the polynomials f and g, and look for values a and b such that r = bd·f(a/b) and s = be·g(a/b) are smooth relative to the chosen basis of primes. If a and b are small, then r and s will be too (but at least of order of m), and we have a better chance for them to be smooth at the same time. The current best-known approach for this search is lattice sieving; to get acceptable yields, it is necessary to use a large factor base.
+Having enough such pairs, using Gaussian elimination, we can get products of certain r and of the corresponding s to be squares at the same time. We need a slightly stronger condition—that they are norms of squares in our number fields, but we can get that condition by this method too. Each r is a norm of a- r1 b and hence we get that the product of the corresponding factors a- r1 b is a square in Z[r1], with a "square root" which can be determined (as a product of known factors in Z[r1])—it will typically be represented as an irrational algebraic number. Similarly, we get that the product of the factors a- r2 b is a square in Z[r2], with a "square root" which we can also compute.
+Since m is a root of both f and g mod n, there are homomorphisms from the rings Z[r1] and Z[r2] to the ring Z/nZ, which map r1 and r2 to m, and these homomorphisms will map each "square root" (typically not represented as a rational number) into its integer representative. Now the product of the factors a − mb mod n can be obtained as a square in two ways—one for each homomorphism. Thus, we get two numbers x and y, with x2 − y2 divisible by n and again with probability at least one half we get a factor of n by finding the greatest common divisor of n and x − y.
+
+[edit] Implementations
+Until 2007, the gold-standard implementation was a suite of software developed and distributed by CWI in the Netherlands, which was available only under a relatively restrictive license. In 2007, Jason Papadopoulos developed a faster implementation of final processing as part of msieve, which is public-domain. msieve, however, can only run on a single SMP computer, whilst CWI's implementation can be distributed among several nodes in a cluster with a sufficiently fast interconnect.
+Polynomial selection is normally performed by GPL software written by Kleinjung, or by msieve, and lattice sieving by GPL software written by Franke and Kleinjung; these are distributed in GGNFS.
+
+NFSNet
+GGNFS.
+pGNFS
+factor by gnfs
+msieve, which contains excellent final-processing code, a good implementation of the polynomial selection which is very fast for smaller numbers, and an implementation of the line sieve.
+
+
+[edit] References
+
+
+^ Pomerance, Carl (December 1996), "A Tale of Two Sieves" (PDF), Notices of the AMS 43 (12): 1473–1485, http://www.ams.org/notices/199612/pomerance.pdf 
+^ B. Murphy and R. P. Brent. "On quadratic polynomials for the number field sieve". Australian Computer Science Communications 20 (1998), pp. 199–213. [1]
+^ Franke, Jens (2006) (PDF), On RSA 200 and larger projects, http://www.hyperelliptic.org/tanja/SHARCS/talks06/Jens_Franke.pdf 
+^ Kleinjung, Thorsten (October 2006). "On polynomial selection for the general number field sieve" (PDF). Mathematics of Computation 75 (256): 2037–2047. doi:10.1090/S0025-5718-06-01870-9. http://www.ams.org/mcom/2006-75-256/S0025-5718-06-01870-9/S0025-5718-06-01870-9.pdf. Retrieved on 2007-12-13. 
+
+
+
+
+Arjen K. Lenstra and H. W. Lenstra, Jr. (eds.). "The development of the number field sieve". Lecture Notes in Math. (1993) 1554. Springer-Verlag.
+Richard Crandall and Carl Pomerance. Prime Numbers: A Computational Perspective (2001). 2nd edition, Springer. ISBN 0-387-25282-7. Section 6.2: Number field sieve, pp. 278–301.
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Number-theoretic algorithms
+
+
+
+
+
+Primality tests
+
+AKS · APR · Ballie-PSW · ECPP · Fermat · Lucas–Lehmer · Lucas–Lehmer (Mersenne numbers) · Lucas–Lehmer–Riesel · Proth's theorem · Pépin's · Solovay–Strassen · Miller–Rabin · Trial division
+
+
+
+
+
+
+Sieving algorithms
+
+Sieve of Atkin · Sieve of Eratosthenes · Sieve of Sundaram · Wheel factorization
+
+
+
+
+
+
+Integer factorization algorithms
+
+CFRAC · Dixon's · ECM · Euler's · Pollard's rho · P − 1 · P + 1 · QS · GNFS · SNFS · rational sieve · Fermat's · Shanks' square forms · Trial division · Shor's
+
+
+
+
+
+
+Other algorithms
+
+Ancient Egyptian multiplication · Aryabhata · Binary GCD · Chakravala · Euclidean · Extended Euclidean · integer relation algorithm · integer square root · Modular exponentiation · Schoof's · Shanks-Tonelli
+
+
+
+
+
+
+Italics indicate that algorithm is for numbers of special forms; bold indicates deterministic algorithm for primality tests.
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/General_number_field_sieve"
+Categories: Integer factorization algorithms 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+עברית
+Polski
+Suomi
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 10 April 2009, at 09:53 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

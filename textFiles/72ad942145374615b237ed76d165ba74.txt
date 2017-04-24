@@ -1,0 +1,323 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NTLM - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "NTLM";
+		var wgTitle = "NTLM";
+		var wgAction = "view";
+		var wgArticleId = "4054664";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282861911;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); NTLM
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+NTLM (NT LAN Manager) (not to be confused with LAN Manager) is a Microsoft authentication protocol used with the SMB protocol. MS-CHAP is similar and is used for authentication with Microsoft remote access protocols. During protocol negotiation, the internal name is nt lm 0.12. The version number 0.12 has not been explained. It is the successor of LANMAN (Microsoft LAN Manager), an older Microsoft authentication protocol, and attempted to be backwards compatible with LANMAN. NTLM was followed by NTLMv2, at which time the original was renamed NTLMv1.
+Before there was official documentation of the protocol, a lot about it was found out by the Samba team through network analysis. The cryptographic calculations are identical to that of MS-CHAP and are documented by RFC 2433 for v1 and RFC 2759 for v2. Both MS-CHAP v1 and v2 have been analyzed; Bruce Schneier and Pieter Zatko found weaknesses in both protocols, acknowledging however that MS-CHAPv2 was an improvement.[1] Both protocols remain in widespread use.
+
+
+
+
+Contents
+
+
+1 The protocol
+
+1.1 NTLMv1
+1.2 NTLMv2
+1.3 NTLMv2-Session
+
+
+2 NTLM and modern Windows versions
+3 See also
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] The protocol
+The protocol uses a challenge-response sequence requiring the transmission of three messages between the client (wishing to authenticate) and the server (requesting authentication):
+
+The client first sends a Type 1 message containing a set of flags of features supported or requested (such as encryption key sizes, request for mutual authentication, etc.) to the server.
+The server responds with a Type 2 message containing a similar set of flags supported or required by the server (thus enabling an agreement on the authentication parameters between the server and the client) and, more importantly, a random challenge (8 bytes).
+Finally, the client uses the challenge obtained from the Type 2 message and the user's credentials to calculate the response. The calculation methods differ based on the NTLM authentication parameters negotiated previously, but in general they apply MD4/MD5 hashing algorithms and DES encryption to compute the response. The client then sends the response to the server in a Type 3 message.
+
+
+[edit] NTLMv1
+NTLMv1 is a challenge-response authentication protocol. The server authenticates the client by sending an 8-byte random number, the challenge. The client performs an operation involving the challenge and a secret shared between client and server, e.g. a password. The client returns the 24-byte result of the computation. In fact, in NTLMv1 two computations are made using two different shared secrets and two 24-byte results are returned. The server verifies that the client has computed the correct result, and from this infers possession of the secret, and hence the identity of the client.
+The two secrets are:
+
+the LANMAN Hash of the user's password and
+the MD4 hash of the user's password
+
+Both these hashes produce 16-byte quantities. Five bytes of zeros are appended to obtain 21 bytes. The 21 bytes are separated in three 7 bytes quantities. Each of these 56 bit quantities is used as a key to DES encrypt the 64 bit challenge. The three encryptions of the challenge are reunited to form the 24-byte response. Both the response using the lanman hash and the MD4 hash (called the NT Hash) are returned as the response.
+
+C = 8-byte server challenge, random
+K1 | K2 | K3 = NT-Hash | 5-bytes-0
+R1 = DES(K1,C) | DES(K2,C) | DES(K3,C)
+K1 | K2 | K3 = LM-Hash | 5-bytes-0
+R2 = DES(K1,C) | DES(K2,C) | DES(K3,C)
+response = R1 | R2
+
+
+[edit] NTLMv2
+NTLMv2, introduced after Windows NT 4.0 SP4, is a challenge-response authentication protocol. It is intended as a cryptographically strengthened replacement for NTLMv1. It consists of two different protocols, one which differs greatly from NTLMv1, and a second which shares much of NTLMv1's structure and is similar to MS-CHAPv2. The first protocol is referred to as NTLM2, the second as NTLM2 Session.[2]
+NTLM2 sends two 16-byte responses to an 8-byte server challenge. The response is the HMAC-MD5 hash of the server challenge, a randomly generated client challenge, and a HMAC-MD5 hash of the user's password and other identifying information. The two responses differ in the format of the client challenge. The shorter response uses an 8-byte random value for this challenge. In order to verify the response, the server must receive as part of the response the client challenge. For this shorter response, the 8-byte client challenge appended to the 16-byte response makes a 24-byte package which is consistent with the 24-byte response format of the previous NTLMv1 protocol. In certain non-official documentation (e.g. DCE/RPC Over SMB, Leighton) this response is termed LMv2.
+The second response sent by NTLM2 uses a variable length client challenge which includes (1) the current time in NT Time format, (2) an 8-byte random value, (3) the domain name and (4) some standard format stuff. The response must include a copy of this client challenge, and is therefore variable length. In non-official documentation, this response is termed NTv2.
+Both LMv2 and NTv2 hash the client and server challenge with a hash of the user's password and other identifying information. The exact formula is to begin with the NT Hash of NTLMv1, which is stored in the SAM, and continue to hash in, using HMAC-MD5, the username and domain name. In the box below, X stands for the fixed contents of a formatting field.
+
+CS = 8-byte server challenge, random
+CC = 8-byte client challenge, random
+CC* = (X, time, CC, domain name)
+v2-Hash = HMAC-MD5(NT-Hash, user name, domain name)
+LMv2 = HMAC-MD5(v2-Hash, CS, CC)
+NTv2 = HMAC-MD5(v2-Hash, CS, CC*)
+response = LMv2 | CC | NTv2 | CC*
+
+
+[edit] NTLMv2-Session
+The NTLMv2 Session protocol is entirely different, being very similar to MS-CHAPv2. It is described by Eric Glass' ntlm page. Briefly, the NTLMv1 algorithm is applied, except that an 8-byte client challenge is appended to the 8-byte server challenge and MD5 hashed. The least 8-byte half of the hash result is the challenge utilized in the NTLMv1 protocol. The client challenge is returned in one 24-byte slot of the response message, the 24-byte calculated response is returned in the other slot.
+This is a strengthened form of NTLMv1 which maintains the ability to use existing Domain Controller infrastructure yet avoids a dictionary attack by a rogue server. For a fixed X, the server computes a table where location Y has value K such that Y=DES_K(X). Without the client participating in the choice of challenge, the server can send X, look up response Y in the table and get K. This attack can be made practical by using rainbow tables.[3]
+However, existing NTLMv1 infrastructure allows that the challenge/response pair is not verified by the server, but sent to a Domain Controller for verification. Using NTLMv2 Session, this infrastructure continues to work if the server substitutes for the challenge the hash of the server and client challenges.
+
+NTLMv1
+  Client<-Server:  SC
+  Client->Server:  H(P,SC)
+  Server->DomCntl: H(P,SC), SC
+  Server<-DomCntl: yes or no
+
+NTLMv2-Session
+  Client<-Server:  SC
+  Client->Server:  H(P,H'(SC,CC)), CC
+  Server->DomCntl: H(P,H'(SC,CC)), H'(SC,CC)
+  Server<-DomCntl: yes or no
+
+
+[edit] NTLM and modern Windows versions
+Microsoft adopted Kerberos as the preferred authentication protocol for Windows 2000 and Windows 2003 Active Directory domains. Kerberos is typically used when a client belongs to a Windows Server domain, or if a trust relationship with a Windows Server Domain is established in some other way (such as Linux to Windows AD authentication).
+NTLM is still used in the following situations:
+
+The client is authenticating to a server using an IP address.
+The client is authenticating to a server that belongs to a different Active Directory forest, or doesn't belong to a domain.
+No Active Directory domain exists (commonly referred to as "workgroup" or "peer-to-peer").
+Where a firewall would otherwise restrict the ports required by Kerberos (of which there are quite a few)
+
+
+[edit] See also
+
+LM hash
+NTLMSSP
+Integrated Windows Authentication
+SPNEGO
+SSPI
+Kerberos
+GSSAPI
+Windows Server Domain
+
+
+[edit] References
+
+^ Schneier, Bruce; Mudge; David Wagner (1999-10-19). "Cryptanalysis of Microsoft's PPTP Authentication Extensions (MS-CHAPv2)". CQRE '99 (Springer-Verlag): 192-203. http://www.schneier.com/paper-pptpv2.html. 
+^ "How to enable NTLM 2 authentication". Microsoft Help and Support. Microsoft Corp.. 2007-01-25. http://support.microsoft.com/default.aspx?scid=KB;en-us;239869. 
+^ Varughese, Sam (February 2006). "Rainbow Cracking and Password Security". Palisade. http://palisade.plynt.com/issues/2006Feb/rainbow-tables/. 
+
+
+[edit] External links
+
+NT LAN Manager (NTLM) Authentication Protocol Specification
+Cntlm - NTLM, NTLMSR, NTLMv2 Authentication Proxy and Accelerator Personal HTTP(S) and SOCKS5 proxy for NTLM-unaware applications (Windows/Linux/UNIX)
+The NTLM Authentication Protocol and Security Support Provider A detailed analysis of the NTLM protocol.
+MSDN article explaining the protocol and that it has been renamed
+MSDN page on NTLM authentication
+Libntlm - a free implementation.
+NTLM Authorization Proxy Server software that allows users to authenticate via an MS Proxy Server.
+Installing NTLM authentication - NTLM set-up instructions for Samba and Midgard on Linux
+NTLM Authentication in Firefox
+NTLM version 2 (NTLMv2) and the LMCompatibilityLevel setting that governs it
+Jespa - Java Active Directory Integration Full NTLM security service provider with server-side NETLOGON validation (commercial but free up to 25 users)
+Configuring an NTLM Proxy tunnel in corporate environments
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/NTLM"
+Categories: Cryptographic protocols | Microsoft Windows security technology | Computer network security | Authentication methods 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Français
+Nederlands
+Polski
+Русский
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 22:29 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

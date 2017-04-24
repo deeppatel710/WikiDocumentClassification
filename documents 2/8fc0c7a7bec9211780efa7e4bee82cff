@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="A* search algorithm,Admissible heuristic,Artificial Intelligence: A Modern Approach,Association for Computing Machinery,B* search algorithm,Bellman-Ford algorithm,Bertram Raphael,Best-first search,Bidirectional search,Breadth-first search,Computational complexity theory" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=A*_search_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=A*_search_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>A* search algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "A*_search_algorithm";
+		var wgTitle = "A* search algorithm";
+		var wgAction = "view";
+		var wgArticleId = "100558";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280825525;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+<style type="text/css">/*<![CDATA[*/
+.source-matlab {line-height: normal;}
+.source-matlab li, .source-matlab pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for matlab
+ * CSS class: source-matlab, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-matlab .de1, .source-matlab .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-matlab  {}
+.source-matlab .head {}
+.source-matlab .foot {}
+.source-matlab .imp {font-weight: bold; color: red;}
+.source-matlab .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-matlab li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-matlab li.li2 {font-weight: bold;}
+.source-matlab .kw1 {color: #0000FF;}
+.source-matlab .kw2 {color: #0000FF;}
+.source-matlab .co1 {color: #228B22;}
+.source-matlab .es0 {}
+.source-matlab .br0 {color: #080;}
+.source-matlab .nu0 {color: #33f;}
+.source-matlab .me1 {}
+.source-matlab .me2 {}
+.source-matlab .sc0 {}
+.source-matlab .re0 {color:#A020F0;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style>		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-A_search_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">A* search algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table align="right" class="toccolours" style="padding: 0px; width: 170px; margin: 0 0 1em 1em;">
+<tr>
+<th style="background: #ccf;"><a href="/wiki/Graph_traversal" title="Graph traversal">Graph search algorithms</a></th>
+</tr>
+<tr>
+<td><b>Search</b>
+<ul>
+<li><strong class="selflink">A*</strong></li>
+<li><a href="/wiki/B*_search_algorithm" title="B* search algorithm">B*</a></li>
+<li><a href="/wiki/Bellman-Ford_algorithm" title="Bellman-Ford algorithm">Bellman-Ford algorithm</a></li>
+<li><a href="/wiki/Best-first_search" title="Best-first search">Best-first search</a></li>
+<li><a href="/wiki/Bidirectional_search" title="Bidirectional search">Bidirectional search</a></li>
+<li><a href="/wiki/Breadth-first_search" title="Breadth-first search">Breadth-first search</a></li>
+<li><a href="/wiki/D*_search_algorithm" title="D* search algorithm">D*</a></li>
+<li><a href="/wiki/Depth-first_search" title="Depth-first search">Depth-first search</a></li>
+<li><a href="/wiki/Depth-limited_search" title="Depth-limited search">Depth-limited search</a></li>
+<li><a href="/wiki/Dijkstra%27s_algorithm" title="Dijkstra's algorithm">Dijkstra's algorithm</a></li>
+<li><a href="/wiki/Floyd%E2%80%93Warshall_algorithm" title="Floyd–Warshall algorithm">Floyd–Warshall algorithm</a></li>
+<li><a href="/wiki/Hill_climbing" title="Hill climbing">Hill climbing</a></li>
+<li><a href="/wiki/Iterative_deepening_depth-first_search" title="Iterative deepening depth-first search">Iterative deepening depth-first search</a></li>
+<li><a href="/wiki/Johnson%27s_algorithm" title="Johnson's algorithm">Johnson's algorithm</a></li>
+<li><a href="/wiki/Uniform-cost_search" title="Uniform-cost search">Uniform-cost search</a></li>
+</ul>
+</td>
+</tr>
+</table>
+<p>In <a href="/wiki/Computer_science" title="Computer science">computer science</a>, <b>A*</b> (pronounced "A star") is a <a href="/wiki/Best-first_search" title="Best-first search">best-first</a>, <a href="/wiki/Graph_search_algorithm" title="Graph search algorithm" class="mw-redirect">graph search algorithm</a> that finds the least-cost path from a given initial <a href="/wiki/Node_(graph_theory)" title="Node (graph theory)" class="mw-redirect">node</a> to one <a href="/wiki/Goal_node" title="Goal node" class="mw-redirect">goal node</a> (out of one or more possible goals).</p>
+<p>It uses a distance-plus-cost <a href="/wiki/Heuristic" title="Heuristic">heuristic</a> function (usually denoted <span class="texhtml"><i>f</i>(<i>x</i>)</span>) to determine the order in which the search visits nodes in the tree. The distance-plus-cost heuristic is a sum of two functions: the path-cost function (usually denoted <span class="texhtml"><i>g</i>(<i>x</i>)</span>, which may or may not be a heuristic) and an <a href="/wiki/Admissible_heuristic" title="Admissible heuristic">admissible</a> "heuristic estimate" of the distance to the goal (usually denoted <span class="texhtml"><i>h</i>(<i>x</i>)</span>). The path-cost function <span class="texhtml"><i>g</i>(<i>x</i>)</span> is the cost from the starting node to the current node.</p>
+<p>Since the <span class="texhtml"><i>h</i>(<i>x</i>)</span> part of the <span class="texhtml"><i>f</i>(<i>x</i>)</span> function must be an <a href="/wiki/Admissible_heuristic" title="Admissible heuristic">admissible heuristic</a>, it must not overestimate the distance to the goal. Thus for an application like <a href="/wiki/Routing" title="Routing">routing</a>, <span class="texhtml"><i>h</i>(<i>x</i>)</span> might represent the straight-line distance to the goal, since that is physically the smallest possible distance between any two points (or nodes for that matter).</p>
+<p>The algorithm was first described in 1968 by <a href="/wiki/Peter_E._Hart" title="Peter E. Hart">Peter Hart</a>, <a href="/wiki/Nils_Nilsson" title="Nils Nilsson">Nils Nilsson</a>, and <a href="/wiki/Bertram_Raphael" title="Bertram Raphael">Bertram Raphael</a><sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup>. In their paper, it was called algorithm A. Since using this algorithm yields optimal behavior for a given heuristic, it has been called A*.</p>
+<p>This algorithm has been generalized into a bidirectional heuristic search algorithm; see <a href="/wiki/Bidirectional_search" title="Bidirectional search">bidirectional search</a>.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Algorithm_description"><span class="tocnumber">1</span> <span class="toctext">Algorithm description</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Example"><span class="tocnumber">1.1</span> <span class="toctext">Example</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Properties"><span class="tocnumber">2</span> <span class="toctext">Properties</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Special_cases"><span class="tocnumber">2.1</span> <span class="toctext">Special cases</span></a></li>
+<li class="toclevel-2"><a href="#Implementation_Details"><span class="tocnumber">2.2</span> <span class="toctext">Implementation Details</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Why_A.2A_is_admissible_and_computationally_optimal"><span class="tocnumber">3</span> <span class="toctext">Why A* is admissible and computationally optimal</span></a></li>
+<li class="toclevel-1"><a href="#Complexity"><span class="tocnumber">4</span> <span class="toctext">Complexity</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Algorithm_description" id="Algorithm_description"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=1" title="Edit section: Algorithm description">edit</a>]</span> <span class="mw-headline">Algorithm description</span></h2>
+<div class="thumb tright">
+<div class="thumbinner" style="width:182px;"><a href="/wiki/File:A%2B_Pathfinding_Algorithm.png" class="image" title="A single-step simulation"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/a/aa/A%2B_Pathfinding_Algorithm.png/180px-A%2B_Pathfinding_Algorithm.png" width="180" height="131" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:A%2B_Pathfinding_Algorithm.png" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+A single-step simulation</div>
+</div>
+</div>
+<p>Like all <a href="/wiki/Informed_search_algorithm" title="Informed search algorithm" class="mw-redirect">informed search algorithms</a>, it first searches the routes that <i>appear</i> to be most likely to lead towards the goal. What sets A* apart from a <a href="/wiki/Greedy_algorithm" title="Greedy algorithm">greedy</a> best-first search is that it also takes the distance already traveled into account (the <span class="texhtml"><i>g</i>(<i>x</i>)</span> part of the heuristic is the cost from the start, and not simply the local cost from the previously expanded node).</p>
+<p>The algorithm traverses various paths from start to goal. For each node <span class="texhtml"><i>x</i></span> traversed, it maintains 3 values:</p>
+<ul>
+<li>g(x): the actual shortest distance traveled from initial node to current node</li>
+<li>h(x): the estimated (or "heuristic") distance from current node to goal</li>
+<li>f(x): the sum of g(x) and h(x)</li>
+</ul>
+<p>Starting with the initial node, it maintains a <a href="/wiki/Priority_queue" title="Priority queue">priority queue</a> of nodes to be traversed, known as the <i>open set</i> (not to be confused with <a href="/wiki/Open_set" title="Open set">open sets</a> in <a href="/wiki/Topology" title="Topology">topology</a>). The lower <span class="texhtml"><i>f</i>(<i>x</i>)</span> for a given node <span class="texhtml"><i>x</i></span>, the higher its priority. At each step of the algorithm, the node with the lowest <span class="texhtml"><i>f</i>(<i>x</i>)</span> value is removed from the queue, the <span class="texhtml"><i>f</i></span> and <span class="texhtml"><i>h</i></span> values of its neighbors are updated accordingly, and these neighbors are added to the queue. The algorithm continues until a goal node has a lower <span class="texhtml"><i>f</i></span> value than any node in the queue (or until the queue is empty). (Goal nodes may be passed over multiple times if there remain other nodes with lower <span class="texhtml"><i>f</i></span> values, as they may lead to a shorter path to a goal.) The <span class="texhtml"><i>f</i></span> value of the goal is then the length of the shortest path, since <span class="texhtml"><i>h</i></span> at the goal is zero in an admissible heuristic. If the actual shortest path is desired, the algorithm may also update each neighbor with its immediate predecessor in the best path found so far; this information can then be used to reconstruct the path by working backwards from the goal node. Additionally, if the heuristic is <i>monotonic</i> (see below), a <i>closed set</i> of nodes already traversed may be used to make the search more efficient.</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-matlab">
+ <span class="kw1">function</span> A*<span class="br0">(</span>start,goal<span class="br0">)</span>
+     closedset := the empty <span class="kw2">set</span>                 <span class="co1">% The set of nodes already evaluated.</span>
+     openset := <span class="kw2">set</span> containing the initial node <span class="co1">% The set of tentative nodes to be evaluated.</span>
+     g_score<span class="br0">[</span>start<span class="br0">]</span> := <span class="nu0">0</span>                        <span class="co1">% Distance from start along optimal path.</span>
+     h_score<span class="br0">[</span>start<span class="br0">]</span> := heuristic_estimate_of_distance<span class="br0">(</span>start, goal<span class="br0">)</span>
+     f_score<span class="br0">[</span>start<span class="br0">]</span> := h_score<span class="br0">[</span>start<span class="br0">]</span>           <span class="co1">% Estimated total distance from start to goal through y.</span>
+     <span class="kw1">while</span> openset <span class="kw2">is</span> not empty
+         x := the node in openset having the lowest f_score<span class="br0">[</span><span class="br0">]</span> value
+         <span class="kw1">if</span> x = goal
+             <span class="kw1">return</span> reconstruct_path<span class="br0">(</span>came_from,goal<span class="br0">)</span>
+         remove x from openset
+         add x to closedset
+         foreach y in neighbor_nodes<span class="br0">(</span>x<span class="br0">)</span>
+             <span class="kw1">if</span> y in closedset
+                 <span class="kw1">continue</span>
+             tentative_g_score := g_score<span class="br0">[</span>x<span class="br0">]</span> + dist_between<span class="br0">(</span>x,y<span class="br0">)</span>
+             tentative_is_better := false
+             <span class="kw1">if</span> y not in openset
+                 add y to openset
+                 h_score<span class="br0">[</span>y<span class="br0">]</span> := heuristic_estimate_of_distance<span class="br0">(</span>y, goal<span class="br0">)</span>
+                 tentative_is_better := true
+             <span class="kw1">elseif</span> tentative_g_score &lt; g_score<span class="br0">[</span>y<span class="br0">]</span>
+                 tentative_is_better := true
+             <span class="kw1">if</span> tentative_is_better = true
+                 came_from<span class="br0">[</span>y<span class="br0">]</span> := x
+                 g_score<span class="br0">[</span>y<span class="br0">]</span> := tentative_g_score
+                 f_score<span class="br0">[</span>y<span class="br0">]</span> := g_score<span class="br0">[</span>y<span class="br0">]</span> + h_score<span class="br0">[</span>y<span class="br0">]</span>
+     <span class="kw1">return</span> failure
+ 
+ <span class="kw1">function</span> reconstruct_path<span class="br0">(</span>came_from,current_node<span class="br0">)</span>
+     <span class="kw1">if</span> came_from<span class="br0">[</span>current_node<span class="br0">]</span> <span class="kw2">is</span> <span class="kw2">set</span>
+         p = reconstruct_path<span class="br0">(</span>came_from,came_from<span class="br0">[</span>current_node<span class="br0">]</span><span class="br0">)</span>
+         <span class="kw1">return</span> <span class="br0">(</span>p + current_node<span class="br0">)</span>
+     <span class="kw1">else</span>
+         <span class="kw1">return</span> the empty <span class="kw2">path</span>
+</pre></div>
+<p>The closed set can be omitted (yielding a tree search algorithm) if a solution is guaranteed to exist, or if the algorithm is adapted so that new nodes are added to the open set only if they have a lower <span class="texhtml"><i>f</i></span> value than at any previous iteration.</p>
+<p><a name="Example" id="Example"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=2" title="Edit section: Example">edit</a>]</span> <span class="mw-headline">Example</span></h3>
+<p>An example of A star (A*) algorithm in action (nodes are cities connected with roads, h(x) is the straight-line distance to target point).</p>
+<p><a href="/wiki/File:AstarExample.gif" class="image" title="An example of A star (A*) algorithm in action (nodes are cities connected with roads, h(x) is the straight-line distance to target point) Green: Start, Blue: Target, Orange: Visited"><img alt="An example of A star (A*) algorithm in action (nodes are cities connected with roads, h(x) is the straight-line distance to target point) Green: Start, Blue: Target, Orange: Visited" src="http://upload.wikimedia.org/wikipedia/commons/5/5d/AstarExample.gif" width="400" height="283" border="0" /></a></p>
+<p>green - start, blue - target, orange - visited</p>
+<p><a name="Properties" id="Properties"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=3" title="Edit section: Properties">edit</a>]</span> <span class="mw-headline">Properties</span></h2>
+<p>Like <a href="/wiki/Breadth-first_search" title="Breadth-first search">breadth-first search</a>, A* is <i>complete</i> in the sense that it will always find a solution if there is one.</p>
+<p>If the heuristic function <span class="texhtml"><i>h</i></span> is <i>admissible</i>, meaning that it never overestimates the actual minimal cost of reaching the goal, then A* is itself admissible (or <i>optimal</i>) if we do not use a closed set. If a closed set is used, then <span class="texhtml"><i>h</i></span> must also be <i>monotonic</i> (or <i>consistent</i>) for A* to be optimal. This means that for any pair of adjacent nodes <span class="texhtml"><i>x</i></span> and <span class="texhtml"><i>y</i></span>, where <span class="texhtml"><i>d</i>(<i>x</i>,<i>y</i>)</span> denotes the length of the edge between them, we must have:</p>
+<dl>
+<dd><img class="tex" alt="h(x) \le d(x,y) + h(y)" src="http://upload.wikimedia.org/math/a/7/1/a71dc736e76051b0c905aa1a8df1238b.png" /></dd>
+</dl>
+<p>This ensures that for any path <span class="texhtml"><i>X</i></span> from the initial node to <span class="texhtml"><i>x</i></span>:</p>
+<dl>
+<dd><img class="tex" alt="L(X) + h(x) \le L(X) + d(x,y) + h(y) = L(Y) + h(y)" src="http://upload.wikimedia.org/math/c/5/a/c5abde7997b8119c3c41309dfeb53aa7.png" /></dd>
+</dl>
+<p>where <img class="tex" alt="L(\cdot)" src="http://upload.wikimedia.org/math/8/3/6/83674c80bc480eb586e356d4f4d80d67.png" /> denotes the length of a path, and <span class="texhtml"><i>Y</i></span> is the path <span class="texhtml"><i>X</i></span> extended to include <span class="texhtml"><i>y</i></span>. In other words, it is impossible to decrease (total distance so far + estimated remaining distance) by extending a path to include a neighboring node. (This is analogous to the restriction to nonnegative edge weights in <a href="/wiki/Dijkstra%27s_algorithm" title="Dijkstra's algorithm">Dijkstra's algorithm</a>.) Monotonicity implies admissibility when the heuristic estimate at any goal node itself is zero, since (letting <img class="tex" alt="P = (f,v_1,v_2,\ldots,v_n,g)" src="http://upload.wikimedia.org/math/7/e/b/7ebc043382342a27b0ba73f59273a451.png" /> be a shortest path from any node <span class="texhtml"><i>f</i></span> to the nearest goal <span class="texhtml"><i>g</i></span>):</p>
+<dl>
+<dd><img class="tex" alt="h(f) \le d(f,v_1) + h(v_1) \le d(f,v_1) + d(v_1,v_2) + h(v_2) \le \ldots \le L(P) + h(g) = L(P)" src="http://upload.wikimedia.org/math/e/7/b/e7b954b6447f617e2e9e6f1de3e99258.png" /></dd>
+</dl>
+<p>A* is also optimally efficient for any heuristic <span class="texhtml"><i>h</i></span>, meaning that no algorithm employing the same heuristic will expand fewer nodes than A*, except when there are multiple partial solutions where <span class="texhtml"><i>h</i></span> exactly predicts the cost of the optimal path. Even in this case, for each graph there exists some order of breaking ties in the priority queue such that A* examines the fewest possible nodes.</p>
+<p><a name="Special_cases" id="Special_cases"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=4" title="Edit section: Special cases">edit</a>]</span> <span class="mw-headline">Special cases</span></h3>
+<p>Generally speaking, <a href="/wiki/Depth-first_search" title="Depth-first search">depth-first search</a> and <a href="/wiki/Breadth-first_search" title="Breadth-first search">breadth-first search</a> are two special cases of A* algorithm. <a href="/wiki/Dijkstra%27s_algorithm" title="Dijkstra's algorithm">Dijkstra's algorithm</a>, as another example of a best-first search algorithm, is the special case of A* where <span class="texhtml"><i>h</i>(<i>x</i>) = 0</span> for all <span class="texhtml"><i>x</i></span>. For depth-first search, we may consider that there is a global counter <i>C</i> initialized with a very big value. Every time we process a node we assign <i>C</i> to all of its newly discovered neighbors. After each single assignment, we decrease the counter <i>C</i> by one. Thus the earlier a node is discovered, the higher its <span class="texhtml"><i>h</i>(<i>x</i>)</span> value.</p>
+<p><a name="Implementation_Details" id="Implementation_Details"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=5" title="Edit section: Implementation Details">edit</a>]</span> <span class="mw-headline">Implementation Details</span></h3>
+<p>There are a number of simple optimizations or implementation details that can significantly affect the performance of an A* implementation. The first detail to note is that the way the priority queue handles ties can have a significant effect on performance in some situations. If ties are broken so the queue behaves in a <a href="/wiki/LIFO_(computing)" title="LIFO (computing)">LIFO</a> manner, A* will behave like <a href="/wiki/Depth-first_search" title="Depth-first search">Depth-first search</a> among equal cost paths. If ties are broken so the queue behaves in a <a href="/wiki/FIFO" title="FIFO" class="mw-redirect">FIFO</a> manner, A* will behave like <a href="/wiki/Breadth-first_search" title="Breadth-first search">Breadth-first search</a> among equal cost paths.</p>
+<p>When a path is required at the end of the search, it is common to keep with each node a reference to that node's parent. At the end of the search these references can be used to recover the optimal path. If these references are being kept then it can be important that the same node doesn't appear in the priority queue more than once (each entry corresponding to a different path to the node, and each with a different cost). A standard approach here is to check if a node about to be added already appears in the priority queue. If it does, then the priority and parent pointers are changed to correspond to the lower cost path. When finding a node in a queue to perform this check, many standard implementations of a <a href="/wiki/Heap_(data_structure)" title="Heap (data structure)">min-heap</a> require <span class="texhtml"><i>O</i>(<i>n</i>)</span> time. Augmenting the heap with a <a href="/wiki/Hash_table" title="Hash table">Hash table</a> can reduce this to constant time.</p>
+<p><a name="Why_A.2A_is_admissible_and_computationally_optimal" id="Why_A.2A_is_admissible_and_computationally_optimal"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=6" title="Edit section: Why A* is admissible and computationally optimal">edit</a>]</span> <span class="mw-headline">Why A* is admissible and computationally optimal</span></h2>
+<p>A* is both admissible and considers fewer nodes than any other admissible search algorithm with the same heuristic, because A* works from an “optimistic” estimate of the cost of a path through every node that it considers — optimistic in that the true cost of a path through that node to the goal will be at least as great as the estimate. But, critically, as far as A* “knows”, that optimistic estimate might be achievable.</p>
+<p>When A* terminates its search, it has, by definition, found a path whose actual cost is lower than the estimated cost of any path through any open node. But since those estimates are optimistic, A* can safely ignore those nodes. In other words, A* will never overlook the possibility of a lower-cost path and so is admissible.</p>
+<p>Suppose now that some other search algorithm B terminates its search with a path whose actual cost is <i>not</i> less than the estimated cost of a path through some open node. Algorithm B cannot rule out the possibility, based on the heuristic information it has, that a path through that node might have a lower cost. So while B might consider fewer nodes than A*, it cannot be admissible. Accordingly, A* considers the fewest nodes of any admissible search algorithm that uses a no more accurate heuristic estimate.</p>
+<p>This is only true when A* uses a consistent heuristic. Otherwise, A* is not guaranteed to expand fewer nodes than another search algorithm with the same heuristic. See (Generalized best-first search strategies and the optimality of A*, Rina Dechter and Judea Pearl, 1985<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup>)</p>
+<p><a name="Complexity" id="Complexity"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=7" title="Edit section: Complexity">edit</a>]</span> <span class="mw-headline">Complexity</span></h2>
+<p>The <a href="/wiki/Computational_complexity_theory" title="Computational complexity theory">time complexity</a> of A* depends on the heuristic. In the worst case, the number of nodes expanded is <a href="/wiki/Exponential_time" title="Exponential time">exponential</a> in the length of the solution (the shortest path), but it is <a href="/wiki/Polynomial_time" title="Polynomial time">polynomial</a> when the search space is a tree, there is a single goal state, and the heuristic function <i>h</i> meets the following condition:</p>
+<dl>
+<dd><span class="texhtml">| <i>h</i>(<i>x</i>) − <i>h</i> <sup>*</sup> (<i>x</i>) | = <i>O</i>(log<i>h</i> <sup>*</sup> (<i>x</i>))</span></dd>
+</dl>
+<p>where <span class="texhtml"><i>h</i> <sup>*</sup></span> is the optimal heuristic, i.e. the exact cost to get from <span class="texhtml"><i>x</i></span> to the goal. In other words, the error of <i>h</i> should not grow faster than the <a href="/wiki/Logarithm" title="Logarithm">logarithm</a> of the “perfect heuristic” <span class="texhtml"><i>h</i> <sup>*</sup></span> that returns the true distance from <i>x</i> to the goal (see Pearl 1984<sup id="cite_ref-2" class="reference"><a href="#cite_note-2" title=""><span>[</span>3<span>]</span></a></sup> and also Russell and Norvig 2003, p. 101<sup id="cite_ref-3" class="reference"><a href="#cite_note-3" title=""><span>[</span>4<span>]</span></a></sup>)</p>
+<p>More problematic than its time complexity is A*’s memory usage. In the worst case, it must also remember an exponential number of nodes. Several variants of A* have been developed to cope with this, including iterative deepening A* (IDA*), memory-bounded A* (MA*) and simplified memory bounded A* (SMA*) and recursive best-first search (RBFS).</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=8" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFHartNilsson.2C_N._J..3B_Raphael.2C_B.1972">Hart, P. E.; Nilsson, N. J.; Raphael, B. (1972). "Correction to "A Formal Basis for the Heuristic Determination of Minimum Cost Paths"". <i><a href="/wiki/Association_for_Computing_Machinery" title="Association for Computing Machinery">SIGART</a> Newsletter</i> <b>37</b>: 28–29.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Correction+to+%22A+Formal+Basis+for+the+Heuristic+Determination+of+Minimum+Cost+Paths%22&amp;rft.jtitle=%5B%5BAssociation+for+Computing+Machinery%7CSIGART%5D%5D+Newsletter&amp;rft.aulast=Hart&amp;rft.aufirst=P.+E.&amp;rft.au=Hart%2C+P.+E.&amp;rft.au=Nilsson%2C+N.+J.%3B+Raphael%2C+B.&amp;rft.date=1972&amp;rft.volume=37&amp;rft.pages=28%E2%80%9329&amp;rfr_id=info:sid/en.wikipedia.org:A*_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="book" id="CITEREFNilsson1980">Nilsson, N. J. (1980). <i>Principles of Artificial Intelligence</i>. Palo Alto, California: Tioga Publishing Company. <a href="/wiki/Special:BookSources/0935382011" class="internal">ISBN 0935382011</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Principles+of+Artificial+Intelligence&amp;rft.aulast=Nilsson&amp;rft.aufirst=N.+J.&amp;rft.au=Nilsson%2C+N.+J.&amp;rft.date=1980&amp;rft.place=Palo+Alto%2C+California&amp;rft.pub=Tioga+Publishing+Company&amp;rft.isbn=0935382011&amp;rfr_id=info:sid/en.wikipedia.org:A*_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="book" id="CITEREFPearl1984">Pearl, Judea (1984). <i>Heuristics: Intelligent Search Strategies for Computer Problem Solving</i>. Addison-Wesley. <a href="/wiki/Special:BookSources/0201055945" class="internal">ISBN 0-201-05594-5</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Heuristics%3A+Intelligent+Search+Strategies+for+Computer+Problem+Solving&amp;rft.aulast=Pearl&amp;rft.aufirst=Judea&amp;rft.au=Pearl%2C+Judea&amp;rft.date=1984&amp;rft.pub=Addison-Wesley&amp;rft.isbn=0-201-05594-5&amp;rfr_id=info:sid/en.wikipedia.org:A*_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFHartNilsson.2C_N._J..3B_Raphael.2C_B.1968">Hart, P. E.; Nilsson, N. J.; Raphael, B. (1968). "A Formal Basis for the Heuristic Determination of Minimum Cost Paths". <i><a href="/wiki/Institute_of_Electrical_and_Electronics_Engineers" title="Institute of Electrical and Electronics Engineers">IEEE</a> Transactions on Systems Science and Cybernetics SSC4</i> (2): 100–107. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1109%2FTSSC.1968.300136" class="external text" title="http://dx.doi.org/10.1109%2FTSSC.1968.300136" rel="nofollow">10.1109/TSSC.1968.300136</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=A+Formal+Basis+for+the+Heuristic+Determination+of+Minimum+Cost+Paths&amp;rft.jtitle=%5B%5BInstitute+of+Electrical+and+Electronics+Engineers%7CIEEE%5D%5D+Transactions+on+Systems+Science+and+Cybernetics+SSC4&amp;rft.aulast=Hart&amp;rft.aufirst=P.+E.&amp;rft.au=Hart%2C+P.+E.&amp;rft.au=Nilsson%2C+N.+J.%3B+Raphael%2C+B.&amp;rft.date=1968&amp;rft.issue=2&amp;rft.pages=100%E2%80%93107&amp;rft_id=info:doi/10.1109%2FTSSC.1968.300136&amp;rfr_id=info:sid/en.wikipedia.org:A*_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFDechterJudea_Pearl1985">Dechter, Rina; Judea Pearl (1985). "<a href="http://portal.acm.org/citation.cfm?id=3830&amp;coll=portal&amp;dl=ACM" class="external text" title="http://portal.acm.org/citation.cfm?id=3830&amp;coll=portal&amp;dl=ACM" rel="nofollow">Generalized best-first search strategies and the optimality of A*</a>". <i><a href="/wiki/Journal_of_the_ACM" title="Journal of the ACM">Journal of the ACM</a></i> <b>32</b> (3): 505–536. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F3828.3830" class="external text" title="http://dx.doi.org/10.1145%2F3828.3830" rel="nofollow">10.1145/3828.3830</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=%5Bhttp%3A%2F%2Fportal.acm.org%2Fcitation.cfm%3Fid%3D3830%26coll%3Dportal%26dl%3DACM+Generalized+best-first+search+strategies+and+the+optimality+of+A%2A%5D&amp;rft.jtitle=%5B%5BJournal+of+the+ACM%5D%5D&amp;rft.aulast=Dechter&amp;rft.aufirst=Rina&amp;rft.au=Dechter%2C+Rina&amp;rft.au=Judea+Pearl&amp;rft.date=1985&amp;rft.volume=32&amp;rft.issue=3&amp;rft.pages=505%E2%80%93536&amp;rft_id=info:doi/10.1145%2F3828.3830&amp;rfr_id=info:sid/en.wikipedia.org:A*_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-2"><b><a href="#cite_ref-2" title="">^</a></b> <cite style="font-style:normal" class="book" id="CITEREFPearl1984">Pearl, Judea (1984). <i>Heuristics: Intelligent Search Strategies for Computer Problem Solving</i>. Addison-Wesley. <a href="/wiki/Special:BookSources/0201055945" class="internal">ISBN 0-201-05594-5</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Heuristics%3A+Intelligent+Search+Strategies+for+Computer+Problem+Solving&amp;rft.aulast=Pearl&amp;rft.aufirst=Judea&amp;rft.au=Pearl%2C+Judea&amp;rft.date=1984&amp;rft.pub=Addison-Wesley&amp;rft.isbn=0-201-05594-5&amp;rfr_id=info:sid/en.wikipedia.org:A*_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-3"><b><a href="#cite_ref-3" title="">^</a></b> <cite style="font-style:normal" class="book" id="CITEREFRussellNorvig.2C_P.2003">Russell, S. J.; Norvig, P. (2003). <i><a href="/wiki/Artificial_Intelligence:_A_Modern_Approach" title="Artificial Intelligence: A Modern Approach">Artificial Intelligence: A Modern Approach</a></i>. pp.&#160;97–104. <a href="/wiki/Special:BookSources/0137903952" class="internal">ISBN 0-13-790395-2</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=%5B%5BArtificial+Intelligence%3A+A+Modern+Approach%5D%5D&amp;rft.aulast=Russell&amp;rft.aufirst=S.+J.&amp;rft.au=Russell%2C+S.+J.&amp;rft.au=Norvig%2C+P.&amp;rft.date=2003&amp;rft.pages=pp.%26nbsp%3B97%E2%80%93104&amp;rft.isbn=0-13-790395-2&amp;rfr_id=info:sid/en.wikipedia.org:A*_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+</div>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=A*_search_algorithm&amp;action=edit&amp;section=9" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li>Amit's <a href="http://theory.stanford.edu/~amitp/GameProgramming/" class="external text" title="http://theory.stanford.edu/~amitp/GameProgramming/" rel="nofollow">Thoughts on Path-Finding and A*</a></li>
+<li>Cuneyt Mertayak's <a href="http://www.ceng.metu.edu.tr/~cuneyt/astar.tar.gz" class="external text" title="http://www.ceng.metu.edu.tr/~cuneyt/astar.tar.gz" rel="nofollow">A Generic C++ A* Library</a></li>
+<li>Tony Stentz's <a href="http://www.frc.ri.cmu.edu/~axs/" class="external text" title="http://www.frc.ri.cmu.edu/~axs/" rel="nofollow">Papers on D* (Dynamic A*) Path-Finding</a></li>
+<li>Remko Tronçon and Joost Vennekens's <a href="http://el-tramo.be/software/jsearchdemo/" class="external text" title="http://el-tramo.be/software/jsearchdemo/" rel="nofollow">JSearch demo</a>: demonstrates various search algorithms, including A*.</li>
+<li>Variation on A* called <a href="http://www.cs.ualberta.ca/~mmueller/ps/hpastar.pdf" class="external text" title="http://www.cs.ualberta.ca/~mmueller/ps/hpastar.pdf" rel="nofollow">Near Optimal Hierarchical Path-Finding</a> and associated <a href="http://www.cs.ualberta.ca/~bulitko/F06/presentations/2006-09-29-ML.pdf" class="external text" title="http://www.cs.ualberta.ca/~bulitko/F06/presentations/2006-09-29-ML.pdf" rel="nofollow">presentation</a>.</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 3664/1000000
+Post-expand include size: 23213/2048000 bytes
+Template argument size: 6916/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:100558-0!1!0!default!!en!2 and timestamp 20090331084348 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/A*_search_algorithm">http://en.wikipedia.org/wiki/A*_search_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Graph_algorithms" title="Category:Graph algorithms">Graph algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Routing_algorithms" title="Category:Routing algorithms">Routing algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Search_algorithms" title="Category:Search algorithms">Search algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Combinatorial_optimization" title="Category:Combinatorial optimization">Combinatorial optimization</a></span> | <span dir='ltr'><a href="/wiki/Category:Game_artificial_intelligence" title="Category:Game artificial intelligence">Game artificial intelligence</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_example_code" title="Category:Articles with example code">Articles with example code</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/A*_search_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:A*_search_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=A*_search_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=A*_search_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=A*_search_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/A*_search_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/A*_search_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=A*_search_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=A*_search_algorithm&amp;oldid=280825525" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=A*_search_algorithm&amp;id=280825525">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/A*-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_de_b%C3%BAsqueda_A*">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_A*">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/A*_%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98">한국어</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/A*">Italiano</a></li>
+				<li class="interwiki-nl"><a href="http://nl.wikipedia.org/wiki/A*-algoritme">Nederlands</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/A*">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_A*">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Algoritmo_A*">Português</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC_%D0%BF%D0%BE%D0%B8%D1%81%D0%BA%D0%B0_A*">Русский</a></li>
+				<li class="interwiki-fi"><a href="http://fi.wikipedia.org/wiki/A*-algoritmi">Suomi</a></li>
+				<li class="interwiki-vi"><a href="http://vi.wikipedia.org/wiki/Gi%E1%BA%A3i_thu%E1%BA%ADt_t%C3%ACm_ki%E1%BA%BFm_A*">Tiếng Việt</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/A*%E6%90%9C%E5%AF%BB%E7%AE%97%E6%B3%95">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 31 March 2009, at 08:43.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv199 in 0.043 secs. --></body></html>

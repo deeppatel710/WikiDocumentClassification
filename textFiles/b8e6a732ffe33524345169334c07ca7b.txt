@@ -1,0 +1,341 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RANSAC - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "RANSAC";
+		var wgTitle = "RANSAC";
+		var wgAction = "view";
+		var wgArticleId = "1089270";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280382106;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); RANSAC
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+RANSAC is an abbreviation for "RANdom SAmple Consensus". It is an iterative method to estimate parameters of a mathematical model from a set of observed data which contains outliers. It is a non-deterministic algorithm in the sense that it produces a reasonable result only with a certain probability, with this probability increasing as more iterations are allowed. The algorithm was first published by Fischler and Bolles in 1981.
+A basic assumption is that the data consists of "inliers", i.e., data whose distribution can be explained by some set of model parameters, and "outliers" which are data that do not fit the model. In addition to this, the data can be subject to noise. The outliers can come, e.g., from extreme values of the noise or from erroneous measurements or incorrect hypotheses about the interpretation of data. RANSAC also assumes that, given a (usually small) set of inliers, there exists a procedure which can estimate the parameters of a model that optimally explains or fits this data.
+
+
+
+
+Contents
+
+
+1 Example
+2 Overview
+3 The algorithm
+4 The parameters
+5 Advantages and disadvantages
+6 Applications
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Example
+A simple example is fitting of a 2D line to set of observations. Assuming that this set contains both inliers, i.e., points which approximately can be fitted to a line, and outliers, points which cannot be fitted to this line, a simple least squares method for line fitting will in general produce a line with a bad fit to the inliers. The reason is that it is optimally fitted to all points, including the outliers. RANSAC, on the other hand, can produce a model which is only computed from the inliers, provided that the probability of choosing only inliers in the selection of data is sufficiently high. There is no guarantee for this situation, however, and there are a number of algorithm parameters which must be carefully chosen to keep the level of probability reasonably high.
+
+
+
+
+
+
+
+
+A data set with many outliers for which a line has to be fitted.
+
+
+
+
+
+
+
+
+
+Fitted line with RANSAC, outliers have no influence on the result.
+
+
+
+
+
+
+[edit] Overview
+The input to the RANSAC algorithm is a set of observed data values, a parameterized model which can explain or be fitted to the observations, and some confidence parameters.
+RANSAC achieves its goal by iteratively selecting a random subset of the original data. These data are hypothetical inliers and this hypothesis is then tested as follows:
+
+A model is fitted to the hypothetical inliers, i.e. all free parameters of the model are reconstructed from the data set.
+All other data are then tested against the fitted model and, if a point fits well to the estimated model, also considered as a hypothetical inlier.
+The estimated model is reasonably good if sufficiently many points have been classified as hypothetical inliers.
+The model is reestimated from all hypothetical inliers, because it has only been estimated from the initial set of hypothetical inliers.
+Finally, the model is evaluated by estimating the error of the inliers relative to the model.
+
+This procedure is repeated a fixed number of times, each time producing either a model which is rejected because too few points are classified as inliers or a refined model together with a corresponding error measure. In the latter case, we keep the refined model if its error is lower than the last saved model.
+
+[edit] The algorithm
+The generic RANSAC algorithm, in pseudocode, works as follows:
+
+input:
+    data - a set of observations
+    model - a model that can be fitted to data 
+    n - the minimum number of data required to fit the model
+    k - the maximum number of iterations allowed in the algorithm
+    t - a threshold value for determining when a datum fits a model
+    d - the number of close data values required to assert that a model fits well to data
+output:
+    best_model - model parameters which best fit the data (or nil if no good model is found)
+    best_consensus_set - data point from which this model has been estimated
+    best_error - the error of this model relative to the data 
+
+iterations := 0
+best_model := nil
+best_consensus_set := nil
+best_error := infinity
+while iterations < k 
+    maybe_inliers := n randomly selected values from data
+    maybe_model := model parameters fitted to maybe_inliers
+    consensus_set := maybe_inliers
+
+    for every point in data not in maybe_inliers 
+        if point fits maybe_model with an error smaller than t
+            add point to consensus_set
+    
+    if the number of elements in consensus_set is > d 
+        (this implies that we may have found a good model,
+        now test how good it is)
+        better_model := model parameters fitted to all points in consensus_set
+        this_error := a measure of how well better_model fits these points
+        if this_error < best_error
+            (we have found a model which is better than any of the previous ones,
+            keep it until a better one is found)
+            best_model := better_model
+            best_consensus_set := consensus_set
+            best_error := this_error
+     
+    increment iterations
+
+return best_model, best_consensus_set, best_error
+
+Possible variants of the RANSAC algorithm includes
+
+Break the main loop if a sufficiently good model has been found, that is, one with sufficiently small error. May save some computation time at the expense of an additional parameter.
+Compute this_error directly from maybe_model without re-estimating a model from the consensus set. May save some time at the expense of comparing errors related to models which are estimated from a small number of points and therefore more sensitive to noise.
+
+
+[edit] The parameters
+The values of parameters t and d have to be determined from specific requirements related to the application and the data set, possibly based on experimental evaluation. The parameter k (the number of iterations), however, can be determined from a theoretical result. Let p be the probability that the RANSAC algorithm in some iteration selects only inliers from the input data set when it chooses the n points from which the model parameters are estimated. When this happens, the resulting model is likely to be useful so p gives the probability that the algorithm produces a useful result. Let w be the probability of choosing an inlier each time a single point is selected, that is,
+w = number of inliers in data / number of points in data
+A common case is that w is not well known beforehand, but some rough value can be given. Assuming that the n points needed for estimating a model are selected independently, wn is the probability that all n points are inliers and 1 − wn is the probability that at least one of the n points is an outlier, a case which implies that a bad model will be estimated from this point set. That probability to the power of k is the probability that the algorithm never selects a set of n points which all are inliers and this must be the same as 1 − p. Consequently,
+
+1 − p = (1 − wn)k
+
+which, after taking the logarithm of both sides, leads to
+
+
+
+It should be noted that this result assumes that the n data points are selected independently, that is, a point which has been selected once is replaced and can be selected again in the same iteration. This is often not a reasonable approach and the derived value for k should be taken as an upper limit in the case that the points are selected without replacement. For example, in the case of finding a line which fits the data set illustrated in the above figure, the RANSAC algorithm typically chooses 2 points in each iteration and computes maybe_model as the line between the points and it is then critical that the two points are distinct.
+To gain additional confidence, the standard deviation or multiples thereof can be added to k. The standard deviation of k is defined as
+
+
+
+
+[edit] Advantages and disadvantages
+An advantage of RANSAC is its ability to do robust estimation of the model parameters, i.e., it can estimate the parameters with a high degree of accuracy even when significant amount of outliers are present in the data set. A disadvantage of RANSAC is that there is no upper bound on the time it takes to compute these parameters. When an upper time bound is used (a maximum number of iterations) the solution obtained may not be the optimal one. Another disadvantage of RANSAC is that it requires the setting of problem-specific thresholds.
+RANSAC can only estimate one model for a particular data set. As for any one-model approach when two (or more) models exist, RANSAC may fail to find either one.
+
+[edit] Applications
+The RANSAC algorithm is often used in computer vision, e.g., to simultaneously solve the correspondence problem and estimate the fundamental matrix related to a pair of stereo cameras.
+
+[edit] References
+
+Martin A. Fischler and Robert C. Bolles (June 1981). "Random Sample Consensus: A Paradigm for Model Fitting with Applications to Image Analysis and Automated Cartography". Comm. of the ACM 24: 381–395. doi:10.1145/358669.358692. 
+David A. Forsyth and Jean Ponce (2003). Computer Vision, a modern approach. Prentice Hall. ISBN ISBN 0-13-085198-1. 
+Richard Hartley and Andrew Zisserman (2003). Multiple View Geometry in Computer Vision (2nd edition ed.). Cambridge University Press. 
+P.H.S. Torr, and D.W. Murray (1997). "The Development and Comparison of Robust Methods for Estimating the Fundamental Matrix". International Journal of Computer Vision 24: 271–300. doi:10.1023/A:1007927408552. 
+
+
+[edit] External links
+
+RANSAC Toolbox for Matlab. A research (and didactic) oriented toolbox to explore the RANSAC algorithm in Matlab. It is highly configurable and contains the routines to solve a few relevant estimation problems.
+RANSAC for Dummies A simple tutorial with many examples that uses the RANSAC Toolbox for Matlab.
+25 Years of RANSAC Workshop
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/RANSAC"
+Categories: Geometry in computer vision | Statistical algorithms | Robust statistics | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+
+
+
+
+
+
+
+
+
+ This page was last modified on 29 March 2009, at 08:56 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

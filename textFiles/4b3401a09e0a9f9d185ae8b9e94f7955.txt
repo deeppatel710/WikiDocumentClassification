@@ -1,0 +1,343 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Flood fill - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Flood_fill";
+		var wgTitle = "Flood fill";
+		var wgAction = "view";
+		var wgArticleId = "11635";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 275375655;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Flood fill
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+recursive flood-fill with 4 directions
+
+
+Flood fill, also called seed fill, is an algorithm that determines the area connected to a given node in a multi-dimensional array. It is used in the "bucket" fill tool of paint programs to determine which parts of a bitmap to fill with color, and in puzzle games such as Minesweeper, Puyo Puyo, Lumines, Samegame and Magical Drop for determining which pieces are cleared. When applied on an image to fill a particular bounded area with color, it is also known as Boundary fill.
+
+
+
+
+Contents
+
+
+1 The algorithm
+
+1.1 Alternative implementations
+
+
+2 Fixed memory method (right-hand fill method)
+3 Scanline fill
+4 Vector implementations
+5 Large scale behaviour
+6 See also
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] The algorithm
+
+
+
+
+recursive flood-fill with 8 directions
+
+
+The flood fill algorithm takes three parameters: a start node, a target color, and a replacement color. The algorithm looks for all nodes in the array which are connected to the start node by a path of the target color, and changes them to the replacement color. There are many ways in which the flood-fill algorithm can be structured, but they all make use of a queue or stack data structure, explicitly or implicitly. One implicitly stack-based (recursive) flood-fill implementation (for a two-dimensional array) goes as follows:
+
+Flood-fill (node, target-color, replacement-color):
+ 1. If the color of node is not equal to target-color, return.
+ 2. If the color of node is equal to replacement-color, return.
+ 3. Set the color of node to replacement-color.
+ 4. Perform Flood-fill (one step to the west of node, target-color, replacement-color).
+    Perform Flood-fill (one step to the east of node, target-color, replacement-color).
+    Perform Flood-fill (one step to the north of node, target-color, replacement-color).
+    Perform Flood-fill (one step to the south of node, target-color, replacement-color).
+ 5. Return.
+
+
+[edit] Alternative implementations
+Though easy to understand, the implementation of the algorithm used above is impractical in languages and environments where stack space is severely constrained (e.g. Java applets).
+An explicitly queue-based implementation is shown in the pseudo-code below. This implementation is not very efficient, but can be coded quickly, does not use a stack, and it is easy to debug:
+
+Flood-fill (node, target-color, replacement-color):
+ 1. Set Q to the empty queue.
+ 2. If the color of node is not equal to target-color, return.
+ 3. Add node to the end of Q.
+ 4. While Q is not empty: 
+ 5.     Set n equal to the first element of Q
+ 6.     If the color of n is equal to target-color, set the color of n to replacement-color.
+ 7.     Remove first element from Q
+ 8.     If the color of the node to the west of n is target-color, set the color of that node to replacement-color, add that node to the end of Q.
+ 9.     If the color of the node to the east of n is target-color, set the color of that node to replacement-color, add that node to the end of Q.
+ 10.    If the color of the node to the north of n is target-color, set the color of that node to replacement-color, add that node to the end of Q.
+ 11.    If the color of the node to the south of n is target-color, set the color of that node to replacement-color, add that node to the end of Q.
+ 12. Return.
+
+Most practical implementations use a loop for the west and east directions as an optimization to avoid the overhead of stack or queue management:
+
+Flood-fill (node, target-color, replacement-color):
+ 1. Set Q to the empty queue.
+ 2. If the color of node is not equal to target-color, return.
+ 3. Add node to Q.
+ 4. For each element n of Q:
+ 5.  If the color of n is equal to target-color:
+ 6.   Set w and e equal to n.
+ 7.   Move w to the west until the color of the node to the west of w no longer matches target-color.
+ 8.   Move e to the east until the color of the node to the east of e no longer matches target-color.
+ 9.   Set the color of nodes between w and e to replacement-color.
+10.   For each node n between w and e:
+11.    If the color of the node to the north of n is target-color, add that node to Q.
+       If the color of the node to the south of n is target-color, add that node to Q.
+12. Continue looping until Q is exhausted.
+13. Return.
+
+Adapting the algorithm to use an additional array to store the shape of the region allows generalization to cover "fuzzy" flood filling, where an element can differ by up to a specified threshold from the source symbol. Using this additional array as an alpha channel allows the edges of the filled region to blend somewhat smoothly with the not-filled region.
+
+[edit] Fixed memory method (right-hand fill method)
+A method exists that uses essentially no memory for four-connected regions by pretending to be a painter trying to paint the region without painting themselves into a corner. This is also a method for solving mazes. The four pixels making the primary boundary are examined to see what action should be taken. The painter could find themselves in one of several conditions:
+
+ 1. All four boundary pixels are filled.
+ 2. Three of the boundary pixels are filled.
+ 3. Two of the boundary pixels are filled.
+ 4. One boundary pixel is filled.
+ 5. Zero boundary pixels are filled.
+
+Where a path or boundary is to be followed, the right-hand rule is used. The painter follows the region by placing their right-hand on the wall (the boundary of the region) and progressing around the edge of the region without removing their hand.
+For case #1, the painter paints (fills) the pixel the painter is standing upon and stops the algorithm.
+For case #2, a path leading out of the area exists. Paint the pixel the painter is standing upon and move in the direction of the open path.
+For case #3, the two boundary pixels define a path which, if we painted the current pixel, may block us from ever getting back to the other side of the path. We need a "mark" to define where we are and which direction we are heading to see if we ever get back to this exact same pixel. If we already created such a "mark", then we preserve our previous mark and move to the next pixel following the right-hand rule.
+A mark is used for the first 2-pixel boundary that is encountered to remember where the passage started and in what direction the painter was moving. If the mark is encountered again and the painter is traveling in the same direction, then the painter knows that it is safe to paint the square with the mark and to continue in the same direction. This is because (through some unknown path) the pixels on the other side of the mark can be reached and painted in the future. The mark is removed for future use.
+If the painter encounters the mark but is going in a different direction, then some sort of loop has occurred which caused the painter to return to the mark. This loop must be eliminated. The mark is picked up and the painter then proceeds in the direction indicated previously by the mark using a left-hand rule for the boundary (similar to the right-hand rule but using the painter's left hand). This continues until an intersection is found (with three or more open boundary pixels). Still using the left-hand rule the painter now searches for a simple passage (made by two boundary pixels). Upon finding this two-pixel boundary path, that pixel is painted. This breaks the loop and allows the algorithm to continue.
+For case #4, we need to check the opposite 8-connected corners to see if they are filled or not. If either or both are filled, then this creates a many-path intersection and cannot be filled. If both are empty, then the current pixel can be painted and the painter can move following the right-hand rule.
+
+The algorithm trades time for memory. For simple shapes it is very efficient. However, if the shape is complex with many features, the algorithm spends a large amount of time tracing the edges of the region trying to ensure that all can be painted.
+This algorithm was first available commercially in 1981 on a Vicom Image Processing system manufactured by Vicom Systems, Inc. The classic recursive flood fill algorithm was also available on this system as well.
+
+[edit] Scanline fill
+The algorithm can be sped up by filling lines. Instead of pushing each potential future pixel coordinate into the stack, it inspects the neighbour lines (previous and next) to find adjacent segments that may be filled in a future pass; the coordinates (either the start or the end) of the line segment are pushed on the stack. In most cases this scanline algorithm is at least an order of magnitude faster than the per-pixel one.
+
+[edit] Vector implementations
+Version 0.46 of Inkscape includes a bucket fill tool, giving output similar to ordinary bitmap operations and indeed using one: the canvas is rendered, a flood fill operation is performed on the selected area and the result is then traced back to a path. It uses the concept of a boundary condition.
+
+[edit] Large scale behaviour
+
+
+
+4-way floodfill using a queue for storage
+
+
+
+
+
+
+4-way floodfill using a stack for storage
+
+
+
+Most floodfill applications use a queue as their internal pixel store; this yields an expanding lozenge-shaped fill. Some applications (particularly older 8-bit computer games) instead use a stack as the store - this exhibits a characteristic "leave gaps and then return to fill them later" behaviour.
+
+[edit] See also
+
+Connected Component Labeling
+Dijkstra's algorithm
+
+
+[edit] External links
+
+Sample implementations for recursive and non-recursive, classic and scanline flood fill, by Lode Vandevenn.
+C implementation of Flood/Seed Fill Algorithm from Graphics Gems; BSD(ish) license, by Paul Heckbert.
+Flash flood fill implementation, by Emanuele Feronato.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Flood_fill"
+Categories: Computer graphics algorithms | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Deutsch
+Español
+Français
+한국어
+Italiano
+Nederlands
+Polski
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 March 2009, at 11:45 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

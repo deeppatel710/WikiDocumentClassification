@@ -1,0 +1,291 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Spinlock - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Spinlock";
+		var wgTitle = "Spinlock";
+		var wgAction = "view";
+		var wgArticleId = "244603";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279701455;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Spinlock
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In software engineering, a spinlock is a lock where the thread simply waits in a loop ("spins") repeatedly checking until the lock becomes available. As the thread remains active but isn't performing a useful task, the use of such a lock is a kind of busy waiting. Once acquired, spinlocks will usually be held until they are explicitly released, although in some implementations they may be automatically released if the thread being waited on (that which holds the lock) blocks, or "goes to sleep".
+Spinlocks are efficient if threads are only likely to be blocked for a short period of time, as they avoid overhead from operating system process re-scheduling or context switching. For this reason, spinlocks are often used inside operating system kernels. However, spinlocks become wasteful if held for longer durations, both preventing other threads from running and requiring re-scheduling. The longer a lock is held by a thread, the greater the risk that it will be interrupted by the O/S scheduler while holding the lock. If this happens, other threads will be left "spinning" (repeatedly trying to acquire the lock), while the thread holding the lock is not making progress towards releasing it. The result is a semi-deadlock until the thread holding the lock can finish and release it. This is especially true on a single-processor system, where each waiting thread of the same priority is likely to waste its quantum (allocated time where a thread can run) spinning until the thread that holds the lock is finally finished.
+Implementing spin locks correctly is difficult because one must take into account the possibility of simultaneous access to the lock to prevent race conditions. Generally this is only possible with special machine language instructions, such as atomic test-and-set operations, and cannot be easily implemented in high-level programming languages or those languages which don't support truly atomic operations.[1] On architectures without such operations, or if high-level language implementation is required, a non-atomic locking algorithm may be used, e.g. Peterson's algorithm. But note that such an implementation may require more memory than a spinlock, be slower to allow progress after unlocking, and may not be implementable in a high-level language if out-of-order execution is allowed.
+
+
+
+
+Contents
+
+
+1 Example implementation
+2 Significant optimizations
+3 Alternatives
+4 See also
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Example implementation
+The following example uses x86 assembly language to implement a spinlock. It will work on any Intel 80386 compatible processor.
+
+lock:                       # The lock variable. 1 = locked, 0 = unlocked.
+    dd      0
+
+spin_lock:
+    mov     eax, 1          # Set the EAX register to 1.
+
+loop:
+    xchg    eax, [lock]     # Atomically swap the EAX register with
+                            #  the lock variable.
+                            # This will always store 1 to the lock, leaving
+                            #  previous value in the EAX register.
+
+    test    eax, eax        # Test EAX with itself. Among other things, this will
+                            #  set the processor's Zero Flag if EAX is 0.
+                            # If EAX is 0, then the lock was unlocked and
+                            #  we just locked it.
+                            # Otherwise, EAX is 1 and we didn't acquire the lock.
+
+    jnz     loop            # Jump back to the XCHG instruction if the Zero Flag is
+                            #  not set, the lock was locked, and we need to spin.
+
+    ret                     # The lock has been acquired, return to the calling
+                            #  function.
+
+spin_unlock:
+    mov     eax, 0          # Set the EAX register to 0.
+
+    xchg    eax, [lock]     # Atomically swap the EAX register with
+                            #  the lock variable.
+
+    ret                     # The lock has been released.
+
+
+[edit] Significant optimizations
+The above is a simple implementation which is easy to understand (for a programmer who understands x86 assembler) and works on all x86 architecture CPUs. However a number of performance optimizations are possible:
+On later implementations of the x86 architecture, spin_unlock can safely use an unlocked MOV instead of the locked XCHG, which is much faster. This is due to subtle memory ordering rules which support this, even though MOV isn't a full memory barrier. However some processors (some Cyrix processors, some revisions of the Intel Pentium Pro (due to bugs), and earlier Pentium and i486 SMP systems) will do the wrong thing and data protected by the lock could be corrupted. On most non-x86 architectures, explicit memory barrier instructions or atomic instructions (like in the example) must be used, or there may be special "unlock" instructions (as on IA64) which provide the necessary memory ordering.
+To reduce inter-CPU bus traffic, when the lock is not acquired, the code should loop reading without trying to write anything, until it reads a changed value. Because of MESI caching protocols, this causes the cache line for the lock to become "Shared"; then there is remarkably no bus traffic while a CPU is waiting for the lock. This optimization is effective on all CPU architectures that have a cache per CPU, because MESI is so ubiquitous.
+
+[edit] Alternatives
+The primary disadvantage of a spinlock is that it wastes time while waiting to acquire the lock that might be productively spent elsewhere. There are two alternatives that avoid this:
+
+Do not acquire the lock. In many situations it is possible to design data structures that do not require locking, e.g. by using per thread data, or by using per-cpu data and disabling interrupts.
+Switch to a different thread while waiting (sometimes called sleeplocks). This typically involves attaching the current thread to a queue of threads waiting for the lock, then switching to another one. This scheme also has the advantages that it guarantees that resource starvation does not occur as long as all threads eventually relinquish locks they acquire and scheduling decisions can be made about which thread should progress first.
+
+Most operating systems (for example Solaris, Mac OS X and FreeBSD) use a hybrid approach called "adaptive mutex". The idea is to use a spinlock when trying to access a resource locked by a currently-running thread, but will sleep if the thread is not currently running (which always happens on single-processor systems).[2]
+
+[edit] See also
+
+synchronization
+deadlock
+seqlock
+
+
+[edit] References
+
+^ Silberschatz, Abraham; Galvin, Peter B. (1994). Operating System Concepts (Fourth Edition ed.). Addison-Wesley. pp. 176–179. ISBN 0-201-59292-4. 
+^ Silberschatz, Abraham; Galvin, Peter B. (1994). Operating System Concepts (Fourth Edition ed.). Addison-Wesley. pp. 198. ISBN 0-201-59292-4. 
+
+
+[edit] External links
+
+Description from The Open Group Base Specifications Issue 6, IEEE Std 1003.1, 2004 Edition
+Article "User-Level Spin Locks - Threads, Processes & IPC" by Gert Boddaert
+Paper "The Performance of Spin Lock Alternatives for Shared-Memory Multiprocessors" by Thomas Anderson
+Paper "Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors" by John M. Mellor-Crummey and Michael L. Scott. This paper received the 2006 Dijkstra Prize in Distributed Computing.
+Spin-Wait Lock by Jeffrey Richter
+Austria C++ SpinLock Class Reference
+Interlocked Variable Access(Windows)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Spinlock"
+Categories: Concurrency control | Programming constructs 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+Italiano
+Lietuvių
+Nederlands
+日本語
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 00:13 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

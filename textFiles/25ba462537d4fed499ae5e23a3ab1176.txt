@@ -1,0 +1,395 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Metaclass - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Metaclass";
+		var wgTitle = "Metaclass";
+		var wgAction = "view";
+		var wgArticleId = "558359";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279769102;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-python {line-height: normal;}
+.source-python li, .source-python pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for python
+ * CSS class: source-python, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-python .de1, .source-python .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-python  {}
+.source-python .head {}
+.source-python .foot {}
+.source-python .imp {font-weight: bold; color: red;}
+.source-python .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-python li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-python li.li2 {font-weight: bold;}
+.source-python .kw1 {color: #ff7700;font-weight:bold;}
+.source-python .kw2 {color: #008000;}
+.source-python .kw3 {color: #dc143c;}
+.source-python .kw4 {color: #0000cd;}
+.source-python .co1 {color: #808080; font-style: italic;}
+.source-python .coMULTI {color: #808080; font-style: italic;}
+.source-python .es0 {color: #000099; font-weight: bold;}
+.source-python .br0 {color: #66cc66;}
+.source-python .st0 {color: #483d8b;}
+.source-python .nu0 {color: #ff4500;}
+.source-python .me1 {color: black;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Metaclass
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In object-oriented programming, a metaclass is a class whose instances are classes. Just as an ordinary class defines the behavior of certain objects, a metaclass defines the behavior of certain classes and their instances.
+Not all object-oriented programming languages support metaclasses. Among those which do, the extent to which metaclasses can override any given aspect of class behavior varies. Each language has its own metaobject protocol, a set of rules which govern how objects, classes, and metaclasses interact.
+
+
+
+
+Contents
+
+
+1 Python example
+2 In Smalltalk-80
+3 Support in languages and tools
+4 See also
+5 External links
+6 Further reading
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Python example
+In Python, the builtin class type is a metaclass. Consider this simple Python class:
+
+
+class Car(object):
+    __slots__ = ['make', 'model', 'year', 'color']
+ 
+    def __init__(self, make, model, year, color):
+        self.make = make
+        self.model = model
+        self.year = year
+        self.color = color
+ 
+    @property 
+    def description(self):
+        """ Return a description of this car. """
+        return "%s %s %s %s" % (self.color, self.year, self.make, self.model)
+
+At run time, Car itself is a type object. The source code of the Car class, shown above, does not include such details as the size in bytes of Car objects, their binary layout in memory, how they are allocated, that the __init__ method is automatically called each time a Car is created, and so on. These details come into play not only when a new Car object is created, but also each time any attribute of a Car is accessed. In languages without metaclasses, these details are defined by the language specification and can't be overridden. In Python, the metaclass, type, controls these details of Car's behavior. They can be overridden by using a different metaclass instead of type.
+The above example contains some redundant code to do with the four attributes make, model, year, and color. It is possible to eliminate some of this redundancy using a metaclass. In Python, a metaclass is most easily defined as a subclass of type.
+
+
+ class AttributeInitType(type):
+     def __call__(self, *args, **kwargs):
+         """ Create a new instance. """
+ 
+         # First, create the object in the normal default way.
+         obj = type.__call__(self, *args)
+ 
+         # Additionally, set attributes on the new object.
+         for name in kwargs:
+             setattr(obj, name, kwargs[name])
+ 
+         # Return the new object.
+         return obj
+
+This metaclass only overrides object creation. All other aspects of class and object behavior are still handled by type.
+Now the class Car can be rewritten to use this metaclass. This is done in Python 2 by assigning to __metaclass__ within the class definition (in Python 3.0, you inherit from metaclass=M instead):
+
+
+ class Car(object):
+     __metaclass__ = AttributeInitType
+     __slots__ = ['make', 'model', 'year', 'color']
+ 
+     @property
+     def description(self):
+         """ Return a description of this car. """
+         return "%s %s %s %s" % (self.color, self.year, self.make, self.model)
+
+Car objects can then be instantiated like this:
+
+
+ cars = [
+     Car(make='Toyota', model='Prius', year=2005, color='green'),
+     Car(make='Ford', model='Prefect', year=1979, color='blue')]
+
+Metaclass programming can be confusing, and it is rare in real-world Python code.
+
+[edit] In Smalltalk-80
+In Smalltalk, everything is an object. There are two kinds of objects: those which can create instances of themselves (classes), and others which cannot. Every object is the instance of a class. Every class is the instance of a metaclass.
+In early Smalltalks, there was one metaclass called Class. The object creation method of all classes was the same, i.e., new. A class sent the message new could only return an object with uninitialized instance variables. Smalltalk's designers wanted to send one message to an object to initiate both creation and initializaton. They achieved this in Smalltalk-80.
+In Smalltalk-80, a class is an instance of its own metaclass; and each class can have unique methods for creating objects. Metaclasses, like other classes, contain methods used by their instances. But metaclasses are all instances of one class, called Metaclass. Unlike classes, metaclasses do not need flexibile creation methods, because classes all have the same structure. For instance, the class Car has instance variables just like any other class. People using (and not re-designing) Smalltalk do not need to write class creation methods.
+Names are not given to metaclasses. The metaclass of class Sphere is simply referred to as "the metaclass of class Sphere". The metaclass of a class may be accessed by sending the message class to the class.
+The methods of a metaclass create instances, and initialize class variables.
+In Smalltalk-80, every class (except Object) has a superclass. The abstract superclass of all metaclasses is Class, which describes the general nature of classes.
+The superclass hierarchy for metaclasses parallels that for classes, except for class Object. ALL metaclasses are subclasses of Class, therefore:
+
+Object class superclass == Class.
+
+Like conjoined twins, classes and metaclasses are born together. Metaclass has an instance variable thisClass, which points to its conjoined class.
+The names of classes in the metaclass hierarchy are easily confused with the concepts of the same name. For instance:
+
+Object is the base class which provides common methods for all objects; "an object" is an integer, or a widget, or a Car, etc.
+
+
+Class is the base metaclass which provides common methods for all classes; "a class" is something like Integer, or Widget, or Car, etc.
+
+
+Metaclass has the same relation to "a Metaclass".
+
+Four classes provide the facilities to describe new classes. Their inheritance hierarchy (from Object), and the main facilities they provide are:
+
+Object - default behavior common to all objects, like class access
+
+Behavior - minimum state for compiling methods and creating/running objects
+
+ClassDescription (abstract class) - class/variable naming, comments
+
+Class - similar, more comprehensive, facilities to superclasses
+Metaclass - initializing class variables, instance creation messages + read on...
+
+
+
+
+
+
+
+Class methods actually belong to the metaclass, just as instance methods actually belong to the class. When a message is sent to the object 2, the search for the method starts in Integer. If it not found it proceeds up the superclass chain, stopping at Object whether it is found or not.
+Aside - another way of saying "metaclass of Integer" is Integer class.
+When a message is sent to Integer the search for the method starts in Integer class and proceeds up the superclass chain to Object class. Note that, so far, the metaclass inheritance chain exactly follows that of the class inheritance chain. But the metaclass chain extends further because Object class is the subclass of Class. All metaclasses are subclasses of Class.
+All metaclasses are instances of class Metaclass. So the metaclass of Metaclass is an instance of Metaclass.
+
+[edit] Support in languages and tools
+The following programming languages support metaclasses.
+
+Common Lisp, via CLOS
+Groovy
+Object Pascal (especially in CodeGear Delphi)
+Objective-C
+Python
+Perl, via the metaclass pragma
+Ruby (follows the same scheme as Smalltalk[citation needed])
+Smalltalk
+
+Some less widespread languages which support metaclasses include OpenJava, OpenC++, OpenAda, CorbaScript, ObjVLisp, Object-Z, MODEL-K, XOTcl, and MELDC. Several of these languages date from the early 1990s and are of academic interest.
+Logtalk, an object-oriented extension of Prolog, also supports metaclasses.
+Resource Description Framework (RDF) and Unified Modeling Language (UML) both support metaclasses.
+
+[edit] See also
+
+Metamodel
+Metaprogramming
+Metaobject protocol (MOP)
+Reflection
+Dynamism
+Adapter pattern
+
+
+[edit] External links
+
+Citations from CiteSeer
+Description from the Free On-Line Dictionary of Computing
+An implementation of mixins in Java using metaclasses
+IBM Metaclass programming in Python, parts 1, 2 and 3
+Artima Forum: Metaclasses in Python 3.0 (part 1 of 2) (part 2 of 2)
+The Metaclass in Ruby
+David Mertz. "A Primer on Python Metaclass Programming". ONLamp. http://www.onlamp.com/lpt/a/3388. Retrieved on June 28. 
+
+
+[edit] Further reading
+
+Ira R. Forman and Scott Danforth, Putting Metaclasses to Work (1999), ISBN 0-201-43305-2
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Metaclass"
+Categories: Object-oriented programming | Articles with example Python codeHidden categories: All articles with unsourced statements | Articles with unsourced statements since April 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+日本語
+Português
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 09:53.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

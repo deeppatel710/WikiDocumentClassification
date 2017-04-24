@@ -1,0 +1,380 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Interpreter pattern - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Interpreter_pattern";
+		var wgTitle = "Interpreter pattern";
+		var wgAction = "view";
+		var wgArticleId = "164860";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282660604;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-java {line-height: normal;}
+.source-java li, .source-java pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for java
+ * CSS class: source-java, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-java .de1, .source-java .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-java  {}
+.source-java .head {}
+.source-java .foot {}
+.source-java .imp {font-weight: bold; color: red;}
+.source-java .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-java li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-java li.li2 {font-weight: bold;}
+.source-java .kw1 {color: #b1b100;}
+.source-java .kw2 {color: #000000; font-weight: bold;}
+.source-java .kw3 {color: #aaaadd; font-weight: bold;}
+.source-java .kw4 {color: #993333;}
+.source-java .co1 {color: #808080; font-style: italic;}
+.source-java .co2 {color: #a1a100;}
+.source-java .coMULTI {color: #808080; font-style: italic;}
+.source-java .es0 {color: #000099; font-weight: bold;}
+.source-java .br0 {color: #66cc66;}
+.source-java .st0 {color: #ff0000;}
+.source-java .nu0 {color: #cc66cc;}
+.source-java .me1 {color: #006600;}
+.source-java .me2 {color: #006600;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Interpreter pattern
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (November 2008)
+
+
+In computer programming, the interpreter pattern is a particular design pattern. The basic idea is to have a class for each symbol (terminal or nonterminal) in a specialized computer language, so that the language's syntax tree is an instance of the composite pattern. The interpreter pattern specifies how to evaluate language constructs.
+
+
+
+
+Contents
+
+
+1 Structure
+2 Uses for the Interpreter pattern
+3 Examples
+4 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Structure
+ ‎
+
+[edit] Uses for the Interpreter pattern
+
+Specialized database query languages such as SQL.
+Specialized computer languages which are often used to describe communication protocols
+Most general-purpose computer languages actually incorporate several specialized languages.
+
+
+[edit] Examples
+The following Java example illustrates how a general purpose language would interpret a more specialized language, here the Reverse Polish notation. The output is:
+
+'42 4 2 - +' equals 44
+
+
+
+import java.util.*;
+ 
+interface Expression {
+    public void interpret(Stack<Integer> s);
+}
+ 
+class TerminalExpression_Number implements Expression {
+    private int number;
+    public TerminalExpression_Number(int number)       { this.number = number; }
+    public void interpret(Stack<Integer> s)  { s.push(number); }
+}
+ 
+class TerminalExpression_Plus implements Expression {
+    public void interpret(Stack<Integer> s)  { s.push( s.pop() + s.pop() ); }
+}
+ 
+class TerminalExpression_Minus implements Expression {
+    public void interpret(Stack<Integer> s)  { s.push( - s.pop() + s.pop() ); }
+}
+ 
+class Parser {
+    private ArrayList<Expression> parseTree = new ArrayList<Expression>(); // only one NonTerminal Expression here
+ 
+    public Parser(String s) {
+        for (String token : s.split(" ")) {
+            if      (token.equals("+")) parseTree.add( new TerminalExpression_Plus() );
+            else if (token.equals("-")) parseTree.add( new TerminalExpression_Minus() );
+            // ...
+            else                        parseTree.add( new TerminalExpression_Number(Integer.valueOf(token)) );
+        }
+    }
+ 
+    public int evaluate() {
+        Stack<Integer> context = new Stack<Integer>(); 
+        for (Expression e : parseTree) e.interpret(context);
+        return context.pop();
+    }
+}
+ 
+class InterpreterExample {
+    public static void main(String[] args) {
+        String expression = "42 4 2 - +";
+        Parser p = new Parser(expression);
+        System.out.println("'" + expression +"' equals " + p.evaluate());
+    }
+}
+
+
+[edit] See also
+
+Backus-Naur form
+Domain specific languages
+Design Patterns p. 243
+
+
+
+
+
+
+
+
+v • d • e
+
+Design patterns in the book Design Patterns
+
+
+
+
+
+Creational
+
+Abstract factory · Builder · Factory · Prototype · Singleton
+
+
+
+
+
+
+Structural
+
+Adapter · Bridge · Composite · Decorator · Facade · Flyweight · Proxy
+
+
+
+
+
+
+Behavioral
+
+Chain of responsibility · Command · Interpreter · Iterator · Mediator · Memento · Observer · State · Strategy · Template method · Visitor
+
+
+
+
+
+
+
+
+
+ 
+This computer science article is a stub. You can help by expanding it.
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Interpreter_pattern"
+Categories: Software design patterns | Computer science stubs | Articles with example Java codeHidden categories: Articles lacking sources from November 2008 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+日本語
+Polski
+ไทย
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 April 2009, at 23:55 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

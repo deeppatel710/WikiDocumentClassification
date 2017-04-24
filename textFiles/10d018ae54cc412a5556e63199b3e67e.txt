@@ -1,0 +1,382 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AA tree - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "AA_tree";
+		var wgTitle = "AA tree";
+		var wgAction = "view";
+		var wgArticleId = "1665969";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284973545;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); AA tree
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+An AA tree in computer science is a form of balanced tree used for storing and retrieving ordered data efficiently. AA trees are named for Arne Andersson, their inventor.
+AA trees are a variation of the red-black tree, which in turn is an enhancement to the binary search tree. Unlike red-black trees, red nodes on an AA tree can only be added as a right subchild. In other words, no red node can be a left sub-child. This results in the simulation of a 2-3 tree instead of a 2-3-4 tree, which greatly simplifies the maintenance operations. The maintenance algorithms for a red-black tree need to consider seven different shapes to properly balance the tree:
+
+An AA tree on the other hand only needs to consider two shapes due to the strict requirement that only right links can be red:
+
+
+
+
+
+Contents
+
+
+1 Balancing Rotations
+2 Insertion
+3 Deletion
+4 Performance
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Balancing Rotations
+Typically, AA trees are implemented with the idea of a level instead of that of a color, unlike red-black trees. Each node has a level field, and the following invariants must remain true for the tree to be valid:
+
+The level of a leaf node is one.
+The level of a left child is strictly less than that of its parent.
+The level of a right child is less than or equal to that of its parent.
+The level of a right grandchild is strictly less than that of its grandparent.
+Every node of level greater than one must have two children.
+
+Only two operations are needed for maintaining balance in an AA tree. These operations are called skew and split. Skew is a right rotation when an insertion or deletion creates a left horizontal link, which can be thought of as a left red link in the red-black tree context. Split is a conditional left rotation when an insertion or deletion creates two horizontal right links, which once again corresponds to two consecutive red links in red-black trees.
+
+function skew is
+    input: T, a node representing an AA tree that needs to be rebalanced.
+    output: Another node representing the rebalanced AA tree.
+
+    if nil(T) then
+        return Nil
+    else if level(left(T)) == level(T) then
+        Swap the pointers of horizontal left links.
+        L = left(T)
+        left(T) := right(L)
+        right(L) := T
+        return L
+    else
+        return T
+    end if
+end function
+
+Skew: 
+
+function split is
+    input: T, a node representing an AA tree that needs to be rebalanced.
+    output: Another node representing the rebalanced AA tree.
+
+    if nil(T) then
+        return Nil
+    else if level(T) == level(right(right(T))) then
+        We have two horizontal right links.  Take the middle node, elevate it, and return it.
+        R = right(T)
+        right(T) := left(R)
+        left(R) := T
+        level(R) := level(R) + 1
+        return R
+    else
+        return T
+    end if
+end function
+
+Split: 
+
+[edit] Insertion
+Insertion begins with the normal binary tree search and insertion procedure. Then, as the call stack unwinds, it's easy to check the validity of the tree and perform any rotations as necessary. If a horizontal left link arises, a skew will be performed, and if two horizontal right links arise, a split will be performed, possibly incrementing the level of the new root node of the current subtree. Note in the code as given above the increment of level(T). This makes it necessary to continue checking the validity of the tree as the modifications bubble up from the leaves.
+
+function insert is
+    input: X, the value to be inserted, and T, the root of the tree to insert it into.
+    output: A balanced version T including X.
+
+    Do the normal binary tree insertion procedure.  Set the result of the
+    recursive call to the correct child in case a new node was created or the
+    root of the subtree changes.
+    if nil(T) then
+        Create a new leaf node with X.
+        return node(X, 1, Nil, Nil)
+    else if X < value(T) then
+        left(T) := insert(X, left(T))
+    else if X > value(T) then
+        right(T) := insert(X, right(T))
+    end if
+    Note that the case of X == value(T) is unspecified.  As given, an insert
+    will have no effect.  The implementor may desire different behavior.
+
+    Perform skew and then split.  The conditionals that determine whether or
+    not a rotation will occur or not are inside of the procedures, as given
+    above.
+    T := skew(T)
+    T := split(T)
+
+    return T
+end function
+
+
+[edit] Deletion
+As in most balanced binary trees, the deletion of an internal node can be turned into the deletion of a leaf node by swapping the internal node with either its closest predecessor or successor, depending on which are in the tree or the implementor's whims. Retrieving a predecessor is simply a matter of following one left link and then all of the remaining right links. Similarly, the successor can be found by going right once and left until a null pointer is found. Because of the AA property of all nodes of level greater than one having two children, the successor or predecessor node will be in level 1, making their removal trivial.
+To re-balance a tree, there are a few approaches. The one described by Andersson in his original paper is the simplest, and it is described here, although actual implementations may opt for a more optimized approach. After a removal, the first step to maintaining tree validity is to lower the level of any nodes whose children are two levels below them, or who are missing children. Then, the entire level must be skewed and split. This approach was favored, because when laid down conceptually, it has three easily understood separate steps:
+
+Decrease the level, if appropriate.
+Skew the level.
+Split the level.
+
+However, we have to skew and split the entire level this time instead of just a node, complicating our code.
+
+function delete is
+    input: X, the value to delete, and T, the root of the tree from which it should be deleted.
+    output: T, balanced, without the value X.
+
+    if X > value(T) then
+        right(T) := delete(X, right(T))
+    else if X < value(T) then
+        left(T) := delete(X, left(T))
+    else
+        If we're a leaf, easy, otherwise reduce to leaf case. 
+        if leaf(T) then
+            return Nil
+        else if nil(left(T)) then
+            L := successor(T)
+            right(T) := delete(L, right(T))
+            value(T) := L
+        else
+            L := predecessor(T)
+            left(T) := delete(L, left(T))
+            value(T) := L
+        end if
+    end if
+
+    Rebalance the tree.  Decrease the level of all nodes in this level if
+    necessary, and then skew and split all nodes in the new level.
+    T := decrease_level(T)
+    T := skew(T)
+    right(T) := skew(right(T))
+    right(right(T)) := skew(right(right(T)))
+    T := split(T)
+    right(T) := split(right(T))
+end function
+
+
+function decrease_level is
+    input: T, a tree for which we want to remove links that skip levels.
+    output: T with its level decreased.
+
+    should_be = min(level(left(T)), level(right(T))) + 1
+    if should_be < level(T) then
+        level(T) := should_be
+        if should_be < level(right(T)) then
+            level(right(T)) := should_be
+        end if
+    end if
+    return T
+end function
+
+A good example of deletion by this algorithm is present in the Andersson paper.
+
+[edit] Performance
+The performance of an AA tree is equivalent to the performance of a red-black tree. While an AA tree makes more rotations than a red-black tree, the simpler algorithms tend to be faster, and all of this balances out to result in similar performance. A red-black tree is more consistent in its performance than an AA tree, but an AA tree tends to be flatter, which results in slightly faster search times.[citation needed]
+
+[edit] See also
+
+Red-black tree
+B-tree
+AVL tree
+
+
+[edit] References
+
+A. Andersson. Balanced search trees made simple
+A. Andersson. A note on searching in a binary search tree
+
+
+[edit] External links
+
+AA-Tree Applet by Kubo Kovac
+AA Visual 2007 1.5 - OpenSource Delphi program for educating AA tree structures
+Thorough tutorial with lots of code
+Practical implementation
+Object Oriented implementation with tests
+Comparison of AA trees, red-black trees, treaps, skip lists, and radix trees
+An example C implementation
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/AA_tree"
+Categories: Trees (structure)Hidden categories: All articles with unsourced statements | Articles with unsourced statements since February 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 20 April 2009, at 08:22 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

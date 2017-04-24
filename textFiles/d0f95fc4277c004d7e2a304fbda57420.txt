@@ -1,0 +1,337 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Texture mapping - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Texture_mapping";
+		var wgTitle = "Texture mapping";
+		var wgAction = "view";
+		var wgArticleId = "146903";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276064215;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Texture mapping
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article needs additional citations for verification. Please help improve this article by adding reliable references (ideally, using inline citations). Unsourced material may be challenged and removed. (January 2008)
+
+
+"Texture maps" redirects here. For the 2003 ambient album, see Texture Maps: The Lost Pieces Vol. 3.
+
+
+
+
+1 = 3D model without textures
+2 = 3D model with textures
+
+
+Texture mapping is a method for adding detail, surface texture, or colour to a computer-generated graphic or 3D model. Its application to 3D graphics was pioneered by Dr Edwin Catmull in his Ph.D. thesis of 1974.
+
+
+
+
+Contents
+
+
+1 Texture mapping
+2 Perspective correctness
+3 See also
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Texture mapping
+A texture map is applied (mapped) to the surface of a shape, or polygon. This process is akin to applying patterned paper to a plain white box.
+Multitexturing is the use of more than one texture at a time on a polygon.[1] For instance, a light map texture may be used to light a surface as an alternative to recalculating that lighting every time the surface is rendered. Another multitexture technique is bump mapping, which allows a texture to directly control the facing direction of a surface for the purposes of its lighting calculations; it can give a very good appearance of a complex surface, such as tree bark or rough concrete, that takes on lighting detail in addition to the usual detailed coloring. Bump mapping has become popular in recent video games as graphics hardware has become powerful enough to accommodate it.
+
+
+
+
+Examples of multitexturing
+1. Untextured sphere 2. Texture and bump maps 3. Texture map only 4. Opacity and texture maps
+
+
+The way the resulting pixels on the screen are calculated from the texels (texture pixels) is governed by texture filtering. The fastest method is to use the nearest-neighbour interpolation, but bilinear interpolation or trilinear interpolation between mipmaps are two commonly used alternatives which reduce aliasing or jaggies. In the event of a texture coordinate being outside the texture, it is either clamped or wrapped.
+
+[edit] Perspective correctness
+
+
+
+
+Because affine texture mapping does not take into account the depth information about a polygon's vertices, where the polygon is not perpendicular to the viewer it produces a noticeable defect.
+
+
+Texture coordinates are specified at each vertex of a given triangle, and these coordinates are interpolated using an extended Bresenham's line algorithm. If these texture coordinates are linearly interpolated across the screen, the result is affine texture mapping. This is a fast calculation, but there can be a noticeable discontinuity between adjacent triangles when these triangles are at an angle to the plane of the screen (see figure at right).
+Perspective correct texturing accounts for the vertices' positions in 3D space, rather than simply interpolating a 2D triangle. This achieves the correct visual effect, but it is slower to calculate. Instead of interpolating the texture coordinates directly, the coordinates are divided by their depth (relative to the viewer), and the reciprocal of the depth value is also interpolated and used to recover the perspective-correct coordinate. This correction makes it so that in parts of the polygon that are closer to the viewer the difference from pixel to pixel between texture coordinates is smaller (stretching the texture wider), and in parts that are farther away this difference is larger (compressing the texture).
+
+Affine texture mapping directly interpolates a texture coordinate  between two endpoints  and :
+
+ where 
+
+
+Perspective correct mapping interpolates after dividing by depth , then uses its interpolated reciprocal to recover the correct coordinate:
+
+
+
+
+
+All modern graphics hardware implements perspective correct texturing.
+
+
+Doom Episode I: Knee-Deep in the Dead renders vertical and horizontal spans with affine texture mapping, and is therefore unable to draw ramped floors or slanted walls.
+
+
+
+
+
+
+Screen space sub division techniques. Top left: Quake like, top right: bilinear, bottom left: const-z
+
+
+Classic texture mappers generally did only simple mapping with at most one lighting effect and the perspective correctness was about 16 times more expensive. Thus to on the one hand not wait on the divisions and on the other hand not let the division and multiplication circuits run idle every triangle is subdivided in subgroups of about 16 pixels. For perspective texture mapping ignorant hardware a triangle is broken down into smaller triangles for rendering, which in non architectural applications has some synergy with level of detail. Software renderers generally preferred screen subdivision because it has less overhead. Additionally they try to do linear interpolation along a line of pixels to simplify the set-up (compared to 2d affine interpolation) and thus again the overhead (also affine texture-mapping does not fit into the low number of registers of the 086 CPU, the 68000 or any RISC is much more suited). For instance, Doom restricted the world to vertical walls and horizontal floors/ceilings. This meant the walls would be a constant distance along a vertical line and the floors/ceilings would be a constant distance along a horizontal line. A fast affine mapping could be used along those lines because it would be correct. A different approach was taken for Quake, which would calculate perspective correct coordinates only once every 16 pixels of a scanline and linearly interpolate between them, effectively running at the speed of linear interpolation because the perspective correct calculation runs in parallel on the co-processor [2]. The polygons are rendered independently, hence it may be possible to switch between spans and columns or diagonal directions depending on the orientation of the polygon normal to achieve a more constant z, but the effort seems not to be worth it.
+Another technique was subdividing the polygons into smaller polygons, like triangles in 3d-space or squares in screen space, and using an affine mapping on them. The distortion of affine mapping becomes much less noticeable on smaller polygons. Yet another technique was approximating the perspective with a faster calculation such as a polynomial. Yet another technique uses 1/z value of the last two drawn pixels to linearly extrapolate the next value. Then the division is done starting from those values so that only a small reminder has to be divided [3], the amount of bookkeeping makes this method too slow on most systems. Finally, some programmers extended the constant distance trick used for Doom by finding the line of constant distance for arbitrary polygons and rendering along it.
+
+[edit] See also
+
+
+
+
+Computer graphics portal
+
+
+
+
+
+Bump mapping
+Clamping
+Displacement mapping
+Edwin Catmull
+Normal mapping
+Relief mapping (computer graphics)
+Parametrization
+Texture synthesis
+Texture atlas
+Texture filtering
+Texture splatting – a technique for combining textures.
+UV Mapping
+UVW Mapping
+Wrapping (graphics)
+
+
+
+[edit] References
+
+^ Blythe, David. Advanced Graphics Programming Techniques Using OpenGL. Siggraph 1999. (see: Multitexture)
+^ Abrash, Michael. Michael Abrash's Graphics Programming Black Book Special Edition. The Coriolis Group, Scottsdale Arizona, 1997. ISBN 1-57610-174-6 (PDF) (Chapter 70, pg. 1282)
+^ Spackman, John Neil, "Apparatus and method for performing perspectively correct interpolation in computer graphics", US 5739818, issued 1998-04-14
+
+
+[edit] External links
+
+Perspective Corrected Texture Mapping at GameDev.net
+Introduction into texture mapping using C and SDL
+Programming a textured terrain using XNA/DirectX, from www.riemers.net
+Perspective correct texturing
+Time Texturing Texture mapping with bezier lines
+Polynomial Texture Mapping Interactive Relighting for Photos
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Texture_mapping"
+Categories: Computer graphics | 3D computer graphicsHidden categories: Articles needing additional references from January 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Български
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+ქართული
+Magyar
+日本語
+Polski
+Português
+Русский
+Slovenčina
+Suomi
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 March 2009, at 16:53.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

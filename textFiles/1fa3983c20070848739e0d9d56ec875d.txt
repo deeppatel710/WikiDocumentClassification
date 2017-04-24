@@ -1,0 +1,295 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Non-blocking synchronization - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Non-blocking_synchronization";
+		var wgTitle = "Non-blocking synchronization";
+		var wgAction = "view";
+		var wgArticleId = "554867";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 261499195;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Non-blocking synchronization
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, non-blocking synchronization ensures that threads competing for a shared resource do not have their execution indefinitely postponed by mutual exclusion. A non-blocking algorithm is lock-free if there is guaranteed system-wide progress; wait-free if there is also guaranteed per-thread progress.
+Literature up to the turn of the century used "non-blocking" synonymously with lock-free. However, since 2003,[1] the term has been weakened to only prevent progress-blocking interactions with a preemptive scheduler. In modern usage, therefore, an algorithm is non-blocking if the suspension of one or more threads will not stop the potential progress of the remaining threads. They are designed to avoid requiring a critical section. Often, these algorithms allow multiple processes to make progress on a problem without ever blocking each other. For some operations, these algorithms provide an alternative to locking mechanisms.
+
+
+
+
+Contents
+
+
+1 Motivation
+2 Implementation
+3 Wait-freedom
+4 Lock-freedom
+5 Obstruction-freedom
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Motivation
+Main article: The problems with locks
+The traditional approach to multi-threaded programming is to use locks to synchronize access to shared resources. Synchronization primitives such as mutexes, semaphores, and critical sections are all mechanisms by which a programmer can ensure that certain sections of code do not execute concurrently if doing so would corrupt shared memory structures. If one thread attempts to acquire a lock that is already held by another thread, the thread will block until the lock is free.
+Blocking a thread is undesirable for many reasons. An obvious reason is that while the thread is blocked, it cannot accomplish anything. If the blocked thread is performing a high-priority or real-time task, it is highly undesirable to halt its progress. Other problems are less obvious. Certain interactions between locks can lead to error conditions such as deadlock, livelock, and priority inversion. Using locks also involves a trade-off between coarse-grained locking, which can significantly reduce opportunities for parallelism, and fine-grained locking, which requires more careful design, increases overhead and is more prone to bugs.
+Non-blocking algorithms are also safe for use in interrupt handlers: even though the preempted thread cannot be resumed, progress is still possible without it. In contrast, global data structures protected by mutual exclusion cannot safely be accessed in a handler, as the preempted thread may be the one holding the lock.
+Non-blocking synchronization has the potential to prevent priority inversion, as no thread is forced to wait for a suspended thread to complete. However, as livelock is still possible, threads have to wait when they encounter contention; hence, priority inversion is still possible depending upon the contention management system used. Lock-free algorithms, below, avoid priority inversion.
+
+[edit] Implementation
+With few exceptions, non-blocking algorithms use atomic read-modify-write primitives that the hardware must provide, the most notable of which is compare and swap (CAS). Critical sections are almost always implemented using standard interfaces over these primitives. Until recently, all non-blocking algorithms had to be written "natively" with the underlying primitives to achieve acceptable performance. However, the emerging field of software transactional memory promises standard abstractions for writing efficient non-blocking code.
+Much research has also been done in providing basic data structures such as stacks, queues, sets, and hash tables. These allow programs to easily exchange data between threads asynchronously.
+Additionally, some data structures are weak enough to be implemented without special atomic primitives. These exceptions include:
+
+single-reader single-writer ring buffer FIFO
+Read-copy-update with a single writer and any number of readers. (The readers are wait-free; the writer is usually wait-free, until it needs to reclaim memory).
+Dekker's algorithm for two threads is lock-free but not wait-free.
+
+
+[edit] Wait-freedom
+Wait-freedom is the strongest non-blocking guarantee of progress, combining guaranteed system-wide throughput with starvation-freedom. An algorithm is wait-free if every operation has a bound on the number of steps it will take before completing.
+It was shown in the 1980s[2] that all algorithms can be implemented wait-free, and many transformations from serial code, called universal constructions, have been demonstrated. However, the resulting performance does not in general match even naïve blocking designs. It has also been shown[3] that the widely-available atomic conditional primitives, CAS and LL/SC, cannot provide starvation-free implementations of many common data structures without memory costs growing linearly in the number of threads. Wait-free algorithms are therefore rare, both in research and in practice.
+
+[edit] Lock-freedom
+Lock-freedom allows individual threads to starve but guarantees system-wide throughput. An algorithm is lock-free if every step taken achieves global progress (for some sensible definition of progress). All wait-free algorithms are lock-free.
+In general, a lock-free algorithm can run in four phases: completing one's own operation, assisting an obstructing operation, aborting an obstructing operation, and waiting. Completing one's own operation is complicated by the possibility of concurrent assistance and abortion, but is invariably the fastest path to completion.
+The decision about when to assist, abort or wait when an obstruction is met is the responsibility of a contention manager. This may be very simple (assist higher priority operations, abort lower priority ones), or may be more optimized to achieve better throughput, or lower the latency of prioritized operations.
+Correct concurrent assistance is typically the most complex part of a lock-free algorithm, and often very costly to execute: not only does the assisting thread slow down, but thanks to the mechanics of shared memory, the thread being assisted will be slowed, too, if it is still running.
+
+[edit] Obstruction-freedom
+Obstruction-freedom is possibly the weakest natural non-blocking progress guarantee. An algorithm is obstruction-free if at any point, a single thread executed in isolation (i.e. with all obstructing threads suspended) for a bounded number of steps will complete its operation. All lock-free algorithms are obstruction-free.
+Obstruction-freedom demands only that any partially-completed operation can be aborted and the changes made rolled back. Dropping concurrent assistance can often result in much simpler algorithms that are easier to validate. Preventing the system from continually live-locking is the task of a contention manager.
+Obstruction-freedom is also called optimistic concurrency control.
+Some obstruction-free algorithms use a pair of "consistency markers" in the data structure. Processes reading the data structure first read one consistency marker, then read the relevant data into an internal buffer, then read the other marker, and then compare the markers. When comparing the two markers, occasionally a process will notice they are different, indicating "inconsistent data". That happens when the read was interrupted by some other process updating the data structure. In that case the process discards the data in the internal buffer and tries again. When comparing the two markers, typically both markers will be identical, indicating that the data is consistent.
+Recent research[4] has yielded a promising practical contention manager, whimsically named Polka, combining exponential backoff with "priority accumulation". As an operation progresses, it gains "priority"; when an operation is obstructed by another with higher priority, it will back off, with backoff intervals increasing exponentially. Each backoff increases the operation's priority; only when its priority is greater than that of its obstructor will it abort it. Aborted operations retain their former priority, giving their next attempt a greater chance of success.
+Polka achieves good throughput in benchmarks because it minimizes both wasted effort, by prioritizing long transactions, and memory interconnect contention, using exponential backoff. This can inform other parallel algorithms, such as lock-free ones, to achieve greater throughput in the common case.
+
+[edit] See also
+
+ABA problem
+Concurrency control
+Deadlock
+Linearizability
+Lock (software engineering)
+Memory barrier
+Mutual exclusion
+Pre-emptive multitasking
+Priority inversion
+Read-copy-update
+Resource starvation
+Room synchronization
+Software transactional memory
+
+
+[edit] References
+
+^ M. Herlihy, V. Luchangco and M. Moir. "Obstruction-Free Synchronization: Double-Ended Queues as an Example." 23rd International Conference on Distributed Computing Systems, 2003, p.522.
+^ Maurice P. Herlihy. "Impossibility and universality results for wait-free synchronization" Proceedings of the seventh annual ACM Symposium on Principles of distributed computing, 1988, pp. 276 - 290.
+^ F. Fich, D. Hendler, N. Shavit. "On the inherent weakness of conditional synchronization primitives." 23rd Annual ACM Symposium on Principles of Distributed Computing, 2004, pp. 80-87.
+^ W. Scherer and M. Scott. "Advanced Contention Management for Dynamic Software Transactional Memory." 24th annual ACM SIGACT-SIGOPS Symposium on Principles of Distributed Computing, 2005, pp. 240-248.
+
+
+[edit] External links
+
+Article "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms" by Maged M. Michael and Michael L. Scott
+Discussion "Communication between Threads, without blocking"
+Survey "Some Notes on Lock-Free and Wait-Free Algorithms" by Ross Bencina
+java.util.concurrent.atomic – supports lock-free and thread-safe programming on single variables
+System.Threading.Interlocked - Provides atomic operations for variables that are shared by multiple threads (.NET Framework)
+The Jail-Ust Container Library
+Practical lock-free data structures
+Thesis "Efficient and Practical Non-Blocking Data Structures" (1414 KB) by Håkan Sundell
+WARPing - Wait-free techniques for Real-time Processing
+Non-blocking Synchronization: Algorithms and Performance Evaluation. (1926 KB) by Yi Zhang
+"Design and verification of lock-free parallel algorithms" by Hui Gao
+"Asynchronous Data Sharing in Multiprocessor Real-Time Systems Using Process Consensus" by Jing Chen and Alan Burns
+Discussion "lock-free versus lock-based algorithms"
+Atomic Ptr Plus Project - collection of various lock-free synchronization primitives
+AppCore: A Portable High-Performance Thread Synchronization Library - An Effective Marriage between Lock-Free and Lock-Based Algorithms
+WaitFreeSynchronization and LockFreeSynchronization at the Portland Pattern Repository
+Multiplatform library with atomic operations
+A simple lock-free LIFO implementation
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Non-blocking_synchronization"
+Categories: Synchronization | Concurrency control | Concurrent algorithms | Operating system technology 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+עברית
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 2 January 2009, at 19:06 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

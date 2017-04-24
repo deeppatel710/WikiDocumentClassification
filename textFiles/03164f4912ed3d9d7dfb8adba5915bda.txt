@@ -1,0 +1,535 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Goertzel algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Goertzel_algorithm";
+		var wgTitle = "Goertzel algorithm";
+		var wgAction = "view";
+		var wgArticleId = "2133529";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 277628071;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-c {line-height: normal;}
+.source-c li, .source-c pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for c
+ * CSS class: source-c, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-c .de1, .source-c .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-c  {}
+.source-c .head {}
+.source-c .foot {}
+.source-c .imp {font-weight: bold; color: red;}
+.source-c .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-c li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-c li.li2 {font-weight: bold;}
+.source-c .kw1 {color: #b1b100;}
+.source-c .kw2 {color: #000000; font-weight: bold;}
+.source-c .kw3 {color: #000066;}
+.source-c .kw4 {color: #993333;}
+.source-c .co1 {color: #808080; font-style: italic;}
+.source-c .co2 {color: #339933;}
+.source-c .coMULTI {color: #808080; font-style: italic;}
+.source-c .es0 {color: #000099; font-weight: bold;}
+.source-c .br0 {color: #66cc66;}
+.source-c .st0 {color: #ff0000;}
+.source-c .nu0 {color: #cc66cc;}
+.source-c .me1 {color: #202020;}
+.source-c .me2 {color: #202020;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Goertzel algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Goertzel algorithm is a digital signal processing (DSP) technique for identifying frequency components of a signal, published by Dr. Gerald Goertzel in 1958. While the general Fast Fourier transform (FFT) algorithm computes evenly across the bandwidth of the incoming signal, the Goertzel algorithm looks at specific, predetermined frequency.
+A practical application of this algorithm is recognition of the tones produced by the buttons pushed on a telephone keypad. This application is illustrated below by the 'C' programming language implementation of the algorithm, demonstrating the production of a DTMF tone detector.
+
+
+
+
+Contents
+
+
+1 Explanation of algorithm
+2 Computational complexity
+3 Practical considerations
+4 Sample code for a DTMF detector
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Explanation of algorithm
+The Goertzel algorithm computes a sequence, s(n), given an input sequence, x(n):
+
+s(n) = x(n) + 2cos(2πω)s(n − 1) − s(n − 2)
+
+where s( − 2) = s( − 1) = 0 and ω is some frequency of interest, in cycles per sample, which should be less than 1/2. This effectively implements a second-order IIR filter with poles at e + 2πiω and e − 2πiω, and requires only one multiplication (assuming 2cos(2πω) is pre-computed), one addition and one subtraction per input sample. For real inputs, these operations are real.
+The Z transform of this process is
+
+
+
+Applying an additional, FIR, transform of the form
+
+
+
+will give an overall transform of
+
+
+
+The time-domain equivalent of this overall transform is
+
+
+
+which becomes, assuming x(k) = 0 for all k < 0
+
+
+
+or, the equation for the (n + 1)-sample DFT of x, evaluated for ω and multiplied by the scale factor e + 2πiωn.
+Note that applying the additional transform Y(z)/S(z) only requires the last two samples of the s sequence. Consequently, upon processing N samples x(0)...x(N − 1), the last two samples from the s sequence can be used to compute the value of a DFT bin which corresponds to the chosen frequency ω as
+
+X(ω) = y(N − 1)e − 2πiω(N − 1) = (s(N − 1) − e − 2πiωs(N − 2))e − 2πiω(N − 1)
+
+For the special case often found when computing DFT bins, where ωN = k for some integer, k, this simplifies to
+
+X(ω) = (s(N − 1) − e − 2πiωs(N − 2))e + 2πiω = e + 2πiωs(N − 1) − s(N − 2)
+
+In either case, the corresponding power can be computed using the same cosine term required to compute s as
+
+X(ω)X'(ω) = s(N − 2)2 + s(N − 1)2 − 2cos(2πω)s(N − 2)s(N − 1)
+
+When implemented in a general-purpose processor, values for s(n − 1) and s(n − 2) can be retained in variables and new values of s can be shifted through as they are computed, assuming that only the final two values of the s sequence are required. The code may then be as follows:
+
+s_prev = 0
+s_prev2 = 0
+coeff = 2*cos(2*PI*normalized_frequency);
+for each sample, x[n],
+  s = x[n] + coeff*s_prev - s_prev2;
+  s_prev2 = s_prev;
+  s_prev = s;
+end
+power = s_prev2*s_prev2 + s_prev*s_prev - coeff*s_prev2*s_prev;
+
+
+[edit] Computational complexity
+In order to compute a single DFT bin for a complex sequence of length N, this algorithm requires 2N multiplies and 4N add/subtract operations within the loop, as well as 4 multiplies and 4 add/subtract operations to compute X(ω), for a total of 2N+4 multiplies and 4N+4 add/subtract operations (for real sequences, the required operations are half that amount). In contrast, the Fast Fourier transform (FFT) requires 2log2N multiplies and 3log2N add/subtract operations per DFT bin, but must compute all N bins simultaneously (similar optimizations are available to halve the number of operations in an FFT when the input sequence is real).
+When the number of desired DFT bins, M, is small (e.g., when detecting DTMF tones), it is computationally advantageous to implement the Goertzel algorithm, rather than the FFT. Approximately, this occurs when
+
+
+
+or if, for some reason, N is not an integral power of 2 while you stick to a simple FFT algorithm like the 2-radix Cooley-Tukey FFT algorithm, and zero-padding the samples out to an integral power of 2 would violate
+
+
+
+Moreover, the Goertzel algorithm can be computed as samples come in, and the FFT algorithm may require a large table of N pre-computed sines and cosines in order to be efficient.
+If multiplications are not considered as difficult as additions, or vice versa, the 5/6 ratio can shift between anything from 3/4 (additions dominate) to 1/1 (multiplications dominate).
+
+[edit] Practical considerations
+The term DTMF or Dual-Tone Multi Frequency is the official name of the tones generated from a telephone keypad. (AT&T used the trademark "Touch-Tone" for its DTMF dialing service.[1]) The original keypads were mechanical switches triggering RC controlled oscillators.[citation needed] The digit detectors were also tuned circuits. The interest in decoding DTMF is high because of the large numbers of phones generating these types of tones.
+At present, DTMF detectors are most often implemented as numerical algorithms on either general purpose computers or on fast digital signal processors. The algorithm shown below is an example of such a detector.
+However, this algorithm needs an additional post-processing step to completely implement a functional DTMF tone detector. DTMF tone bursts can be as short as 50 milli-seconds or as long as several seconds. The tone burst can have noise or dropouts within it which must be ignored. The Goertzel algorithm produces multiple outputs; a post-processing step needs to smooth these outputs into one output per tone burst.
+One additional problem is that the algorithm will sometimes produce spurious outputs because of a window period that is not completely filled with samples. Imagine a DTMF tone burst and then imagine the window superimposed over this tone burst. Obviously, the detector is running at a fixed rate and the tone burst is not guaranteed to arrive aligned with the timing of the detector. So some window intervals on the leading and trailing edges of the tone burst will not be entirely filled with valid tone samples. Worse, RC-based tone generators will often have voltage sag/surge related anomalies at the leading and trailing edges of the tone burst. These also can contribute to spurious outputs.
+It is highly likely that this detector will report false or incorrect results at the leading and trailing edges of the tone burst due to a lack of sufficient valid samples within the window. In addition, the tone detector must be able to tolerate tone dropouts within the tone burst and these can produce additional false reports due to the same windowing effects.
+The post-processing system can be implemented as a statistical aggregator which will examine a series of outputs of the algorithm below. There should be a counter for each possible output. These all start out at zero. The detector starts producing outputs and depending on the output, the appropriate counter is incremented. Finally, the detector stops generating outputs for long enough that the tone burst can be considered to be over. The counter with the highest value wins and should be considered to be the DTMF digit signaled by the tone burst.
+While it is true that there are eight possible frequencies in a DTMF tone, the algorithm as originally entered on this page was computing a few more frequencies so as to help reject false tones (talkoff). Notice the peak tone counter loop. This checks to see that only two tones are active. If more than this are found then the tone is rejected.
+
+[edit] Sample code for a DTMF detector
+
+
+#define SAMPLING_RATE       8000
+#define MAX_BINS            8
+#define GOERTZEL_N          92
+ 
+int         sample_count;
+double      q1[ MAX_BINS ];
+double      q2[ MAX_BINS ];
+double      r[ MAX_BINS ];
+ 
+/*
+ * coef = 2.0 * cos( (2.0 * PI * k) / (float)GOERTZEL_N)) ;
+ * Where k = (int) (0.5 + ((float)GOERTZEL_N * target_freq) / SAMPLING_RATE));
+ *
+ * More simply: coef = 2.0 * cos( (2.0 * PI * target_freq) / SAMPLING_RATE );
+ */
+double      freqs[ MAX_BINS] = 
+{
+  697,
+  770,
+  852,
+  941,
+  1209,
+  1336,
+  1477,
+  1633
+};
+ 
+double      coefs[ MAX_BINS ] ;
+ 
+ 
+/*----------------------------------------------------------------------------
+ *  calc_coeffs
+ *----------------------------------------------------------------------------
+ * This is where we calculate the correct co-efficients.
+ */
+void calc_coeffs()
+{
+  int n;
+ 
+  for(n = 0; n < MAX_BINS; n++)
+  {
+    coefs[n] = 2.0 * cos(2.0 * 3.141592654 * freqs[n] / SAMPLING_RATE);
+  }
+}
+ 
+ 
+/*----------------------------------------------------------------------------
+ *  post_testing
+ *----------------------------------------------------------------------------
+ * This is where we look at the bins and decide if we have a valid signal.
+ */
+void post_testing()
+{
+  int         row, col, see_digit;
+  int         peak_count, max_index;
+  double      maxval, t;
+  int         i;
+  char *  row_col_ascii_codes[4][4] = {
+    {"1", "2", "3", "A"},
+    {"4", "5", "6", "B"},
+    {"7", "8", "9", "C"},
+    {"*", "0", "#", "D"}};
+ 
+ 
+  /* Find the largest in the row group. */
+  row = 0;
+  maxval = 0.0;
+  for ( i=0; i<4; i++ )
+  {
+    if ( r[i] > maxval )
+    {
+      maxval = r[i];
+      row = i;
+    }
+  }
+ 
+  /* Find the largest in the column group. */
+  col = 4;
+  maxval = 0.0;
+  for ( i=4; i<8; i++ )
+  {
+    if ( r[i] > maxval )
+    {
+      maxval = r[i];
+      col = i;
+    }
+  }
+ 
+ 
+  /* Check for minimum energy */
+ 
+  if ( r[row] < 4.0e5 )   /* 2.0e5 ... 1.0e8 no change */
+  {
+    /* energy not high enough */
+  }
+  else if ( r[col] < 4.0e5 )
+  {
+    /* energy not high enough */
+  }
+  else
+  {
+    see_digit = TRUE;
+ 
+    /* Twist check
+     * CEPT => twist < 6dB
+     * AT&T => forward twist < 4dB and reverse twist < 8dB
+     *  -ndB < 10 log10( v1 / v2 ), where v1 < v2
+     *  -4dB < 10 log10( v1 / v2 )
+     *  -0.4  < log10( v1 / v2 )
+     *  0.398 < v1 / v2
+     *  0.398 * v2 < v1
+     */
+    if ( r[col] > r[row] )
+    {
+      /* Normal twist */
+      max_index = col;
+      if ( r[row] < (r[col] * 0.398) )    /* twist > 4dB, error */
+        see_digit = FALSE;
+    }
+    else /* if ( r[row] > r[col] ) */
+    {
+      /* Reverse twist */
+      max_index = row;
+      if ( r[col] < (r[row] * 0.158) )    /* twist > 8db, error */
+        see_digit = FALSE;
+    }
+ 
+    /* Signal to noise test
+     * AT&T states that the noise must be 16dB down from the signal.
+     * Here we count the number of signals above the threshold and
+     * there ought to be only two.
+     */
+    if ( r[max_index] > 1.0e9 )
+      t = r[max_index] * 0.158;
+    else
+      t = r[max_index] * 0.010;
+ 
+    peak_count = 0;
+    for ( i=0; i<8; i++ )
+    {
+      if ( r[i] > t )
+        peak_count++;
+    }
+    if ( peak_count > 2 )
+      see_digit = FALSE;
+ 
+    if ( see_digit )
+    {
+      printf( "%s", row_col_ascii_codes[row][col-4] );
+      fflush(stdout);
+    }
+  }
+}
+ 
+ 
+/*----------------------------------------------------------------------------
+ *  goertzel
+ *----------------------------------------------------------------------------
+ */
+void goertzel( int sample )
+{
+  double      q0;
+  ui32        i;
+ 
+  sample_count++;
+  /*q1[0] = q2[0] = 0;*/
+  for ( i=0; i<MAX_BINS; i++ )
+  {
+    q0 = coefs[i] * q1[i] - q2[i] + sample;
+    q2[i] = q1[i];
+    q1[i] = q0;
+  }
+ 
+  if (sample_count == GOERTZEL_N)
+  {
+    for ( i=0; i<MAX_BINS; i++ )
+    {
+      r[i] = (q1[i] * q1[i]) + (q2[i] * q2[i]) - (coefs[i] * q1[i] * q2[i]);
+      q1[i] = 0.0;
+      q2[i] = 0.0;
+    }
+    post_testing();
+    sample_count = 0;
+  }
+}
+
+
+[edit] References
+
+
+^ USPTO trademark entry for Touch-Tone, retrieved on March 29, 2007.
+
+
+
+[edit] External links
+
+http://ptolemy.eecs.berkeley.edu/papers/96/dtmf_ict/www/node3.html
+http://www.embedded.com/story/OEG20020819S0057
+http://www.embedded.com/showArticle.jhtml?articleID=17301593
+http://www.numerix-dsp.com/goertzel.html
+http://www.mathworks.com/access/helpdesk/help/toolbox/signal/goertzel.html
+DTMF decoding with a 1-bit A/D converter
+Modified Goertzel Algorithm in DTMF Detection Using the TMS320C80 DSP
+DTMF Tone Generation and Detection: An Implementation Using the TMS320C54x
+Mock, P., Add DTMF Generation and Decoding to DSP-μP Designs, EDN, March 21, 1985, also DSP Applications with the TMS320 Family, Vol. 1, Texas Instruments, 1989.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Goertzel_algorithm"
+Categories: FFT algorithms | Digital signal processingHidden categories: All articles with unsourced statements | Articles with unsourced statements since February 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Italiano
+עברית
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 16 March 2009, at 12:23 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,374 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Static single assignment form - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Static_single_assignment_form";
+		var wgTitle = "Static single assignment form";
+		var wgAction = "view";
+		var wgArticleId = "373371";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280586190;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Static single assignment form
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In compiler design, static single assignment form (often abbreviated as SSA form or SSA) is an intermediate representation (IR) in which every variable is assigned exactly once. Existing variables in the original IR are split into versions, new variables typically indicated by the original name with a subscript, so that every definition gets its own version. In SSA form, use-def chains are explicit and each contains a single element.
+SSA was developed by Ron Cytron, Jeanne Ferrante, Barry Rosen, Mark Wegman, and Ken Zadeck, researchers at IBM in the 1980s.
+In functional language compilers, such as those for Scheme, ML and Haskell, continuation-passing style (CPS) is generally used where one might expect to find SSA in a compiler for Fortran or C. SSA and CPS are formally equivalent, so optimizations and transformations formulated in terms of one immediately apply to the other.
+
+
+
+
+Contents
+
+
+1 Benefits
+2 Converting to SSA
+
+2.1 Computing minimal SSA using dominance frontiers
+
+
+3 Variations that reduce the number of Φ functions
+
+3.1 Pruned SSA
+3.2 Semi-pruned SSA
+
+
+4 Converting out of SSA form
+5 Extensions
+6 Compilers using SSA form
+7 References
+8 See also
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Benefits
+The primary usefulness of SSA comes from how it simultaneously simplifies and improves the results of a variety of compiler optimizations, by simplifying the properties of variables. For example, consider this piece of code:
+
+ y := 1
+ y := 2
+ x := y
+
+As humans, we can see that the first assignment is not necessary, and that the value of y being used in the third line comes from the second assignment of y. A program would have to perform reaching definition analysis to determine this. But if the program is in SSA form, both of these are immediate:
+
+ y1 := 1
+ y2 := 2
+ x1 := y2
+
+Compiler optimization algorithms which are either enabled or strongly enhanced by the use of SSA include:
+
+constant propagation
+sparse conditional constant propagation
+dead code elimination
+global value numbering
+partial redundancy elimination
+strength reduction
+register allocation
+
+
+[edit] Converting to SSA
+Converting ordinary code into SSA form is primarily a simple matter of replacing the target of each assignment with a new variable, and replacing each use of a variable with the "version" of the variable reaching that point. For example, consider the following control flow graph:
+
+
+
+Notice that we could change the name on the left side of "x  x - 3", and change the following uses of x to use that new name, and the program would still do the same thing. We exploit this in SSA by creating two new variables, x1 and x2, each of which is assigned only once. We likewise give distinguishing subscripts to all the other variables, and we get this:
+
+
+
+We've figured out which definition each use is referring to, except for one thing: the uses of y in the bottom block could be referring to either y1 or y2, depending on which way the control flow came from. So how do we know which one to use?
+The answer is that we add a special statement, called a Φ (Phi) function, to the beginning of the last block. This statement will generate a new definition of y, y3, by "choosing" either y1 or y2, depending on which arrow control arrived from:
+
+
+
+Now, the uses of y in the last block can simply use y3, and they'll obtain the correct value either way. You might ask at this point, do we need to add a Φ function for x too? The answer is no; only one version of x, namely x2 is reaching this place, so there's no problem.
+A more general question along the same lines is, given an arbitrary control flow graph, how can I tell where to insert Φ functions, and for what variables? This is a difficult question, but one that has an efficient solution that can be computed using a concept called dominance frontiers.
+Note: the Φ functions are not actually implemented; instead, they're just markers for the compiler to place the value of all the variables, which are grouped together by the Φ function, in the same location in memory (or same register).
+
+[edit] Computing minimal SSA using dominance frontiers
+First, we need the concept of a dominator: we say that a node A strictly dominates a different node B in the control flow graph if it's impossible to reach B without passing through A first. This is useful, because if we ever reach B we know that any code in A has run. We say that A dominates B if either A strictly dominates B or A = B.
+Now we can define the dominance frontier: a node B is in the dominance frontier of a node A if A does not strictly dominate B, but does dominate some immediate predecessor of B (possibly A itself if A is the immediate predecessor of B). From A's point of view, these are the nodes at which other control paths, which don't go through A, make their earliest appearance.
+
+Dominance frontiers capture the precise places at which we need Φ functions: if the node A defines a certain variable, then that definition and that definition alone (or redefinitions) will reach every node A dominates. Only when we leave these nodes and enter the dominance frontier must we account for other flows bringing in other definitions of the same variable. Moreover, no other Φ functions are needed in the control flow graph to deal with A's definitions, and we can do with no less.
+
+One algorithm for computing the dominance frontier set is:
+
+for each node b
+    if the number of predecessors of b ≥ 2
+        for each p in predecessors of b
+            runner := p
+            while runner ≠ idom(b)
+                add b to runner’s dominance frontier set
+                runner := idom(runner)
+
+Note: in the code above, a predecessor of node n is any node from which control is transferred to node n, and idom(n) is the immediate dominator of node n.
+There is an efficient algorithm for finding dominance frontiers of each node. This algorithm was originally described in the paper "Efficiently computing static single assignment form and the control dependence graph", by R. Cytron, J. Ferrante, B. Rosen, M. Wegman and F. Zadeck, ACM Trans. on Programming Languages and Systems 13(4) 1991 pp.451–490. Also useful is chapter 19 of the book "Modern compiler implementation in Java" by Andrew Appel (Cambridge University Press, 2002). See the paper for more details.
+Keith D. Cooper, Timothy J. Harvey, and Ken Kennedy of Rice University describe an algorithm in their paper titled A Simple, Fast Dominance Algorithm. The algorithm uses well engineered data structures to improve performance.
+
+[edit] Variations that reduce the number of Φ functions
+"Minimal" SSA inserts the minimal number of Φ functions required to ensure that each name is assigned a value exactly once and that each reference (use) of a name in the original program can still refer to a unique name. (The latter requirement is needed to ensure that the compiler can write down a name for each operand in each operation.)
+However, some of these Φ functions could be dead. For this reason, minimal SSA does not necessarily produce the fewest number of Φ functions that are needed by a specific procedure. For some types of analysis, these Φ functions are superfluous and can cause the analysis to run less efficiently.
+
+[edit] Pruned SSA
+Pruned SSA form is based on a simple observation: Φ functions are only needed for variables that are "live" after the Φ function. (Here, "live" means that the value is used along some path that begins at the Φ function in question.) If a variable is not live, the result of the Φ function cannot be used and the assignment by the Φ function is dead.
+Construction of pruned SSA form uses live variable information in the Φ function insertion phase to decide whether a given Φ function is needed. If the original variable name isn't live at the Φ function insertion point, the Φ function isn't inserted.
+Another possibility is to treat pruning as a dead code elimination problem. Then, a Φ function is live only if any use in the input program will be rewritten to it, or if it will be used as an argument in another Φ function. When entering SSA form, each use is rewritten to the nearest definition that dominates it. A Φ function will then be considered live as long as it is the nearest definition that dominates at least one use, or at least one argument of a live Φ.
+
+[edit] Semi-pruned SSA
+Semi-pruned SSA form [1] is an attempt to reduce the number of Φ functions without incurring the relatively high cost of computing live variable information. It is based on the following observation: if a variable is never live upon entry into a basic block, it never needs a Φ function. During SSA construction, Φ functions for any "block-local" variables are omitted.
+Computing the set of block-local variables is a simpler and faster procedure than full live variable analysis, making semi-pruned SSA form more efficient to compute than pruned SSA form. On the other hand, pruned SSA form will contain fewer unnecessary Φ functions.
+
+[edit] Converting out of SSA form
+As SSA form is no longer useful for direct execution, it is frequently used "on top of" another IR with which it remains in direct correspondence. This can be accomplished by "constructing" SSA as a set of functions which map between parts of the existing IR (basic blocks, instructions, operands, etc.) and its SSA counterpart. When the SSA form is no longer needed, these mapping functions may be discarded, leaving only the now-optimized IR.
+Performing optimizations on SSA form usually leads to entangled SSA-Webs, meaning there are phi instructions whose operands do not all have the same root operand. In such cases color-out algorithms are used to come out of SSA. Naive algorithms introduce a copy along each predecessor path which caused a source of different root symbol to be put in phi than the destination of phi. There are multiple algorithms for coming out of SSA with fewer copies, most use interference graphs or some approximation of it to do copy coalescing.
+
+[edit] Extensions
+Extensions to SSA form can be divided into two categories.
+Renaming scheme extensions alter the renaming criterion. Recall that SSA form renames each variable when it is assigned a value. Alternative schemes include static single use form (which renames each variable at each statement when it is used) and static single information form (which renames each variable when it is assigned a value, and in each conditional context in which that variable is used).
+Feature-specific extensions retain the single assignment property for variables, but incorporate new semantics to model additional features. Some feature-specific extensions model high-level programming language features like arrays, objects and aliased pointers. Other feature-specific extensions model low-level architectural features like speculation and predication.
+
+[edit] Compilers using SSA form
+SSA form is a relatively recent development in the compiler community. As such, many older compilers only use SSA form for some part of the compilation or optimization process, but most do not rely on it. Examples of compilers that rely heavily on SSA form include:
+
+The ETH Oberon-2 compiler was one of the first public projects to incorporate "GSA", a variant of SSA.
+
+
+The LLVM Compiler Infrastructure uses SSA form for all scalar register values (everything except memory) in its primary code representation. SSA form is only eliminated once register allocation occurs, late in the compile process (often at link time).
+
+
+The Open64 compiler uses SSA form in its global scalar optimizer, though the code is brought into SSA form before and taken out of SSA form afterwards. Open64 uses extensions to SSA form to represent memory in SSA form as well as scalar values.
+
+
+As of version 4 (released in April 2005) GCC, the GNU Compiler Collection, makes extensive use of SSA. The frontends generate GENERIC code which is then converted into SSA form by the "gimplifier" and optimized by the "middle-end". The backend eventually translates the optimized intermediate code into RTL, executes some more low-level optimizations and finally turns RTL into assembly language.
+
+
+IBM's open source adaptive Java virtual machine, Jikes RVM, uses extended Array SSA, an extension of SSA that allows analysis of scalars, arrays, and object fields in a unified framework. Extended Array SSA analysis is only enabled at the maximum optimization level, which is applied to the most frequently executed portions of code.
+
+
+In 2002, researchers modified IBM's JikesRVM (named Jalapeño at the time) to run both standard Java byte-code and a typesafe SSA (SafeTSA) byte-code class files, and demonstrated significant performance benefits to using the SSA byte-code.
+
+
+Sun Microsystems' Java HotSpot Virtual Machine uses an SSA-based intermediate language in its JIT compiler.
+Mono uses SSA in its JIT compiler called Mini.
+jackcc is an open-source compiler for the academic instruction set Jackal 3.0. It uses a simple 3-operand code with SSA for its intermediate representation. As an interesting variant, it replaces Φ functions with a so-called SAME instruction, which instructs the register allocator to place the two live ranges into the same physical register.
+
+
+Although not a compiler, the Boomerang decompiler uses SSA form in its internal representation. SSA is used to simplify expression propagation, identifying parameters and returns, preservation analysis, and more.
+Portable.NET uses SSA in its JIT compiler.
+libFirm a completely graph based SSA intermediate representation for compilers. libFirm uses SSA form for all scalar register values until code generation by use of a SSA-aware register allocator.
+
+
+The Illinois Concert Compiler circa 1994 [1] used a variant of SSA called SSU (Static Single Use) which renames each variable when it is assigned a value, and in each conditional context in which that variable is used; essentially the static single information form mentioned above. The SSU form is documented in John Plevyak's Ph.D Thesis.
+
+
+The COINS compiler uses SSA form optimizations as explained here: http://www.is.titech.ac.jp/~sassa/coins-www-ssa/english/
+
+
+[edit] References
+
+
+^ Practical Improvements to the Construction and Destruction of Static Single Assignment Form (1998), Preston Briggs, Keith D. Cooper, Timothy J. Harvey, L. Taylor Simpson.
+
+
+
+Appel, Andrew W. (1999). Modern Compiler Implementation in ML. Cambridge University Press. ISBN 0-521-58274-1.  Also available in Java (ISBN 0-521-82060-X 2002) and C (ISBN 0-521-60765-5, 199 8) versions.
+Cooper, Keith D.; & Torczon, Linda. (2003). Engineering a Compiler. Morgan Kaufmann. ISBN 1-55860-698-X. 
+Muchnick, Steven S. (1997). Advanced Compiler Design and Implementation. Morgan Kaufmann. ISBN 1-55860-320-4. 
+Richard A. Kelsey (March 1995). "A Correspondence between Continuation Passing Style and Static Single Assignment Form". ACM SIGPLAN Notices 30 (3): 13–22. doi:10.1145/202530.202532. 
+Andrew W. Appel (April 1998). "SSA is Functional Programming". ACM SIGPLAN Notices 33 (4): 17–20. doi:10.1145/278283.278285. 
+
+
+[edit] See also
+
+Compiler optimization
+Valgrind
+
+
+[edit] External links
+
+Steven Bosscher and Diego Novillo. GCC gets a new Optimizer Framework. An article about GCC's use of SSA and how it improves over older IRs.
+The SSA Bibliography. Extensive catalogue of SSA research papers.
+
+
+F.K. Zadeck. "The Development of Static Single Assignment Form", December 2007 talk on the origins of SSA.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Static_single_assignment_form"
+Categories: Compiler theory | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+한국어
+日本語
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 30 March 2009, at 05:36 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

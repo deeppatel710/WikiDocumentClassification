@@ -1,0 +1,454 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Automatic differentiation - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Automatic_differentiation";
+		var wgTitle = "Automatic differentiation";
+		var wgAction = "view";
+		var wgArticleId = "734787";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282485165;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Automatic differentiation
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In mathematics and computer algebra, automatic differentiation (AD), sometimes alternatively called algorithmic differentiation, is a method to numerically evaluate the derivative of a function specified by a computer program.
+Two classical methods of doing differentiation are:
+
+
+
+
+Figure 1: How automatic differentiation relates to symbolic differentiation
+
+
+
+symbolically differentiate the function as an expression, and evaluate it at the point; or
+use numerical differentiation.
+
+These methods run into problem areas: symbolic differentiation works at low speed, and faces the difficulty of converting a computer program into a single expression, while finite differences can introduce round-off errors in the discretization process and cancellation. Both classical methods have problems with calculating higher derivatives, where the complexity and errors increase. Automatic differentiation solves all of these problems.
+AD exploits the fact that any computer program that implements a vector function y = F(x) (generally) can be decomposed into a sequence of elementary assignments, any one of which may be trivially differentiated by a simple table lookup. These elemental partial derivatives, evaluated at a particular argument, are combined in accordance with the chain rule from derivative calculus to form some derivative information for F (such as gradients, tangents, the Jacobian matrix, etc.). This process yields exact (to numerical accuracy) derivatives. Because the symbolic transformation occurs only at the most basic level, AD avoids the computational problems inherent in complex symbolic computation.
+
+
+
+
+Contents
+
+
+1 The chain rule, forward and reverse accumulation
+
+1.1 Forward accumulation
+1.2 Reverse accumulation
+1.3 Jacobian computation
+1.4 Beyond forward and reverse accumulation
+
+
+2 Automatic differentiation using dual numbers
+
+2.1 Vector arguments and functions
+2.2 Higher order differentials
+
+
+3 Implementation
+
+3.1 Source code transformation
+3.2 Operator overloading
+
+
+4 References
+5 Literature
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] The chain rule, forward and reverse accumulation
+Fundamental to AD is the decomposition of differentials provided by the chain rule. For the simple composition f(x) = g(h(x)) the chain rule gives
+
+
+
+Usually, two distinct modes of AD are presented, forward accumulation (or forward mode) and reverse accumulation (or reverse mode: the use of "backward" is discouraged). Forward accumulation specifies that one traverses the chain rule from right to left (that is, first one computes dh / dx and then dg / dh), while reverse accumulation has the traversal from left to right.
+
+
+
+
+Figure 2: Example of forward accumulation with computational graph
+
+
+
+[edit] Forward accumulation
+Forward accumulation automatic differentiation is the easiest to understand and to implement. The function f(x1,x2) = x1x2 + sin(x1) is interpreted (by a computer or human programmer) as the sequence of elementary operations on the work variables wi, and an AD tool for forward accumulation adds the corresponding operations on the second component of the augmented arithmetic.
+
+
+Original code statements
+Added statements for derivatives
+
+
+w1 = x1
+w'1 = 1 (seed)
+
+
+w2 = x2
+w'2 = 0 (seed)
+
+
+w3 = w1w2
+w'3 = w'1w2 + w1w'2 = 1x2 + x10 = x2
+
+
+w4 = sin(w1)
+w'4 = cos(w1)w'1 = cos(x1)1
+
+
+w5 = w3 + w4
+w'5 = w'3 + w'4 = x2 + cos(x1)
+
+
+The derivative computation for f(x1,x2) = x1x2 + sin(x1) needs to be seeded in order to distinguish between the derivative with respect to x1 or x2. The table above seeds the computation with w'1 = 1 and w'2 = 0 and we see that this results in x2 + cos(x1) which is the derivative with respect to x1. Note that although the table displays the symbolic derivative, in the computer it is always the evaluated (numeric) value that is stored. Figure 2 represents the above statements in a computational graph.
+In order to compute the gradient of this example function, that is  and , two sweeps over the computational graph is needed, first with the seeds w'1 = 1 and w'2 = 0, then with w'1 = 0 and w'2 = 1.
+The computational complexity of one sweep of forward accumulation is proportional to the complexity of the original code.
+Forward accumulation is superior to reverse accumulation for functions  with  as only one sweep is necessary, compared to m sweeps for reverse accumulation.
+
+
+
+
+Figure 3: Example of reverse accumulation with computational graph
+
+
+
+[edit] Reverse accumulation
+Reverse accumulation traverses the chain rule from left to right, or in the case of the computational graph in Figure 3, from top to bottom. The example function is real-valued, and thus there is only one seed for the derivative computation, and only one sweep of the computational graph is needed in order to calculate the (two-component) gradient. This is only half the work when compared to forward accumulation, but reverse accumulation requires the storage of some of the work variables wi, which may represent a significant memory issue.
+The data flow graph of a computation can be manipulated to calculate the gradient of its original calculation. This is done by adding an adjoint node for each primal node, connected by adjoint edges which parallel the primal edges but flow in the opposite direction. The nodes in the adjoint graph represent multiplication by the derivatives of the functions calculated by the nodes in the primal. For instance, addition in the primal causes fanout in the adjoint; fanout in the primal causes addition in the adjoint; a unary function y = f(x) in the primal causes x' = f'(x)y' in the adjoint; etc.
+Reverse accumulation is superior to forward accumulation for functions  with .
+Backpropagation of errors in multilayer perceptrons, a technique used in machine learning, is a special case of reverse mode AD.
+
+[edit] Jacobian computation
+The Jacobian J of  is an  matrix. The Jacobian can be computed using n sweeps of forward accumulation, of which each sweep can yield a column vector of the Jacobian, or with m sweeps of reverse accumulation, of which each sweep can yield a row vector of the Jacobian.
+
+[edit] Beyond forward and reverse accumulation
+Forward and reverse accumulation are just two (extreme) ways of traversing the chain rule. The problem of computing a full Jacobian of  with a minimum number of arithmetic operations is known as the "optimal Jacobian accumulation" (OJA) problem. OJA is NP-complete.[1] Central to this proof is the idea that there may exist algebraic dependences between the local partials that label the edges of the graph. In particular, two or more edge labels may be recognized as equal. The complexity of the problem is still open if it is assumed that all edge labels are unique and algebraically independent.
+
+[edit] Automatic differentiation using dual numbers
+Forward mode automatic differentiation is accomplished by augmenting the algebra of real numbers and obtaining a new arithmetic. An additional component is added to every number which will represent the derivative of a function at the number, and all arithmetic operators are extended for the augmented algebra. The augmented algebra is the algebra of dual numbers. Computer programs usually implement this using the complex number representation and it is often called the complex-step derivative.[2]
+Replace every number  with the number , where x' is a real number, but  is nothing but a symbol with the property . Using only this, we get for the regular arithmetic
+
+
+
+
+and likewise for subtraction and division.
+Now, we may calculate polynomials in this augmented arithmetic. If , then
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+where P(1) denotes the derivative of P with respect to its first argument, and x', called a seed, can be chosen arbitrarily.
+The new arithmetic consists of ordered pairs, elements written , with ordinary arithmetics on the first component, and first order differentiation arithmetic on the second component, as described above. Extending the above results on polynomials to analytic functions we obtain a list of the basic arithmetic and some standard functions for the new arithmetic:
+
+
+
+
+
+
+
+
+
+
+
+
+and in general for the primitive function g,
+
+
+
+where g(1) and g(2) are the derivatives of g with respect to its first and second arguments, respectively.
+When a binary basic arithmetic operation is applied to mixed arguments — the pair  and the real number c — the real number is first lifted to . The derivative of a function  at the point x0 is now found by calculating  using the above arithmetic, which gives  as the result.
+
+[edit] Vector arguments and functions
+Multivariate functions can be handled with the same efficiency and mechanisms as univariate functions by adopting a directional derivative operator, which finds the directional derivative  of  at  in the direction  by calculating  using the same arithmetic as above.
+
+[edit] Higher order differentials
+The above arithmetic can be generalized, in the natural way, to second order and higher derivatives. However, the arithmetic rules quickly grow very complicated: complexity will be quadratic in the highest derivative degree. Instead, truncated Taylor series arithmetic is used. This is possible because the Taylor summands in a Taylor series of a function are products of known coefficients and derivatives of the function. Computations of Hessians using AD has proven useful in some optimization contexts.
+
+[edit] Implementation
+Forward-mode AD is implemented by a Nonstandard interpretation of the program in which real numbers are replaced by dual numbers, constants are lifted to dual numbers with a zero epsilon coefficient, and the numeric primitives are lifted to operate on dual numbers. This nonstandard interpretation is generally implemented using one of two strategies: source code transformation or operator overloading.
+
+[edit] Source code transformation
+
+
+
+
+Figure 4: Example of how source code transformation could work
+
+
+The source code for a function is replaced by an automatically generated source code that includes statements for calculating the derivatives interleaved with the original instructions.
+Source code transformation can be implemented for all programming languages, and it is also easier for the compiler to do compile time optimizations. However, the implementation of the AD tool itself is more difficult.
+Examples:
+
+ADIC (C/C++, forward mode)
+ADIFOR (Fortran77)
+OpenAD (Fortran77, Fortran95, C/C++)
+TAPENADE (Fortran77, Fortran95)
+
+
+[edit] Operator overloading
+
+
+
+
+Figure 5: Example of how operator overloading could work
+
+
+Operator overloading is a possibility for source code written in a language supporting it. Objects for real numbers and elementary mathematical operations must be overloaded to cater for the augmented arithmetic depicted above. This requires no change in the original source code for the function to be differentiated.
+Operator overloading for forward accumulation is easy to implement, and also possible for reverse accumulation. However, current compilers lag behind in optimizing the code when compared to forward accumulation.
+Examples:
+
+C/C++
+
+
+ADC Version 4.0
+AD Model Builder
+ADOL-C
+FADBAD++
+CppAD
+Sacado (Part of the Trilinos collection) (forward/reverse)
+
+
+Fortran
+
+
+ADF Version 4.0 (Fortran 77, Fortran 95)
+
+
+Matlab
+
+
+MAD
+
+
+Python
+
+
+ScientificPython (pure Python; see modules Scientific.Functions.FirstDerivatives and Scientific.Functions.Derivatives)
+pycppad (wrapper for CppAD)
+pyadolc (wrapper for ADOL-C)
+
+
+[edit] References
+
+
+^ Naumann, Uwe (April 2008), Optimal Jacobian accumulation is NP-complete, "Optimal Jacobian accumulation is NP-complete", Mathematical Programming 112 (2): 427–441, doi:10.1007/s10107-006-0042-z 
+^ Joaquim R. R. A. Martins, Peter Sturdza & Juan J. Alonso (2003) The complex-step derivative approximation. ACM Transactions on Mathematical Software 29(3):245-262
+
+
+
+[edit] Literature
+
+Rall, Louis B. (1981). Automatic Differentiation: Techniques and Applications. Lecture Notes in Computer Science. 120. Springer. ISBN 0-540-10861-0. 
+Griewank, Andreas (2000). Evaluating Derivatives: Principles and Techniques of Algorithmic Differentiation. Frontiers in Applied Mathematics. 19. SIAM. ISBN 0-89871-451-6. 
+
+
+[edit] External links
+
+www.autodiff.org, An "entry site to everything you want to know about automatic differentiation"
+Automatic Differentiation of Parallel OpenMP Programs
+Automatic Differentiation, C++ Templates and Photogrammetry
+Automatic Differentiation, Operator Overloading Approach
+Compute analytic derivatives through a web-based interface Automatic differentiation of nonlinear models
+Compute analytic derivatives of any Fortran77 or Fortran95 through a web-based interface Automatic Differentiation of Fortran programs
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Automatic_differentiation"
+Categories: Differential calculus | Computer algebra 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 April 2009, at 03:35 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

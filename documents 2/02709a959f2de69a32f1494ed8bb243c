@@ -1,0 +1,646 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Slowly changing dimension,Cleanup from June 2008,Data,Data management,Data warehousing,Database,Dimension (data warehouse),Etl,Ralph Kimball,Star schema,Surrogate key" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Slowly changing dimension - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Slowly_changing_dimension";
+		var wgTitle = "Slowly changing dimension";
+		var wgAction = "view";
+		var wgArticleId = "5209807";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282733946;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+<style type="text/css">/*<![CDATA[*/
+.source-sql {line-height: normal;}
+.source-sql li, .source-sql pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for sql
+ * CSS class: source-sql, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-sql .de1, .source-sql .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-sql  {}
+.source-sql .head {}
+.source-sql .foot {}
+.source-sql .imp {font-weight: bold; color: red;}
+.source-sql .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-sql li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-sql li.li2 {font-weight: bold;}
+.source-sql .kw1 {color: #993333; font-weight: bold;}
+.source-sql .co1 {color: #808080; font-style: italic;}
+.source-sql .co2 {color: #808080; font-style: italic;}
+.source-sql .coMULTI {color: #808080; font-style: italic;}
+.source-sql .es0 {color: #000099; font-weight: bold;}
+.source-sql .br0 {color: #66cc66;}
+.source-sql .st0 {color: #ff0000;}
+.source-sql .nu0 {color: #cc66cc;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style>		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Slowly_changing_dimension skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Slowly changing dimension</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table class="metadata plainlinks ambox ambox-style" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Ambox_style.png" class="image" title="Ambox style.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/d/d6/Ambox_style.png" width="40" height="40" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article <b>may require <a href="/wiki/Wikipedia:Cleanup" title="Wikipedia:Cleanup">cleanup</a> to meet Wikipedia's <a href="/wiki/Wikipedia:Manual_of_Style" title="Wikipedia:Manual of Style">quality standards</a>.</b> Please <a href="http://en.wikipedia.org/w/index.php?title=Slowly_changing_dimension&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Slowly_changing_dimension&amp;action=edit" rel="nofollow">improve this article</a> if you can. <small><i>(June 2008)</i></small></td>
+</tr>
+</table>
+<table class="metadata plainlinks ambox ambox-content" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Ambox_content.png" class="image" title="Ambox content.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/f/f4/Ambox_content.png" width="40" height="40" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article <b>is missing <a href="/wiki/Wikipedia:Citing_sources" title="Wikipedia:Citing sources">citations</a> or needs <a href="/wiki/Wikipedia:Footnotes" title="Wikipedia:Footnotes">footnotes</a></b>. Please help add <a href="/wiki/Wikipedia:Inline_citations" title="Wikipedia:Inline citations" class="mw-redirect">inline citations</a> to guard against copyright violations and factual inaccuracies. <small><i>(April 2007)</i></small></td>
+</tr>
+</table>
+<p><b><a href="/wiki/Dimension_(data_warehouse)" title="Dimension (data warehouse)">Dimension</a></b> is a term in <a href="/wiki/Data_management" title="Data management">data management</a> and <a href="/wiki/Data_warehousing" title="Data warehousing" class="mw-redirect">data warehousing</a> that refers to logical groupings of <a href="/wiki/Data" title="Data">data</a> such as geographical location, customer information, or product information. <b>Slowly Changing Dimensions (SCD)</b> are dimensions that have data that slowly changes.</p>
+<p>For example, you may have a Dimension in your <a href="/wiki/Database" title="Database">database</a> that tracks the sales records of your company's salesmen. Creating sales reports seems simple enough, until a sales person is transferred from one regional office to another. How do you record such a change in your sales Dimension?</p>
+<p>You could sum or average the sales by salesperson, but if you use that to compare the performance of sales people, that might give misleading information. If the sales person that was transferred used to work in a hot market where sales were easy, and now works in a market where sales are infrequent, his totals will look much stronger than the other salespeople in his new region, even if they are just as good. Or you could create a second sales-person record and treat the transferred person as a new sales person, but that creates problems also.</p>
+<p>Dealing with these issues involves SCD management methodologies referred to as Type 0, 1, 2, 3, 4, and 6. Type 6 SCDs are also sometimes called Hybrid SCDs.</p>
+<p>The most common slowly changing dimensions are Types 1, 2, and 3.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Type_1"><span class="tocnumber">1</span> <span class="toctext">Type 1</span></a></li>
+<li class="toclevel-1"><a href="#Type_2"><span class="tocnumber">2</span> <span class="toctext">Type 2</span></a></li>
+<li class="toclevel-1"><a href="#Type_3"><span class="tocnumber">3</span> <span class="toctext">Type 3</span></a></li>
+<li class="toclevel-1"><a href="#Type_4"><span class="tocnumber">4</span> <span class="toctext">Type 4</span></a></li>
+<li class="toclevel-1"><a href="#Type_6_.2F_Hybrid"><span class="tocnumber">5</span> <span class="toctext">Type 6 / Hybrid</span></a></li>
+<li class="toclevel-1"><a href="#Type_6_.2F_Hybrid__-_Alternative_Implementation"><span class="tocnumber">6</span> <span class="toctext">Type 6 / Hybrid - Alternative Implementation</span></a></li>
+<li class="toclevel-1"><a href="#Combining_Types"><span class="tocnumber">7</span> <span class="toctext">Combining Types</span></a></li>
+<li class="toclevel-1"><a href="#Notes"><span class="tocnumber">8</span> <span class="toctext">Notes</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">9</span> <span class="toctext">References</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Type_1" id="Type_1"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=1" title="Edit section: Type 1">edit</a>]</span> <span class="mw-headline">Type 1</span></h2>
+<p>The <b>Type 1</b> methodology overwrites old data with new data, and therefore does not track historical data at all. This is most appropriate when correcting certain types of data errors, such as the spelling of a name. (Assuming you won't ever need to know how it used to be misspelled in the past.)</p>
+<p>Another example would be of a database table that keeps supplier information.</p>
+<table class="wikitable" style="text-align:center">
+<tr>
+<th>Supplier_key</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+</tr>
+<tr>
+<td>001</td>
+<td>Phlogistical Supply Company</td>
+<td>CA</td>
+</tr>
+</table>
+<p>Now imagine that this supplier moves their headquarters to Illinois. The updated table would simply overwrite this record:</p>
+<table class="wikitable" style="text-align:center">
+<tr>
+<th>Supplier_key</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+</tr>
+<tr>
+<td>001</td>
+<td>Phlogistical Supply Company</td>
+<td>IL</td>
+</tr>
+</table>
+<p>The obvious disadvantage to this method of managing SCDs is that there is no historical record kept in the data warehouse. You can't tell if your suppliers are tending to move to the Midwest, for example. But an advantage to this is that these are very easy to maintain.</p>
+<p><a name="Type_2" id="Type_2"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=2" title="Edit section: Type 2">edit</a>]</span> <span class="mw-headline">Type 2</span></h2>
+<p>The <b>Type 2</b> method tracks historical data by creating multiple records in the dimensional tables with separate keys. With Type 2, we have unlimited history preservation as a new record is inserted each time a change is made.</p>
+<p>In the same example, if the supplier moves to Illinois, the table would look like this:</p>
+<table class="wikitable" style="text-align:center">
+<tr>
+<th>Supplier_key</th>
+<th>Supplier_Code</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+<th>version</th>
+</tr>
+<tr>
+<td>001</td>
+<td>ABC</td>
+<td>Phlogistical Supply Company</td>
+<td>CA</td>
+<td>0</td>
+</tr>
+<tr>
+<td>002</td>
+<td>ABC</td>
+<td>Phlogistical Supply Company</td>
+<td>IL</td>
+<td>1</td>
+</tr>
+</table>
+<p>Another popular method for <a href="/wiki/Tuple-versioning" title="Tuple-versioning">tuple versioning</a> is to add effective date columns.</p>
+<table class="wikitable" style="text-align:center">
+<tr>
+<th>Supplier_key</th>
+<th>Supplier_Code</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+<th>Start_Date</th>
+<th>End_Date</th>
+</tr>
+<tr>
+<td>001</td>
+<td>ABC</td>
+<td>Phlogistical Supply Company</td>
+<td>CA</td>
+<td>01-Jan-2000</td>
+<td>21-Dec-2004</td>
+</tr>
+<tr>
+<td>002</td>
+<td>ABC</td>
+<td>Phlogistical Supply Company</td>
+<td>IL</td>
+<td>22-Dec-2004</td>
+<td style="background:yellow"></td>
+</tr>
+</table>
+<p>Null End_Date signifies current tuple version. In some cases, a standardized surrogate high date (e.g. 12/31/9999) may be used as an end date, so that the field can be included in an index.</p>
+<p>Transactions that reference this <a href="/wiki/Surrogate_key" title="Surrogate key">Surrogate Key</a> (Supplier_Key) are then permanently bound to these time slices defined by each row in the slowly changing dimension table. If there are retrospective changes made to the contents of the dimension, or if a new set of attributes are added to the dimension (for example a Sales Rep column) which have different effective dates to those already defined, then this can result in the existing transactions needing to be updated to reflect the new situation. This can be an expensive database operation, so Type 2 SCD are not a good choice if the dimensional model or data is subject to change.</p>
+<p><a name="Type_3" id="Type_3"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=3" title="Edit section: Type 3">edit</a>]</span> <span class="mw-headline">Type 3</span></h2>
+<p>The <b>Type 3</b> method track changes using separate columns. Whereas Type 2 had unlimited history preservation, Type 3 has limited history preservation, as it's limited to the number of columns we designate for storing historical data. Where the original table structure in Type 1 and Type 2 was very similar, Type 3 will add additional columns to the tables:</p>
+<table class="wikitable" style="text-align:center">
+<tr>
+<th>Supplier_key</th>
+<th>Supplier_Name</th>
+<th>Original_Supplier_State</th>
+<th>Effective_Date</th>
+<th>Current_Supplier_State</th>
+</tr>
+<tr>
+<td>001</td>
+<td>Phlogistical Supply Company</td>
+<td>CA</td>
+<td>22-Dec-2004</td>
+<td>IL</td>
+</tr>
+</table>
+<p>Note that this record can not track all historical changes, such as when a supplier moves twice.</p>
+<p><a name="Type_4" id="Type_4"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=4" title="Edit section: Type 4">edit</a>]</span> <span class="mw-headline">Type 4</span></h2>
+<p>The <b>Type 4</b> method is usually just referred to as using "history tables", where one table keeps the current data, and an additional table is used to keep a record of some or all changes.</p>
+<p>Following the example above, the original table might be called <b>Supplier</b> and the history table might be called <b>Supplier_History.</b></p>
+<table class="wikitable" style="text-align:center">
+<caption>Supplier</caption>
+<tr>
+<th>Supplier_key</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+</tr>
+<tr>
+<td>001</td>
+<td>Phlogistical Supply Company</td>
+<td>IL</td>
+</tr>
+</table>
+<table class="wikitable" style="text-align:center">
+<caption>Supplier_History</caption>
+<tr>
+<th>Supplier_key</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+<th>Create_Date</th>
+</tr>
+<tr>
+<td>001</td>
+<td>Phlogistical Supply Company</td>
+<td>CA</td>
+<td>22-Dec-2004</td>
+</tr>
+</table>
+<p><a name="Type_6_.2F_Hybrid" id="Type_6_.2F_Hybrid"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=5" title="Edit section: Type 6 / Hybrid">edit</a>]</span> <span class="mw-headline">Type 6 / Hybrid</span></h2>
+<p>The <b>Type 6</b> method is one that combines the approaches of types 1,2 and 3 (1 + 2 + 3 = 6). One possible explanation of the origin of the term was that it was coined by <a href="/wiki/Ralph_Kimball" title="Ralph Kimball">Ralph Kimball</a> during a conversation with Stephen Pace from Kalido but has also been referred to by Tom Haughey <sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup>. It is not frequently used because it has the potential to complicate end user access, but has some advantages over the other approaches especially when techniques are employed to mitigate the downstream complexity.</p>
+<p>The approach is to use a Type 1 slowly changing dimension, but adding an additional pair of date columns to indicate the date range at which a particular row in the dimension applies.</p>
+<p>This approach has a number of advantages:</p>
+<ul>
+<li>the user can choose to query using the current values of the dimensional table by restricting the rows in the Dimension table using a filter to only select current values</li>
+<li>alternatively the user can use the "as at the time of the transaction" values by using one of the date fields on the transaction as a constraint on the dimension table.</li>
+<li>if there are a number of date columns on the transaction (e.g. Order Date, Shipping Date, Confirmation Date) then the user can choose which date to analyze the fact data by - something not possible using other approaches.</li>
+</ul>
+<p>This is how the Supplier table would look using Type 6 Slowly Changing Dimensions:</p>
+<table class="wikitable" style="text-align:center">
+<caption>Supplier</caption>
+<tr>
+<th>Row_Key</th>
+<th>Supplier_key</th>
+<th>Supplier_code</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+<th>Start_Date</th>
+<th>End_Date</th>
+<th>Current Indicator</th>
+</tr>
+<tr>
+<td>1</td>
+<td>001</td>
+<td>ABC001</td>
+<td>Phlogistical Supply Company</td>
+<td>CA</td>
+<td>22-Dec-2004</td>
+<td>15-Jan-2007</td>
+<td>N</td>
+</tr>
+<tr>
+<td>2</td>
+<td>001</td>
+<td>ABC001</td>
+<td>Phlogistical Supply Company</td>
+<td>IL</td>
+<td>15-Jan-2007</td>
+<td>1-Jan-2099</td>
+<td>Y</td>
+</tr>
+</table>
+<p>Alternative implementations of Type 6 can include a blank end date. Other approaches include using a Revision Number instead of a Row Key.</p>
+<p>Note, Transactions should have the Supplier Key as the foreign key (even though this is not a join to a unique column) in combination with a date filter. The join should not be to the primary key for the table (Row Key). The Transaction could also optionally carry one or more Row Keys (to allow use of Type 2 SCD in addition to Type 6) depending on which of the transactions datestamp columns the user wishes to analyze by - but note the issues with this approach described in the section on Type 2 SCD.</p>
+<p>Note the Current_Indicator and Row_Key columns are optional - they are not required in order for analysis, but can simplify querying and management respectively.</p>
+<p>Note Ideally a Fact should only have a single event date on it to represent the date at which the transaction occurred. If there are multiple dates, consider splitting the Fact out into the most granular events if possible.</p>
+<p>Example SQL: In the following example, we wish to query the following Delivery transactions:</p>
+<table class="wikitable" style="text-align:center">
+<caption>Delivery</caption>
+<tr>
+<th>Delivery_Key</th>
+<th>Supplier_key</th>
+<th>Quantity</th>
+<th>Product</th>
+<th>Delivery_Date</th>
+<th>Order_Date</th>
+</tr>
+<tr>
+<td>1</td>
+<td>001</td>
+<td>132</td>
+<td>Bags</td>
+<td>22-Dec-2006</td>
+<td>15-Oct-2006</td>
+</tr>
+<tr>
+<td>2</td>
+<td>001</td>
+<td>324</td>
+<td>Chairs</td>
+<td>15-Jan-2007</td>
+<td>1-Jan-2007</td>
+</tr>
+</table>
+<p>To query the <a href="/wiki/Star_schema" title="Star schema">star schema</a> using the historic reference data as of the date of the delivery, the query looks like this:</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-sql">
+<span class="kw1">SELECT</span>
+delivery.delivery_cost,
+supplier.supplier_name,
+supplier.supplier_state
+ 
+<span class="kw1">FROM</span> delivery
+ 
+<span class="kw1">INNER</span> <span class="kw1">JOIN</span> supplier <span class="kw1">ON</span> delivery.supplier_key = supplier.supplier_key
+ 
+<span class="kw1">WHERE</span>
+delivery.delivery_date &gt;=supplier.start_date
+<span class="kw1">AND</span> delivery.delivery_date &lt;supplier.end_date
+</pre></div>
+<p>To query using the order date, the SQL simply needs to be changed to reference the Order_Date.</p>
+<p>To query the star schema using the current reference data, the query looks like this:</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-sql">
+<span class="kw1">SELECT</span>
+delivery.delivery_cost,
+supplier.supplier_name,
+supplier.supplier_state
+ 
+<span class="kw1">FROM</span> delivery
+ 
+<span class="kw1">INNER</span> <span class="kw1">JOIN</span> supplier <span class="kw1">ON</span> delivery.supplier_key = supplier.supplier_key
+ 
+<span class="kw1">WHERE</span>
+supplier.start_date &lt;= NOW<span class="br0">(</span><span class="br0">)</span>
+<span class="kw1">AND</span> supplier.end_date &gt; NOW<span class="br0">(</span><span class="br0">)</span>
+</pre></div>
+<p><b>Notes</b></p>
+<ul>
+<li><code>NOW()</code> is PostgreSQL/MySQL syntax, <code>getdate()</code> is SQL Server syntax, for Oracle use <code>SYSDATE</code></li>
+</ul>
+<ul>
+<li>Caution - If the WHERE clause restricting the rows in the dimension table is not present, then the query will potentially return duplicate rows and give the wrong answers, so this technique should be used with care.</li>
+</ul>
+<ul>
+<li>Some Business Intelligence tools do not handle generating complex joins such as this well.</li>
+</ul>
+<ul>
+<li>The <a href="/wiki/Etl" title="Etl" class="mw-redirect">Etl</a> processes needed to create this table also need to be carefully designed to ensure that there are no overlaps in the time periods for each distinct item of reference data.</li>
+</ul>
+<ul>
+<li>The &gt;= and &lt; clause is required to ensure no time period is omitted.</li>
+</ul>
+<ul>
+<li>Often a view is created over the table which can filter out the rows or columns. This simplifies joins to the table if only the current rows are needed for certain queries. This view could be materialized to a physical table if storage space is not a problem. This can be done automatically by most modern DBMS's and automatically kept up to date.</li>
+</ul>
+<p><a name="Type_6_.2F_Hybrid__-_Alternative_Implementation" id="Type_6_.2F_Hybrid__-_Alternative_Implementation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=6" title="Edit section: Type 6 / Hybrid  - Alternative Implementation">edit</a>]</span> <span class="mw-headline">Type 6 / Hybrid - Alternative Implementation</span></h2>
+<p>One of the drawbacks of the above implementation is that a many-to-many relationship between the dimension and the fact table is never resolved into the data model. This many-to-many relationship can't be resolved at a logical and Physical Data Model Standpoint. The way it is designed, it will be only resolved at runtime, at a report level, when end-user fills in the 'As At Date' parameter. The consequence is that no referential integrity can be enforced at a RDBMS level between the fact and the dimension table. A variant of this SCD type 6 exists that implements all the advantages of SCD6 without this inconvenience.</p>
+<p>This variant is based on the dimension table primary key made of a surrogate key and a version number (and not a Start date). The version number of the current dimension record would always be 0. Before a dimension record gets updated, the version 0 is copied over a new record (version n+1) and the version 0 can be updated.</p>
+<table class="wikitable" style="text-align:center">
+<caption>Supplier Dimension</caption>
+<tr>
+<th>Version_Number</th>
+<th>Supplier_key</th>
+<th>Supplier_code</th>
+<th>Supplier_Name</th>
+<th>Supplier_State</th>
+<th>Start_Date</th>
+<th>End_Date</th>
+</tr>
+<tr>
+<td>1</td>
+<td>001</td>
+<td>ABC001</td>
+<td>Phlogistical Supply Company</td>
+<td>CA</td>
+<td>22-Dec-2004</td>
+<td>15-Jan-2007</td>
+</tr>
+<tr>
+<td>0</td>
+<td>001</td>
+<td>ABC001</td>
+<td>Phlogistical Supply Company</td>
+<td>IL</td>
+<td>15-Jan-2007</td>
+<td></td>
+</tr>
+</table>
+<p>In the fact table, when a fact is added, it can be only using the current dimension record, Consequently, all the fact records will have a version number equals to 0.</p>
+<table class="wikitable" style="text-align:center">
+<caption>Fact Delivery</caption>
+<tr>
+<th>Delivery_Key</th>
+<th>Supplier_key</th>
+<th>Supplier_version_number</th>
+<th>Quantity</th>
+<th>Product</th>
+<th>Delivery_Date</th>
+<th>Order_Date</th>
+</tr>
+<tr>
+<td>1</td>
+<td>001</td>
+<td>0</td>
+<td>132</td>
+<td>Bags</td>
+<td>22-Dec-2006</td>
+<td>15-Oct-2006</td>
+</tr>
+<tr>
+<td>2</td>
+<td>001</td>
+<td>0</td>
+<td>324</td>
+<td>Chairs</td>
+<td>15-Jan-2007</td>
+<td>1-Jan-2007</td>
+</tr>
+</table>
+<p>The advantage of this SCD Type 6 implementation is that the many to many between the fact and dimension is resolved, the priority given to the AS IS version (version number=0).</p>
+<p>Another advantage is that the RDBMS can ensure the referential integrity between the fact table and the dimension table. Finally, when using a Design Tool like Erwin, Powerdesigner...in the Physical Model, fact tables are linked to dimension tables. The Dimension surrogate key + the dimension version number is a compound primary key , and can be stored into the fact table , even though the version number will be always 0.</p>
+<p>In the implementation using the Start date in the primary key, all the tables in the Physical Data Model will look like standalone tables and no integrity constraint can be enforced by the RDBMS (even though it is not always desirable).</p>
+<p><a name="Combining_Types" id="Combining_Types"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=7" title="Edit section: Combining Types">edit</a>]</span> <span class="mw-headline">Combining Types</span></h2>
+<p>Different types can be applied to different columns of a table. For example, we can apply Type 1 to Supplier Name column and Type 2 to Supplier State column of the same table, the Supplier table.</p>
+<p><a name="Notes" id="Notes"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=8" title="Edit section: Notes">edit</a>]</span> <span class="mw-headline">Notes</span></h2>
+<table class="metadata plainlinks ambox ambox-style" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Text_document_with_red_question_mark.svg" class="image" title="Text document with red question mark.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Text_document_with_red_question_mark.svg/40px-Text_document_with_red_question_mark.svg.png" width="40" height="40" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article includes a <a href="/wiki/Wikipedia:Citing_sources" title="Wikipedia:Citing sources">list of references</a> or <a href="/wiki/Wikipedia:External_links" title="Wikipedia:External links">external links</a>, but <b>its sources remain unclear because it has insufficient <a href="/wiki/Wikipedia:Citing_sources#Adding_the_citation" title="Wikipedia:Citing sources">inline citations</a></b>. Please help to <a href="/wiki/Wikipedia:WikiProject_Fact_and_Reference_Check" title="Wikipedia:WikiProject Fact and Reference Check">improve</a> this article by introducing more precise citations <a href="/wiki/Wikipedia:When_to_cite" title="Wikipedia:When to cite">where appropriate</a>. <small><i>(April 2009)</i></small></td>
+</tr>
+</table>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> Tom Haughey - Advanced Topics in Dimensional Modeling</li>
+</ol>
+</div>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit&amp;section=9" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small" style="margin-left:1.5em;">
+<ul>
+<li><a href="/wiki/Ralph_Kimball" title="Ralph Kimball">Ralph Kimball</a>, <a href="/w/index.php?title=Margy_Ross&amp;action=edit&amp;redlink=1" class="new" title="Margy Ross (page does not exist)">Margy Ross</a>: <i>The Data Warehouse Toolkit: The Complete Guide to Dimensional Modeling (Second Edition)</i>, John Wiley &amp; Sons, <a href="/wiki/Special:BookSources/0471200247" class="internal">ISBN 0-471-20024-7</a></li>
+</ul>
+<ul>
+<li>Bruce Ottmann, Chris Angus: <i>Data processing system</i>, US Patent Office, Patent Number <a href="http://patft.uspto.gov/netacgi/nph-Parser?u=%2Fnetahtml%2Fsrchnum.htm&amp;Sect1=PTO1&amp;Sect2=HITOFF&amp;p=1&amp;r=1&amp;l=50&amp;f=G&amp;d=PALL&amp;s1=7003504.PN.&amp;OS=PN/7003504&amp;RS=PN/7003504" class="external text" title="http://patft.uspto.gov/netacgi/nph-Parser?u=%2Fnetahtml%2Fsrchnum.htm&amp;Sect1=PTO1&amp;Sect2=HITOFF&amp;p=1&amp;r=1&amp;l=50&amp;f=G&amp;d=PALL&amp;s1=7003504.PN.&amp;OS=PN/7003504&amp;RS=PN/7003504" rel="nofollow">7,003,504</a>. February 21, 2006</li>
+</ul>
+<ul>
+<li><a href="/wiki/Ralph_Kimball" title="Ralph Kimball">Ralph Kimball</a>:<i>Kimball University: Handling Arbitrary Restatements of History</i> <a href="http://www.informationweek.com/showArticle.jhtml?articleID=204800027&amp;pgno=1&amp;queryText=" class="external autonumber" title="http://www.informationweek.com/showArticle.jhtml?articleID=204800027&amp;pgno=1&amp;queryText=" rel="nofollow">[1]</a>. December 9, 2007</li>
+</ul>
+</div>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 498/1000000
+Post-expand include size: 8866/2048000 bytes
+Template argument size: 2795/2048000 bytes
+Expensive parser function count: 1/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:5209807-0!1!0!default!!en!2 and timestamp 20090428163731 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Slowly_changing_dimension">http://en.wikipedia.org/wiki/Slowly_changing_dimension</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Data_modeling" title="Category:Data modeling">Data modeling</a></span> | <span dir='ltr'><a href="/wiki/Category:Data_warehousing" title="Category:Data warehousing">Data warehousing</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Cleanup_from_June_2008" title="Category:Cleanup from June 2008">Cleanup from June 2008</a></span> | <span dir='ltr'><a href="/wiki/Category:All_pages_needing_cleanup" title="Category:All pages needing cleanup">All pages needing cleanup</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_unsourced_statements_since_April_2007" title="Category:Articles with unsourced statements since April 2007">Articles with unsourced statements since April 2007</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_with_unsourced_statements" title="Category:All articles with unsourced statements">All articles with unsourced statements</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_lacking_in-text_citations_from_April_2009" title="Category:Articles lacking in-text citations from April 2009">Articles lacking in-text citations from April 2009</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Slowly_changing_dimension" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Slowly_changing_dimension" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Slowly_changing_dimension&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Slowly_changing_dimension&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Slowly_changing_dimension" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Slowly_changing_dimension" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Slowly_changing_dimension" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Slowly_changing_dimension&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Slowly_changing_dimension&amp;oldid=282733946" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Slowly_changing_dimension&amp;id=282733946">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Slowly_Changing_Dimensions">Deutsch</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 9 April 2009, at 09:18 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv165 in 0.057 secs. --></body></html>

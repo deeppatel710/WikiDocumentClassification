@@ -1,0 +1,320 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SSE2 - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "SSE2";
+		var wgTitle = "SSE2";
+		var wgAction = "view";
+		var wgArticleId = "311203";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276859033;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); SSE2
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (November 2008)
+
+
+SSE2, Streaming SIMD Extensions 2, is one of the IA-32 SIMD (Single Instruction, Multiple Data) instruction sets. SSE2 was first introduced by Intel with the initial version of the Pentium 4 in 2001. It extends the earlier SSE instruction set, and is intended to fully supplant MMX. Intel extended SSE2 to create SSE3 in 2004. SSE2 added 144 new instructions to SSE, which has 70 instructions. Rival chip-maker AMD added support for SSE2 with the introduction of their Opteron and Athlon 64 ranges of AMD64 64-bit CPUs in 2003.
+
+
+
+
+Contents
+
+
+1 Changes
+2 Differences between x87 FPU and SSE2
+3 Differences between MMX and SSE2
+4 Compiler usage
+5 CPUs supporting SSE2
+6 Notable IA-32 CPUs not supporting SSE2
+7 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Changes
+SSE2 extends MMX instructions to operate on XMM registers, allowing the programmer to completely avoid the eight 64-bit MMX registers "aliased" on the original IA-32 floating point register stack. This permits mixing integer SIMD and scalar floating point operations without the mode switching required between MMX and x87 floating point operations. However, this is over-shadowed by the value of being able to perform MMX operations on the wider SSE registers.
+Other SSE2 extensions include a set of cache-control instructions intended primarily to minimize cache pollution when processing indefinite streams of information, and a sophisticated complement of numeric format conversion instructions.
+AMD's implementation of SSE2 on the AMD64 (x86-64) platform includes an additional eight registers, doubling the total number to 16 (XMM0 through XMM15). These additional registers are only visible when running in 64-bit mode. Intel adopted these additional registers as part of their support for x86-64 architecture (or in Intel's parlance, "Intel 64") in 2004.
+
+[edit] Differences between x87 FPU and SSE2
+The FPU (x87) instructions usually store intermediate results with 80-bits of precision. When legacy FPU software algorithms are ported to SSE2, certain combinations of math operations or input datasets can result in measurable numerical deviation. This is of critical importance to scientific computations, if the calculation results must be compared against results generated from a different machine architecture.
+A notable problem occurs when a compiler must interpret a mathematical expression consisting of several operations (adding, subtracting, dividing, multiplying). Depending on the compiler (and optimizations) used, different intermediate results of a given mathematical expression may need to be temporarily saved, and later reloaded. This results in a truncation from 80-bits to 64-bits in the x87 FPU. Depending on when this truncation is executed, the final numerical result may end up different. The following Fortran code compiled with G95 is offered as an example.
+
+program hi
+real a,b,c,d
+real x,y,z
+a=.013
+b=.027
+c=.0937
+d=.79
+y=-a/b + (a/b+c)*EXP(d)
+print *,y
+z=(-a)/b + (a/b+c)*EXP(d)
+print *,z
+x=y-z
+print *,x
+end
+
+Compiling to 387 floating point instructions and running yields:
+
+# g95 -o hi -mfpmath=387 -fzero -ftrace=full -fsloppy-char hi.for
+# ./hi
+ 0.78587145
+ 0.7858714
+ 5.9604645E-8
+
+Compiling to SSE2 instructions and running yields:
+
+# g95 -o hi -mfpmath=sse -msse2 -fzero -ftrace=full -fsloppy-char hi.for
+# ./hi
+ 0.78587145
+ 0.78587145
+ 0.
+
+
+[edit] Differences between MMX and SSE2
+SSE2 extends MMX instructions to operate on XMM registers. Therefore, it is possible to convert all existing MMX code to SSE2 equivalent. Since an XMM register is two times as long as an MMX register, loop counters and memory access may need to be changed to accommodate this.
+Although one SSE2 instruction can operate on twice as much data as an MMX instruction, performance might not increase significantly. Two major reasons are: accessing SSE2 data in memory not aligned to a 16-byte boundary will incur significant penalty, and the throughput of SSE2 instructions in most x86 implementations is usually smaller than MMX instructions. Intel has recently addressed the first problem by adding an instruction in SSE3 to reduce the overhead of accessing unaligned data, and the last problem by widening the execution engine in their Core microarchitecture.
+
+[edit] Compiler usage
+When first introduced in 2000, SSE2 was not supported by software development tools. For example, to use SSE2 in a Microsoft Developer Studio project, the programmer had to either manually write inline-assembly or import object-code from an external source. Later the Visual C++ Processor Pack added SSE2 support to Visual C++ and MASM.
+The Intel C++ Compiler can automatically generate SSE4/SSSE3/SSE3/SSE2 and/or SSE-code without the use of hand-coded assembly, letting programmers focus on algorithmic development instead of assembly-level implementation. Since its introduction, the Intel C Compiler has greatly increased adoption of SSE2 in Windows application development.
+Since GCC 3, GCC can automatically generate SSE/SSE2 scalar code when the target supports those instructions. Automatic vectorization for SSE/SSE2 has been added since GCC 4.
+The Sun Studio Compiler Suite can also generate SSE2 instructions when the compiler flag -xvector=simd is used.
+
+[edit] CPUs supporting SSE2
+
+AMD K8-based CPUs (Athlon 64, Sempron 64, Turion 64, etc)
+AMD Phenom CPUs
+Intel NetBurst-based CPUs (Pentium 4, Xeon, Celeron, Celeron D, etc)
+Intel Pentium M and Celeron M
+Intel Core-based CPUs (Core Duo, Core Solo, etc)
+Intel Core 2-based CPUs (Core 2 Duo, Core 2 Quad, etc)
+Intel Atom
+Transmeta Efficeon
+VIA C7
+VIA Nano
+
+
+[edit] Notable IA-32 CPUs not supporting SSE2
+SSE2 is an extension of the IA-32 architecture. Therefore any architecture that does not support IA-32 does not support SSE2. x86-64 CPUs all implement IA-32. All known x86-64 CPUs also implement SSE2. Since IA-32 predates SSE2, early IA-32 CPUs did not implement it. SSE2 and the other SIMD instruction sets were intended primarily to improve CPU support for realtime graphics, notably gaming. A CPU that is not marketed for this purpose or that has an alternative SIMD instruction set has no need for SSE2.
+The following CPUs implemented IA-32 after SSE2 was developed, but did not implement SSE2:
+
+AMD CPUs prior to Athlon 64, including all Socket A-based CPUs
+Intel CPUs prior to Pentium 4
+Via C3
+Transmeta Crusoe
+
+
+[edit] See also
+
+3DNow! and SSE5, for x86 (AMD)
+Advanced SIMD (NEON), for ARM (ARM)
+AltiVec, for PowerPC (AIM alliance)
+Intel Wireless MMX Technology (iwMMXt), for XScale (Intel and Marvell)
+MIPS Digital Media eXtension (MDMX) and MIPS-3D, for MIPS (MIPS)
+Motion Video Instructions (MVI), for Alpha (DEC)
+Multimedia Acceleration eXtensions (MAX), for PA-RISC (HP)
+MMX, Streaming SIMD Extensions (SSE), SSE3, SSSE3, SSE4, and Advanced Vector Extensions (AVX), for x86 (Intel)
+Visual Instruction Set (VIS), for SPARC (Sun)
+x86 instruction listings
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/SSE2"
+Categories: X86 instructions | SIMD computingHidden categories: Articles lacking sources from November 2008 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Eesti
+Español
+Français
+한국어
+Italiano
+Magyar
+Nederlands
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Suomi
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 12 March 2009, at 23:24 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,677 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+diff - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Diff";
+		var wgTitle = "Diff";
+		var wgAction = "view";
+		var wgArticleId = "79673";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280707772;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); diff
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+"DIFF" redirects here. DIFF may also refer to the Dominican International Film Festival.
+In computing, diff is a file comparison utility that outputs the differences between two files, or the changes made to a current file by comparing it to a former version of the same file. Diff displays the changes made per line for text files. Modern implementations also support binary files[1]. The output is called a diff or a patch since the output can be applied with the Unix program patch. The output of similar file comparison utilities are also called a "diff". Like the use of the word "grep" for describing the act of searching, the word diff is used in jargon as a verb for calculating any difference.
+
+
+
+
+Contents
+
+
+1 History
+2 Algorithm
+3 Usage
+4 Variations
+
+4.1 Edit script
+4.2 Context format
+4.3 Unified format
+4.4 Others
+
+
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+The diff utility was developed in the early 1970s on the Unix operating system which was emerging from AT&T Bell Labs in Murray Hill, New Jersey. The final version, first shipped with the 5th Edition of Unix in 1974, was entirely written by Douglas McIlroy. This research was published in a 1976 paper co-written with James W. Hunt who developed an initial prototype of diff.[2]
+McIlroy's work was preceded and influenced by Steve Johnson's comparison program on GECOS and Mike Lesk's proof program. proof also originated on Unix and, like diff, produced line-by-line changes and even used angle-brackets (">" and "<") for presenting line insertions and deletions in the program's output. The heuristics used in these early applications were, however, deemed unreliable. The potential usefulness of a diff tool provoked McIlroy into researching and designing a more robust tool that could be used in a variety of tasks but perform well in the processing and size limitations of the PDP-11's hardware. His approach to the problem resulted from collaboration also with individuals at Bell Labs including Alfred Aho, Elliot Pinson, Jeffrey Ullman, and Harold S. Stone.
+In the context of Unix, the use of the ed line editor provided diff with the natural ability to create machine-usable "edit scripts". These edit scripts, when saved to a file, can, along with the original file, be reconstituted by ed into the modified file in its entirety. This greatly reduced the secondary storage necessary to maintain multiple versions of a file. McIlroy considered writing a post-processor for diff where a variety of output formats could be designed and implemented, but he found it more frugal and simpler to have diff be responsible for generating the syntax and reverse-order input accepted by the ed command. In 1985, Larry Wall composed a separate utility, patch, that generalized and extended the ability to modify files with diff output. Modes in Emacs also allow for converting the format of patches and even editing patches interactively.
+In diff's early years, common uses included comparing changes in the source of software code and markup for technical documents, verifying program debugging output, comparing filesystem listings and analyzing computer assembly code. The output targeted for ed was motivated to provide compression for a sequence of modifications made to a file. The Source Code Control System (SCCS) and its ability to archive revisions emerged in the late 1970s as a consequence of storing edit scripts from diff.
+Project Xanadu is a conceptual predecessor of diff. It was a hypertext project first conceived in 1960 that was to include a version tracking system necessary for its "transpointing windows" feature. The feature subsumed file differences in the expansive term "transclusion", where a document has included in it parts of other documents or revisions.
+
+[edit] Algorithm
+The operation of diff is based on solving the longest common subsequence problem.
+In this problem, you have two sequences of items:
+
+       a b c d f g h j q z
+
+
+       a b c d e f g i j k r x y z
+
+and you want to find the longest sequence of items that is present in both original sequences in the same order. That is, you want to find a new sequence which can be obtained from the first sequence by deleting some items, and from the second sequence by deleting other items. You also want this sequence to be as long as possible. In this case it is
+
+       a b c d f g j z
+
+From the longest common subsequence it's only a small step to get diff-like output:
+
+       e   h i   q   k r x y 
+       +   - +   -   + + + +
+
+
+[edit] Usage
+It is invoked from the command line with the names of two files: diff original new. The output of the command represents the changes required to make the original file become the new file.
+If original and new are directories, then diff will be run on each file that exists in both directories. An option, -r, will descend any matching subdirectories to compare files between directories.
+Any of the examples in the article use the following two files, original and new:
+
+
+
+
+
+original:
+
+This part of the
+document has stayed the
+same from version to
+version.  It shouldn't
+be shown if it doesn't
+change.  Otherwise, that
+would not be helping to
+compress the size of the
+changes.
+
+This paragraph contains
+text that is outdated.
+It will be deleted in the
+near future.
+
+It is important to spell
+check this dokument. On
+the other hand, a
+misspelled word isn't
+the end of the world.
+Nothing in the rest of
+this paragraph needs to
+be changed. Things can
+be added after it.
+
+
+
+
+new:
+
+This is an important
+notice! It should
+therefore be located at
+the beginning of this
+document!
+
+This part of the
+document has stayed the
+same from version to
+version.  It shouldn't
+be shown if it doesn't
+change.  Otherwise, that
+would not be helping to
+compress anything.
+
+It is important to spell
+check this document. On
+the other hand, a
+misspelled word isn't
+the end of the world.
+Nothing in the rest of
+this paragraph needs to
+be changed. Things can
+be added after it.
+
+This paragraph contains
+important new additions
+to this document.
+
+
+
+
+
+The command diff original new produces the following normal diff output:
+
+0a1,6
+> This is an important
+> notice! It should
+> therefore be located at
+> the beginning of this
+> document!
+>
+8,14c14
+< compress the size of the
+< changes.
+<
+< This paragraph contains
+< text that is outdated.
+< It will be deleted in the
+< near future.
+---
+> compress anything.
+17c17
+< check this dokument. On
+---
+> check this document. On
+24a25,28
+>
+> This paragraph contains
+> important new additions
+> to this document.
+
+In this traditional output format, a stands for added, d for deleted and c for changed. Line numbers of the original file appear before a/d/c and those of the modified file appear after. Angle brackets appear at the beginning of lines that are added, deleted or changed. Addition lines are added to the original file to appear in the new file. Deletion lines are deleted from the original file to be missing in the new file.
+By default, lines common to both files are not shown. Lines that have moved will show up as added on their new location and as deleted on their old location.[3]
+
+[edit] Variations
+Most common diff implementations remain outwardly unchanged since 1975. The modifications include improvements to the core algorithm, the addition of useful features to the command, and the design of new output formats. The basic algorithm is described in the papers An O(ND) Difference Algorithm and its Variations by Eugene W. Myers[4] and in A File Comparison Program by Webb Miller and Myers.[5] The algorithm was independently discovered and described in Algorithms for Approximate String Matching, by E. Ukkonen.[6] The first editions of the diff program were designed for line comparisons of text files expecting the newline character to delimit lines. By the 1980s, support for binary files resulted in a shift in the application's design and implementation.
+
+[edit] Edit script
+An edit script can still be generated by modern versions of diff with the -e option. The resulting edit script for this example is as follows:
+
+24a
+
+This paragraph contains
+important new additions
+to this document.
+.
+17c
+check this document. On
+.
+8,14c
+compress anything.
+.
+0a
+This is an important
+notice! It should
+therefore be located at
+the beginning of this
+document!
+
+.
+
+
+[edit] Context format
+The Berkeley distribution of Unix made a point of adding the context format (-c) and the ability to recurse on filesystem directory structures (-r), adding those features in 2.8 BSD, released in July 1981. The context format of diff introduced at Berkeley helped with distributing patches for source code that may have been changed minimally.
+In the context format, any changed lines are shown alongside unchanged lines before and after. The inclusion of any number of unchanged lines provides a context to the patch. The context consists of lines that have not changed between the two files, and so can be used as a reference to locate the chunk's place in a modified file and find the intended location a change should be applied regardless if the line numbers no longer correspond. The context format introduces greater readability for humans and reliability when applying the patch, and an output which is accepted as input to the patch program. This intelligent behavior isn't possible with the traditional diff output.
+The number of unchanged lines shown above and below a change hunk can be defined by the user, even zero, but three lines is typically the default. If the context of unchanged lines in a hunk overlap with an adjacent hunk, then diff will avoid duplicating the unchanged lines and merge the hunks into a single hunk.
+A "!" represents a change between lines that correspond in the two files. A "+" represents the addition of a line, while a blank space represents an unchanged line. At the beginning of the patch is the file information, including the full path and a time stamp. At the beginning of each hunk are the line numbers that apply for the corresponding change in the files. A number range appearing between sets of three asterisks applies to the original file, while sets of three dashes apply to the new file. The chunk ranges specify the starting line number and the number of lines the change hunk applies to in the respective file.
+The command diff -c original new produces the following output:
+
+*** /path/to/original timestamp
+--- /path/to/new      timestamp
+***************
+*** 1,3 ****
+--- 1,9 ----
++ This is an important
++ notice! It should
++ therefore be located at
++ the beginning of this
++ document!
++
+  This part of the
+  document has stayed the
+  same from version to
+***************
+*** 5,20 ****
+  be shown if it doesn't
+  change.  Otherwise, that
+  would not be helping to
+! compress the size of the
+! changes.
+!
+! This paragraph contains
+! text that is outdated.
+! It will be deleted in the
+! near future.
+  
+  It is important to spell
+! check this dokument. On
+  the other hand, a
+  misspelled word isn't
+  the end of the world.
+--- 11,20 ----
+  be shown if it doesn't
+  change.  Otherwise, that
+  would not be helping to
+! compress anything.
+  
+  It is important to spell
+! check this document. On
+  the other hand, a
+  misspelled word isn't
+  the end of the world.
+***************
+*** 22,24 ****
+--- 22,28 ----
+  this paragraph needs to
+  be changed.  Things can
+  be added after it.
++
++ This paragraph contains
++ important new additions
++ to this document.
+
+
+[edit] Unified format
+The unified format (or unidiff) inherits the technical improvements made by the context format, but produces a smaller diff with old and new text presented immediately adjacent. Unified format is usually invoked using the "-u" command line option. This output is often used as input to the patch program. Many projects specifically request that "diffs" be submitted in the unified format, making unified diff format the most common format for exchange between software developers.
+Unified context diffs were originally developed by Wayne Davison in August 1990 (in unidiff which appeared in Volume 14 of comp.sources.misc). Richard Stallman added unified diff support to the GNU Project's diff utility one month later, and the feature debuted in GNU diff 1.15, released in January 1991. GNU diff has since generalized the context format to allow arbitrary formatting of diffs.
+The format starts with the same two-line header as the context format, except that the original file is preceded by "---" and the new file is preceded by "+++". Following this are one or more change hunks (chunks) that contain the line differences in the file. The unchanged, contextual lines are preceded by a space character, addition lines are preceded by a plus sign, and deletion lines are preceded by a minus sign.
+A chunk begins with range information and is immediately followed with the line additions, line deletions, and any number of the contextual lines. The range information is surrounded by double-at signs and combines onto a single line what appears on two lines for the context format (see above). The format of the range information line is as follows:
+
+@@ -R +R @@
+
+The chunk range information contains two chunk ranges. The one preceded by a minus symbol is the range for the chunk of the original file, and the range for the new file is preceded by a plus symbol. Each chunk range, R, is of the format l,s where l is the starting line number and s is the number of lines the change hunk applies to for each respective file. In many versions of GNU diff, R can omit the comma and trailing value s, in which case s defaults to 1. Note that the only really interesting value is the l line number of the first range; all the other values can be computed from the diff.
+The chunk range for the original should be the sum of all contextual and deletion (including changed) chunk lines. The chunk range for the new file should be a sum of all contextual and addition (including changed) chunk lines. If chunk size information does not correspond with the number of lines in the hunk, then the diff could be considered invalid and be rejected.
+If a line is modified, it is represented as a deletion and addition. Since the hunks of the original and new file appear in the same hunk, such changes would appear adjacent to one another.[7] An occurrence of this in the example below is:
+
+-check this dokument. On
++check this document. On
+
+The command diff -u original new produces the following output:
+
+--- original timestamp
++++ new      timestamp
+@@ -1,3 +1,9 @@
++This is an important
++notice! It should
++therefore be located at
++the beginning of this
++document!
++
+ This part of the
+ document has stayed the
+ same from version to
+@@ -5,16 +11,10 @@
+ be shown if it doesn't
+ change.  Otherwise, that
+ would not be helping to
+-compress the size of the
+-changes.
+-
+-This paragraph contains
+-text that is outdated.
+-It will be deleted in the
+-near future.
++compress anything.
+ 
+ It is important to spell
+-check this dokument. On
++check this document. On
+ the other hand, a
+ misspelled word isn't
+ the end of the world.
+@@ -22,3 +22,7 @@
+ this paragraph needs to
+ be changed. Things can
+ be added after it.
++
++This paragraph contains
++important new additions
++to this document.
+
+There are some modifications and extensions to the diff formats that are used and understood by certain programs and in certain contexts. For example, some revision control systems -- such as Subversion -- specify a version number, "working copy", or any other comment instead of a timestamp in the diff's header section. Some tools allow diffs for several different files to be merged into one, using a header for each modified file that may look something like this:
+
+Index: path/to/file.cpp
+===================================================================
+
+As a special case, unified diff expects to work with files that end in a newline. If either file does not, unified diff will emit the special line
+
+\ No newline at end of file
+
+after the modifications. The patch program should be aware of this.
+
+[edit] Others
+Postprocessors sdiff and diffmk render side-by-side diff listings and applied change marks to printed documents, respectively. Both were developed elsewhere in Bell Labs in or before 1981.
+Diff3 compares one file against two other files. It was originally developed by Paul Jensen to reconcile changes made by two persons editing a common source. It is also used internally by many revision control systems.
+GNU diff and diff3 are included in the diffutils package with other diff and patch related utilities. Emacs has Ediff for showing the changes a patch would provide in a user interface that combines interactive editing and merging capabilities for patch files.
+Wdiff makes it easy to see the words or phrases that changed in a text document, especially in the presence of word-wrapping or different column widths. Spiff goes yet further, ignoring floating point differences under a tunable precision and ignoring irrelevancies in program files such as whitespace and comment formatting. Daisy Diff diffs HTML documents and reconstructs the layout and style information. A number of tools for XML diffing and patching have been published, too, for instance by Microsoft and IBM's alphaworks.
+
+[edit] See also
+
+Free file comparison tools
+
+cmp
+comm
+diff3
+Kompare
+Meld (software)
+rsync
+tkdiff
+WinMerge
+
+
+Comparison of file comparison tools
+Delta encoding
+Difference operator
+History of software configuration management
+Levenshtein distance
+Longest common subsequence problem
+Microsoft File Compare
+Revision Control System
+Software configuration management
+List of Unix programs
+
+
+[edit] References
+
+
+^ MacKenzie et al. "Binary Files and Forcing Text Comparison" in Comparing and Merging Files with GNU Diff and Patch. Downloaded 28 April 2007. [1]
+^ James W. Hunt and M. Douglas McIlroy (June 1976). "An Algorithm for Differential File Comparison". Computing Science Technical Report, Bell Laboratories 41. 
+^ David MacKenzie, Paul Eggert, and Richard Stallman (1997). Comparing and Merging Files with GNU Diff and Patch. Bristol: Network Theory. ISBN 0-9541617-5-0. 
+^ E. Myers (1986). "An O(ND) Difference Algorithm and Its Variations". Algorithmica 1 (2): 251–266. 
+^ Webb Miller and Eugene W. Myers (1985). "A File Comparison Program". Software — Practice and Experience 15 (11): 1025–1040. doi:10.1002/spe.4380151102. 
+^ E. Ukkonen (1985). "Algorithms for Approximate String Matching". Information and Control 64: 100–118. doi:10.1016/S0019-9958(85)80046-2. 
+^ Unified Diff Format by Guido van Rossum, June 14, 2006
+
+
+
+
+Paul Heckel (April 1978). "A technique for isolating differences between files". Communications of the ACM 21 (4): 264–268. doi:10.1145/359460.359467. [2]
+A generic implementation of the Myers SES/LCS algorithm with the Hirschberg linear space refinement (C source code)
+
+
+
+[edit] External links
+
+Altova DiffDog - Diff/merge tool for files, directories, and databases.
+GNU Diff utilities. Made available by the Free Software Foundation. Free Documentation. Free source code.
+KDIFF3 - Another GUI Diff-like tool
+DiffUtils for Windows – part of GnuWin32
+Online interface to the diff program
+Algorithm::Diff – A diff library implemented in Perl
+java-diff – A diff library implemented in Java
+JavaScript diff algorithms: jsdiff, XinDiff, google-diff-match-patch, Cacycle diff
+diff algorithm in C# – Source code of the "An O(ND) Difference Algorithm and its Variations" in C#
+DaisyDiff – HTML differ
+Winmerge - GUI Diff-like tool
+Adobe Flex Diff - Diff app implemented in Adobe Flex
+Meld - Gnome GUI Diff tool
+
+
+
+
+
+
+
+
+v • d • e
+
+Unix command line programs and builtins (more)
+
+
+
+
+
+File system
+
+cat · cd · chmod · chown · chgrp · cksum · cmp · cp · du · df · file · fsck · fuser · ln · ls · lsattr · lsof · mkdir · mount · mv · pwd · rm · rmdir · split · touch
+
+
+
+
+
+
+Processes
+
+at · chroot · cron · exit · kill · killall · nice · pgrep · pidof · pkill · ps · pstree · sleep · time · top · wait
+
+
+
+
+
+
+User environment
+
+env · finger · id · logname · mesg · passwd · su · sudo · uname · uptime · w · wall · who · whoami · write
+
+
+
+
+
+
+Text processing
+
+awk · comm · cut · ed · ex · fmt · head · iconv · join · less · more · paste · sed · sort · tac · tail · tr · uniq · vi · wc · xargs
+
+
+
+
+
+
+Shell programming
+
+alias · basename · dirname · echo · expr · false · printf · test · true · unset
+
+
+
+
+
+
+Networking
+
+inetd · netstat · ping · rlogin · netcat · traceroute
+
+
+
+
+
+
+Searching
+
+find · grep · strings
+
+
+
+
+
+
+Miscellaneous
+
+banner · bc · cal · clear · date · dd · lp · man · size · tee · tput · yes · umask
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Diff"
+Categories: 1974 software | Unix software | Free file comparison tools | Formal languages | Pattern matching 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Česky
+Dansk
+Deutsch
+Ελληνικά
+Español
+Français
+Italiano
+Magyar
+日本語
+Polski
+Português
+Русский
+Suomi
+Svenska
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 30 March 2009, at 19:24.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Mutual exclusion,Algorithm,Atomic operation,Busy-wait,Compare-and-swap,Concurrency control,Concurrent programming,Context switch,Critical section,Daniel Robbins,Data structure" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Mutual_exclusion&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Mutual_exclusion&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Mutual exclusion - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Mutual_exclusion";
+		var wgTitle = "Mutual exclusion";
+		var wgAction = "view";
+		var wgArticleId = "36827";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279263523;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Mutual_exclusion skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Mutual exclusion</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p><b>Mutual exclusion</b> (often abbreviated to <b>mutex</b>) <a href="/wiki/Algorithm" title="Algorithm">algorithms</a> are used in <a href="/wiki/Concurrent_programming" title="Concurrent programming" class="mw-redirect">concurrent programming</a> to avoid the simultaneous use of a common resource, such as a <a href="/wiki/Global_variable" title="Global variable">global variable</a>, by pieces of computer code called <a href="/wiki/Critical_section" title="Critical section">critical sections</a>.</p>
+<p>Examples of such resources are fine-grained <a href="/wiki/Flag_(computing)" title="Flag (computing)">flags</a>, counters or <a href="/wiki/Queue_(data_structure)" title="Queue (data structure)">queues</a>, used to communicate between code that runs concurrently, such as an application and its <a href="/wiki/Interrupt_handler" title="Interrupt handler">interrupt handlers</a>. The problem is acute because a <a href="/wiki/Thread_(computer_science)" title="Thread (computer science)">thread</a> can be stopped or started at any time.</p>
+<p>To illustrate: suppose a section of code is altering a piece of data over several program steps, when another thread, perhaps triggered by some unpredictable event, starts executing. If this second thread reads from the same piece of data, the data, which is in the process of being overwritten, is in an inconsistent and unpredictable state. If the second thread tries overwriting that data, the ensuing state will probably be unrecoverable. These <a href="/wiki/Critical_section" title="Critical section">critical sections</a> of code accessing shared data must therefore be protected, so that other processes which read from or write to the chunk of data are excluded from running.</p>
+<p>A <b>mutex</b> is also a common name for a program object that negotiates mutual exclusion among threads, also called a <a href="/wiki/Lock_(computer_science)" title="Lock (computer science)">lock</a>.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Enforcing_mutual_exclusion"><span class="tocnumber">1</span> <span class="toctext">Enforcing mutual exclusion</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Hardware_solutions"><span class="tocnumber">1.1</span> <span class="toctext">Hardware solutions</span></a></li>
+<li class="toclevel-2"><a href="#Software_solutions"><span class="tocnumber">1.2</span> <span class="toctext">Software solutions</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Further_reading"><span class="tocnumber">2</span> <span class="toctext">Further reading</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">3</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">4</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Enforcing_mutual_exclusion" id="Enforcing_mutual_exclusion"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Mutual_exclusion&amp;action=edit&amp;section=1" title="Edit section: Enforcing mutual exclusion">edit</a>]</span> <span class="mw-headline">Enforcing mutual exclusion</span></h2>
+<p>There exist both software and hardware solutions for enforcing mutual exclusion. The different solutions are presented below.</p>
+<p><a name="Hardware_solutions" id="Hardware_solutions"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Mutual_exclusion&amp;action=edit&amp;section=2" title="Edit section: Hardware solutions">edit</a>]</span> <span class="mw-headline">Hardware solutions</span></h3>
+<p>On a <a href="/wiki/Uniprocessor" title="Uniprocessor" class="mw-redirect">uniprocessor</a> system the common way to achieve mutual exclusion is to disable <a href="/wiki/Interrupt" title="Interrupt">interrupts</a> for the smallest possible number of instructions that will prevent corruption of the shared data structure, the <a href="/wiki/Critical_section" title="Critical section">critical section</a>. This prevents interrupt code from running in the critical section.</p>
+<p>In a computer in which several processors share memory, an indivisible <a href="/wiki/Test-and-set" title="Test-and-set">test-and-set</a> of a <a href="/wiki/Flag_(computing)" title="Flag (computing)">flag</a> is used in a tight loop to wait until the other processor clears the flag. The test-and-set performs both operations without releasing the memory bus to another processor. When the code leaves the critical section, it clears the flag. This is called a "<a href="/wiki/Spinlock" title="Spinlock">spinlock</a>" or "<a href="/wiki/Busy-wait" title="Busy-wait" class="mw-redirect">busy-wait</a>."</p>
+<p>Similar <a href="/wiki/Atomic_operation" title="Atomic operation">atomic</a> multiple-operation instructions, e.g., <a href="/wiki/Compare-and-swap" title="Compare-and-swap">compare-and-swap</a>, are commonly used for <a href="/wiki/Lock-free_and_wait-free_algorithms" title="Lock-free and wait-free algorithms" class="mw-redirect">lock-free</a> manipulation of the <a href="/wiki/Linked_list" title="Linked list">linked lists</a> and other <a href="/wiki/Data_structure" title="Data structure">data structures</a>.</p>
+<p><a name="Software_solutions" id="Software_solutions"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Mutual_exclusion&amp;action=edit&amp;section=3" title="Edit section: Software solutions">edit</a>]</span> <span class="mw-headline">Software solutions</span></h3>
+<p>Beside the hardware supported solution, some software solutions exist that use "<a href="/wiki/Busy-wait" title="Busy-wait" class="mw-redirect">busy-wait</a>" to achieve the goal. Examples of these include:</p>
+<ul>
+<li><a href="/wiki/Dekker%27s_algorithm" title="Dekker's algorithm">Dekker's algorithm</a></li>
+<li><a href="/wiki/Peterson%27s_algorithm" title="Peterson's algorithm">Peterson's algorithm</a></li>
+<li><a href="/wiki/Lamport%27s_bakery_algorithm" title="Lamport's bakery algorithm">Lamport's bakery algorithm</a></li>
+<li><a href="/w/index.php?title=The_black-white_bakery_algorithm&amp;action=edit&amp;redlink=1" class="new" title="The black-white bakery algorithm (page does not exist)">The black-white bakery algorithm</a></li>
+<li><a href="/wiki/Semaphore_(programming)" title="Semaphore (programming)">Semaphores</a></li>
+<li><a href="/wiki/Monitor_(synchronization)" title="Monitor (synchronization)">Monitors</a></li>
+<li><a href="/wiki/Message_passing" title="Message passing">Message passing</a></li>
+<li><a href="/wiki/Tuple_space" title="Tuple space">Tuple space</a></li>
+</ul>
+<p>Most classical mutual exclusion methods attempt to reduce <a href="/wiki/Latency_(engineering)" title="Latency (engineering)">latency</a> and busy-waits by using queuing and <a href="/wiki/Context_switch" title="Context switch">context switches</a>.</p>
+<p>Many forms of mutual exclusion have side-effects. For example, classic <a href="/wiki/Semaphore_(programming)" title="Semaphore (programming)">semaphores</a> permit <a href="/wiki/Deadlock" title="Deadlock">deadlocks</a>, in which one process gets a semaphore, another process gets a second semaphore, and then both wait forever for the other semaphore to be released. Other common side-effects include <a href="/wiki/Resource_starvation" title="Resource starvation">starvation</a>, in which a process never gets sufficient resources to run to completion, <a href="/wiki/Priority_inversion" title="Priority inversion">priority inversion</a> in which a higher priority thread waits for a lower-priority thread, and "high latency" in which response to interrupts is not prompt.</p>
+<p>Much research is aimed at eliminating the above effects, such as by guaranteeing <a href="/wiki/Non-blocking_synchronization" title="Non-blocking synchronization">non-blocking progress</a>. No perfect scheme is known.</p>
+<p><a name="Further_reading" id="Further_reading"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Mutual_exclusion&amp;action=edit&amp;section=4" title="Edit section: Further reading">edit</a>]</span> <span class="mw-headline">Further reading</span></h2>
+<ul>
+<li>Michel Raynal: <i>Algorithms for Mutual Exclusion</i>, MIT Press, <a href="/wiki/Special:BookSources/0262181193" class="internal">ISBN 0-262-18119-3</a></li>
+<li>Sunil R. Das, Pradip K. Srimani: <i>Distributed Mutual Exclusion Algorithms</i>, IEEE Computer Society, <a href="/wiki/Special:BookSources/0818633808" class="internal">ISBN 0-8186-3380-8</a></li>
+<li>Thomas W. Christopher, George K. Thiruvathukal: <i>High-Performance Java Platform Computing</i>, Prentice Hall, <a href="/wiki/Special:BookSources/0130161640" class="internal">ISBN 0-13-016164-0</a></li>
+<li>Gadi Taubenfeld, <i>Synchronization Algorithms and Concurrent Programming</i>, Pearson/Prentice Hall, <a href="/wiki/Special:BookSources/0131972596" class="internal">ISBN 0-13-197259-6</a></li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Mutual_exclusion&amp;action=edit&amp;section=5" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Concurrency_control" title="Concurrency control">Concurrency control</a></li>
+<li><a href="/wiki/Mutually_exclusive" title="Mutually exclusive" class="mw-redirect">Mutually exclusive</a></li>
+<li><a href="/wiki/Semaphore_(programming)" title="Semaphore (programming)">Semaphore</a></li>
+<li><a href="/wiki/Dining_philosophers_problem" title="Dining philosophers problem">Dining philosophers problem</a></li>
+<li><a href="/wiki/Reentrant_mutex" title="Reentrant mutex">Reentrant mutex</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Mutual_exclusion&amp;action=edit&amp;section=6" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li>Article "<a href="http://www-106.ibm.com/developerworks/library/l-posix2/" class="external text" title="http://www-106.ibm.com/developerworks/library/l-posix2/" rel="nofollow">Common threads: POSIX threads explained - The little things called mutexes</a>" by <a href="/wiki/Daniel_Robbins" title="Daniel Robbins">Daniel Robbins</a></li>
+<li><a href="http://bardavid.com/mead/" class="external text" title="http://bardavid.com/mead/" rel="nofollow">Mutual exclusion algorithm discovery</a></li>
+<li><a href="http://www.cs.adelaide.edu.au/users/esser/mutual.html" class="external text" title="http://www.cs.adelaide.edu.au/users/esser/mutual.html" rel="nofollow">Mutual Exclusion Petri Net</a></li>
+<li><a href="http://www.thinkingparallel.com/2006/09/09/mutual-exclusion-with-locks-an-introduction/" class="external text" title="http://www.thinkingparallel.com/2006/09/09/mutual-exclusion-with-locks-an-introduction/" rel="nofollow">Mutual Exclusion with Locks - an Introduction</a></li>
+<li><a href="http://www.thinkingparallel.com/2006/08/21/scoped-locking-vs-critical-in-openmp-a-personal-shootout/" class="external text" title="http://www.thinkingparallel.com/2006/08/21/scoped-locking-vs-critical-in-openmp-a-personal-shootout/" rel="nofollow">Mutual exclusion variants in OpenMP</a></li>
+<li><a href="http://www.faculty.idc.ac.il/gadi/Publications.htm" class="external text" title="http://www.faculty.idc.ac.il/gadi/Publications.htm" rel="nofollow">The Black-White Bakery Algorithm</a></li>
+<li><a href="http://multicore.ning.com/" class="external text" title="http://multicore.ning.com/" rel="nofollow">Community Page</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 7/1000000
+Post-expand include size: 0/2048000 bytes
+Template argument size: 0/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:36827-0!1!0!default!!en!2 and timestamp 20090407000644 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Mutual_exclusion">http://en.wikipedia.org/wiki/Mutual_exclusion</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Concurrency_control" title="Category:Concurrency control">Concurrency control</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Mutual_exclusion" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Mutual_exclusion" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Mutual_exclusion&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Mutual_exclusion&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Mutual_exclusion" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Mutual_exclusion" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Mutual_exclusion" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Mutual_exclusion&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Mutual_exclusion&amp;oldid=279263523" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Mutual_exclusion&amp;id=279263523">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Mutex">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Exclusi%C3%B3n_mutua_(inform%C3%A1tica)">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Exclusion_mutuelle">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%EC%83%81%ED%98%B8_%EB%B0%B0%EC%A0%9C">한국어</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Mutex">Italiano</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E6%8E%92%E4%BB%96%E5%88%B6%E5%BE%A1">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Mutex">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Exclus%C3%A3o_m%C3%BAtua">Português</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%9C%D1%8C%D1%8E%D1%82%D0%B5%D0%BA%D1%81">Русский</a></li>
+				<li class="interwiki-uk"><a href="http://uk.wikipedia.org/wiki/%D0%9C%27%D1%8E%D1%82%D0%B5%D0%BA%D1%81">Українська</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 24 March 2009, at 00:00 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv219 in 0.040 secs. --></body></html>

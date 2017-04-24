@@ -1,0 +1,540 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dragon curve - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Dragon_curve";
+		var wgTitle = "Dragon curve";
+		var wgAction = "view";
+		var wgArticleId = "367064";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279283413;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Dragon curve
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+A dragon curve is the generic name for any member of a family of self similar fractal curves, which can be approximated by recursive methods such as Lindenmayer systems.
+
+
+
+
+Contents
+
+
+1 Heighway dragon
+
+1.1 Construction
+1.2 [Un]Folding the Dragon
+
+1.2.1 Gray code method
+
+
+1.3 Dimensions
+1.4 Tiling
+
+
+2 Twindragon
+3 Terdragon
+4 Lévy dragon
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Heighway dragon
+
+
+
+
+Heighway dragon curve
+
+
+The Heighway dragon (also known as the Harter-Heighway dragon or the Jurassic Park dragon) was first investigated by NASA physicists John Heighway, Bruce Banks, and William Harter. It was described by Martin Gardner in his Scientific American column Mathematical Games in 1967. Many of its properties were first published by Chandler Davis and Donald Knuth. It appeared on the section title pages of the Michael Crichton novel Jurassic Park.
+
+[edit] Construction
+It can be written as a Lindenmayer system with
+
+angle 90°
+initial string FX
+string rewriting rules
+
+X  X+YF+
+Y  -FX-Y
+
+
+
+That can be described this way : Starting from a base segment, replace each segment by 2 segments with a right angle and with a rotation of 45° alternatively to the right and to the left:
+
+
+The Heighway dragon is also the limit set of the following iterated function system in the complex plane:
+
+
+.
+
+
+[edit] [Un]Folding the Dragon
+Tracing an iteration of the Heighway dragon curve from one end to the other, one encounters a series of 90 degree turns, some to the right and some to the left. For the first few iterations the sequence of right (R) and left (L) turns is as follows:
+
+1st iteration: R
+2nd iteration: R R L
+3rd iteration: R R L R R L L
+4th iteration: R R L R R L L R R R L L R L L
+
+This suggests the following pattern: each iteration is formed by taking the previous iteration, adding an R at the end, and then taking the original iteration again, flipping it, switching each letter and adding the result after the R.
+This pattern in turn suggests the following method of creating models of iterations of the Heighway dragon curve by folding a strip of paper. Take a strip of paper and fold it in half to the right. Fold it in half again to the right. If the strip was opened out now, unbending each fold to become a 90 degree turn, the turn sequence would be RRL i.e. the second iteration of the Heighway dragon. Fold the strip in half again to the right, and the turn sequence of the unfolded strip is now RRLRRLL - the third iteration of the Heighway dragon. Continuing folding the strip in half to the right to create further iterations of the Heighway dragon (in practice, the strip becomes too thick to fold sharply after four or five iterations).
+
+This pattern also gives a method for determining the direction of the nth turn in the turn sequence of a Heighway dragon iteration. First, express n in the form k2m where k is an odd number. The direction of the nth turn is determined by k mod 4 i.e. the remainder left when k is divided by 4. If k mod 4 is 1 then the nth turn is R; if k mod 4 is 3 then the nth turn is L.
+For example, to determine the direction of turn 76376:
+
+76376 = 9547 x 8.
+9547 = 2386x4 + 3
+so 9547 mod 4 = 3
+so turn 76376 is L
+
+There is a simple one line non-recursive method of implementing the above k mod 4 method of finding the turn direction in code. Treating turn n as a binary number, calculate the following boolean value:
+
+bool turn = (((n & -n) << 1) & n) != 0;
+
+
+"n & -n" leaves you with only one bit as a '1', the rightmost '1' in the binary expansion of n;
+"<< 1" shifts the that bit one bit to the left;
+"& n" leaves you with either that single bit (if k mod 4 = 3) or a zero (if k mod 4 = 1).
+so "bool turn = (((n & -n) << 1) & n) != 0" is TRUE if the nth turn is L; and is FALSE if the nth turn is R.
+
+
+[edit] Gray code method
+Another way of handling this is a reduction for the above algorithm. Using Gray code, starting from zero, determine the change to the next value. If the change is a 1 turn left, and if it is 0 turn right. Given a binary input, B, the corresponding gray code, G, is given by "G = B XOR (B>>1)". Using Gi and Gi-1, turn equals "(Not Gi) AND Gi-1".
+
+G = B^(B>>1); This gets gray code from binary.
+T = (~G0)&G1; If T is equal to 0 turn clock wise else turn counter clock wise.
+
+
+[edit] Dimensions
+
+In spite of its strange aspect, the Heighway dragon curve has simple dimensions:
+
+
+
+Its surface is also quite simple : If the initial segment equals 1, then its surface equals . This result comes from its paving properties.
+Its boundary has an infinite length, since it increases by a factor of  every iteration. [1]
+The curve never crosses itself.
+Many self-similarities can be seen in the Heighway dragon curve. The most obvious is the repetition of the same pattern tilted by 45° and with a reduction ratio of .
+
+
+
+Its fractal dimension can be calculated : . That makes it a space-filling curve.
+
+
+The fractal dimension of its boundary has been approximated numerically by Chang & Zhang[2].
+
+In fact it can be found analytically [3]: 
+
+[edit] Tiling
+The dragon curve can tile the plane in many ways.
+
+
+
+
+
+
+
+
+
+1st element with 4 curves
+
+
+
+
+
+
+
+
+
+2nd element with 4 curves
+
+
+
+
+
+
+
+
+
+3rd element with 4 curves
+
+
+
+
+
+
+
+
+
+The dragon curve can tile itself
+
+
+
+
+
+
+
+
+
+
+
+1st element with 2 curves
+
+
+
+
+
+
+
+
+
+2nd element with 2 curves (twindragon)
+
+
+
+
+
+
+
+
+
+3rd element with 2 curves
+
+
+
+
+
+
+
+
+
+Example of plane tiling
+
+
+
+
+
+
+
+
+
+
+
+Example of plane tiling
+
+
+
+
+
+
+
+
+
+Example of plane tiling
+
+
+
+
+
+
+
+
+
+Dragon curves of increasing sizes (ratio sqrt(2)) form an infinite spiral. 4 of these spirals (with rotation 90°) tile the plane.
+
+
+
+
+
+
+
+[edit] Twindragon
+The twindragon (also known as the Davis-Knuth dragon) can be constructed by placing two Heighway dragon curves back-to-back. It is the limit set of the following iterated function system:
+
+
+.
+
+
+
+
+
+
+
+
+Twindragon curve.
+
+
+
+
+
+
+
+
+Twindragon curve constructed from two Heighway dragons.
+
+
+
+
+
+
+[edit] Terdragon
+
+
+
+
+Terdragon curve.
+
+
+The terdragon can be written as a Lindenmayer system:
+
+angle 120°
+initial string F
+string rewriting rules
+
+F  F+F-F
+
+
+
+It is the limit set of the following iterated function system:
+
+f1(z) = λz
+
+f3(z) = λz + λ *
+.
+
+
+[edit] Lévy dragon
+The Lévy C curve is sometimes known as the Lévy dragon.
+
+
+
+
+
+
+
+Lévy C curve.
+
+
+
+
+
+
+[edit] See also
+
+Fractal
+List of fractals by Hausdorff dimension
+Complex base systems
+Regular paperfolding sequence
+
+
+[edit] References
+
+^ http://library.thinkquest.org/26242/full/fm/fm8.html
+^ Fractal dimension of the boundary of the dragon fractal
+^ "The Boundary of Periodic Iterated Function Systems" by Jarek Duda, The Wolfram Demonstrations Project. Recurrent construction of the boundary of dragon curve.
+
+
+[edit] External links
+
+
+
+Wikimedia Commons has media related to: Dragon curve
+
+
+
+Dragon Curve—from MathWorld
+Paperfolding and the Dragon curve
+Dragon Curve Maker in Flash
+Tile made by David Chow
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Dragon_curve"
+Categories: Fractal curves 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Hrvatski
+Polski
+Svenska
+Русский
+ไทย
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 24 March 2009, at 01:50.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

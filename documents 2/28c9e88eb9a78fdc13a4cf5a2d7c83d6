@@ -1,0 +1,894 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Paxos algorithm,Bigtable,Commutative,Consensus (computer science),Digital object identifier,IBM SAN Volume Controller,Larry Stockmeyer,Leslie Lamport,Nancy Lynch,State machine,State machine replication" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Paxos_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Paxos_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Paxos algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Paxos_algorithm";
+		var wgTitle = "Paxos algorithm";
+		var wgAction = "view";
+		var wgArticleId = "5722488";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 287309465;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Paxos_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Paxos algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p><b>Paxos</b> is a family of protocols for solving <a href="/wiki/Consensus_(computer_science)" title="Consensus (computer science)">consensus</a> in a network of unreliable processors. <b>Consensus</b> is the process of agreeing on one result among a group of participants. This problem becomes difficult when the participants or their communication medium may experience failures.<sup id="cite_ref-agree_0-0" class="reference"><a href="#cite_note-agree-0" title=""><span>[</span>1<span>]</span></a></sup></p>
+<p>Consensus protocols are the basis for the <a href="/wiki/State_machine_replication" title="State machine replication">state machine approach</a> to distributed computing, as suggested by <a href="/wiki/Leslie_Lamport" title="Leslie Lamport">Leslie Lamport</a><sup id="cite_ref-clocks_1-0" class="reference"><a href="#cite_note-clocks-1" title=""><span>[</span>2<span>]</span></a></sup> and surveyed by Fred Schneider.<sup id="cite_ref-agree_0-1" class="reference"><a href="#cite_note-agree-0" title=""><span>[</span>1<span>]</span></a></sup></p>
+<p>The Paxos protocol was described and named in 1990, though it was published only in 1998.<sup id="cite_ref-paxos_2-0" class="reference"><a href="#cite_note-paxos-2" title=""><span>[</span>3<span>]</span></a></sup> Earlier, <a href="/wiki/Nancy_Lynch" title="Nancy Lynch">Lynch</a>, <a href="/w/index.php?title=Cynthia_Dwork&amp;action=edit&amp;redlink=1" class="new" title="Cynthia Dwork (page does not exist)">Dwork</a> and <a href="/wiki/Larry_Stockmeyer" title="Larry Stockmeyer">Stockmeyer</a> had <a href="http://groups.csail.mit.edu/tds/papers/Lynch/jacm88.pdf" class="external text" title="http://groups.csail.mit.edu/tds/papers/Lynch/jacm88.pdf" rel="nofollow">demonstrated</a> the solvability of consensus in a broad family of "partially synchronous" systems.</p>
+<p>The <b>state machine approach</b> is a technique for converting an algorithm into a fault-tolerant, distributed implementation. Ad-hoc techniques may leave important cases of failures unresolved. The principled approach proposed by Lamport et al. ensures all cases are handled safely.</p>
+<p>The Paxos family of protocols includes a spectrum of trade-offs between the number of processors, number of message delays before learning the agreed value, the activity level of individual participants, number of messages sent, and types of failures. The convergent property of the Paxos family is their safety from inconsistency.<sup id="cite_ref-paxos_2-1" class="reference"><a href="#cite_note-paxos-2" title=""><span>[</span>3<span>]</span></a></sup><sup id="cite_ref-cheap_3-0" class="reference"><a href="#cite_note-cheap-3" title=""><span>[</span>4<span>]</span></a></sup><sup id="cite_ref-fast_4-0" class="reference"><a href="#cite_note-fast-4" title=""><span>[</span>5<span>]</span></a></sup><sup id="cite_ref-general_5-0" class="reference"><a href="#cite_note-general-5" title=""><span>[</span>6<span>]</span></a></sup><sup id="cite_ref-byzantine_6-0" class="reference"><a href="#cite_note-byzantine-6" title=""><span>[</span>7<span>]</span></a></sup></p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Safety_and_liveness_properties"><span class="tocnumber">1</span> <span class="toctext">Safety and liveness properties</span></a></li>
+<li class="toclevel-1"><a href="#Preliminaries"><span class="tocnumber">2</span> <span class="toctext">Preliminaries</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Processors"><span class="tocnumber">2.1</span> <span class="toctext">Processors</span></a></li>
+<li class="toclevel-2"><a href="#Network"><span class="tocnumber">2.2</span> <span class="toctext">Network</span></a></li>
+<li class="toclevel-2"><a href="#Number_of_processors"><span class="tocnumber">2.3</span> <span class="toctext">Number of processors</span></a></li>
+<li class="toclevel-2"><a href="#Roles"><span class="tocnumber">2.4</span> <span class="toctext">Roles</span></a></li>
+<li class="toclevel-2"><a href="#Quorums"><span class="tocnumber">2.5</span> <span class="toctext">Quorums</span></a></li>
+<li class="toclevel-2"><a href="#Choice"><span class="tocnumber">2.6</span> <span class="toctext">Choice</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Typical_deployment"><span class="tocnumber">3</span> <span class="toctext">Typical deployment</span></a></li>
+<li class="toclevel-1"><a href="#Basic_Paxos"><span class="tocnumber">4</span> <span class="toctext">Basic Paxos</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Phase_1a:_Prepare"><span class="tocnumber">4.1</span> <span class="toctext">Phase 1a: Prepare</span></a></li>
+<li class="toclevel-2"><a href="#Phase_1b:_Promise"><span class="tocnumber">4.2</span> <span class="toctext">Phase 1b: Promise</span></a></li>
+<li class="toclevel-2"><a href="#Phase_2a:_Accept.21"><span class="tocnumber">4.3</span> <span class="toctext">Phase 2a: Accept!</span></a></li>
+<li class="toclevel-2"><a href="#Phase_2b:_Accepted"><span class="tocnumber">4.4</span> <span class="toctext">Phase 2b: Accepted</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Basic_Paxos"><span class="tocnumber">4.5</span> <span class="toctext">Message flow: Basic Paxos</span></a></li>
+<li class="toclevel-2"><a href="#Error_cases_in_basic_Paxos"><span class="tocnumber">4.6</span> <span class="toctext">Error cases in basic Paxos</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Basic_Paxos.2C_failure_of_Acceptor"><span class="tocnumber">4.7</span> <span class="toctext">Message flow: Basic Paxos, failure of Acceptor</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Basic_Paxos.2C_failure_of_redundant_Learner"><span class="tocnumber">4.8</span> <span class="toctext">Message flow: Basic Paxos, failure of redundant Learner</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Basic_Paxos.2C_failure_of_Proposer"><span class="tocnumber">4.9</span> <span class="toctext">Message flow: Basic Paxos, failure of Proposer</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Basic_Paxos.2C_dueling_Proposers"><span class="tocnumber">4.10</span> <span class="toctext">Message flow: Basic Paxos, dueling Proposers</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Multi-Paxos"><span class="tocnumber">5</span> <span class="toctext">Multi-Paxos</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Message_flow:_Multi-Paxos.2C_start"><span class="tocnumber">5.1</span> <span class="toctext">Message flow: Multi-Paxos, start</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Multi-Paxos.2C_steady-state"><span class="tocnumber">5.2</span> <span class="toctext">Message flow: Multi-Paxos, steady-state</span></a></li>
+<li class="toclevel-2"><a href="#Typical_Multi-Paxos_deployment"><span class="tocnumber">5.3</span> <span class="toctext">Typical Multi-Paxos deployment</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Collapsed_Multi-Paxos.2C_start"><span class="tocnumber">5.4</span> <span class="toctext">Message flow: Collapsed Multi-Paxos, start</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Collapsed_Multi-Paxos.2C_steady_state"><span class="tocnumber">5.5</span> <span class="toctext">Message flow: Collapsed Multi-Paxos, steady state</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Optimizations"><span class="tocnumber">6</span> <span class="toctext">Optimizations</span></a></li>
+<li class="toclevel-1"><a href="#Cheap_Paxos"><span class="tocnumber">7</span> <span class="toctext">Cheap Paxos</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Message_flow:_Cheap_Multi-Paxos"><span class="tocnumber">7.1</span> <span class="toctext">Message flow: Cheap Multi-Paxos</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Fast_Paxos"><span class="tocnumber">8</span> <span class="toctext">Fast Paxos</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Message_flow:_Fast_Paxos.2C_non-conflicting"><span class="tocnumber">8.1</span> <span class="toctext">Message flow: Fast Paxos, non-conflicting</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Fast_Paxos.2C_conflicting_proposals"><span class="tocnumber">8.2</span> <span class="toctext">Message flow: Fast Paxos, conflicting proposals</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Fast_Paxos.2C_collapsed_roles"><span class="tocnumber">8.3</span> <span class="toctext">Message flow: Fast Paxos, collapsed roles</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Generalized_Paxos"><span class="tocnumber">9</span> <span class="toctext">Generalized Paxos</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Example"><span class="tocnumber">9.1</span> <span class="toctext">Example</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Generalized_Paxos_.28example.29"><span class="tocnumber">9.2</span> <span class="toctext">Message flow: Generalized Paxos (example)</span></a></li>
+<li class="toclevel-2"><a href="#Generalized_Paxos_vs._Fast_Multi-Paxos"><span class="tocnumber">9.3</span> <span class="toctext">Generalized Paxos vs. Fast Multi-Paxos</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Byzantine_Paxos"><span class="tocnumber">10</span> <span class="toctext">Byzantine Paxos</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Message_flow:_Byzantine_Multi-Paxos.2C_steady_state"><span class="tocnumber">10.1</span> <span class="toctext">Message flow: Byzantine Multi-Paxos, steady state</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Fast_Byzantine_Multi-Paxos.2C_steady_state"><span class="tocnumber">10.2</span> <span class="toctext">Message flow: Fast Byzantine Multi-Paxos, steady state</span></a></li>
+<li class="toclevel-2"><a href="#Message_flow:_Fast_Byzantine_Multi-Paxos.2C_failure"><span class="tocnumber">10.3</span> <span class="toctext">Message flow: Fast Byzantine Multi-Paxos, failure</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Production_use_of_Paxos"><span class="tocnumber">11</span> <span class="toctext">Production use of Paxos</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">12</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">13</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">14</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Safety_and_liveness_properties" id="Safety_and_liveness_properties"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=1" title="Edit section: Safety and liveness properties">edit</a>]</span> <span class="mw-headline">Safety and liveness properties</span></h2>
+<p>In order to guarantee safety, Paxos defines three safety properties and ensures they are always held, regardless of the pattern of failures:</p>
+<dl>
+<dt>Non-triviality</dt>
+<dd>Only proposed values can be learned.<sup id="cite_ref-fast_4-1" class="reference"><a href="#cite_note-fast-4" title=""><span>[</span>5<span>]</span></a></sup></dd>
+<dt>Consistency</dt>
+<dd>At most one value can be learned (i.e., two different learners cannot learn different values).<sup id="cite_ref-fast_4-2" class="reference"><a href="#cite_note-fast-4" title=""><span>[</span>5<span>]</span></a></sup><sup id="cite_ref-general_5-1" class="reference"><a href="#cite_note-general-5" title=""><span>[</span>6<span>]</span></a></sup></dd>
+<dt>Liveness(C;L)</dt>
+<dd>If value C has been proposed, then eventually learner L will learn some value (if sufficient processors remain non-faulty).<sup id="cite_ref-general_5-2" class="reference"><a href="#cite_note-general-5" title=""><span>[</span>6<span>]</span></a></sup></dd>
+</dl>
+<p><a name="Preliminaries" id="Preliminaries"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=2" title="Edit section: Preliminaries">edit</a>]</span> <span class="mw-headline">Preliminaries</span></h2>
+<p>In order to simplify the presentation of Paxos, the following assumptions and definitions are made explicit. Techniques to broaden the applicability are known in the literature, and are not covered in this article; please see references for further reading.</p>
+<p><a name="Processors" id="Processors"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=3" title="Edit section: Processors">edit</a>]</span> <span class="mw-headline">Processors</span></h3>
+<ul>
+<li>Processors operate at arbitrary speed.</li>
+<li>Processors may experience failures.</li>
+<li>Processors with stable storage may re-join the protocol after failures.</li>
+<li>Processors do not collude, lie, or otherwise attempt to divert the protocol. (See <a href="#Byzantine_Paxos" title="">Byzantine Paxos</a> for a solution which tolerates arbitrary failures)</li>
+</ul>
+<p><a name="Network" id="Network"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=4" title="Edit section: Network">edit</a>]</span> <span class="mw-headline">Network</span></h3>
+<ul>
+<li>Processors can send messages to any other processor.</li>
+<li>Messages are sent asynchronously and may take arbitrarily long to deliver.</li>
+<li>Messages may be lost, reordered, or duplicated.</li>
+<li>Messages are delivered without corruption. (See <a href="#Byzantine_Paxos" title="">Byzantine Paxos</a> for a solution which tolerates arbitrary failures)</li>
+</ul>
+<p><a name="Number_of_processors" id="Number_of_processors"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=5" title="Edit section: Number of processors">edit</a>]</span> <span class="mw-headline">Number of processors</span></h3>
+<p>In general, a consensus algorithm can make progress using 2F+1 processors despite the simultaneous failure of any F processors.<sup id="cite_ref-consensus_7-0" class="reference"><a href="#cite_note-consensus-7" title=""><span>[</span>8<span>]</span></a></sup> However, using reconfiguration, a protocol may be employed which survives more total failures if they do not occur too rapidly:</p>
+<dl>
+<dd><small>"For example, it takes seven servers to tolerate three [ed: simultaneous] failures. In many systems, the best way to achieve the desired degree of fault tolerance is to reconfigure the system to replace failed servers by spares. With reconfiguration, a system that uses three active servers and two spares can tolerate a total of three failures, if a failed server can be replaced by a spare before another failure occurs. Reconfiguration therefore allows fewer processors to tolerate the same total number of failures, though not the same number of simultaneous failures. (In most systems, simultaneous failures are much less likely than successive ones.)"</small><sup id="cite_ref-cheap_3-1" class="reference"><a href="#cite_note-cheap-3" title=""><span>[</span>4<span>]</span></a></sup></dd>
+</dl>
+<p><a name="Roles" id="Roles"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=6" title="Edit section: Roles">edit</a>]</span> <span class="mw-headline">Roles</span></h3>
+<p>Paxos describes the actions of the processes by their roles in the protocol: client, acceptor, proposer, learner, and leader. In typical implementations, a single processor may play one or more roles at the same time. This does not affect the correctness of the protocol—it is usual to coalesce roles to improve the latency and/or number of messages in the protocol.</p>
+<dl>
+<dt>Client</dt>
+<dd>The Client issues a <i>request</i> to the distributed system, and waits for a <i>response</i>. For instance, a write request on a file in a distributed file server.</dd>
+</dl>
+<dl>
+<dt>Acceptor</dt>
+<dd>The Acceptors act as the fault-tolerant "memory" of the protocol. Acceptors are collected into groups called Quorums. Any message sent to an Acceptor must be sent to a Quorum of Acceptors, any message received from an Acceptor is ignored unless a copy is received from each Acceptor in a Quorum.</dd>
+</dl>
+<dl>
+<dt>Proposer</dt>
+<dd>A Proposer advocates a client request, attempting to convince the Acceptors to agree on it, and acting as a coordinator to move the protocol forward when conflicts occur.</dd>
+</dl>
+<dl>
+<dt>Learner</dt>
+<dd>Learners act as the replication factor for the protocol. Once a Client request has been agreed on by the Acceptors, the Learner may take action (ie: execute the request and send a response to the client). To improve availability of processing, additional Learners can be added.</dd>
+</dl>
+<dl>
+<dt>Leader</dt>
+<dd>Paxos requires a distinguished Proposer (called the leader) to make progress. Many processes may believe they are leaders, but the protocol only guarantees progress if one of them is eventually chosen. If two processes believe they are leaders, it is possible to stall the protocol by continuously proposing conflicting updates. The safety properties are preserved regardless.</dd>
+</dl>
+<p><a name="Quorums" id="Quorums"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=7" title="Edit section: Quorums">edit</a>]</span> <span class="mw-headline">Quorums</span></h3>
+<p>Quorums express the safety properties of Paxos by ensuring at least some surviving processor retains knowledge of the results.</p>
+<p>Typically, a Quorum is any majority of participating Acceptors. For example, given the set of Acceptors {A,B,C,D}, a majority Quorum would be any three Acceptors: {A,B,C}, {A,C,D}, {A,B,D}, {B,C,D}.</p>
+<p><a name="Choice" id="Choice"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=8" title="Edit section: Choice">edit</a>]</span> <span class="mw-headline">Choice</span></h3>
+<p>In Paxos, the leader sometimes has to choose among a set of conflicting values. If a set of values is in conflict, the leader must choose one of the values from the most recent round. The protocol does not specify which value must be chosen, and correctness is guaranteed regardless of the choice. However, it is possible for the choice to impede progress.</p>
+<p>A typical Choice function is to select the majority value from the highest round.</p>
+<p><a name="Typical_deployment" id="Typical_deployment"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=9" title="Edit section: Typical deployment">edit</a>]</span> <span class="mw-headline">Typical deployment</span></h2>
+<p>In most deployments of Paxos, each participating process acts in three roles; Proposer, Acceptor and Learner.<sup id="cite_ref-live_8-0" class="reference"><a href="#cite_note-live-8" title=""><span>[</span>9<span>]</span></a></sup> This reduces the message complexity significantly, without sacrificing correctness:</p>
+<dl>
+<dd>
+<dl>
+<dd><small>"In Paxos, clients send commands to a leader. During normal operation, the leader receives a client's command, assigns it a new command number i, and then begins the ith instance of the consensus algorithm by sending messages to a set of acceptor processes."</small><sup id="cite_ref-general_5-3" class="reference"><a href="#cite_note-general-5" title=""><span>[</span>6<span>]</span></a></sup></dd>
+</dl>
+</dd>
+</dl>
+<p>By merging roles the protocol "collapses" into an efficient client-master-replica style deployment typical of the database community. The benefit of the Paxos family (including implementations with merged roles) is the guarantee of its <a href="#Safety_and_liveness_properties" title="">Safety Properties</a>.</p>
+<p>A typical implementation's message flow is covered in <a href="#Typical_Multi-Paxos_Deployment" title="">Typical Multi-Paxos Deployment</a>.</p>
+<p><a name="Basic_Paxos" id="Basic_Paxos"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=10" title="Edit section: Basic Paxos">edit</a>]</span> <span class="mw-headline">Basic Paxos</span></h2>
+<p>This protocol is the most basic of the Paxos family; it is not the protocol which is typically implemented in a deployment (see <a href="#Multi-Paxos" title="">Multi-Paxos</a>).</p>
+<p>Each instance of the Basic Paxos protocol decides on a single output value. The protocol proceeds over several rounds, a successful round has two phases:</p>
+<p><a name="Phase_1a:_Prepare" id="Phase_1a:_Prepare"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=11" title="Edit section: Phase 1a: Prepare">edit</a>]</span> <span class="mw-headline">Phase 1a: <i>Prepare</i></span></h3>
+<dl>
+<dd>A <a href="#Proposer" title="">Proposer</a> (the <a href="#Leader" title="">leader</a>) selects a proposal number N and sends a <i>Prepare</i> message to a <a href="#Quorums" title="">Quorum</a> of <a href="#Acceptor" title="">Acceptors</a>.</dd>
+</dl>
+<p><a name="Phase_1b:_Promise" id="Phase_1b:_Promise"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=12" title="Edit section: Phase 1b: Promise">edit</a>]</span> <span class="mw-headline">Phase 1b: <i>Promise</i></span></h3>
+<dl>
+<dd>If the proposal number N is larger than any previous proposal, then each Acceptor promises not to accept proposals less than N, and sends the value it last accepted for this instance to the Proposer (the leader).</dd>
+</dl>
+<dl>
+<dd>Otherwise a denial is sent (<i>Nack</i>).</dd>
+</dl>
+<p><a name="Phase_2a:_Accept.21" id="Phase_2a:_Accept.21"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=13" title="Edit section: Phase 2a: Accept!">edit</a>]</span> <span class="mw-headline">Phase 2a: <i>Accept!</i></span></h3>
+<dl>
+<dd>If the Proposer receives responses from a Quorum of Acceptors, it may now <a href="#Choice" title="">Choose</a> a value to be agreed upon. If any of the Acceptors have already accepted a value, the leader must Choose a value from this set. Otherwise, the Proposer is free to choose any value.</dd>
+</dl>
+<dl>
+<dd>The Proposer sends an <i>Accept!</i> message to a Quorum of Acceptors with the Chosen value.</dd>
+</dl>
+<p><a name="Phase_2b:_Accepted" id="Phase_2b:_Accepted"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=14" title="Edit section: Phase 2b: Accepted">edit</a>]</span> <span class="mw-headline">Phase 2b: <i>Accepted</i></span></h3>
+<dl>
+<dd>If the Acceptor receives an Accept! message for a proposal it has promised, then it Accepts the value.</dd>
+</dl>
+<dl>
+<dd>Each Acceptor sends an <i>Accepted</i> message to the Proposer and every Learner.</dd>
+</dl>
+<p>Rounds fail when multiple Proposers send conflicting <i>Prepare</i> messages, or when the Proposer does not receive a Quorum of responses (<i>Promise</i> or <i>Accepted</i>). In these cases, another round must be started with a higher proposal number.</p>
+<p>Here is a graphic representation of the Basic Paxos protocol. Note that the values returned in the <i>Promise</i> message (Va, Vb, Vc) are typically null for the first round of each instance, they are shown below for completeness.</p>
+<p><a name="Message_flow:_Basic_Paxos" id="Message_flow:_Basic_Paxos"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=15" title="Edit section: Message flow: Basic Paxos">edit</a>]</span> <span class="mw-headline">Message flow: Basic Paxos</span></h3>
+<p><small>(one instance, one successful round)</small></p>
+<pre>
+ Client   Proposer      Acceptor     Learner
+   |         |          |  |  |       |  |
+   X--------&gt;|          |  |  |       |  |  Request
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Prepare(N)
+   |         |&lt;---------X--X--X       |  |  Promise(N,{Va,Vb,Vc})
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Accept!(N,Vn)
+   |         |&lt;---------X--X--X------&gt;|-&gt;|  Accepted(N,Vn)
+   |&lt;---------------------------------X--X  Response
+   |         |          |  |  |       |  |
+</pre>
+<p><a name="Error_cases_in_basic_Paxos" id="Error_cases_in_basic_Paxos"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=16" title="Edit section: Error cases in basic Paxos">edit</a>]</span> <span class="mw-headline">Error cases in basic Paxos</span></h3>
+<p>The simplest error cases are the failure of a redundant Learner, or failure of an Acceptor when a Quorum of Acceptors remains live. In these cases, the protocol requires no recovery. No additional rounds or messages are required, as shown below:</p>
+<p><a name="Message_flow:_Basic_Paxos.2C_failure_of_Acceptor" id="Message_flow:_Basic_Paxos.2C_failure_of_Acceptor"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=17" title="Edit section: Message flow: Basic Paxos, failure of Acceptor">edit</a>]</span> <span class="mw-headline">Message flow: Basic Paxos, failure of Acceptor</span></h3>
+<p><small>(Quorum size = 2 Acceptors)</small></p>
+<pre>
+ Client   Proposer      Acceptor     Learner
+   |         |          |  |  |       |  |
+   X--------&gt;|          |  |  |       |  |  Request
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Prepare(N)
+   |         |          |  |  !       |  |  !! FAIL !!
+   |         |&lt;---------X--X          |  |  Promise(N,{Va,Vb,Vc})
+   |         X---------&gt;|-&gt;|          |  |  Accept!(N,Vn)
+   |         |&lt;---------X--X---------&gt;|-&gt;|  Accepted(N,Vn)
+   |&lt;---------------------------------X--X  Response
+   |         |          |  |          |  |
+</pre>
+<p><a name="Message_flow:_Basic_Paxos.2C_failure_of_redundant_Learner" id="Message_flow:_Basic_Paxos.2C_failure_of_redundant_Learner"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=18" title="Edit section: Message flow: Basic Paxos, failure of redundant Learner">edit</a>]</span> <span class="mw-headline">Message flow: Basic Paxos, failure of redundant Learner</span></h3>
+<pre>
+ Client   Proposer      Acceptor     Learner
+   |         |          |  |  |       |  |
+   X--------&gt;|          |  |  |       |  |  Request
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Prepare(N)
+   |         |&lt;---------X--X--X       |  |  Promise(N,{Va,Vb,Vc})
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Accept!(N,Vn)
+   |         |&lt;---------X--X--X------&gt;|-&gt;|  Accepted(N,Vn)
+   |         |          |  |  |       |  !  !! FAIL !!
+   |&lt;---------------------------------X     Response
+   |         |          |  |  |       |
+</pre>
+<p>The next failure case is when a Proposer fails after proposing a value, but before agreement is reached. Ignoring Leader election, an example message flow is as follows:</p>
+<p><a name="Message_flow:_Basic_Paxos.2C_failure_of_Proposer" id="Message_flow:_Basic_Paxos.2C_failure_of_Proposer"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=19" title="Edit section: Message flow: Basic Paxos, failure of Proposer">edit</a>]</span> <span class="mw-headline">Message flow: Basic Paxos, failure of Proposer</span></h3>
+<p><small>(re-election not shown, one instance, two rounds)</small></p>
+<pre>
+Client  Leader         Acceptor     Learner
+   |      |             |  |  |       |  |
+   X-----&gt;|             |  |  |       |  |  Request
+   |      X------------&gt;|-&gt;|-&gt;|       |  |  Prepare(N)
+   |      |&lt;------------X--X--X       |  |  Promise(N,{Va,Vb,Vc})
+   |      |             |  |  |       |  |
+   |      |             |  |  |       |  |  !! Leader fails during broadcast !!
+   |      X------------&gt;|  |  |       |  |  Accept!(N,Vn)
+   |      !             |  |  |       |  |
+   |         |          |  |  |       |  |  !! NEW LEADER !!
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Prepare(N+1)
+   |         |&lt;---------X--X--X       |  |  Promise(N+1,{Vn})
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Accept!(N+1,Vn)
+   |         |&lt;---------X--X--X------&gt;|-&gt;|  Accepted(N+1,Vn)
+   |&lt;---------------------------------X--X  Response
+   |         |          |  |  |       |  |
+</pre>
+<p>The most complex case is when multiple Proposers believe themselves to be Leaders. For instance the current leader may fail and later recover, but the other Proposers have already re-elected a new leader. The recovered leader has not learned this yet and attempts to begin a round in conflict with the current leader.</p>
+<p><a name="Message_flow:_Basic_Paxos.2C_dueling_Proposers" id="Message_flow:_Basic_Paxos.2C_dueling_Proposers"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=20" title="Edit section: Message flow: Basic Paxos, dueling Proposers">edit</a>]</span> <span class="mw-headline">Message flow: Basic Paxos, dueling Proposers</span></h3>
+<p><small>(one instance, four unsuccessful rounds)</small></p>
+<pre>
+Client   Proposer      Acceptor     Learner
+   |      |             |  |  |       |  |
+   X-----&gt;|             |  |  |       |  |  Request
+   |      X------------&gt;|-&gt;|-&gt;|       |  |  Prepare(N)
+   |      |&lt;------------X--X--X       |  |  Promise(N,{Va,Vb,Vc})
+   |      !             |  |  |       |  |  !! LEADER FAILS
+   |         |          |  |  |       |  |  !! NEW LEADER (knows N)
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Prepare(N+1)
+   |         |&lt;---------X--X--X       |  |  Promise(N+1,{Va,Vb,Vc})
+   |      |  |          |  |  |       |  |  !! OLD LEADER recovers
+   |      |  |          |  |  |       |  |  !! OLD LEADER tries N+1, denied
+   |      X------------&gt;|-&gt;|-&gt;|       |  |  Prepare(N+1)
+   |      |&lt;------------X--X--X       |  |  Nack(N+1)
+   |      |  |          |  |  |       |  |  !! OLD LEADER tries N+2
+   |      X------------&gt;|-&gt;|-&gt;|       |  |  Prepare(N+2)
+   |      |&lt;------------X--X--X       |  |  Promise(N+2,{Va,Vb,Vc})
+   |      |  |          |  |  |       |  |  !! NEW LEADER proposes, denied
+   |      |  X---------&gt;|-&gt;|-&gt;|       |  |  Accept!(N+1,Vn)
+   |      |  |&lt;---------X--X--X       |  |  Nack(N+2)
+   |      |  |          |  |  |       |  |  !! NEW LEADER tries N+3
+   |      |  X---------&gt;|-&gt;|-&gt;|       |  |  Prepare(N+3)
+   |      |  |&lt;---------X--X--X       |  |  Promise(N+3,{Va,Vb,Vc})
+   |      |  |          |  |  |       |  |  !! OLD LEADER proposes, denied
+   |      X------------&gt;|-&gt;|-&gt;|       |  |  Accept!(N+2,Vn)
+   |      |&lt;------------X--X--X       |  |  Nack(N+3)
+   |      |  |          |  |  |       |  |  ... and so on ...
+</pre>
+<p><a name="Multi-Paxos" id="Multi-Paxos"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=21" title="Edit section: Multi-Paxos">edit</a>]</span> <span class="mw-headline">Multi-Paxos</span></h2>
+<p>A typical deployment of Paxos requires a continuous stream of agreed values acting as commands to a distributed state machine. If each command is the result of a single instance of the <a href="#Basic_Paxos" title="">Basic Paxos</a> protocol, a significant amount of overhead would result.</p>
+<p>If the leader is relatively stable, phase 1 becomes unnecessary. Thus, it is possible to skip phase 1 for future instances of the protocol with the same leader.</p>
+<p>To achieve this, the instance number is included along with each value. Multi-Paxos reduces the failure-free message delay (proposal to learning) from 4 delays to 2 delays.</p>
+<p><a name="Message_flow:_Multi-Paxos.2C_start" id="Message_flow:_Multi-Paxos.2C_start"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=22" title="Edit section: Message flow: Multi-Paxos, start">edit</a>]</span> <span class="mw-headline">Message flow: Multi-Paxos, start</span></h3>
+<p><small>( first instance with new leader)</small></p>
+<pre>
+ Client   Proposer      Acceptor     Learner
+   |         |          |  |  |       |  | --- First Request ---
+   X--------&gt;|          |  |  |       |  |  Request
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Prepare(N)
+   |         |&lt;---------X--X--X       |  |  Promise(N,I,{Va,Vb,Vc})
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Accept!(N,I,Vn)
+   |         |&lt;---------X--X--X------&gt;|-&gt;|  Accepted(N,I,Vn)
+   |&lt;---------------------------------X--X  Response
+   |         |          |  |  |       |  |
+</pre>
+<p><a name="Message_flow:_Multi-Paxos.2C_steady-state" id="Message_flow:_Multi-Paxos.2C_steady-state"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=23" title="Edit section: Message flow: Multi-Paxos, steady-state">edit</a>]</span> <span class="mw-headline">Message flow: Multi-Paxos, steady-state</span></h3>
+<p><small>(subsequent instances with same leader)</small></p>
+<pre>
+Client   Proposer      Acceptor     Learner
+   |         |          |  |  |       |  |  --- Following Requests ---
+   X--------&gt;|          |  |  |       |  |  Request
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Accept!(N,I+1,W)
+   |         |&lt;---------X--X--X------&gt;|-&gt;|  Accepted(N,I+1,W)
+   |&lt;---------------------------------X--X  Response
+   |         |          |  |  |       |  |
+</pre>
+<p><a name="Typical_Multi-Paxos_deployment" id="Typical_Multi-Paxos_deployment"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=24" title="Edit section: Typical Multi-Paxos deployment">edit</a>]</span> <span class="mw-headline">Typical Multi-Paxos deployment</span></h3>
+<p>The most common deployment of the Paxos family is Multi-Paxos,<sup id="cite_ref-live_8-1" class="reference"><a href="#cite_note-live-8" title=""><span>[</span>9<span>]</span></a></sup> specialized for participating processors to each be Proposers, Acceptors and Learners. The message flow may be optimized as depicted here:</p>
+<p><a name="Message_flow:_Collapsed_Multi-Paxos.2C_start" id="Message_flow:_Collapsed_Multi-Paxos.2C_start"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=25" title="Edit section: Message flow: Collapsed Multi-Paxos, start">edit</a>]</span> <span class="mw-headline">Message flow: Collapsed Multi-Paxos, start</span></h3>
+<p><small>(first instance with new leader)</small></p>
+<pre>
+ Client      Servers
+   |         |  |  | --- First Request ---
+   X--------&gt;|  |  |  Request
+   |         X-&gt;|-&gt;|  Prepare(N)
+   |         |&lt;-X--X  Promise(N,I,{Va,Vb,Vc})
+   |         X-&gt;|-&gt;|  Accept!(N,I,Vn)
+   |         |&lt;-X--X  Accepted(N,I)
+   |&lt;--------X  |  |  Response
+   |         |  |  |
+</pre>
+<p><a name="Message_flow:_Collapsed_Multi-Paxos.2C_steady_state" id="Message_flow:_Collapsed_Multi-Paxos.2C_steady_state"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=26" title="Edit section: Message flow: Collapsed Multi-Paxos, steady state">edit</a>]</span> <span class="mw-headline">Message flow: Collapsed Multi-Paxos, steady state</span></h3>
+<p><small>(subsequent instances with same leader)</small></p>
+<pre>
+ Client      Servers
+   X--------&gt;|  |  |  Request
+   |         X-&gt;|-&gt;|  Accept!(N,I+1,W)
+   |         |&lt;-X--X  Accepted(N)
+   |&lt;--------X  |  |  Response
+   |         |  |  |
+</pre>
+<p><a name="Optimizations" id="Optimizations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=27" title="Edit section: Optimizations">edit</a>]</span> <span class="mw-headline">Optimizations</span></h2>
+<p>A number of optimizations reduce message complexity and size. These optimizations are summarized below:</p>
+<dl>
+<dd>
+<dl>
+<dd><small>"We can save messages at the cost of an extra message delay by having a single distinguished learner that informs the other learners when it finds out that a value has been chosen. Acceptors then send <i>Accepted</i> messages only to the distinguished learner. In most applications, the roles of leader and distinguished learner are performed by the same processor.</small></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><small>"A leader can send its <i>Prepare</i> and <i>Accept!</i> messages just to a quorum of acceptors. As long as all acceptors in that quorum are working and can communicate with the leader and the learners, there is no need for acceptors not in the quorum to do anything.</small></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><small>"Acceptors do not care what value is chosen. They simply respond to <i>Prepare</i> and <i>Accept!</i> messages to ensure that, despite failures, only a single value can be chosen. However, if an acceptor does learn what value has been chosen, it can store the value in stable storage and erase any other information it has saved there. If the acceptor later receives a <i>Prepare</i> or <i>Accept!</i> message, instead of performing its Phase1b or Phase2b action, it can simply inform the leader of the chosen value.</small></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><small>"Instead of sending the value v, the leader can send a hash of v to some acceptors in its <i>Accept!</i> messages. A learner will learn that v is chosen if it receives <i>Accepted</i> messages for either v or its hash from a quorum of acceptors, and at least one of those messages contains v rather than its hash. However, a leader could receive <i>Promise</i> messages that tell it the hash of a value v that it must use in its Phase2a action without telling it the actual value of v. If that happens, the leader cannot execute its Phase2a action until it communicates with some process that knows v."</small><sup id="cite_ref-cheap_3-2" class="reference"><a href="#cite_note-cheap-3" title=""><span>[</span>4<span>]</span></a></sup></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><small>"A proposer can send its proposal only to the leader rather than to all coordinators. However, this requires that the result of the leader-selection algorithm be broadcast to the proposers, which might be expensive. So, it might be better to let the proposer send its proposal to all coordinators. (In that case, only the coordinators themselves need to know who the leader is.)</small></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><small>"Instead of each acceptor sending <i>Accepted</i> messages to each learner, acceptors can send their <i>Accepted</i> messages to the leader and the leader can inform the learners when a value has been chosen. However, this adds an extra message delay.</small></dd>
+</dl>
+</dd>
+</dl>
+<dl>
+<dd>
+<dl>
+<dd><small>"Finally, observe that phase 1 is unnecessary for round 1 .. The leader of round 1 can begin the round by sending an <i>Accept!</i> message with any proposed value."</small><sup id="cite_ref-fast_4-3" class="reference"><a href="#cite_note-fast-4" title=""><span>[</span>5<span>]</span></a></sup></dd>
+</dl>
+</dd>
+</dl>
+<p><a name="Cheap_Paxos" id="Cheap_Paxos"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=28" title="Edit section: Cheap Paxos">edit</a>]</span> <span class="mw-headline">Cheap Paxos</span></h2>
+<p>Cheap Paxos extends <a href="#Basic_Paxos" title="">Basic Paxos</a> to tolerate F failures with F+1 main processors and F auxiliary processors by dynamically reconfiguring after each failure.</p>
+<p>This reduction in processor requirements comes at the expense of liveness; if too many main processors fail in a short time, the system must halt until the auxiliary processors can reconfigure the system. During stable periods, the auxiliary processors take no part in the protocol.</p>
+<dl>
+<dd>
+<dl>
+<dd><small>"With only two processors p and q, one processor cannot distinguish failure of the other processor from failure of the communication medium. A third processor is needed. However, that third processor does not have to participate in choosing the sequence of commands. It must take action only in case p or q fails, after which it does nothing while either p or q continues to operate the system by itself. The third processor can therefore be a small/slow/cheap one, or a processor primarily devoted to other tasks."</small><sup id="cite_ref-cheap_3-3" class="reference"><a href="#cite_note-cheap-3" title=""><span>[</span>4<span>]</span></a></sup></dd>
+</dl>
+</dd>
+</dl>
+<p><a name="Message_flow:_Cheap_Multi-Paxos" id="Message_flow:_Cheap_Multi-Paxos"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=29" title="Edit section: Message flow: Cheap Multi-Paxos">edit</a>]</span> <span class="mw-headline">Message flow: Cheap Multi-Paxos</span></h3>
+<p><small>3 main Acceptors, 1 Auxiliary Acceptor, Quorum size = 3, showing failure of one main processor and subsequent reconfiguration</small></p>
+<pre>
+            {  Acceptors   }
+Proposer     Main       Aux    Learner
+|            |  |  |     |       |  -- Phase 2 --
+X-----------&gt;|-&gt;|-&gt;|     |       |  Accept!(N,I,V)
+|            |  |  !     |       |  --- FAIL! ---
+|&lt;-----------X--X---------------&gt;|  Accepted(N,I,V)
+|            |  |        |       |  -- Failure detected (only 2 accepted) --
+X-----------&gt;|-&gt;|-------&gt;|       |  Accept!(N,I,V)  (re-transmit, include Aux)
+|&lt;-----------X--X--------X------&gt;|  Accepted(N,I,V)
+|            |  |        |       |  -- Reconfigure : Quorum = 2 --
+X-----------&gt;|-&gt;|        |       |  Accept!(N,I+1,W) (Aux not participating)
+|&lt;-----------X--X---------------&gt;|  Accepted(N,I+1,W)
+|            |  |        |       |
+</pre>
+<p><a name="Fast_Paxos" id="Fast_Paxos"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=30" title="Edit section: Fast Paxos">edit</a>]</span> <span class="mw-headline">Fast Paxos</span></h2>
+<p>Fast Paxos generalizes <a href="#Basic_Paxos" title="">Basic Paxos</a> to reduce end-to-end message delays. In Basic Paxos, the message delay from client request to learning is 3 message delays. Fast Paxos allows 2 message delays, but requires the Client to send its request to multiple destinations.</p>
+<p>Intuitively, if the leader has no value to propose, then a client could send an <i>Accept!</i> message to the Acceptors directly. The Acceptors would respond as in Basic Paxos, sending <i>Accepted</i> messages to the leader and every Learner achieving two message delays from Client to Learner.</p>
+<p>If the leader detects a collision, it resolves the collision by sending <i>Accept!</i> messages for a new round which are <i>Accepted</i> as usual. This coordinated recovery technique requires four message delays from Client to Learner.</p>
+<p>The final optimization occurs when the leader specifies a recovery technique in advance, allowing the Acceptors to perform the collision recovery themselves. Thus, uncoordinated collision recovery can occur in three message delays (and only two message delays if all Learners are also Acceptors).</p>
+<p><a name="Message_flow:_Fast_Paxos.2C_non-conflicting" id="Message_flow:_Fast_Paxos.2C_non-conflicting"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=31" title="Edit section: Message flow: Fast Paxos, non-conflicting">edit</a>]</span> <span class="mw-headline">Message flow: Fast Paxos, non-conflicting</span></h3>
+<pre>
+Client    Leader         Acceptor      Learner
+   |         |          |  |  |  |       |  |
+   |         X---------&gt;|-&gt;|-&gt;|-&gt;|       |  |  Any(N,I,Recovery)
+   |         |          |  |  |  |       |  |
+   X-------------------&gt;|-&gt;|-&gt;|-&gt;|       |  |  Accept!(N,I,W)
+   |         |&lt;---------X--X--X--X------&gt;|-&gt;|  Accepted(N,I,W)
+   |&lt;------------------------------------X--X  Response(W)
+   |         |          |  |  |  |       |  |
+</pre>
+<p><a name="Message_flow:_Fast_Paxos.2C_conflicting_proposals" id="Message_flow:_Fast_Paxos.2C_conflicting_proposals"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=32" title="Edit section: Message flow: Fast Paxos, conflicting proposals">edit</a>]</span> <span class="mw-headline">Message flow: Fast Paxos, conflicting proposals</span></h3>
+<p><small>Conflicting proposals with uncoordinated recovery. Note: the protocol does not specify how to handle the dropped client request.</small></p>
+<pre>
+Client   Leader      Acceptor     Learner
+ |  |      |        |  |  |  |      |  |
+ |  |      X-------&gt;|-&gt;|-&gt;|-&gt;|      |  |  Any(N,I,Recovery)
+ |  |      |        |  |  |  |      |  |
+ |  |      |        |  |  |  |      |  |  !! Concurrent conflicting proposals
+ |  |      |        |  |  |  |      |  |  !!   received in different order
+ |  |      |        |  |  |  |      |  |  !!   by the Acceptors
+ |  X--------------?|-?|-?|-?|      |  |  Accept!(N,I,V)
+ X-----------------?|-?|-?|-?|      |  |  Accept!(N,I,W)
+ |  |      |        |  |  |  |      |  |
+ |  |      |        |  |  |  |      |  |  !! Acceptors disagree on value
+ |  |      |&lt;-------X--X-&gt;|-&gt;|-----&gt;|-&gt;|  Accepted(N,I,V)
+ |  |      |&lt;-------|&lt;-|&lt;-X--X-----&gt;|-&gt;|  Accepted(N,I,W)
+ |  |      |        |  |  |  |      |  |
+ |  |      |        |  |  |  |      |  |  !! Detect collision &amp; recover
+ |  |      |&lt;-------X--X--X--X-----&gt;|-&gt;|  Accepted(N+1,I,W)
+ |&lt;---------------------------------X--X  Response(W)
+ |  |      |        |  |  |  |      |  |
+</pre>
+<p><a name="Message_flow:_Fast_Paxos.2C_collapsed_roles" id="Message_flow:_Fast_Paxos.2C_collapsed_roles"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=33" title="Edit section: Message flow: Fast Paxos, collapsed roles">edit</a>]</span> <span class="mw-headline">Message flow: Fast Paxos, collapsed roles</span></h3>
+<p><small>(merged Acceptor/Learner roles)</small></p>
+<pre>
+Client         Servers
+ |  |         |  |  |  |
+ |  |         X-&gt;|-&gt;|-&gt;|  Any(N,I,Recovery)
+ |  |         |  |  |  |
+ |  |         |  |  |  |  !! Concurrent conflicting proposals
+ |  |         |  |  |  |  !!   received in different order
+ |  |         |  |  |  |  !!   by the Servers
+ |  X--------?|-?|-?|-?|  Accept!(N,I,V)
+ X-----------?|-?|-?|-?|  Accept!(N,I,W)
+ |  |         |  |  |  |
+ |  |         |  |  |  |  !! Servers disagree on value
+ |  |         X--X-&gt;|-&gt;|  Accepted(N,I,V)
+ |  |         |&lt;-|&lt;-X--X  Accepted(N,I,W)
+ |  |         |  |  |  |
+ |  |         |  |  |  |  !! Detect collision &amp; recover
+ |&lt;-----------X--X--X--X  Response(W)
+ |  |         |  |  |  |
+</pre>
+<p><a name="Generalized_Paxos" id="Generalized_Paxos"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=34" title="Edit section: Generalized Paxos">edit</a>]</span> <span class="mw-headline">Generalized Paxos</span></h2>
+<p>Generalized consensus explores the relationship between the operations of a distributed state machine and the consensus protocol used to maintain consistency of that state machine. The main discovery involves optimizations of the consensus protocol when conflicting proposals could be applied to the state machine in any order. ie: The operations proposed by the conflicting proposals are <a href="/wiki/Commutative" title="Commutative" class="mw-redirect">commutative operations</a> of the state machine.</p>
+<p>In such cases, the conflicting operations can both be accepted, avoiding the delays required for resolving conflicts and re-proposing the rejected operation.</p>
+<p>This concept is further generalized into ever-growing sets of commutative operations, some of which are known to be stable (and thus may be executed). The protocol tracks these sets of operations, ensuring that all proposed commutative operations of one set are stabilized before allowing any non-commuting operation to become stable.</p>
+<p><a name="Example" id="Example"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=35" title="Edit section: Example">edit</a>]</span> <span class="mw-headline">Example</span></h3>
+<dl>
+<dd>In order to illustrate Generalized Paxos, this example shows a message flow between two concurrently executing clients and a distributed state machine performing the operations of a read/write register with 2 independent register addresses (A and B).</dd>
+</dl>
+<dl>
+<dd>Commutativity Table; marked cells denote interference:</dd>
+</dl>
+<pre>
+	         Read(A) Write(A) Read(B) Write(B)
+	Read(A) |       |    X   |       |        |
+	Write(A)|   X   |    X   |       |        |
+	Read(B) |       |        |       |    X   |
+	Write(B)|       |        |   X   |    X   |
+</pre>
+<dl>
+<dd>Proposed Series of operations (global order):</dd>
+</dl>
+<pre>
+	1:Read(A)
+	2:Read(B)
+	3:Write(B)
+	4:Read(B)
+	5:Read(A)
+	6:Write(A)
+	7:Read(A)
+</pre>
+<dl>
+<dd>One possible permutation allowed by commutes:</dd>
+</dl>
+<pre>
+	{ 1:Read(A),  2:Read(B), 5:Read(A) }
+	{ 3:Write(B), 6:Write(A) }
+	{ 4:Read(B),  7:Read(A)  }
+</pre>
+<dl>
+<dd>Observations:</dd>
+</dl>
+<ul>
+<li><code>5:Read(A)</code> may commute in front of <code>3:Write(B)/4:Read(B)</code> pair.</li>
+<li><code>4:Read(B)</code> may commute behind the <code>3:Write(B)/6:Write(A)</code> pair.</li>
+<li>In practice, a commute occurs only when operations are proposed concurrently.</li>
+</ul>
+<p><a name="Message_flow:_Generalized_Paxos_.28example.29" id="Message_flow:_Generalized_Paxos_.28example.29"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=36" title="Edit section: Message flow: Generalized Paxos (example)">edit</a>]</span> <span class="mw-headline">Message flow: Generalized Paxos (example)</span></h3>
+<p><small>Responses not shown. Note: message abbreviations differ from previous message flows due to specifics of the protocol, see <sup id="cite_ref-general_5-4" class="reference"><a href="#cite_note-general-5" title=""><span>[</span>6<span>]</span></a></sup> for a full discussion.</small></p>
+<pre>
+           {    Acceptors   }
+Client      Leader  Acceptor     Learner
+ |  |         |      |  |  |         |  |  !! New Leader Begins Round
+ |  |         X-----&gt;|-&gt;|-&gt;|         |  |  Prepare(N)
+ |  |         |&lt;-----X--X--X         |  |  Promise(N,null)
+ |  |         X-----&gt;|-&gt;|-&gt;|         |  |  Phase2Start(N,null)
+ |  |         |      |  |  |         |  |
+ |  |         |      |  |  |         |  |  !! Concurrent commuting proposals
+ |  X--------?|-----?|-?|-?|         |  |  Propose(ReadA)
+ X-----------?|-----?|-?|-?|         |  |  Propose(ReadB)
+ |  |         X------X--------------&gt;|-&gt;|  Accepted(N,&lt;ReadA,ReadB&gt;)
+ |  |         |&lt;--------X--X--------&gt;|-&gt;|  Accepted(N,&lt;ReadB,ReadA&gt;)
+ |  |         |      |  |  |         |  |
+ |  |         |      |  |  |         |  |  !! No Conflict, both accepted
+ |  |         |      |  |  |         |  |  Stable = &lt;ReadA, ReadB&gt;
+ |  |         |      |  |  |         |  |
+ |  |         |      |  |  |         |  |  !! Concurrent conflicting proposals
+ X-----------?|-----?|-?|-?|         |  |  Propose(&lt;WriteB,ReadA&gt;)
+ |  X--------?|-----?|-?|-?|         |  |  Propose(ReadB)
+ |  |         |      |  |  |         |  |
+ |  |         X------X--------------&gt;|-&gt;|  Accepted(N,&lt;WriteB,ReadA&gt; . &lt;ReadB&gt;)
+ |  |         |&lt;--------X--X--------&gt;|-&gt;|  Accepted(N,&lt;ReadB&gt; . &lt;WriteB,ReadA&gt;)
+ |  |         |      |  |  |         |  |
+ |  |         |      |  |  |         |  | !! Conflict detected, leader chooses
+ |  |         |      |  |  |         |  |    commutative order:
+ |  |         |      |  |  |         |  |    V = &lt;ReadA, WriteB, ReadB&gt;
+ |  |         |      |  |  |         |  |
+ |  |         X-----&gt;|-&gt;|-&gt;|         |  |  Phase2Start(N+1,V)
+ |  |         |&lt;-----X--X--X--------&gt;|-&gt;|  Accepted(N+1,V)
+ |  |         |      |  |  |         |  |  Stable = &lt;ReadA, ReadB&gt; .
+ |  |         |      |  |  |         |  |           &lt;ReadA, WriteB, ReadB&gt;
+ |  |         |      |  |  |         |  |
+ |  |         |      |  |  |         |  |  !! More conflicting proposals
+ X-----------?|-----?|-?|-?|         |  |  Propose(WriteA)
+ |  X--------?|-----?|-?|-?|         |  |  Propose(ReadA)
+ |  |         |      |  |  |         |  |
+ |  |         X------X--------------&gt;|-&gt;|  Accepted(N+2,&lt;WriteA&gt; . &lt;ReadA&gt;)
+ |  |         |&lt;--------X--X--------&gt;|-&gt;|  Accepted(N+2,&lt;ReadA&gt; . &lt;WriteA&gt;)
+ |  |         |      |  |  |         |  |  
+ |  |         |      |  |  |         |  |  !! Leader chooses order W
+ |  |         X-----&gt;|-&gt;|-&gt;|         |  |  Phase2Start(N+2,W)
+ |  |         |&lt;-----X--X--X--------&gt;|-&gt;|  Accepted(N+2,W)
+ |  |         |      |  |  |         |  |  Stable = &lt;ReadA, ReadB&gt; .
+ |  |         |      |  |  |         |  |           &lt;ReadA, WriteB, ReadB&gt; .
+ |  |         |      |  |  |         |  |           &lt;WriteA, ReadA&gt;
+ |  |         |      |  |  |         |  |
+</pre>
+<p><a name="Generalized_Paxos_vs._Fast_Multi-Paxos" id="Generalized_Paxos_vs._Fast_Multi-Paxos"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=37" title="Edit section: Generalized Paxos vs. Fast Multi-Paxos">edit</a>]</span> <span class="mw-headline">Generalized Paxos vs. Fast Multi-Paxos</span></h3>
+<dl>
+<dd>The message flow above shows Generalized Paxos performing agreement on seven values in (nominally) 10 message delays. Fast Multi-Paxos would require 15-17 delays for the same sequence (3 delays for each of the three concurrent proposals with uncoordinated recovery, plus at least 2 delays for the eventual re-submission of the three rejected proposals, concurrent re-proposals may add two additional delays).</dd>
+</dl>
+<p><a name="Byzantine_Paxos" id="Byzantine_Paxos"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=38" title="Edit section: Byzantine Paxos">edit</a>]</span> <span class="mw-headline">Byzantine Paxos</span></h2>
+<p>Paxos may also be extended to support arbitrary failures of the participants, including lying, fabrication of messages, collusion with other participants, selective non-participation, etc. These types of failures are called Byzantine Failures, after the solution popularized by Lamport.<sup id="cite_ref-byzgen_9-0" class="reference"><a href="#cite_note-byzgen-9" title=""><span>[</span>10<span>]</span></a></sup></p>
+<p>Byzantine Paxos<sup id="cite_ref-byzantine_6-1" class="reference"><a href="#cite_note-byzantine-6" title=""><span>[</span>7<span>]</span></a></sup><sup id="cite_ref-fast_4-4" class="reference"><a href="#cite_note-fast-4" title=""><span>[</span>5<span>]</span></a></sup> adds an extra message (Verify) which acts to distribute knowledge and verify the actions of the other processors:</p>
+<p><a name="Message_flow:_Byzantine_Multi-Paxos.2C_steady_state" id="Message_flow:_Byzantine_Multi-Paxos.2C_steady_state"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=39" title="Edit section: Message flow: Byzantine Multi-Paxos, steady state">edit</a>]</span> <span class="mw-headline">Message flow: Byzantine Multi-Paxos, steady state</span></h3>
+<pre>
+Client   Proposer      Acceptor     Learner
+   |         |          |  |  |       |  |
+   X--------&gt;|          |  |  |       |  |  Request
+   |         X---------&gt;|-&gt;|-&gt;|       |  |  Accept!(N,I,V)
+   |         |          X&lt;&gt;X&lt;&gt;X       |  |  Verify(N,I,V) - BROADCAST
+   |         |&lt;---------X--X--X------&gt;|-&gt;|  Accepted(N,V)
+   |&lt;---------------------------------X--X  Response(V)
+   |         |          |  |  |       |  |
+</pre>
+<p>Fast Byzantine Paxos removes this extra delay, since the client sends commands directly to the Acceptors <sup id="cite_ref-fast_4-5" class="reference"><a href="#cite_note-fast-4" title=""><span>[</span>5<span>]</span></a></sup>.</p>
+<p>Note the <i>Accepted</i> message in Fast Byzantine Paxos is sent to all Acceptors and all Learners, while Fast Paxos sends <i>Accepted</i> messages only to Learners):</p>
+<p><a name="Message_flow:_Fast_Byzantine_Multi-Paxos.2C_steady_state" id="Message_flow:_Fast_Byzantine_Multi-Paxos.2C_steady_state"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=40" title="Edit section: Message flow: Fast Byzantine Multi-Paxos, steady state">edit</a>]</span> <span class="mw-headline">Message flow: Fast Byzantine Multi-Paxos, steady state</span></h3>
+<pre>
+Client    Acceptor     Learner
+   |      |  |  |       |  |
+   X-----&gt;|-&gt;|-&gt;|       |  |  Accept!(N,I,V)
+   |      X&lt;&gt;X&lt;&gt;X------&gt;|-&gt;|  Accepted(N,I,V) - BROADCAST
+   |&lt;-------------------X--X  Response(V)
+   |      |  |  |       |  |
+</pre>
+<p>The failure scenario is the same for both protocols; Each Learner waits to receive F+1 identical messages from different Acceptors. If this does not occur, the Acceptors themselves will also be aware of it (since they exchanged each other's messages in the broadcast round), and correct Acceptors will re-broadcast the agreed value:</p>
+<p><a name="Message_flow:_Fast_Byzantine_Multi-Paxos.2C_failure" id="Message_flow:_Fast_Byzantine_Multi-Paxos.2C_failure"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=41" title="Edit section: Message flow: Fast Byzantine Multi-Paxos, failure">edit</a>]</span> <span class="mw-headline">Message flow: Fast Byzantine Multi-Paxos, failure</span></h3>
+<pre>
+Client    Acceptor     Learner
+   |      |  |  !       |  |  !! One Acceptor is faulty
+   X-----&gt;|-&gt;|-&gt;!       |  |  Accept!(N,I,V)
+   |      X&lt;&gt;X&lt;&gt;X------&gt;|-&gt;|  Accepted(N,I,{V,W}) - BROADCAST
+   |      |  |  !       |  |  !! Learners receive 2 different commands
+   |      |  |  !       |  |  !! Correct Acceptors notice error and choose
+   |      X&lt;&gt;X&lt;&gt;X------&gt;|-&gt;|  Accepted(N,I,V) - BROADCAST
+   |&lt;-------------------X--X  Response(V)
+   |      |  |  !       |  |
+</pre>
+<p><a name="Production_use_of_Paxos" id="Production_use_of_Paxos"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=42" title="Edit section: Production use of Paxos">edit</a>]</span> <span class="mw-headline">Production use of Paxos</span></h2>
+<ul>
+<li>Google uses the Paxos algorithm in their <a href="/w/index.php?title=Chubby&amp;action=edit&amp;redlink=1" class="new" title="Chubby (page does not exist)">Chubby</a> distributed lock service in order to keep replicas consistent in case of failure. Chubby is used by <a href="/wiki/Bigtable" title="Bigtable" class="mw-redirect">Bigtable</a> which is now in production in Google Analytics and other products.</li>
+<li>IBM uses the Paxos algorithm in their <a href="/wiki/IBM_SAN_Volume_Controller" title="IBM SAN Volume Controller">IBM SAN Volume Controller</a> product to implement a general purpose fault-tolerant virtual machine used to run the configuration and control components of the <a href="/wiki/Storage_virtualization" title="Storage virtualization">storage virtualization</a> services offered by the cluster. This implementation features: dynamic quorum (which considers power domains and extends the Paxos protocol to an optional quorum disk to maintain fault-tolerance down to clusters as small as two nodes); concurrent ballots of batched requests broadcast and collated using an overlay binary tree network for efficiency; automatic reintegration of restarted nodes without stalling the cluster (by state delta transfer using an overlay hypercube network followed by catch-up of ballots committed during the state transfer) and an underlying view management algorithm used to select a leader and gracefully handle asymmetric network partitions.</li>
+<li>Microsoft uses Paxos in the <a href="http://research.microsoft.com/users/misard/abstracts/osr2007.html" class="external text" title="http://research.microsoft.com/users/misard/abstracts/osr2007.html" rel="nofollow">Autopilot cluster management service</a> from Live Search</li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=43" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-agree-0">^ <a href="#cite_ref-agree_0-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-agree_0-1" title=""><sup><i><b>b</b></i></sup></a> <cite style="font-style:normal" class="" id="CITEREFPeaseRobert_Shostak.2C_Leslie_Lamport1980">Pease, Marshall; Robert Shostak, Leslie Lamport (April 1980). "<a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#reaching" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#reaching" rel="nofollow">Reaching Agreement in the Presence of Faults</a>". <i>Journal of the Association for Computing Machinery</i> <b>27</b> (2)<span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#reaching" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#reaching" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#reaching</a></span><span class="reference-accessdate">. Retrieved on 2007-02-02</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Reaching+Agreement+in+the+Presence+of+Faults&amp;rft.jtitle=Journal+of+the+Association+for+Computing+Machinery&amp;rft.aulast=Pease&amp;rft.aufirst=Marshall&amp;rft.au=Pease%2C+Marshall&amp;rft.au=Robert+Shostak%2C+Leslie+Lamport&amp;rft.date=April+1980&amp;rft.volume=27&amp;rft.issue=2&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23reaching&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-clocks-1"><b><a href="#cite_ref-clocks_1-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFLamport1978">Lamport, Leslie (July 1978). "<a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#time-clocks" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#time-clocks" rel="nofollow">Time, Clocks and the Ordering of Events in a Distributed System</a>". <i>Communications of the ACM</i> <b>21</b> (7): 558–565. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F359545.359563" class="external text" title="http://dx.doi.org/10.1145%2F359545.359563" rel="nofollow">10.1145/359545.359563</a></span><span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#time-clocks" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#time-clocks" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#time-clocks</a></span><span class="reference-accessdate">. Retrieved on 2007-02-02</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Time%2C+Clocks+and+the+Ordering+of+Events+in+a+Distributed+System&amp;rft.jtitle=Communications+of+the+ACM&amp;rft.aulast=Lamport&amp;rft.aufirst=Leslie&amp;rft.au=Lamport%2C+Leslie&amp;rft.date=July+1978&amp;rft.volume=21&amp;rft.issue=7&amp;rft.pages=558%E2%80%93565&amp;rft_id=info:doi/10.1145%2F359545.359563&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23time-clocks&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-paxos-2">^ <a href="#cite_ref-paxos_2-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-paxos_2-1" title=""><sup><i><b>b</b></i></sup></a> <cite style="font-style:normal" class="" id="CITEREFLamport1998">Lamport, Leslie (May 1998). "<a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#lamport-paxos" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#lamport-paxos" rel="nofollow">The Part-Time Parliament</a>". <i>ACM Transactions on Computer Systems</i> <b>16</b> (2): 133–169. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F279227.279229" class="external text" title="http://dx.doi.org/10.1145%2F279227.279229" rel="nofollow">10.1145/279227.279229</a></span><span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#lamport-paxos" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#lamport-paxos" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#lamport-paxos</a></span><span class="reference-accessdate">. Retrieved on 2007-02-02</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=The+Part-Time+Parliament&amp;rft.jtitle=ACM+Transactions+on+Computer+Systems&amp;rft.aulast=Lamport&amp;rft.aufirst=Leslie&amp;rft.au=Lamport%2C+Leslie&amp;rft.date=May+1998&amp;rft.volume=16&amp;rft.issue=2&amp;rft.pages=133%E2%80%93169&amp;rft_id=info:doi/10.1145%2F279227.279229&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23lamport-paxos&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-cheap-3">^ <a href="#cite_ref-cheap_3-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-cheap_3-1" title=""><sup><i><b>b</b></i></sup></a> <a href="#cite_ref-cheap_3-2" title=""><sup><i><b>c</b></i></sup></a> <a href="#cite_ref-cheap_3-3" title=""><sup><i><b>d</b></i></sup></a> <cite style="font-style:normal" class="" id="CITEREFLamportMike_Massa2004">Lamport, Leslie; Mike Massa (2004). "<a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#web-dsn-submission" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#web-dsn-submission" rel="nofollow">Cheap Paxos</a>". <i>Proceedings of the International Conference on Dependable Systems and Networks (DSN 2004)</i><span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#web-dsn-submission" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#web-dsn-submission" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#web-dsn-submission</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Cheap+Paxos&amp;rft.jtitle=Proceedings+of+the+International+Conference+on+Dependable+Systems+and+Networks+%28DSN+2004%29&amp;rft.aulast=Lamport&amp;rft.aufirst=Leslie&amp;rft.au=Lamport%2C+Leslie&amp;rft.au=Mike+Massa&amp;rft.date=2004&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23web-dsn-submission&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-fast-4">^ <a href="#cite_ref-fast_4-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-fast_4-1" title=""><sup><i><b>b</b></i></sup></a> <a href="#cite_ref-fast_4-2" title=""><sup><i><b>c</b></i></sup></a> <a href="#cite_ref-fast_4-3" title=""><sup><i><b>d</b></i></sup></a> <a href="#cite_ref-fast_4-4" title=""><sup><i><b>e</b></i></sup></a> <a href="#cite_ref-fast_4-5" title=""><sup><i><b>f</b></i></sup></a> <cite style="font-style:normal" class="web" id="CITEREFLamport2005">Lamport, Leslie (2005). <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#fast-paxos" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#fast-paxos" rel="nofollow">"Fast Paxos"</a><span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#fast-paxos" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#fast-paxos" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#fast-paxos</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=Fast+Paxos&amp;rft.atitle=&amp;rft.aulast=Lamport&amp;rft.aufirst=Leslie&amp;rft.au=Lamport%2C+Leslie&amp;rft.date=2005&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23fast-paxos&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-general-5">^ <a href="#cite_ref-general_5-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-general_5-1" title=""><sup><i><b>b</b></i></sup></a> <a href="#cite_ref-general_5-2" title=""><sup><i><b>c</b></i></sup></a> <a href="#cite_ref-general_5-3" title=""><sup><i><b>d</b></i></sup></a> <a href="#cite_ref-general_5-4" title=""><sup><i><b>e</b></i></sup></a> <cite style="font-style:normal" class="" id="CITEREFLamport2005">Lamport, Leslie (2005). <i><a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#generalized" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#generalized" rel="nofollow">Generalized Consensus and Paxos</a></i><span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#generalized" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#generalized" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#generalized</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Generalized+Consensus+and+Paxos&amp;rft.aulast=Lamport&amp;rft.aufirst=Leslie&amp;rft.au=Lamport%2C+Leslie&amp;rft.date=2005&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23generalized&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-byzantine-6">^ <a href="#cite_ref-byzantine_6-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-byzantine_6-1" title=""><sup><i><b>b</b></i></sup></a> {{cite web|curly=yes|last=Castro|first=Miguel|year=2001|title=Practical Byzantine Fault Tolerance|url=<a href="http://citeseer.ist.psu.edu/castro01practical.html}" class="external free" title="http://citeseer.ist.psu.edu/castro01practical.html}" rel="nofollow">http://citeseer.ist.psu.edu/castro01practical.html}</a> }</li>
+<li id="cite_note-consensus-7"><b><a href="#cite_ref-consensus_7-0" title="">^</a></b> <cite style="font-style:normal" class="web" id="CITEREFLamport2004">Lamport, Leslie (2004). <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#lower-bound" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#lower-bound" rel="nofollow">"Lower Bounds for Asynchronous Consensus"</a><span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#lower-bound" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#lower-bound" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#lower-bound</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=Lower+Bounds+for+Asynchronous+Consensus&amp;rft.atitle=&amp;rft.aulast=Lamport&amp;rft.aufirst=Leslie&amp;rft.au=Lamport%2C+Leslie&amp;rft.date=2004&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23lower-bound&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-live-8">^ <a href="#cite_ref-live_8-0" title=""><sup><i><b>a</b></i></sup></a> <a href="#cite_ref-live_8-1" title=""><sup><i><b>b</b></i></sup></a> <cite style="font-style:normal" class="" id="CITEREFChandraRobert_Griesemer.2C_Joshua_Redstone2007">Chandra, Tushar; Robert Griesemer, Joshua Redstone (2007). "<a href="http://labs.google.com/papers/paxos_made_live.html" class="external text" title="http://labs.google.com/papers/paxos_made_live.html" rel="nofollow">Paxos Made Live – An Engineering Perspective</a>". <i>PODC '07: 26th ACM Symposium on Principles of Distributed Computing</i><span class="printonly">. <a href="http://labs.google.com/papers/paxos_made_live.html" class="external free" title="http://labs.google.com/papers/paxos_made_live.html" rel="nofollow">http://labs.google.com/papers/paxos_made_live.html</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Paxos+Made+Live+%E2%80%93+An+Engineering+Perspective&amp;rft.jtitle=PODC+%2707%3A+26th+ACM+Symposium+on+Principles+of+Distributed+Computing&amp;rft.aulast=Chandra&amp;rft.aufirst=Tushar&amp;rft.au=Chandra%2C+Tushar&amp;rft.au=Robert+Griesemer%2C+Joshua+Redstone&amp;rft.date=2007&amp;rft_id=http%3A%2F%2Flabs.google.com%2Fpapers%2Fpaxos_made_live.html&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-byzgen-9"><b><a href="#cite_ref-byzgen_9-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFLamportRobert_Shostak.2C_Marshall_Pease1982">Lamport, Leslie; Robert Shostak, Marshall Pease (July 1982). "<a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#byz" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#byz" rel="nofollow">The Byzantine Generals Problem</a>". <i>ACM Transactions on Programming Languages and Systems</i> <b>4</b> (3): 382–401. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F357172.357176" class="external text" title="http://dx.doi.org/10.1145%2F357172.357176" rel="nofollow">10.1145/357172.357176</a></span><span class="printonly">. <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#byz" class="external free" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#byz" rel="nofollow">http://research.microsoft.com/users/lamport/pubs/pubs.html#byz</a></span><span class="reference-accessdate">. Retrieved on 2007-02-02</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=The+Byzantine+Generals+Problem&amp;rft.jtitle=ACM+Transactions+on+Programming+Languages+and+Systems&amp;rft.aulast=Lamport&amp;rft.aufirst=Leslie&amp;rft.au=Lamport%2C+Leslie&amp;rft.au=Robert+Shostak%2C+Marshall+Pease&amp;rft.date=July+1982&amp;rft.volume=4&amp;rft.issue=3&amp;rft.pages=382%E2%80%93401&amp;rft_id=info:doi/10.1145%2F357172.357176&amp;rft_id=http%3A%2F%2Fresearch.microsoft.com%2Fusers%2Flamport%2Fpubs%2Fpubs.html%23byz&amp;rfr_id=info:sid/en.wikipedia.org:Paxos_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+</div>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=44" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/w/index.php?title=Chandra-Toueg_consensus_algorithm&amp;action=edit&amp;redlink=1" class="new" title="Chandra-Toueg consensus algorithm (page does not exist)">Chandra-Toueg consensus algorithm</a></li>
+<li><a href="/wiki/State_machine" title="State machine" class="mw-redirect">State machine</a></li>
+<li><a href="/wiki/Virtual_synchrony" title="Virtual synchrony">Virtual synchrony</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Paxos_algorithm&amp;action=edit&amp;section=45" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.lamport.org/" class="external text" title="http://www.lamport.org/" rel="nofollow">Leslie Lamport's home page</a></li>
+<li><a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#paxos-simple" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#paxos-simple" rel="nofollow">Paxos Made Simple</a></li>
+<li><a href="http://citeseer.ist.psu.edu/deprisco97revisiting.html" class="external text" title="http://citeseer.ist.psu.edu/deprisco97revisiting.html" rel="nofollow">Revisiting the Paxos Algorithm</a></li>
+<li><a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#paxos-commit" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#paxos-commit" rel="nofollow">Paxos Commit</a></li>
+<li><a href="http://pine.cs.yale.edu/pinewiki/Paxos" class="external text" title="http://pine.cs.yale.edu/pinewiki/Paxos" rel="nofollow">Yale University's Wiki article</a></li>
+<li><a href="http://research.microsoft.com/users/lamport/pubs/pubs.html#lamport-paxos" class="external text" title="http://research.microsoft.com/users/lamport/pubs/pubs.html#lamport-paxos" rel="nofollow">Leslie Lamport's history of the paper</a></li>
+<li><a href="http://labs.google.com/papers/chubby.html" class="external text" title="http://labs.google.com/papers/chubby.html" rel="nofollow">Google Whitepaper: Chubby Distributed Lock Service</a></li>
+<li><a href="http://labs.google.com/papers/bigtable.html" class="external text" title="http://labs.google.com/papers/bigtable.html" rel="nofollow">Google Whitepaper: Bigtable A Distributed Storage System for Structured Data</a></li>
+<li><a href="http://brturn.googlepages.com/paxosfamily" class="external text" title="http://brturn.googlepages.com/paxosfamily" rel="nofollow">Survey of Paxos Algorithms (2007)</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 4884/1000000
+Post-expand include size: 37426/2048000 bytes
+Template argument size: 13275/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:5722488-0!1!0!default!!en!2 and timestamp 20090516131110 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Paxos_algorithm">http://en.wikipedia.org/wiki/Paxos_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Distributed_algorithms" title="Category:Distributed algorithms">Distributed algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Distributed_systems" title="Category:Distributed systems">Distributed systems</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Paxos_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Paxos_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Paxos_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Paxos_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Paxos_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate/Now/en?utm_source=donate&amp;utm_medium=sidebar&amp;utm_campaign=spontaneous_donation" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Paxos_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Paxos_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Paxos_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Paxos_algorithm&amp;oldid=287309465" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Paxos_algorithm&amp;id=287309465">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 1 May 2009, at 19:41 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv187 in 0.052 secs. --></body></html>

@@ -1,0 +1,312 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lamport's bakery algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Lamport\'s_bakery_algorithm";
+		var wgTitle = "Lamport\'s bakery algorithm";
+		var wgAction = "view";
+		var wgArticleId = "2176076";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 241744854;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Lamport's bakery algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Lamport's bakery algorithm is a computer algorithm devised by computer scientist Dr. Leslie Lamport, which is intended to improve the safety in the usage of shared resources among multiple threads by means of mutual exclusion.
+
+
+
+
+Contents
+
+
+1 Nature of the problem
+2 Algorithm
+
+2.1 Analogy
+2.2 Critical section
+2.3 Non-critical section
+
+
+3 Implementation of the algorithm
+
+3.1 Pseudocode
+3.2 Discussion
+
+
+4 See also
+5 External links
+6 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Nature of the problem
+In computer science, it is common for multiple threads to simultaneously access the same resources. Data corruption can occur if two or more threads try to write into the same memory location, or if one thread reads a memory location before another has finished writing into it. Lamport's bakery algorithm is one of many mutual exclusion algorithms designed to prevent concurrent threads entering critical sections of code concurrently to eliminate the risk of data corruption.
+
+[edit] Algorithm
+
+[edit] Analogy
+Lamport envisioned a bakery with a numbering machine at its entrance so each customer is given a unique number. Numbers increase by one as customers enter the store. A global counter displays the number of the customer that is currently being served. All other customers must wait in a queue until the baker finishes serving the current customer and the next number is displayed. When done shopping, the customer loses their number and can then do whatever they want, except for shopping without getting a new number.
+In the computer world, the 'customers' will be threads, identified by the letter i, obtained from a global variable.
+Due to the limitations of computer architecture, some parts of the Lamport's analogy need slight modification. It is possible that more than one thread will get the same number when they request it; this cannot be avoided. Therefore, it is assumed that the thread identifier i is also a priority identifier. A lower value of i means a higher priority and threads with higher priority will enter the critical section first.
+
+[edit] Critical section
+The critical section is that part of code that requires exclusive access to resources and may only be executed by one thread at a time. In the bakery analogy, it is when the customer trades with the baker and others must wait.
+When a thread wants to enter the critical section, it has to check whether it is its turn to do so. It should check the numbers of every other thread to make sure that it has the smallest one. In case another thread has the same number, the thread with the smallest i will enter the critical section first.
+In pseudocode this comparison will be written in the form:
+
+(a, b) < (c, d)
+
+which is equivalent to:
+
+(a < c) or ((a == c) and (b < d))
+
+Once the thread ends its critical job, it gets rid of its number and enters the non-critical section.
+
+[edit] Non-critical section
+The non-critical section is the part of code that doesn't need exclusive access. It represents some thread-specific computation that doesn't interfere with other threads' resources and execution.
+This part is analogous to actions that occur after shopping, such as putting change back into the wallet.
+
+[edit] Implementation of the algorithm
+
+[edit] Pseudocode
+
+    // declaration and initial values of global variables
+    Entering: array [1..N] of bool = {false};
+    Number: array [1..N] of integer = {0};
+    
+ 1  lock(integer i) {
+ 2      Entering[i] = true;
+ 3      Number[i] = 1 + max(Number[1], ..., Number[N]);
+ 4      Entering[i] = false;
+ 5      for (j = 1; j <= N; j++) {
+ 6          // Wait until thread j receives its number:
+ 7          while (Entering[j]) { /* nothing */ }
+ 8          // Wait until all threads with smaller numbers or with the same
+ 9          // number, but with higher priority, finish their work:
+10          while ((Number[j] != 0) && ((Number[j], j) < (Number[i], i))) {
+11              /* nothing */
+12          }
+13      }
+14  }
+15
+16  unlock(integer i) {
+17      Number[i] = 0;
+18  }
+19
+20  Thread(integer i) {
+21      while (true) {
+22          lock(i);
+23          // The critical section goes here...
+24          unlock(i);
+25          // non-critical section...
+26      }
+27  }
+
+In this example, all threads execute the same "main" function, Thread. In real applications, different threads often have different "main" functions.
+Note: The thread also checks itself before entering the critical section, but that doesn't cause any delays since the loop conditions will evaluate as false.
+
+[edit] Discussion
+Each thread only writes its own storage, only reads are shared. It is remarkable that this algorithm is not built on top of some lower level 'atomic' operation, e.g. compare-and-swap. The original proof shows that for overlapping reads and writes to the same storage cell only the write must be correct. The read operation can return an arbitrary number. Therefore this algorithm can be used to implement mutual exclusion on 'memory' that lacks synchronisation primitives, e.g., a simple SCSI disk shared between two computers.
+The necessity of variable Entering might not be obvious as there is no 'lock' around lines 7 to 13. See UCDAVIS: Bakery Algorithm for an in depth discussion.
+When implementing the pseudo code for a single processor/core system, it is better to replace the "do nothing" sections with code that notifies the operating system to immediately switch to the next thread. This is often referred to as yielding the current thread.
+
+[edit] See also
+
+Dekker's algorithm
+Peterson's algorithm
+
+
+[edit] External links
+
+Wallace Variation of Bakery Algorithm which overcomes limitations of Javascript language
+Lamport's Bakery Algorithm
+
+
+[edit] References
+
+Original Paper
+On his publications page, Lamport has added some remarks regarding the algorithm.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm"
+Categories: Concurrency control | Concurrent algorithms | Distributed systems | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Italiano
+Français
+Español
+日本語
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 29 September 2008, at 11:04.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

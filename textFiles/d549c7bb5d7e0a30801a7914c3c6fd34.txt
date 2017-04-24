@@ -1,0 +1,810 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Burrows-Wheeler transform - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Burrows-Wheeler_transform";
+		var wgTitle = "Burrows-Wheeler transform";
+		var wgAction = "view";
+		var wgArticleId = "36777";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 273215396;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-python {line-height: normal;}
+.source-python li, .source-python pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for python
+ * CSS class: source-python, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-python .de1, .source-python .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-python  {}
+.source-python .head {}
+.source-python .foot {}
+.source-python .imp {font-weight: bold; color: red;}
+.source-python .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-python li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-python li.li2 {font-weight: bold;}
+.source-python .kw1 {color: #ff7700;font-weight:bold;}
+.source-python .kw2 {color: #008000;}
+.source-python .kw3 {color: #dc143c;}
+.source-python .kw4 {color: #0000cd;}
+.source-python .co1 {color: #808080; font-style: italic;}
+.source-python .coMULTI {color: #808080; font-style: italic;}
+.source-python .es0 {color: #000099; font-weight: bold;}
+.source-python .br0 {color: #66cc66;}
+.source-python .st0 {color: #483d8b;}
+.source-python .nu0 {color: #ff4500;}
+.source-python .me1 {color: black;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Burrows-Wheeler transform
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Burrows-Wheeler transform (BWT, also called block-sorting compression), is an algorithm used in data compression techniques such as bzip2. It was invented by Michael Burrows and David Wheeler in 1994 while working at DEC Systems Research Center in Palo Alto, California.[1] It is based on a previously unpublished transformation discovered by Wheeler in 1983.
+When a character string is transformed by the BWT, none of its characters change value. The transformation permutes the order of the characters. If the original string had several substrings that occurred often, then the transformed string will have several places where a single character is repeated multiple times in a row. This is useful for compression, since it tends to be easy to compress a string that has runs of repeated characters by techniques such as move-to-front transform and run-length encoding.
+For example:
+
+
+Input
+SIX.MIXED.PIXIES.SIFT.SIXTY.PIXIE.DUST.BOXES
+
+
+Output
+TEXYDST.E.IXIXIXXSSMPPS.B..E.S.EUSFXDIIOIIIT
+
+
+The output is easier to compress because it has many repeated characters.
+
+
+
+
+Contents
+
+
+1 Example
+2 Sample implementations
+
+2.1 Python language
+
+
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Example
+The transform is done by sorting all rotations of the text, then taking the last column. For example, the text "^BANANA@" is transformed into "BNN^AA@A" through these steps (the red @ character indicates the 'EOF' pointer):
+
+
+Transformation
+
+
+Input
+All
+Rotations
+Sort the
+Rows
+Output
+
+
+
+
+^BANANA@
+
+
+
+^BANANA@
+@^BANANA
+A@^BANAN
+NA@^BANA
+ANA@^BAN
+NANA@^BA
+ANANA@^B
+BANANA@^
+
+
+
+ANANA@^B
+ANA@^BAN
+A@^BANAN
+BANANA@^
+NANA@^BA
+NA@^BANA
+^BANANA@
+@^BANANA
+
+
+
+BNN^AA@A
+
+
+
+The following pseudocode gives a simple, but inefficient, way to calculate the BWT and its inverse. It assumes that the input string s contains a special character 'EOF' which is the last character, occurs nowhere else in the text, and is ignored during sorting.
+
+ function BWT (string s)
+   create a table, rows are all possible rotations of s
+   sort rows alphabetically
+   return (last column of the table)
+ 
+ function inverseBWT (string s)
+   create empty table 
+       
+   repeat length(s) times
+       insert s as a column of table before first column of the table   // first insert creates first column
+       sort rows of the table alphabetically
+   return (row that ends with the 'EOF' character)
+
+To understand why this creates more-easily-compressible data, let's consider transforming a long English text frequently containing the word "the". Sorting the rotations of this text will often group rotations starting with "he " together, and the last character of that rotation (which is also the character before the "he ") will usually be "t", so the result of the transform would contain a number of "t" characters along with the perhaps less-common exceptions (such as if it contains "Brahe ") mixed in. So it can be seen that the success of this transform depends upon one value having a high probability of occurring before a sequence, so that in general it needs fairly long samples (a few kilobytes at least) of appropriate data (such as text).
+The remarkable thing about the BWT is not that it generates a more easily encoded output—an ordinary sort would do that—but that it is reversible, allowing the original document to be re-generated from the last column data.
+The inverse can be understood this way. Take the final table in the BWT algorithm, and erase all but the last column. Given only this information, you can easily reconstruct the first column. The last column tells you all the characters in the text, so just sort these characters to get the first column. Then, the first and last columns together give you all pairs of successive characters in the document, where pairs are taken cyclically so that the last and first character form a pair. Sorting the list of pairs gives the first and second columns. Continuing in this manner, you can reconstruct the entire list. Then, the row with the "end of file" character at the end is the original text. Reversing the example above is done like this:
+
+
+Inverse Transformation
+
+
+Input
+
+
+
+
+BNN^AA@A
+
+
+
+Add 1
+Sort 1
+Add 2
+Sort 2
+
+
+
+
+B
+N
+N
+^
+A
+A
+@
+A
+
+
+
+A
+A
+A
+B
+N
+N
+^
+@
+
+
+
+BA
+NA
+NA
+^B
+AN
+AN
+@^
+A@
+
+
+
+AN
+AN
+A@
+BA
+NA
+NA
+^B
+@^
+
+
+
+Add 3
+Sort 3
+Add 4
+Sort 4
+
+
+
+
+BAN
+NAN
+NA@
+^BA
+ANA
+ANA
+@^B
+A@^
+
+
+
+ANA
+ANA
+A@^
+BAN
+NAN
+NA@
+^BA
+@^B
+
+
+
+BANA
+NANA
+NA@^
+^BAN
+ANAN
+ANA@
+@^BA
+A@^B
+
+
+
+ANAN
+ANA@
+A@^B
+BANA
+NANA
+NA@^
+^BAN
+@^BA
+
+
+
+Add 5
+Sort 5
+Add 6
+Sort 6
+
+
+
+
+BANAN
+NANA@
+NA@^B
+^BANA
+ANANA
+ANA@^
+@^BAN
+A@^BA
+
+
+
+ANANA
+ANA@^
+A@^BA
+BANAN
+NANA@
+NA@^B
+^BANA
+@^BAN
+
+
+
+BANANA
+NANA@^
+NA@^BA
+^BANAN
+ANANA@
+ANA@^B
+@^BANA
+A@^BAN
+
+
+
+ANANA@
+ANA@^B
+A@^BAN
+BANANA
+NANA@^
+NA@^BA
+^BANAN
+@^BANA
+
+
+
+Add 7
+Sort 7
+Add 8
+Sort 8
+
+
+
+
+BANANA@
+NANA@^B
+NA@^BAN
+^BANANA
+ANANA@^
+ANA@^BA
+@^BANAN
+A@^BANA
+
+
+
+ANANA@^
+ANA@^BA
+A@^BANA
+BANANA@
+NANA@^B
+NA@^BAN
+^BANANA
+@^BANAN
+
+
+
+BANANA@^
+NANA@^BA
+NA@^BANA
+^BANANA@
+ANANA@^B
+ANA@^BAN
+@^BANANA
+A@^BANAN
+
+
+
+ANANA@^B
+ANA@^BAN
+A@^BANAN
+BANANA@^
+NANA@^BA
+NA@^BANA
+^BANANA@
+@^BANANA
+
+
+
+Output
+
+
+
+
+^BANANA@
+
+
+
+A number of optimizations can make these algorithms run more efficiently without changing the output. In BWT, there is no need to represent the table in either the encoder or decoder. In the encoder, each row of the table can be represented by a single pointer into the strings, and the sort performed using the indices. Some care must be taken to ensure that the sort does not exhibit bad worst-case behavior: Standard library sort functions are unlikely to be appropriate. In the decoder, there is also no need to store the table, and in fact no sort is needed at all. In time proportional to the alphabet size and string length, the decoded string may be generated one character at a time from right to left. The example code below demonstrates efficient decoding. A "character" in the algorithm can be a byte, or a bit, or any other convenient size.
+There is no need to have an actual 'EOF' character. Instead, a pointer can be used that remembers where in a string the 'EOF' would be if it existed. In this approach, the output of the BWT must include both the transformed string, and the final value of the pointer. That means the BWT does expand its input slightly. The inverse transform then shrinks it back down to the original size: it is given a string and a pointer, and returns just a string.
+There is a bijective version that causes no expansion and no index so that the length is preserved. The bijective version allows for any file to have an inverse unlike the standard versions. For more information plus C code see the External Links section.
+A complete description of the algorithms can be found in Burrows and Wheeler's paper, or in a number of online sources.
+
+[edit] Sample implementations
+
+[edit] Python language
+This implementation sacrifices speed for simplicity: the program is short, but takes more than the linear time that would be desired in a practical implementation.
+Using the null character as the end of file sigil, and using s[i:] + s[:i] to construct the ith rotation of s, the forward transform takes the last character of each of the sorted rows:
+
+
+def bwt(s):
+  s = s + '\0'
+  return ''.join([x[-1] for x in                             # Take last character
+         sorted([s[i:] + s[:i] for i in range(len(s))])])    # Of each sorted row
+
+The inverse transform repeatedly inserts s as the left column of the table and sorts the table. After the whole table is built, it returns the row that ends with null, minus the null.
+
+
+def ibwt(s):
+  L = [''] * len(s)                                          # Make empty table
+  for i in range(len(s)):
+    L = sorted([s[i] + L[i] for i in range(len(s))])         # Sort rows after adding s as first column
+  return [x for x in L if x.endswith('\0')][0][:-1]          # Get row ending with null, [:-1] removes the null
+
+
+[edit] References
+
+^ Burrows M and Wheeler D (1994), A block sorting lossless data compression algorithm, Technical Report 124, Digital Equipment Corporation 
+
+
+[edit] External links
+
+ResearchIndex page for BWT paper at Penn State
+BWT paper hosted at HP
+Article by Mark Nelson on the BWT
+Bijective version of BWT by David A. Scott
+Blog post and project page for an open-source compression program and library based on the Burrows-Wheeler algorithm
+
+
+
+
+
+
+
+
+v • d • e
+
+Data compression methods
+
+
+
+
+
+Lossless
+
+
+
+
+
+Theory
+
+
+Entropy · Complexity · Redundancy
+
+
+
+
+
+
+
+Entropy encoding
+
+
+Huffman · Adaptive Huffman · Arithmetic (Shannon-Fano · Range) · Golomb · Exp-Golomb · Universal (Elias · Fibonacci)
+
+
+
+
+
+
+
+Dictionary
+
+
+RLE · DEFLATE · LZ Family (LZ77/78 · LZSS · LZW · LZWL · LZO · LZMA · LZX · LZRW · LZJB · LZT)
+
+
+
+
+
+
+
+Others
+
+
+CTW · BWT · PPM · DMC
+
+
+
+
+
+
+
+
+
+Audio
+
+
+
+
+
+Theory
+
+
+Convolution · Sampling · Nyquist–Shannon theorem
+
+
+
+
+
+
+
+Audio codec parts
+
+
+LPC (LAR · LSP) · WLPC · CELP · ACELP · A-law · μ-law · MDCT · Fourier transform · Psychoacoustic model
+
+
+
+
+
+
+
+Others
+
+
+Dynamic range compression · Speech compression · Sub-band coding
+
+
+
+
+
+
+
+
+
+Image
+
+
+
+
+
+Terms
+
+
+Color space · Pixel · Chroma subsampling · Compression artifact
+
+
+
+
+
+
+
+Methods
+
+
+RLE · DPCM · Fractal · Wavelet · EZW · SPIHT · LP · DCT · KLT
+
+
+
+
+
+
+
+Others
+
+
+Bit rate · Test images · PSNR quality measure · Quantization
+
+
+
+
+
+
+
+
+
+Video
+
+
+
+
+
+Terms
+
+
+Video Characteristics · Frame · Frame types · Video quality
+
+
+
+
+
+
+
+Video codec parts
+
+
+Motion compensation · DCT · Quantization
+
+
+
+
+
+
+
+Others
+
+
+Video codecs · Rate distortion theory (CBR · ABR · VBR)
+
+
+
+
+
+
+
+
+
+
+Timeline of information theory, data compression, and error-correcting codes
+
+
+
+
+
+
+See Compression Formats and Standards for formats and Compression Software Implementations for codecs
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Burrows-Wheeler_transform"
+Categories: Lossless compression algorithms | Transforms | Articles with example pseudocode 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Français
+한국어
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 February 2009, at 16:39.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

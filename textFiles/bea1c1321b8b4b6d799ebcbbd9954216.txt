@@ -1,0 +1,353 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Buddy memory allocation - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Buddy_memory_allocation";
+		var wgTitle = "Buddy memory allocation";
+		var wgAction = "view";
+		var wgArticleId = "364180";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284713379;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Buddy memory allocation
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The buddy memory allocation technique is a memory allocation technique that divides memory into partitions to try to satisfy a memory request as suitably as possible. This system makes use of splitting memory into halves to try to give a best-fit. According to Donald Knuth, the buddy system was invented in 1963 by Harry Markowitz, who won the 1990 Nobel Memorial Prize in Economics, and was independently developed by Knowlton (published 1965).
+
+
+
+
+
+Contents
+
+
+1 Implementation and consequences
+2 How it works
+3 Algorithm
+4 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Implementation and consequences
+Compared to the memory allocation techniques (such as paging) that modern operating systems use, the buddy memory allocation is relatively easy to implement, and does not have the hardware requirement of an MMU. Thus, it can be implemented, for example, on Intel 80286 and below computers.
+In comparison to other simpler techniques such as dynamic allocation, the buddy memory system has little external fragmentation, and has little overhead trying to do compaction of memory.
+However, because of the way the buddy memory allocation technique works, there may be a moderate amount of internal fragmentation - memory wasted because the memory requested is a little larger than a small block, but a lot smaller than a large block. (For instance, a program that requests 66K of memory would be allocated 128K, which results in a waste of 62K of memory). Internal fragmentation is where more memory than necessary is allocated to satisfy a request, thereby wasting memory. External fragmentation is where enough memory is free to satisfy a request, but it is split into two or more chunks, none of which is big enough to satisfy the request.
+
+[edit] How it works
+The buddy memory allocation technique allocates memory in powers of 2, i.e 2x, where x is an integer. Thus, the programmer has to decide on, or to write code to obtain, the upper limit of x. For instance, if the system had 2000K of physical memory, the upper limit on x would be 10, since 210 (1024K) is the biggest allocatable block. This results in making it impossible to allocate everything in as a single chunk; the remaining 976K of memory would have to be taken in smaller blocks.
+After deciding on the upper limit (let's call the upper limit u), the programmer has to decide on the lower limit, i.e. the smallest memory block that can be allocated. This lower limit is necessary so that the overhead of storing used and free memory locations is minimized. If this lower limit did not exist, and many programs request small blocks of memory like 1K or 2K, the system would waste a lot of space trying to remember which blocks are allocated and unallocated. Typically this number would be a moderate number (like 2, so that memory is allocated in 2² = 4K blocks), small enough to minimize wasted space, but large enough to avoid excessive overhead. Let's call this lower limit l.
+Now that we have our limits, let us see what happens when a program makes requests for memory. Let's say in this system, l = 6, which results in blocks 26 = 64K in size, and u = 10, which results in a largest possible allocatable block, 210 = 1024K in size. The following shows a possible state of the system after various memory requests.
+
+
+
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+64K
+
+
+t = 0
+1024K
+
+
+t = 1
+A-64K
+64K
+128K
+256K
+512K
+
+
+t = 2
+A-64K
+64K
+B-128K
+256K
+512K
+
+
+t = 3
+A-64K
+C-64K
+B-128K
+256K
+512K
+
+
+t = 4
+A-64K
+C-64K
+B-128K
+D-128K
+128K
+512K
+
+
+t = 5
+A-64K
+64K
+B-128K
+D-128K
+128K
+512K
+
+
+t = 6
+128K
+B-128K
+D-128K
+128K
+512K
+
+
+t = 7
+256K
+D-128K
+128K
+512K
+
+
+t = 8
+1024K
+
+
+This allocation could have occurred in the following manner
+
+Program A requests memory 34K..64K in size
+Program B requests memory 66K..128K in size
+Program C requests memory 35K..64K in size
+Program D requests memory 67K..128K in size
+Program C releases its memory
+Program A releases its memory
+Program B releases its memory
+Program D releases its memory
+
+As you can see, what happens when a memory request is made is as follows:
+
+If memory is to be allocated
+
+
+Look for a memory slot of a suitable size (the minimal 2k block that is larger or equal to that of the requested memory)
+
+If it is found, it is allocated to the program
+If not, it tries to make a suitable memory slot. The system does so by trying the following:
+
+Split a free memory slot larger than the requested memory size into half
+If the lower limit is reached, then allocate that amount of memory
+Go back to step 1 (look for a memory slot of a suitable size)
+Repeat this process until a suitable memory slot is found
+
+
+
+
+
+
+If memory is to be freed
+
+
+Free the block of memory
+Look at the neighboring block - is it free too?
+If it is, combine the two, and go back to step 2 and repeat this process until either the upper limit is reached (all memory is freed), or until a non-free neighbour block is encountered
+
+This method of freeing memory is rather efficient, as compaction is done relatively quickly, with the maximal number of compactions required equal to log2(u/l) (i.e. log2(u)- log2(l)).
+Typically the buddy memory allocation system is implemented with the use of a binary tree to represent used or unused split memory blocks.
+However, there still exists the problem of internal fragmentation. In many situations, it is essential to minimize the amount of internal fragmentation. This problem can be solved by slab allocation.
+
+[edit] Algorithm
+One possible version of the buddy allocation algorithm was described in detail by Donald Knuth in The Art of Computer Programming. This is a complicated process.
+
+[edit] References
+
+Donald Knuth: The Art of Computer Programming Volume 1: Fundamental Algorithms. Second Edition (Reading, Massachusetts: Addison-Wesley, 1997), pp. 435-455. ISBN 0-201-89683-4
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Buddy_memory_allocation"
+Categories: Memory management algorithms 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Italiano
+
+
+
+
+
+
+
+
+
+ This page was last modified on 19 April 2009, at 00:22 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

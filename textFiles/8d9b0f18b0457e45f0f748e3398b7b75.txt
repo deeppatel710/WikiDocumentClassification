@@ -1,0 +1,317 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Java Modeling Language - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Java_Modeling_Language";
+		var wgTitle = "Java Modeling Language";
+		var wgAction = "view";
+		var wgArticleId = "2668299";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282825414;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Java Modeling Language
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+For the series of British television shopping channels owned by John Mills Limited, see JML Direct TV.
+
+The Java Modeling Language (JML) is a specification language for Java programs, using Hoare style pre- and postconditions and invariants, that follows the design by contract paradigm. Specifications are written as Java annotation comments to the Java program, which hence can be compiled with any Java compiler.
+There are various verification tools for JML, such as a runtime assertion checker and the Extended Static Checker (ESC/Java).
+
+
+
+
+Contents
+
+
+1 Overview
+2 Syntax
+3 Tool Support
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+JML is a behavioural interface specification language for Java modules. This means that JML provides semantics to formally describe the behaviour of a Java module, removing potential ambiguity with regard to the module designers' intentions. JML inherits ideas from Eiffel, Larch and the Refinement Calculus, with the goal of providing rigorous formal semantics while still being accessible to any Java programmer. Specifications can be written as annotations in Java program files, or stored in separate specification files. Various tools are available that make use of the extra behavioural information that JML specifications provide, and, because JML annotations take the form of Java comments, whether embedded in Java code or in separate files, Java modules with JML specifications can be compiled unchanged with any Java compiler.
+
+[edit] Syntax
+JML specifications are added to Java code in the form of annotations in comments. Java comments are interpreted as JML annotations when they begin with an @ sign. That is, comments of the form
+
+//@ <JML specification>
+
+or
+
+/*@ <JML specification> @*/
+
+Basic JML syntax provides the following keywords
+
+requires 
+Defines a precondition on the method that follows.
+ensures 
+Defines a postcondition on the method that follows.
+signals 
+Defines a condition on when a given Exception can be thrown by the method that follows.
+assignable 
+Defines which fields are allowed to be assigned to by the method that follows.
+pure 
+Declares a method to be side effect free (this shorthand for assignable \nothing).
+invariant 
+Defines an invariant property of the class.
+also 
+Declares that a method should inherit conditions from its supertypes.
+assert 
+Defines a JML assertion.
+
+Basic JML also provides the following expressions
+
+\result 
+An identifier for the return value of the method that follows.
+\old(<name>) 
+A modifier to refer to the value of variable <name> at the time of entry into a method.
+\forall 
+The universal quantifier.
+\exists 
+The existential quantifier.
+a ==> b 
+The logical construct a implies b
+a <==> b 
+The logical construct a if and only if b
+
+as well as standard Java syntax for logical and, or, and not. JML annotations also have access to Java objects, object methods and operators that are within the scope of the method being annotated. These are combined to provide formal specifications of the properties of classes, fields and methods. For example, an annotated example of a simple banking class may look like
+
+public class BankingExample {
+
+    public static final int MAX_BALANCE = 1000; 
+    private int balance;
+    private boolean isLocked = false; 
+
+    //@ invariant balance >= 0 && balance <= MAX_BALANCE;
+
+    //@ assignable balance;
+    //@ ensures balance == 0;
+    public BankingExample() { ... }
+
+    //@ requires amount > 0;
+    //@ ensures balance = \old(balance) + amount;
+    //@ assignable balance;
+    public void credit(int amount) { ... }
+
+    //@ requires amount > 0;
+    //@ ensures balance = \old(balance) - amount;
+    //@ assignable balance
+    public void debit(int amount) { ... }
+
+    //@ ensures isLocked == true;
+    public void lockAccount() { ... }
+
+    //@ signals (BankingException e) isLocked;
+    public /*@ pure @*/ int getBalance() throws BankingException { ... }
+
+}
+
+Full documentation of JML syntax is available here.
+
+[edit] Tool Support
+There are a variety of tools that provide functionality based on JML annotations. The Iowa State JML tools provide an assertion checking compiler jmlc which converts JML annotations into runtime assertions, a documentation generator jmldoc which produces Javadoc documentation augmented with extra information from JML annotations, and a unit test generator jmlunit which generates JUnit testing frameworks from JML annotations.
+In addition to the Iowa State JML tools a number of independent groups are working on tools that make use of JML annotations. These include:
+
+ESC/Java2, an extended static checker which uses JML annotations to perform more rigorous static checking than is otherwise possible;
+Daikon, a dynamic invariant generator;
+KeY, which provides a theorem prover with a JML front-end;
+Krakatoa, a theorem prover using the Coq proof assistant;
+JMLeclipse, a plugin for the Eclipse integrated development environment with support for JML syntax and interfaces to various tools that make use of JML annotations.
+
+
+[edit] References
+
+Gary T. Leavens and Yoonsik Cheon. Design by Contract with JML; Draft tutorial.
+Gary T. Leavens, Albert L. Baker, and Clyde Ruby. JML: A Notation for Detailed Design; in Haim Kilov, Bernhard Rumpe, and Ian Simmonds (editors), Behavioral Specifications of Businesses and Systems, Kluwer, 1999, chapter 12, pages 175-188.
+
+
+[edit] External links
+
+JML website
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Java_Modeling_Language"
+Categories: Java platform | Formal specification languages 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Français
+Italiano
+Polski
+Português
+吴语
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 19:15 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

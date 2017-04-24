@@ -1,0 +1,545 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DirectShow - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "DirectShow";
+		var wgTitle = "DirectShow";
+		var wgAction = "view";
+		var wgArticleId = "700218";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280221028;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); DirectShow
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+Logo of the DirectX Media SDK – the first time DirectShow was distributed under its current name.
+
+
+DirectShow (sometimes abbreviated as DS or DShow), codename Quartz, is a multimedia framework and API produced by Microsoft for software developers to perform various operations with media files or streams. It is the replacement for Microsoft's earlier Video for Windows technology.[1] Based on the Microsoft Windows Component Object Model (COM) framework, DirectShow provides a common interface for media across many programming languages, and is an extensible, filter-based framework that can render or record media files on demand at the request of the user or developer. The DirectShow development tools and documentation were originally distributed as part of the DirectX SDK. Currently, they are distributed as part of the Windows SDK (formerly known as the Platform SDK). [2]
+DirectShow's counterparts on other platforms include Apple's QuickTime framework and various Linux multimedia frameworks such as GStreamer or Xine. Microsoft plans to replace DirectShow with Media Foundation in future Windows versions beginning with Windows Vista. [3]
+
+
+
+
+Contents
+
+
+1 History
+2 Architecture
+3 Features
+4 DirectShow Editing Services
+5 Video rendering filters
+6 Criticism
+
+6.1 Complexity
+6.2 Digital rights management
+6.3 Codec hell
+
+
+7 End-user tools
+8 See also
+9 References
+10 Notes
+11 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+The direct predecessor of DirectShow, ActiveMovie (codenamed Quartz), was originally chartered to provide MPEG-1 file playback support for Windows. It was also intended as a future replacement for media processing frameworks like Video for Windows, which had never been designed to handle codecs that put video frames into a different order during the compression process, and the Media Control Interface, which had never been fully ported to a 32-bit environment and did not utilize COM. [1]
+The Quartz team started with an existing project called Clockwork. Clockwork was a modular media processing framework in which semi-independent components worked together to process digital media streams, and had previously been used in several projects, including the Microsoft Interactive Television (MITV) project and another project named Tiger. [4]
+ActiveMovie was announced in March 1996,[5] and released in May 1996, bundled with the beta version of Internet Explorer 3.0.[6] In March 1997, Microsoft announced that ActiveMovie would become part of the DirectX 5 suite of technologies,[7] and around July started referring to it as DirectShow,[8] reflecting Microsoft's efforts at the time to consolidate technologies that worked directly with hardware under a common naming scheme.[9] DirectShow became a standard component of all Windows operating systems starting with Windows 98.[10] In DirectX version 8.0, DirectShow became part of the mainline distribution of the DirectX SDK and was placed alongside other DirectX APIs. [11]
+In October 2004, DirectShow was removed from the main DirectX distribution and relocated to the DirectX Extras download. In April 2005, DirectShow was removed entirely from DirectX and moved to the Windows Server 2003 SP1 version of the Microsoft Platform SDK.[2] The DirectX SDK was, however, still required to build some of the DirectShow samples.[12]
+
+[edit] Architecture
+DirectShow divides a complex multimedia task (e.g. video playback) into a sequence of fundamental processing steps known as filters.[13][14] Each filter — which represents one stage in the processing of the data — has input and/or output pins that may be used to connect the filter to other filters. The generic nature of this connection mechanism enables filters to be connected in various ways so as to implement different complex functions.[15] To implement a specific complex task, a developer must first build a filter graph by creating instances of the required filters, and then connecting the filters together. [16]
+There are three main types of filters:
+
+Source filters: These provide the source streams of data. For example, reading raw bytes from any media file.
+Transform filters: These transform data that is provided from other filter's output. For example, doing a transform such as adding text on top of video or uncompressing an MPEG frame.
+Renderer filters: These render the data. For example, sending audio to the sound card, drawing video on the screen or writing data to a file.
+
+GraphEdit is the GUI that can be used to visually build and test filter graphs.[17] During the rendering process, the filter graph searches the Windows Registry for registered filters and builds its graph of filters based on the locations provided. After this, it connects the filters together, and, at the developer's request, executes (i.e., plays, pauses, etc.) the created graph. DirectShow filter graphs are widely used in video playback (in which the filters implement functions such as file parsing, video and audio demultiplexing, decompressing and rendering) as well as for video and audio recording, editing, encoding, transcoding or network transmission of media. Interactive tasks such as DVD navigation may also be controlled by DirectShow.
+
+
+
+
+
+Filter graph of an mp3 file, as rendered by the DirectShow sample in GraphEdit. In this picture the boxes represent filters and the grey dots appearing on the sides of the filters represent pins.
+
+
+
+In the above example, from left to right, the graph contains a source filter to read an MP3 file, stream splitter and decoder filters to parse and decode the audio, and a rendering filter to play the raw audio samples. Each filter has one or more pins that can be used to connect that filter to other filters. Every pin functions either as an output or input source for data to flow from one filter to another. Depending on the filter, data is either "pulled" from an input pin or "pushed" to an output pin in order to transfer data between filters. Each pin can only connect to one other pin and they have to agree on what kind of data they are sending.
+Most filters are built using a set of C++ classes provided in the DirectShow SDK, called the DirectShow Base Classes.[18] These handle much of the creation, registration and connection logic for the filter. For the filter graph to use filters automatically, they need to be registered in a separate DirectShow registry entry as well as being registered with COM. This registration can be managed by the DirectShow Base Classes. However, if the application adds the filters manually, they do not need to be registered at all.
+Unfortunately, it is difficult to modify a graph that is already running. It is usually easier to stop the graph and create a new graph from scratch. Starting with DirectShow 8.0, dynamic graph building, dynamic reconnection, and filter chains were introduced to help alter the graph while it was running.[19] However, many filter vendors ignore this feature, making graph modification problematic after a graph has begun processing.
+
+[edit] Features
+By default, DirectShow includes a limited number of filters for decoding some common media file formats such as MPEG-1, MP3, Windows Media Audio, Windows Media Video, MIDI, media containers such as AVI, ASF, WAV, some splitters/demultiplexers, multiplexers, source and sink filters and some static image filters.[20] Since the associated patented technologies are licensed in Windows, no license fees are required (e.g., to Fraunhofer, for MP3). Notably, support for popular and standard modern codecs such as MPEG-4 Advanced Simple Profile, AAC, H.264, Vorbis and containers Ogg, MOV, MP4 is absent. Incorporating support for additional codecs such as these involves paying the licensing fees to the involved codec technology developer or patent holder.
+However, DirectShow's standard format repertoire can be easily expanded by means of a variety of commercial and open source filters. Such filters enable DirectShow to support virtually any container format and any audio or video codec. For example, filters have been developed for Ogg Vorbis,[21] Musepack [22] and AC3.[23] Finally, there are "bridge" filters that simultaneously support multiple formats, as well as functions like stream multiplexing, by exposing the functionality of underlying multimedia APIs such as VLC. [24]
+The amount of work required to implement a filter graph depends on several factors. In the simplest case, DirectShow can create a filter graph automatically from a source such as a file or URL.[25] If this is not possible, the developer may be able to manually create a filter graph from a source file, possibly with the addition of a custom filter, and then let DirectShow complete the filter graph by connecting the filters together. At the next level, the developer must build the filter graph from scratch by manually adding and connecting each desired filter. Finally, in cases where an essential filter is unavailable, the developer must create a custom filter before a filter graph can be built.
+Unlike the main C API of QuickTime where it is necessary to call MoviesTask in a loop to load a media file, DirectShow handles all of this in a transparent way. It creates several background threads that smoothly play the requested file or URL without much work required from the programmer. Also in contrast to QuickTime, nothing special is required for loading a URL instead of a local file on disk – DirectShow's filter graph abstracts these details from the programmer, although recent developments in QuickTime (including an ActiveX control) have reduced this disparity.
+
+[edit] DirectShow Editing Services
+DirectShow Editing Services (DES), introduced in DirectX 8.0 / Windows XP is an API targeted at video editing tasks and built on top of the core DirectShow architecture. DirectShow Editing Services was introduced for Microsoft's Windows Movie Maker.[1] It includes APIs for timeline and switching services, resizing, cropping, video and audio effects, as well as transitions, keying, automatic frame rate and sample rate conversion and such other features which are used in non-linear video editing allowing creation of composite media out of a number of source audio and video streams. DirectShow Editing Services allow higher-level run-time compositing, seeking support, and graph management, while still allowing applications to access lower-level DirectShow functions.
+The DirectShow Editing Services API is accessible from C++ languages including Microsoft Visual C++. Recent developments however, have allowed it to be accessible from any other Microsoft .NET compatible language including Microsoft Visual C# and Microsoft Visual Basic by using a third-party code library called DirectShow Lib. [26]
+Alternatively, the entire DirectShow API, including DirectShow Editing Services, can be accessed from Borland Delphi 5, 6 and 7, C++ Builder 6, and from later versions with a few minor modifications, using a third party software library called DSPack. [27]
+
+[edit] Video rendering filters
+Originally, the way to play video in DirectShow was to use the Video Renderer filter. This drew the images using DirectDraw, but could also fall back to GDI drawing in some circumstances.[28] It had limited access to the video window. Video for Windows had been plagued with deadlocks caused by applications' incorrect handling of the video windows, so in early DirectShow releases, the handle to the playback window was hidden from applications. There was also no reliable way to draw caption text or graphics on top of the video.
+DirectShow 6.0, released as part of DirectX Media introduced the Overlay Mixer renderer designed for DVD playback and broadcast video streams with closed captioning and subtitles. The Overlay Mixer uses DirectDraw for rendering. Downstream connection with the Video Renderer is required for window management. Overlay Mixer also supports Video Port Extensions (VPE), enabling to work with analog TV tuners with overlay capability (sending video directly to a video card via an analog link rather than via the PCI bus). Overlay Mixer also supports DXVA connections.
+Windows XP introduced a new filter called the Video Mixing Renderer 7 (VMR-7 or sometimes just referred to as VMR). The number 7 was because VMR-7 only used DirectDraw version 7 to render the video and did not have the option to use GDI drawing. The main new feature of VMR-7 was the ability to mix multiple streams and graphics, allowing applications to draw text and graphics over the video.[29] VMR-7 also featured a "windowless mode" which fixed the problems with access to the window handle.[30] VMR-7 was only officially released for Windows XP.
+DirectX 9 included VMR-9. This version uses Direct3D 9 instead of DirectDraw.[31] It is available for all Windows platforms as part of the DirectX 9 redistributable.
+Windows Vista ships with a new renderer, available as both a Media Foundation component and a DirectShow filter, called the Enhanced Video Renderer (EVR).[32] EVR supports DXVA 2.0, which is exclusive to Windows Vista. [33]
+
+[edit] Criticism
+
+[edit] Complexity
+Commanding DirectShow to play a file is a relatively simple task. However, while programming more advanced customizations, such as commanding DirectShow to display certain windows messages from the video window or creating custom filters, many developers complain of difficulties.[34][35][36] It is often regarded as one of Microsoft's most complex development libraries/APIs. [37]
+Developers rarely create DirectShow filters from scratch. Rather, they employ DirectShow Base Classes. The Base Classes can often simplify development, allowing the programmer to bypass certain tasks. However, the process may remain relatively complex; the code found in the Base Classes is nearly half the size of the entire MFC library. As a result, even with the Base Classes, the number of COM objects that DirectShow contains overwhelms many developers. In some cases, DirectShow's API deviates from traditional COM rules, particularly with regard to the parameters used for methods. To overcome their difficulties with DirectShow's unique COM rules, developers often turn to a higher level API that uses DirectShow, notably, Windows Media Player SDK. This API provides the developer with an ActiveX Control that has fewer COM interfaces to deal with.
+Although DirectShow is capable of dynamically building a graph to render a given media type,[19] it may become difficult for developers to rely on this functionality and they may need to resort to manually building filter graphs if the resulting filter graph is variable.[citation needed] It is possible for filter graphs to change over time as new filters are installed on the computer.
+
+[edit] Digital rights management
+DirectShow has also been criticized for its support of digital rights management (DRM). However, this criticism appears misplaced, as DirectShow itself has minimal support for DRM in its API.[38] The Windows Media Player SDK more significantly reflects Microsoft's adherence to DRM.
+
+[edit] Codec hell
+Codec hell (a term derived from DLL hell) is when multiple DirectShow filters conflict for performing the same task. A large number of companies now develop codecs in the form of DirectShow filters, resulting in the presence of several filters that can decode the same media type.[39][40] This issue is further exacerbated by DirectShow's merit system, where filter implementations end up competing with one another by registering themselves with increasingly elevated priority. [41]
+Microsoft's Ted Youmans explained that "[DirectShow] was based on the merit system, with the idea being that, using a combination of the filter’s merit and how specific the media type/sub type is, one could reasonably pick the right codec every time. It wasn't really designed for a competing merit nuclear arms race."[41]
+A tool to help in the troubleshooting of "codec hell" issues usually referenced is the GSpot Codec Information Appliance [42] which can be useful in determining what codec is used to render video files in AVI and other containers. GraphEdit can also help understanding the sequence of filters that DirectShow is using to render the media file. Codec hell can be resolved by manually building filter graphs, using a media player that supports ignoring or overriding filter merits, or by using a filter manager that changes filter merits in the Windows Registry.
+
+[edit] End-user tools
+DirectShow is a developer-centric framework and API. It does not directly offer end-user control over encoding content, nor does it incorporate a user interface for encoding using installed codecs or to different formats, instead relying on developers to develop software using the API. In contrast, other multimedia frameworks such as QuickTime or Video for Windows allow end-users to perform basic video-related tasks such as re-encoding using a different codec and editing files and streams. The convenience offered by an end-user GUI is apparent since the AVI format and codecs used by Video for Windows, remain in use in spite of their obsolescence.
+
+[edit] See also
+
+GraphEdit
+GraphStudio – open source GraphEdit project
+DirectX Media Objects
+Media Foundation
+DirectX plugins
+DirectX Video Acceleration
+
+
+[edit] References
+
+"MSDN DirectShow documentation". http://msdn.microsoft.com/en-us/library/ms783323.aspx. Retrieved on July 7 2007. 
+Pesce, Mark D. (2003). Programming Microsoft DirectShow for Digital Video and Television. Microsoft Press. ISBN 0-7356-1821-6.  (Sample Chapter)
+
+
+[edit] Notes
+
+
+^ a b c MSDN Magazine (July 2002). "Core Media Technology in Windows XP Empowers You to Create Custom Audio/Video Processing Components". Microsoft PressPass. http://msdn.microsoft.com/en-us/magazine/cc301631.aspx. Retrieved on 2007-04-02. 
+^ a b DirectShow documentation on MSDN
+^ Migrating from DirectShow to Media Foundation
+^ Michael B. Jones (July 1997). "The Microsoft Interactive TV System: An Experience Report". http://research.microsoft.com/~mbj/papers/mitv/tr-97-18.html. Retrieved on 2007-04-02. 
+^ Microsoft (1996-03-05). "Microsoft Announces ActiveMovie". Microsoft PressPass. http://www.microsoft.com/presspass/press/1996/mar96/actmovpr.mspx. Retrieved on 2006-12-31. 
+^ Microsoft (1996-05-29). "Microsoft Internet Explorer 3.0 Beta Now Available". Microsoft PressPass. http://www.microsoft.com/presspass/press/1996/may96/ie3btapr.mspx. Retrieved on 2006-12-31. 
+^ Microsoft (1997-03-31). "Microsoft Unveils First Unified Multimedia API Strategy". Microsoft PressPass. http://www.microsoft.com/presspass/press/1997/mar97/mmapipr.mspx. Retrieved on 2006-12-31. 
+^ Microsoft (1997-07-21). "Microsoft and Progressive Networks Collaborate on Streaming Media". Microsoft PressPass. http://www.microsoft.com/presspass/press/1997/Jul97/pronetpr3_95.mspx. Retrieved on 2006-12-31. 
+^ DirectX Then and Now (Part 1)
+^ Microsoft Releases DirectShow SDK - Universal Playback for DVD, Digital Video and Audio, and the Internet
+^ FAQs about the DirectShow and Windows Media SDKs
+^ "DirectX FAQ". http://msdn.microsoft.com/en-us/library/ms783352(VS.85).aspx. Retrieved on September 11 2005. 
+^ Introduction to DirectShow application programming
+^ DirectShow system overview
+^ About DirectShow filters: MSDN
+^ Overview of graph building
+^ Overview of GraphEdit
+^ DirectShow Base Classes
+^ a b Dynamic Graph Building
+^ "Formats supported by default in DirectShow". http://msdn.microsoft.com/en-us/library/ms787745(VS.85).aspx. Retrieved on September 11 2005. 
+^ "illiminable Directshow Filters for Ogg Vorbis, Speex, Theora and FLAC". http://www.illiminable.com/ogg/. Retrieved on March 11 2006. 
+^ "Monogram's DirectShow filters for Musepack, AAC and AMR". http://blog.monogram.sk/janos/directshow-filters/. Retrieved on March 8 2008. 
+^ AC3Filter
+^ Dean Anderson, Jim Lamberson (2007). "Using VideoLan VLC in DirectShow". An open source bridge from VLC to DirectShow. http://www.sensoray.com/support/videoLan.htm. Retrieved on 2008-02-15. 
+^ DirectShow For Media Playback In Windows: Customizing Graphs
+^ DirectShow.NET
+^ DSPack
+^ DirectShow Video Renderer Filter
+^ "Video Mixing Renderer 7 (VMR-7)". http://msdn.microsoft.com/en-us/library/ms787917. Retrieved on September 11 2005. 
+^ "VMR Windowless Mode". http://msdn.microsoft.com/en-us/library/ms788128.aspx. Retrieved on September 11 2005. 
+^ "Video Mixing Renderer 9 (VMR-9)". http://msdn.microsoft.com/en-us/library/ms787918. Retrieved on September 11 2005. 
+^ "Enhanced Video Renderer". http://msdn.microsoft.com/en-us/library/ms694916.aspx. Retrieved on February 28 2007. 
+^ Media Foundation forum
+^ Using DirectShow with Media Center Edition
+^ The Basics to using DirectShow
+^ LEAD Technologies: DirectShow defined
+^ Richards, Mark (August 26, 2008). "DirectShow Filters". http://www.mquter.qut.edu.au/mobile/ARTFilterDX/files/ARTFilterDX09-10.doc. Retrieved on 2009-01-25. 
+^ Microsoft's next scapegoat - DirectShow!
+^ Codec Hell: Home Video 101 blog
+^ Codec's = New Age DLL Hell? Hell Yes - Chris Lanier's Blog
+^ a b "New Age DLL Hell? Hell Yes". http://msmvps.com/blogs/chrisl/archive/2005/01/27/34039.aspx#34071. Retrieved on February 27 2007. 
+^ The GSpot Codec Information Appliance
+
+
+
+[edit] External links
+
+MSDN – 'Official DirectShow documentation from MSDN'
+Good Overview of Video Renderer versions
+MSDN – 'DirectShow Downloads from MSDN'
+Radlight Ogg Theora DirectShow filter
+J. River DirectShow Playback Guide – 'A tutorial on DirectShow focused on J. River's Media Center, but contains good general-purpose information as well.'
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft APIs and frameworks
+
+
+
+
+
+Graphics
+
+Desktop Window Manager · Direct2D · Direct3D (extensions)  · GDI / GDI+ · WPF · Windows Color System · Windows Image Acquisition · Windows Imaging Component
+
+
+
+
+
+
+Audio
+
+DirectMusic · DirectSound · DirectX plugin · XACT · Speech API
+
+
+
+
+
+
+Multimedia
+
+DirectX · (Media Objects · Video Acceleration) · DirectInput · DirectPlay · DirectShow · Image Mastering API · Managed DirectX · Media Foundation · XNA · Windows Media
+
+
+
+
+
+
+Web
+
+MSHTML · RSS Platform · JScript · VBScript · BHO · XDR · SideBar Gadgets
+
+
+
+
+
+
+Data access
+
+Data Access Components · Extensible Storage Engine · ADO.NET · ADO.NET Entity Framework · Sync Framework · Jet Engine · MSXML · OLE DB
+
+
+
+
+
+
+Networking
+
+Winsock (LSP) · Winsock Kernel · Filtering Platform · Network Driver Interface Specification · Windows Rally · BITS · P2P API · MSMQ · MS MPI
+
+
+
+
+
+
+Communication
+
+Messaging API · Telephony API
+
+
+
+
+
+
+
+Administration and
+management
+
+
+Win32 console · Windows Script Host · WMI (extensions) · PowerShell · Task Scheduler · Offline Files · Shadow Copy · Windows Installer · Error Reporting · Event Log · Common Log File System
+
+
+
+
+
+
+Component model
+
+COM · COM+ · ActiveX · Distributed Component Object Model · .NET Framework
+
+
+
+
+
+
+Libraries
+
+Microsoft Foundation Classes (MFC) · Active Template Library (ATL) · Windows Template Library (WTL)
+
+
+
+
+
+
+Device drivers
+
+Windows Driver Model  · Windows Driver Foundation (KMDF · UMDF) · WDDM · NDIS · UAA · Broadcast Driver Architecture  · VxD
+
+
+
+
+
+
+Security
+
+Crypto API (CAPICOM) · Windows CardSpace · Data protection API · Security Support Provider Interface (SSPI)
+
+
+
+
+
+
+.NET
+
+ASP.NET · ADO.NET · Remoting · Silverlight · TPL · WCF · WCS · WPF · WF
+
+
+
+
+
+
+Software factories
+
+EFx Factory · Enterprise Library · Composite UI · CCF · CSF
+
+
+
+
+
+
+IPC
+
+MSRPC · Dynamic Data Exchange (DDE)
+
+
+
+
+
+
+Accessibility
+
+Active Accessibility · UI Automation
+
+
+
+
+
+
+
+Text and multilingual
+support
+
+
+Text Services Framework · Text Object Model · Input method editor · Language Interface Pack · Multilingual User Interface · Uniscribe
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/DirectShow"
+Categories: Microsoft application programming interfaces | Multimedia frameworks | DirectXHidden categories: All articles with unsourced statements | Articles with unsourced statements since April 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+한국어
+Italiano
+Lietuvių
+Polski
+Português
+Русский
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 28 March 2009, at 14:57 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

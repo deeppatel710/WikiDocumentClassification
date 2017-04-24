@@ -1,0 +1,334 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Query optimizer,Databases,ACID,Alter (SQL),Candidate key,Cardinality,Commit (data management),Comparison of object-relational database management systems,Comparison of relational database management systems,Concurrency control,Create, read, update and delete" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Query_optimizer&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Query_optimizer&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Query optimizer - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Query_optimizer";
+		var wgTitle = "Query optimizer";
+		var wgAction = "view";
+		var wgArticleId = "1732441";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281366368;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Query_optimizer skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Query optimizer</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table class="metadata plainlinks ambox ambox-move" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Mergefrom.svg" class="image" title="Mergefrom.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Mergefrom.svg/50px-Mergefrom.svg.png" width="50" height="20" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">It has been suggested that <i><a href="/wiki/Query_optimization" title="Query optimization">Query optimization</a></i> be <a href="/wiki/Wikipedia:Merging_and_moving_pages" title="Wikipedia:Merging and moving pages" class="mw-redirect">merged</a> into this article or section. (<a href="/wiki/Talk:Query_optimizer" title="Talk:Query optimizer">Discuss</a>)</td>
+</tr>
+</table>
+<p>The <b>query optimizer</b> is the component of a <a href="/wiki/Database_management_system" title="Database management system">database management system</a> that attempts to determine the most efficient way to execute a <a href="/wiki/Query" title="Query">query</a>. The optimizer considers the possible <a href="/wiki/Query_plan" title="Query plan">query plans</a> for a given input query, and attempts to determine which of those plans will be the most efficient. Cost-based query optimizers assign an estimated "cost" to each possible query plan, and choose the plan with the smallest cost. Costs are used to estimate the runtime cost of evaluating the query, in terms of the number of I/O operations required, the CPU requirements, and other factors determined from the <a href="/wiki/Data_dictionary" title="Data dictionary">data dictionary</a>. The set of query plans examined is formed by examining the possible access paths (e.g. index scan, sequential scan) and <a href="/wiki/Join_algorithm" title="Join algorithm" class="mw-redirect">join algorithms</a> (e.g. <a href="/wiki/Sort-merge_join" title="Sort-merge join">sort-merge join</a>, <a href="/wiki/Hash_Join" title="Hash Join" class="mw-redirect">hash join</a>, <a href="/wiki/Nested_loop_join" title="Nested loop join">nested loops</a>). The search space can become quite large depending on the complexity of the SQL query.</p>
+<p>Generally, the query optimizer cannot be accessed directly by users: once queries are submitted to database server, and parsed by the parser, they are then passed to the query optimizer where optimization occurs. However, some database engines allow guiding the query optimizer with <a href="/wiki/Hint_(SQL)" title="Hint (SQL)">hints</a>.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Implementation"><span class="tocnumber">1</span> <span class="toctext">Implementation</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Join_ordering"><span class="tocnumber">1.1</span> <span class="toctext">Join ordering</span></a></li>
+<li class="toclevel-2"><a href="#Query_planning_for_nested_SQL_queries"><span class="tocnumber">1.2</span> <span class="toctext">Query planning for nested SQL queries</span></a></li>
+<li class="toclevel-2"><a href="#Cost_estimation"><span class="tocnumber">1.3</span> <span class="toctext">Cost estimation</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">2</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">3</span> <span class="toctext">See also</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Implementation" id="Implementation"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Query_optimizer&amp;action=edit&amp;section=1" title="Edit section: Implementation">edit</a>]</span> <span class="mw-headline">Implementation</span></h2>
+<p>Most query optimizers represent query plans as a <a href="/wiki/Tree_data_structure" title="Tree data structure" class="mw-redirect">tree</a> of "plan nodes". A plan node encapsulates a single operation that is required to execute the query. The nodes are arranged as a tree, in which intermediate results flow from the bottom of the tree to the top. Each node has zero or more child nodes -- those are nodes whose output is fed as input to the parent node. For example, a join node will have two child nodes, which represent the two join operands, whereas a sort node would have a single child node (the input to be sorted). The leaves of the tree are nodes which produce results by scanning the disk, for example by performing an <a href="/w/index.php?title=Index_scan&amp;action=edit&amp;redlink=1" class="new" title="Index scan (page does not exist)">index scan</a> or a sequential scan.</p>
+<p><a name="Join_ordering" id="Join_ordering"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Query_optimizer&amp;action=edit&amp;section=2" title="Edit section: Join ordering">edit</a>]</span> <span class="mw-headline">Join ordering</span></h3>
+<p>The performance of a query plan is determined largely by the order in which the tables are joined. For example, when joining 3 tables A, B, C of size 10 rows, 10,000 rows, and 1,000,000 rows, respectively, a query plan that joins B and C first can take several orders-of-magnitude more time to execute than one that joins A and C first. Most query optimizers determine <a href="/wiki/Join_(SQL)" title="Join (SQL)">join</a> order via a <a href="/wiki/Dynamic_programming" title="Dynamic programming">dynamic programming</a> algorithm pioneered by <a href="/wiki/IBM" title="IBM">IBM's</a> <a href="/wiki/System_R" title="System R">System R</a> database project. This algorithm works in two stages:</p>
+<ol>
+<li>First, all ways to access each <a href="/wiki/Relational_model" title="Relational model">relation</a> in the query are computed. Every relation in the query can be accessed via a sequential scan. If there is an <a href="/wiki/Index_(database)" title="Index (database)">index</a> on a relation that can be used to answer a <a href="/wiki/Predicate_(computer_programming)" title="Predicate (computer programming)" class="mw-redirect">predicate</a> in the query, an index scan can also be used. For each relation, the optimizer records the cheapest way to scan the relation, as well as the cheapest way to scan the relation that produces records in a particular sorted order.</li>
+<li>The optimizer then considers combining each pair of relations for which a join condition exists. For each pair, the optimizer will consider the available join algorithms implemented by the <a href="/wiki/Database_management_system" title="Database management system">DBMS</a>. It will preserve the cheapest way to join each pair of relations, in addition to the cheapest way to join each pair of relations that produces its output according to a particular sort order.</li>
+<li>Then all three-relation query plans are computed, by joining each two-relation plan produced by the previous phase with the remaining relations in the query.</li>
+</ol>
+<p>In this manner, a <a href="/wiki/Query_plan" title="Query plan">query plan</a> is eventually produced that joins all the queries in the relation. Note that the algorithm keeps track of the sort order of the result set produced by a query plan, also called an <i>interesting order</i>. During dynamic programming, one query plan is considered to beat another query plan that produces the same result, only if they produce the same sort order. This is done for two reasons. First, a particular sort order can avoid a redundant sort operation later on in processing the query. Second, a particular sort order can speed up a subsequent join because it clusters the data in a particular way.</p>
+<p>Historically, System-R derived query optimizers would often only consider <i>left-deep</i> query plans, which first join two <a href="/w/index.php?title=Base_table&amp;action=edit&amp;redlink=1" class="new" title="Base table (page does not exist)">base tables</a> together, then join the intermediate result with another base table, and so on. This heuristic reduces the number of plans that need to be considered (n! instead of 4^n), but may result in not considering the optimal query plan. This <a href="/wiki/Heuristic" title="Heuristic">heuristic</a> is drawn from the observation that join algorithms such as nested loops only require a single <a href="/wiki/Tuple" title="Tuple">tuple</a> (aka <a href="/wiki/Row_(database)" title="Row (database)">row</a>) of the outer relation at a time. Therefore, a left-deep query plan means that fewer tuples need to be held in memory at any time: the outer relation's join plan need only be executed until a single tuple is produced, and then the inner base relation can be scanned (this technique is called "pipelining").</p>
+<p>Subsequent query optimizers have expanded this <a href="/w/index.php?title=Plan_space&amp;action=edit&amp;redlink=1" class="new" title="Plan space (page does not exist)">plan space</a> to consider "bushy" query plans, where both operands to a join operator could be intermediate results from other joins. Such bushy plans are especially important in <a href="/wiki/Parallel_computers" title="Parallel computers" class="mw-redirect">parallel computers</a> because they allow different portions of the plan to be evaluated independently.</p>
+<p><a name="Query_planning_for_nested_SQL_queries" id="Query_planning_for_nested_SQL_queries"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Query_optimizer&amp;action=edit&amp;section=3" title="Edit section: Query planning for nested SQL queries">edit</a>]</span> <span class="mw-headline">Query planning for <a href="/wiki/Nested_SQL" title="Nested SQL">nested SQL</a> queries</span></h3>
+<p>A SQL query to a modern relational DBMS does more than just selections and joins. In particular, SQL queries often nest several layers of <a href="/w/index.php?title=Select-project-join&amp;action=edit&amp;redlink=1" class="new" title="Select-project-join (page does not exist)">SPJ</a> blocks (Select-Project-Join) , by means of <a href="/wiki/GROUP_BY_(SQL)" title="GROUP BY (SQL)" class="mw-redirect">group by</a>, <a href="/wiki/Exists" title="Exists" class="mw-redirect">exists</a>, and <a href="/w/index.php?title=Not_exists&amp;action=edit&amp;redlink=1" class="new" title="Not exists (page does not exist)">not exists</a> operators. In some cases such nested SQL queries can be <a href="/w/index.php?title=Flattened&amp;action=edit&amp;redlink=1" class="new" title="Flattened (page does not exist)">flattened</a> into a select-project-join query, but not always. Query plans for nested SQL queries can also be chosen using the same dynamic programming algorithm as used for join ordering, but this can lead to an enormous escalation in query optimization time. So some database management systems use an alternative rule-based approach that uses a query graph model.</p>
+<p><a name="Cost_estimation" id="Cost_estimation"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Query_optimizer&amp;action=edit&amp;section=4" title="Edit section: Cost estimation">edit</a>]</span> <span class="mw-headline">Cost estimation</span></h3>
+<p>One of the hardest problems in query optimization is to accurately estimate the costs of alternative query plans. Optimizers cost query plans using a mathematical model of query execution costs that relies heavily on estimates of the <a href="/wiki/Cardinality" title="Cardinality">cardinality</a>, or number of tuples, flowing through each edge in a query plan. Cardinality estimation in turn depends on estimates of the <a href="/wiki/Selectivity" title="Selectivity">selection factor</a> of predicates in the query. Traditionally, database systems estimate selectivities through fairly detailed statistics on the distribution of values in each column, such as <a href="/wiki/Histograms" title="Histograms" class="mw-redirect">histograms</a>. This technique works well for estimation of selectivities of individual predicates. However many queries have <a href="/wiki/Logical_conjunction" title="Logical conjunction">conjunctions</a> of predicates such as <code>select count(*) from R where R.make='Honda' and R.model='Accord'</code>. Query predicates are often highly correlated (for example, <code>model='Accord'</code> implies <code>make='Honda'</code>), and it is very hard to estimate the selectivity of the conjunct in general. Poor <a href="/wiki/Cardinality" title="Cardinality">cardinality</a> estimates and uncaught correlation are one of the main reasons why query optimizers pick poor query plans. This is one reason why a <a href="/wiki/Database_administrator" title="Database administrator">DBA</a> should regularly update the database statistics, especially after major data loads/unloads.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Query_optimizer&amp;action=edit&amp;section=5" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><cite style="font-style:normal"><a href="/wiki/Surajit_Chaudhuri" title="Surajit Chaudhuri">Chaudhuri, Surajit</a> (1998). "<a href="http://citeseer.ist.psu.edu/chaudhuri98overview.html" class="external text" title="http://citeseer.ist.psu.edu/chaudhuri98overview.html" rel="nofollow">An Overview of Query Optimization in Relational Systems</a>". <i>Proceedings of the ACM Symposium on Principles of Database Systems</i>: pages 34–43. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<a href="http://dx.doi.org/10.1145/275487.275492" class="external text" title="http://dx.doi.org/10.1145/275487.275492" rel="nofollow">10.1145/275487.275492</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=proceeding&amp;rft.btitle=Proceedings+of+the+ACM+Symposium+on+Principles+of+Database+Systems&amp;rft.atitle=An+Overview+of+Query+Optimization+in+Relational+Systems&amp;rft.aulast=Chaudhuri&amp;rft.aufirst=Surajit&amp;rft.date=1998&amp;rft.pages=pages+34%E2%80%9343&amp;rft_id=info:doi/10.1145%2F275487.275492&amp;rft_id=http%3A%2F%2Fciteseer.ist.psu.edu%2Fchaudhuri98overview.html"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="" id="CITEREFIoannidis1996">Ioannidis, Yannis (March 1996). "<a href="http://citeseer.ist.psu.edu/487912.html" class="external text" title="http://citeseer.ist.psu.edu/487912.html" rel="nofollow">Query optimization</a>". <i>ACM Computing Surveys</i> <b>28</b> (1): 121–123. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F234313.234367" class="external text" title="http://dx.doi.org/10.1145%2F234313.234367" rel="nofollow">10.1145/234313.234367</a></span><span class="printonly">. <a href="http://citeseer.ist.psu.edu/487912.html" class="external free" title="http://citeseer.ist.psu.edu/487912.html" rel="nofollow">http://citeseer.ist.psu.edu/487912.html</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Query+optimization&amp;rft.jtitle=ACM+Computing+Surveys&amp;rft.aulast=Ioannidis&amp;rft.aufirst=Yannis&amp;rft.au=Ioannidis%2C+Yannis&amp;rft.date=March+1996&amp;rft.volume=28&amp;rft.issue=1&amp;rft.pages=121%E2%80%93123&amp;rft_id=info:doi/10.1145%2F234313.234367&amp;rft_id=http%3A%2F%2Fciteseer.ist.psu.edu%2F487912.html&amp;rfr_id=info:sid/en.wikipedia.org:Query_optimizer"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="" id="CITEREFSelingerAstrahanChamberlinLorie1979"><a href="/wiki/Patricia_Selinger" title="Patricia Selinger">Selinger, P. G.</a>; Astrahan, M. M.; <a href="/wiki/Donald_D._Chamberlin" title="Donald D. Chamberlin">Chamberlin, D. D.</a>; Lorie, R. A.; Price, T. G. (1979), "Access Path Selection in a Relational Database Management System", <i>Proceedings of the 1979 ACM SIGMOD International Conference on Management of Data</i>, pp.&#160;23–34, <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F582095.582099" class="external text" title="http://dx.doi.org/10.1145%2F582095.582099" rel="nofollow">10.1145/582095.582099</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=Access+Path+Selection+in+a+Relational+Database+Management+System&amp;rft.atitle=Proceedings+of+the+1979+ACM+SIGMOD+International+Conference+on+Management+of+Data&amp;rft.aulast=Selinger&amp;rft.aufirst=P.+G.&amp;rft.au=Selinger%2C+P.+G.&amp;rft.au=Astrahan%2C+M.+M.&amp;rft.au=Chamberlin%2C+D.+D.&amp;rft.au=Lorie%2C+R.+A.&amp;rft.au=Price%2C+T.+G.&amp;rft.date=1979&amp;rft.pages=pp.%26nbsp%3B23%E2%80%9334&amp;rft_id=info:doi/10.1145%2F582095.582099&amp;rfr_id=info:sid/en.wikipedia.org:Query_optimizer"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Query_optimizer&amp;action=edit&amp;section=6" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Join_Selection_Factor" title="Join Selection Factor">Join Selection Factor</a></li>
+<li><a href="/wiki/Query_optimization" title="Query optimization">Query optimization</a></li>
+</ul>
+<table class="navbox" cellspacing="0" style=";">
+<tr>
+<td style="padding:2px;">
+<table cellspacing="0" class="nowraplinks collapsible autocollapse" style="width:100%;background:transparent;color:inherit;;">
+<tr>
+<th style=";" colspan="2" class="navbox-title">
+<div style="float:left; width:6em;text-align:left;">
+<div class="noprint plainlinksneverexpand navbar" style="background:none; padding:0; font-weight:normal;;;border:none;; font-size:xx-small;"><a href="/wiki/Template:Databases" title="Template:Databases"><span title="View this template" style=";;border:none;">v</span></a>&#160;<span style="font-size:80%;">•</span>&#160;<a href="/wiki/Template_talk:Databases" title="Template talk:Databases"><span title="Discussion about this template" style=";;border:none;">d</span></a>&#160;<span style="font-size:80%;">•</span>&#160;<a href="http://en.wikipedia.org/w/index.php?title=Template:Databases&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Template:Databases&amp;action=edit" rel="nofollow"><span title="Edit this template" style=";;border:none;;">e</span></a></div>
+</div>
+<span style="font-size:110%;"><a href="/wiki/Database_management_system" title="Database management system">Database management systems</a></span></th>
+</tr>
+<tr style="height:2px;">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-abovebelow" style=";" colspan="2"><a href="/wiki/Database_models" title="Database models" class="mw-redirect">Database models</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Database_normalization" title="Database normalization">Database normalization</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Database_storage_structures" title="Database storage structures">Database storage</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Distributed_database_management_system" title="Distributed database management system">Distributed DBMS</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Referential_integrity" title="Referential integrity">Referential integrity</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Relational_algebra" title="Relational algebra">Relational algebra</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Relational_calculus" title="Relational calculus">Relational calculus</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Relational_database" title="Relational database">Relational database</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Relational_database_management_system" title="Relational database management system">Relational DBMS</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Relational_model" title="Relational model">Relational model</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Object-relational_database" title="Object-relational database">Object-relational database</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Transaction_processing" title="Transaction processing">Transaction processing</a></td>
+</tr>
+<tr style="height:2px;">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-group" style=";;">Concepts</td>
+<td style="text-align:left;border-left:2px solid #fdfdfd;width:100%;padding:0px;;;" class="navbox-list navbox-odd">
+<div style="padding:0em 0.25em"><a href="/wiki/Database" title="Database">Database</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/ACID" title="ACID">ACID</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Create,_read,_update_and_delete" title="Create, read, update and delete">CRUD</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Null_(SQL)" title="Null (SQL)">Null</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Candidate_key" title="Candidate key">Candidate key</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Foreign_key" title="Foreign key">Foreign key</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Primary_key" title="Primary key" class="mw-redirect">Primary key</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Superkey" title="Superkey">Superkey</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Surrogate_key" title="Surrogate key">Surrogate key</a></div>
+</td>
+</tr>
+<tr style="height:2px">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-group" style=";;">Objects</td>
+<td style="text-align:left;border-left:2px solid #fdfdfd;width:100%;padding:0px;;;" class="navbox-list navbox-even">
+<div style="padding:0em 0.25em"><a href="/wiki/Database_trigger" title="Database trigger">Trigger</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/View_(database)" title="View (database)">View</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Table_(database)" title="Table (database)">Table</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Cursor_(databases)" title="Cursor (databases)">Cursor</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Transaction_log" title="Transaction log">Log</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Database_transaction" title="Database transaction">Transaction</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Index_(database)" title="Index (database)">Index</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Stored_procedure" title="Stored procedure">Stored procedure</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Partition_(database)" title="Partition (database)">Partition</a></div>
+</td>
+</tr>
+<tr style="height:2px">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-group" style=";;"><a href="/wiki/SQL" title="SQL">SQL</a></td>
+<td style="text-align:left;border-left:2px solid #fdfdfd;width:100%;padding:0px;;;" class="navbox-list navbox-odd">
+<div style="padding:0em 0.25em"><a href="/wiki/Select_(SQL)" title="Select (SQL)">Select</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Insert_(SQL)" title="Insert (SQL)">Insert</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Update_(SQL)" title="Update (SQL)">Update</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Merge_(SQL)" title="Merge (SQL)">Merge</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Delete_(SQL)" title="Delete (SQL)">Delete</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Join_(SQL)" title="Join (SQL)">Join</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Union_(SQL)" title="Union (SQL)" class="mw-redirect">Union</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Create_(SQL)" title="Create (SQL)" class="mw-redirect">Create</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Data_Definition_Language#DROP_statements" title="Data Definition Language">Drop</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Database_transaction#In_SQL" title="Database transaction">Begin work</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Commit_(data_management)" title="Commit (data management)">Commit</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Rollback_(SQL)" title="Rollback (SQL)" class="mw-redirect">Rollback</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Truncate_(SQL)" title="Truncate (SQL)">Truncate</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Alter_(SQL)" title="Alter (SQL)" class="mw-redirect">Alter</a></div>
+</td>
+</tr>
+<tr style="height:2px">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-group" style=";;">Components</td>
+<td style="text-align:left;border-left:2px solid #fdfdfd;width:100%;padding:0px;;;" class="navbox-list navbox-even">
+<div style="padding:0em 0.25em"><a href="/wiki/Concurrency_control" title="Concurrency control">Concurrency control</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Data_dictionary" title="Data dictionary">Data dictionary</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Java_Database_Connectivity" title="Java Database Connectivity">JDBC</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Open_Database_Connectivity" title="Open Database Connectivity">ODBC</a><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Query_language" title="Query language">Query language</a><span style="font-weight:bold;">&#160;·</span> <strong class="selflink">Query optimizer</strong><span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Query_plan" title="Query plan">Query plan</a></div>
+</td>
+</tr>
+<tr style="height:2px;">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-abovebelow" style=";" colspan="2"><b>Database products:</b> <a href="/wiki/List_of_object-oriented_database_management_systems" title="List of object-oriented database management systems" class="mw-redirect">Object-oriented</a> (<a href="/wiki/Comparison_of_object-relational_database_management_systems" title="Comparison of object-relational database management systems">comparison</a>)<span style="font-weight:bold;">&#160;·</span> <a href="/wiki/List_of_relational_database_management_systems" title="List of relational database management systems">Relational</a> (<a href="/wiki/Comparison_of_relational_database_management_systems" title="Comparison of relational database management systems">comparison</a>)<span style="font-weight:bold;">&#160;·</span> <a href="/wiki/Document-oriented_database" title="Document-oriented database">Document-oriented</a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 2072/1000000
+Post-expand include size: 39172/2048000 bytes
+Template argument size: 20583/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1732441-0!1!0!default!!en!2 and timestamp 20090407043120 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Query_optimizer">http://en.wikipedia.org/wiki/Query_optimizer</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Database_management_systems" title="Category:Database management systems">Database management systems</a></span> | <span dir='ltr'><a href="/wiki/Category:Database_algorithms" title="Category:Database algorithms">Database algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:SQL" title="Category:SQL">SQL</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Articles_to_be_merged_since_January_2009" title="Category:Articles to be merged since January 2009">Articles to be merged since January 2009</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_to_be_merged" title="Category:All articles to be merged">All articles to be merged</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Query_optimizer" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Query_optimizer" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Query_optimizer&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Query_optimizer&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Query_optimizer" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Query_optimizer" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Query_optimizer" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Query_optimizer&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Query_optimizer&amp;oldid=281366368" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Query_optimizer&amp;id=281366368">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Anfrageoptimierer">Deutsch</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%82%AF%E3%82%A8%E3%83%AA%E6%9C%80%E9%81%A9%E5%8C%96">日本語</a></li>
+				<li class="interwiki-th"><a href="http://th.wikipedia.org/wiki/Query_optimizer">ไทย</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 2 April 2009, at 21:00.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv73 in 0.253 secs. --></body></html>

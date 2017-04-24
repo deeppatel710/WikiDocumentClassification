@@ -1,0 +1,269 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dekker's algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Dekker\'s_algorithm";
+		var wgTitle = "Dekker\'s algorithm";
+		var wgAction = "view";
+		var wgArticleId = "36826";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 273397597;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Dekker's algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Dekker's algorithm is a concurrent programming algorithm for mutual exclusion derived by the Dutch mathematician T. J. Dekker in 1964 that allows two threads to share a single-use resource without conflict, using only shared memory for communication.
+It avoids the strict alternation of a naive turn-taking algorithm, and was one of the first mutual exclusion algorithms to be invented.
+
+
+
+
+Contents
+
+
+1 Introduction
+2 Pseudocode
+3 Note
+4 See also
+5 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Introduction
+If two processes attempt to enter a critical section at the same time, the algorithm will allow only one process in, based on whose turn it is. If one process is already in the critical section, the other process will Busy wait for the first process to exit. This is done by the use of two flags f0 and f1 which indicate an intention to enter the critical section and a turn variable which indicates who has priority between the two processes.
+
+[edit] Pseudocode
+
+ f0 := false
+ f1 := false
+ turn := 0   // or 1
+
+ p0:                                 p1:
+     f0 := true                          f1 := true
+     while f1 {                          while f0 {
+         if turn ≠ 0 {                       if turn ≠ 1 {
+             f0 := false                         f1 := false
+             while turn ≠ 0 {                    while turn ≠ 1 {
+             }                                   }
+             f0 := true                          f1 := true
+          }                                  }
+     }                                    }
+
+    // critical section                   // critical section 
+    ...                                   ...
+    // remainder section                  // remainder section
+    turn := 1                             turn := 0
+    f0 := false                           f1 := false
+
+Processes indicate an intention to enter the critical section which is tested by the outer while loop. If the other process has not flagged intent, the critical section can be entered safely irrespective of the current turn. Mutual exclusion will still be guaranteed as neither process can become critical before setting their flag (implying at least one process will enter the while loop). This also guarantees progress as waiting will not occur on a process which has withdrawn intent to become critical. Alternatively, if the other process's variable was set the while loop is entered and the turn variable will establish who is permitted to become critical. Processes without priority will withdraw their intention to enter the critical section until they are given priority again (the inner while loop). Processes with priority will break from the while loop and enter their critical section.
+Dekker's algorithm guarantees mutual exclusion, freedom from deadlock, and freedom from starvation. Let us see why the last property holds. Suppose p0 is stuck inside the "while f1" loop forever. There is freedom from deadlock, so eventually p1 will proceed to its critical section and set turn = 0 (and the value of turn will remain unchanged as long as p0 doesn't progress). Eventually p0 will break out of the inner "while turn ≠ 0" loop (if it was ever stuck on it). After that it will set f0 := true and settle down to waiting for f1 to become false (since turn = 0, it will never do the actions in the while loop). The next time p1 tries to enter its critical section, it will be forced to execute the actions in its "while f0" loop. In particular, it will eventually set f1 = false and get stuck in the "while turn ≠ 1" loop (since turn remains 0). The next time control passes to p0, it will exit the "while f1" loop and enter its critical section.
+If the algorithm were modified by performing the actions in the "while f1" loop without checking if turn = 0, then there is a possibility of starvation. Thus all the steps in the algorithm are necessary.
+
+[edit] Note
+One advantage of this algorithm is that it doesn't require special Test-and-set (atomic read/modify/write) instructions and is therefore highly portable between languages and machine architectures. One disadvantage is that it is limited to two processes and makes use of Busy waiting instead of process suspension. (The use of busy waiting suggests that processes should spend a minimum of time inside the critical section.)
+Modern operating systems provide mutual exclusion primitives that are more general and flexible than Dekker's algorithm. However, it should be noted that in the absence of actual contention between the two processes, the entry and exit from critical section is extremely efficient when Dekker's algorithm is used.
+Many modern CPUs execute their instructions in an out-of-order fashion. This algorithm won't work on SMP machines equipped with these CPUs without the use of memory barriers.
+Additionally, many optimizing compilers can perform transformations that will cause this algorithm to fail regardless of the platform. In many languages, it is legal for a compiler to detect that the flag variables f0 and f1 are never accessed in the loop. It can then remove the writes to those variables from the loop, using a process called Loop-invariant code motion. It would also be possible for many compilers to detect that the turn variable is never modified by the inner loop, and perform a similar transformation, resulting in a potential infinite loop. If either of these transformations is performed, the algorithm will fail, regardless of architecture.
+To alleviate this problem, volatile variables should be marked as modifiable outside the scope of the currently executing context. For example, in Java, one would annotate these variables as 'volatile'. Note however that the C/C++ "volatile" attribute only guarantees that the compiler generates code with the proper ordering; it does not include the necessary memory barriers to guarantee in-order execution of that code.
+
+[edit] See also
+
+Peterson's algorithm
+Lamport's bakery algorithm
+
+
+[edit] References
+
+
+
+
+
+This article does not cite any references or sources. Please help improve this article by adding citations to reliable sources (ideally, using inline citations). Unsourced material may be challenged and removed. (September 2008)
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Dekker%27s_algorithm"
+Categories: Concurrency control | Concurrent algorithms | Distributed systemsHidden categories: Articles lacking sources from September 2008 | All articles lacking sources 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+Français
+한국어
+Italiano
+日本語
+Polski
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 February 2009, at 10:28.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

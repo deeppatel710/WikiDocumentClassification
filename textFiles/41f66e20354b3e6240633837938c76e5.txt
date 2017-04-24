@@ -1,0 +1,534 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stream Control Transmission Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Stream_Control_Transmission_Protocol";
+		var wgTitle = "Stream Control Transmission Protocol";
+		var wgAction = "view";
+		var wgArticleId = "404896";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278303736;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Stream Control Transmission Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer networking, the Stream Control Transmission Protocol (SCTP) is a Transport Layer protocol, serving in a similar role as the popular protocols Transmission Control Protocol (TCP) and User Datagram Protocol (UDP). Indeed, it provides some of the same service features of both, ensuring reliable, in-sequence transport of messages with congestion control.
+The protocol was defined by the IETF Signaling Transport (SIGTRAN) working group in 2000, and is maintained by the IETF Transport Area (TSVWG) working group. RFC 4960 defines the protocol. RFC 3286 provides an introduction.
+In the absence of native SCTP support in operating systems it is possible to tunnel SCTP over UDP,[1] as well as mapping TCP API calls to SCTP ones.[2]
+
+
+The Internet Protocol Suite
+
+
+Application Layer
+
+
+BGP · DHCP · DNS · FTP · GTP · HTTP · IMAP · IRC · Megaco · MGCP · NNTP · NTP · POP · RIP · RPC · RTP · RTSP · SDP · SIP · SMTP · SNMP · SOAP · SSH · Telnet · TLS/SSL · XMPP · (more)
+
+
+Transport Layer
+
+
+TCP · UDP · DCCP · SCTP · RSVP · ECN · (more)
+
+
+Internet Layer
+
+
+IP (IPv4, IPv6) · ICMP · ICMPv6 · IGMP · IPsec · (more)
+
+
+Link Layer
+
+
+ARP · RARP · NDP · OSPF · Tunnels (L2TP) · Media Access Control (Ethernet, MPLS, DSL, ISDN, FDDI) · Device Drivers · (more)
+
+
+
+This box: view • talk • edit
+
+
+
+
+
+
+
+Contents
+
+
+1 Message-based multi-streaming
+2 Features
+3 Motivations
+4 Comparison between transport layers
+5 Implementations
+6 Packet structure
+7 Security
+8 RFC history
+9 See also
+10 References
+11 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Message-based multi-streaming
+SCTP applications submit their data to be transmitted in messages (groups of bytes) to the SCTP transport layer. SCTP places messages and control information into separate chunks (data chunks and control chunks), each identified by a chunk header. A message can be fragmented over a number of data chunks, but each data chunk contains data from only one user message. SCTP chunks are bundled into SCTP packets. The SCTP packet, which is submitted to the Internet Protocol, consists of a packet header, SCTP control chunks when necessary, followed by SCTP data chunks when available.
+In contrast to TCP, SCTP may be characterized as transaction-oriented, meaning it transports data in terms of messages, in a similar fashion to the User Datagram Protocol (UDP), so that a group of bytes (message) sent in one transmission operation (transaction) is read exactly as that group at the receiver application. TCP is stream-oriented, transporting streams of bytes, which it correctly reorders in case of out-of-order delivery. It does not, however, honor message boundaries, i.e., the structure of data in terms of their original transmission units at the sender.
+The term multi-streaming refers to the capability of SCTP to transmit several independent streams of chunks in parallel, for example transmitting Web page images together with the Web page text. In essence, it is the bundling of several connections into a single SCTP association, operating on messages (or chunks) rather than bytes.
+TCP preserves byte order in the stream by assigning a sequence number to each packet. SCTP, on the other hand, assigns a sequence number to each message sent in a stream. This allows independent ordering of messages in different streams. However, message ordering is optional in SCTP; a receiving application may choose to process messages in the order they are received instead of the order they were sent.
+
+[edit] Features
+Features of SCTP include:
+
+Multihoming support in which one (or both) endpoints of a connection can consist of more than one IP address, enabling transparent fail-over between redundant network paths.
+Delivery of chunks within independent streams — this eliminates unnecessary head-of-line blocking, as opposed to TCP byte-stream delivery.
+Path Selection and Monitoring — selects a "primary" data transmission path and tests the connectivity of the transmission path.
+Validation and acknowledgment mechanisms — protect against flooding attacks and provides notification of duplicated or missing data chunks.
+Improved error detection suitable for jumbo Ethernet frames.
+
+The designers of SCTP originally intended it for the transport of telephony (Signaling System 7) protocols over IP, with the goal of duplicating some of the reliability attributes of the SS7 signaling network in IP. This IETF effort is known as SIGTRAN. In the meantime, other uses have been proposed, for example, the Diameter protocol and Reliable server pooling (RSerPool).
+
+[edit] Motivations
+TCP has provided the primary means to transfer data reliably across the Internet.
+However, TCP has imposed limitations on several applications. From RFC 4960:
+
+
+TCP provides both reliable data transfer and strict order-of-transmission delivery of data. Some applications need reliable transfer without sequence maintenance, while others would be satisfied with partial ordering of the data. In both of these cases, the head-of-line blocking offered by TCP causes unnecessary delay.
+The stream-oriented nature of TCP is often an inconvenience. Applications must add their own record marking to delineate their messages, and must make explicit use of the push facility to ensure that a complete message is transferred in a reasonable time.
+The limited scope of TCP sockets complicates the task of providing highly-available data transfer capability using multi-homed hosts.
+TCP is relatively vulnerable to denial-of-service attacks, such as SYN attacks.
+
+
+
+[edit] Comparison between transport layers
+
+
+Feature Name
+UDP
+TCP
+SCTP
+DCCP
+
+
+Connection oriented
+No
+Yes
+Yes
+Yes
+
+
+Reliable transport
+No
+Yes
+Yes
+No
+
+
+Unreliable transport
+Yes
+No
+Yes
+Yes
+
+
+Preserve message boundary
+Yes
+No
+Yes
+Yes
+
+
+Ordered delivery
+No
+Yes
+Yes
+No
+
+
+Unordered delivery
+Yes
+No
+Yes
+Yes
+
+
+Data checksum
+Yes
+Yes
+Yes
+Unsure
+
+
+Checksum size (bits)
+16
+16
+32
+Unsure
+
+
+Path MTU
+No
+Yes
+Yes
+Yes
+
+
+Congestion control
+No
+Yes
+Yes
+Yes
+
+
+Multiple streams
+No
+No
+Yes
+No
+
+
+Multi-homing support
+No
+No
+Yes
+Unsure
+
+
+Bundling / Nagle
+No
+Yes
+Yes
+No
+
+
+
+[edit] Implementations
+The following operating systems implement SCTP:
+
+AIX Version 5
+Generic BSD with external patch at KAME project
+Cisco IOS 12
+DragonFly BSD since version 1.4
+FreeBSD, version 7 and above[3]
+HP-UX, 11i v2 and above[4]
+Linux 2.4/2.6
+QNX Neutrino Realtime OS, 6.3.0 and above[5]
+Sun Solaris 10[6]
+
+Various third-party implementations of SCTP exist for other operating systems. FreeBSD contains the SCTP reference implementation.[3]
+Userspace library:
+
+The SCTP library (sctplib), with a Windows XP port.
+
+
+[edit] Packet structure
+Main article: SCTP packet structure
+
+
+
+
+
+Bits
+Bits 0–7
+8–15
+16–23
+24–31
+
+
++0
+Source port
+Destination port
+
+
+32
+Verification tag
+
+
+64
+Checksum
+
+
+96
+Chunk 1 type
+Chunk 1 flags
+Chunk 1 length
+
+
+128
+Chunk 1 data
+
+
+…
+…
+
+
+…
+Chunk N type
+Chunk N flags
+Chunk N length
+
+
+…
+Chunk N data
+
+
+
+
+
+SCTP packets have a simpler basic structure than TCP or UDP packets. Each consists of two basic sections:
+
+The common header, which occupies the first 12 bytes and is highlighted in blue, and
+The data chunks, which occupy the remaining portion of the packet. The first chunk is highlighted in green, and the last of N chunks (Chunk N) is highlighted in red.
+
+Each chunk has a type identifier that is one byte long yielding, at most, 255 different chunk types. RFC 4960 defines a list of chunk types and there are currently 15 types defined. The remainder of the chunk is a two byte length (maximum size of 65,535 bytes) and the data. If the chunk does not form a multiple of 4 bytes (i.e., the length is not a multiple of 4) then it is implicitly padded with zeros which are not included in the chunk length.
+
+[edit] Security
+SCTP was designed with features for improved security, such as 4-way handshake (compared to TCP 3-way handshake) to prevent against SYN-flooding attacks, and large "Cookies" for association verification and authenticity.
+Reliability was also a key aspect of the security design of SCTP. Multi-homing enables an association to stay open even when some routes and interfaces are down. This is of particular importance for SIGTRAN as it carries SS7 over TCP/IP network using SCTP, and requires strong resilience during link outages to maintain telecommunication service even when enduring network anomalies.
+Encryption was not part of the original SCTP design.
+SCTP is sometimes a good fingerprinting candidate. Some operating systems ship with SCTP support enabled, and, as it is not as well known as TCP or UDP, it is sometimes overlooked in firewall and intrusion detection configurations, thus often permitting probing traffic.
+
+[edit] RFC history
+
+RFC 5062 Security Attacks Found Against the Stream Control Transmission Protocol (SCTP) and Current Countermeasures
+RFC 5061 Stream Control Transmission Protocol (SCTP) Dynamic Address Reconfiguration
+RFC 5043 Stream Control Transmission Protocol (SCTP) Direct Data Placement (DDP) Adaptation
+RFC 4960 Stream Control Transmission Protocol
+RFC 4895 Authenticated Chunks for the Stream Control Transmission Protocol (SCTP)
+RFC 4820 Padding Chunk and Parameter for the Stream Control Transmission Protocol (SCTP)
+RFC 4460 Stream Control Transmission Protocol (SCTP) Specification Errata and Issues
+RFC 3873 Stream Control Transmission Protocol (SCTP) Management Information Base (MIB)
+RFC 3758 Stream Control Transmission Protocol (SCTP) Partial Reliability Extension
+RFC 3554 On the Use of Stream Control Transmission Protocol (SCTP) with IPsec
+RFC 3436 Transport Layer Security over Stream Control Transmission Protocol
+RFC 3309 Stream Control Transmission Protocol (SCTP) Checksum Change (obsoleted by RFC 4960)
+RFC 3286 An Introduction to the Stream Control Transmission Protocol
+RFC 3257 Stream Control Transmission Protocol Applicability Statement
+RFC 2960 Stream Control Transmission Protocol (updated by RFC 3309 and obsoleted by RFC 4960)
+
+
+[edit] See also
+
+Transport protocol comparison table
+
+
+[edit] References
+
+^ Ong, Lyndon; Randall R. Stewart; Qiaobing Xie. "Tunneling of SCTP over Single UDP Port". http://www3.ietf.org/proceedings/00jul/I-D/sigtran-sctptunnel-00.txt. 
+^ Bickhar, Ryan; Paul D. Amer; Randall R. Stewart (2007). "Transparent TCP-to-SCTP Translation Shim Layer" (PDF). http://www.cis.udel.edu/~amer/PEL/poc/pdf/EuroBSDCon2007-bickhart-SCTP-Shim-layer.pdf. Retrieved on 2008-09-13. 
+^ a b "About FreeBSD's Technological Advances". The FreeBSD Project. 2008-03-09. http://www.freebsd.org/features.html. Retrieved on 2008-09-13.  Excerpt: SCTP: FreeBSD 7.0 is the reference implementation for the new IETF Stream Control Transmission Protocol (SCTP) protocol, intended to support VoIP, telecommunications, and other applications with strong reliability and variable quality transmission through features such as multi-path delivery, fail-over, and multi-streaming.
+^ "Stream Control Transmission Protocol (SCTP)". Hewlett-Packard Development Company. http://h20293.www2.hp.com/portal/swdepot/displayInstallInfo.do?productNumber=SCTP. 
+^ "TCP/IP Networking". QNX Developer Support. QNX Software Systems. http://www.qnx.com/developers/docs/6.3.0SP3/neutrino/sys_arch/tcpip.html#SCTP. Retrieved on 2008-09-13. 
+^ "Solaris 10 Operating System Networking — Extreme Network Performance". Sun Microsystems. http://www.sun.com/software/solaris/ds/network_performance.jsp#1. Retrieved on 2008-09-13. 
+
+
+[edit] External links
+
+Better Networking with SCTP An IBM developerWorks article by M. Tim Jones
+http://www.sigtran.org
+http://www.ietf.org/html.charters/sigtran-charter.html
+http://www.ietf.org/html.charters/tsvwg-charter.html
+http://www.openss7.org
+http://www.sctp.org
+http://www.sctp.de
+SCTP for QualNet network simulator from DEGAS networking group
+The Linux Kernel Stream Control Transmission Protocol (lksctp) project
+The KAME SCTP kernel implementation for Mac OS X
+SCTP Sequence Diagram — Setup, IP Address Reconfiguration and Release (PDF)
+Tunneling of SCTP over Single UDP Port
+Open Source / GPL Seagull test tool — with SCTP support
+Parallel computing using the Message-passing Interface (MPI) over SCTP
+SCTPscan: SCTP port scanner and network scanner, GPL
+SCTP for beginners
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Stream_Control_Transmission_Protocol"
+Categories: Streaming | Internet protocols | Internet standards | Transport layer protocols | Multihoming 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Euskara
+Français
+Italiano
+עברית
+Nederlands
+日本語
+‪Norsk (nynorsk)‬
+Polski
+Português
+Русский
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 19 March 2009, at 10:24.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

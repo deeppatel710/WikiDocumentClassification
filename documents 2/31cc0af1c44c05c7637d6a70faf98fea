@@ -1,0 +1,487 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Kd-tree,Articles to be expanded since November 2008,Algorithm,BSP tree,Balanced tree,Best Bin First,Big O notation,Binary search tree,Binary tree,Bounding Interval Hierarchy,Charles E. Leiserson" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Kd-tree&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Kd-tree&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>kd-tree - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Kd-tree";
+		var wgTitle = "Kd-tree";
+		var wgAction = "view";
+		var wgArticleId = "1676725";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283040747;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+<style type="text/css">/*<![CDATA[*/
+.source-python {line-height: normal;}
+.source-python li, .source-python pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for python
+ * CSS class: source-python, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-python .de1, .source-python .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-python  {}
+.source-python .head {}
+.source-python .foot {}
+.source-python .imp {font-weight: bold; color: red;}
+.source-python .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-python li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-python li.li2 {font-weight: bold;}
+.source-python .kw1 {color: #ff7700;font-weight:bold;}
+.source-python .kw2 {color: #008000;}
+.source-python .kw3 {color: #dc143c;}
+.source-python .kw4 {color: #0000cd;}
+.source-python .co1 {color: #808080; font-style: italic;}
+.source-python .coMULTI {color: #808080; font-style: italic;}
+.source-python .es0 {color: #000099; font-weight: bold;}
+.source-python .br0 {color: #66cc66;}
+.source-python .st0 {color: #483d8b;}
+.source-python .nu0 {color: #ff4500;}
+.source-python .me1 {color: black;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style>		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Kd-tree skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">kd-tree</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<div class="thumb tright">
+<div class="thumbinner" style="width:402px;"><a href="/wiki/File:3dtree.png" class="image" title="A 3-dimensional kd-tree. The first split (red) cuts the root cell (white) into two subcells, each of which is then split (green) into two subcells. Finally, each of those four is split (blue) into two subcells. Since there is no more splitting, the final eight are called leaf cells."><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/3dtree.png/400px-3dtree.png" width="400" height="380" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:3dtree.png" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+A 3-dimensional <i>k</i>d-tree. The first split (red) cuts the root cell (white) into two subcells, each of which is then split (green) into two subcells. Finally, each of those four is split (blue) into two subcells. Since there is no more splitting, the final eight are called leaf cells.</div>
+</div>
+</div>
+<p>In <a href="/wiki/Computer_science" title="Computer science">computer science</a>, a <b><i>k</i>d-tree</b> (short for <i>k-dimensional <a href="/wiki/Tree_data_structure" title="Tree data structure" class="mw-redirect">tree</a></i>) is a <a href="/wiki/Space_partitioning" title="Space partitioning">space-partitioning</a> <a href="/wiki/Data_structure" title="Data structure">data structure</a> for organizing <a href="/wiki/Point_(geometry)" title="Point (geometry)">points</a> in a <i>k</i>-dimensional <a href="/wiki/Euclidean_space" title="Euclidean space">space</a>. <i>k</i>d-trees are a useful data structure for several applications, such as searches involving a multidimensional search key (e.g. range searches and <a href="/wiki/Nearest_neighbor_search" title="Nearest neighbor search">nearest neighbor searches</a>). <i>k</i>d-trees are a special case of <a href="/wiki/BSP_tree" title="BSP tree" class="mw-redirect">BSP trees</a>.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Informal_Description"><span class="tocnumber">1</span> <span class="toctext">Informal Description</span></a></li>
+<li class="toclevel-1"><a href="#Operations_on_kd-trees"><span class="tocnumber">2</span> <span class="toctext">Operations on kd-trees</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Construction"><span class="tocnumber">2.1</span> <span class="toctext">Construction</span></a></li>
+<li class="toclevel-2"><a href="#Adding_elements"><span class="tocnumber">2.2</span> <span class="toctext">Adding elements</span></a></li>
+<li class="toclevel-2"><a href="#Removing_elements"><span class="tocnumber">2.3</span> <span class="toctext">Removing elements</span></a></li>
+<li class="toclevel-2"><a href="#Balancing"><span class="tocnumber">2.4</span> <span class="toctext">Balancing</span></a></li>
+<li class="toclevel-2"><a href="#Nearest_neighbor_search"><span class="tocnumber">2.5</span> <span class="toctext">Nearest neighbor search</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#High-Dimensional_Data"><span class="tocnumber">3</span> <span class="toctext">High-Dimensional Data</span></a></li>
+<li class="toclevel-1"><a href="#Complexity"><span class="tocnumber">4</span> <span class="toctext">Complexity</span></a></li>
+<li class="toclevel-1"><a href="#Variations"><span class="tocnumber">5</span> <span class="toctext">Variations</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Instead_of_points"><span class="tocnumber">5.1</span> <span class="toctext">Instead of points</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">6</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">7</span> <span class="toctext">External links</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">8</span> <span class="toctext">References</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Informal_Description" id="Informal_Description"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=1" title="Edit section: Informal Description">edit</a>]</span> <span class="mw-headline">Informal Description</span></h2>
+<p>The kd-tree is a <a href="/wiki/Binary_tree" title="Binary tree">binary tree</a> in which every node is a k-dimensional point. Every non-leaf node generates a splitting <a href="/wiki/Hyperplane" title="Hyperplane">hyperplane</a> that divides the space into two subspaces. Points left to the hyperplane represent the left sub-tree of that node and the points right to the hyperplane by the right sub-tree. The hyperplane direction is chosen in the following way: every node split to sub-trees is associated with one of the k-dimensions, such that the hyperplane is perpendicular to that dimension vector. So, for example, if for a particular split the "x" axis is chosen, all points in the subtree with a smaller "x" value than the node will appear in the left subtree and all points with larger "x" value will be in the right sub tree.</p>
+<p><a name="Operations_on_kd-trees" id="Operations_on_kd-trees"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=2" title="Edit section: Operations on kd-trees">edit</a>]</span> <span class="mw-headline">Operations on <i>k</i>d-trees</span></h2>
+<p><a name="Construction" id="Construction"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=3" title="Edit section: Construction">edit</a>]</span> <span class="mw-headline">Construction</span></h3>
+<p>Since there are many possible ways to choose axis-aligned splitting planes, there are many different ways to construct <i>k</i>d-trees. The canonical method of <i>k</i>d-tree construction has the following constraints:</p>
+<ul>
+<li>As one moves down the tree, one cycles through the axes used to select the splitting planes. (For example, the root would have an <i>x</i>-aligned plane, the root's children would both have <i>y</i>-aligned planes, the root's grandchildren would all have <i>z</i>-aligned planes, the next level would have an <i>x</i>-aligned plane, and so on.)</li>
+<li>Points are inserted by selecting the <a href="/wiki/Median" title="Median">median</a> of the points being put into the subtree, with respect to their coordinates in the axis being used to create the splitting plane. (Note the assumption that we feed the entire set of points into the algorithm up-front.)</li>
+</ul>
+<p>This method leads to a <a href="/wiki/Balanced_tree" title="Balanced tree" class="mw-redirect">balanced</a> <i>k</i>d-tree, in which each leaf node is about the same distance from the root. However, balanced trees are not necessarily optimal for all applications.</p>
+<p>Note also that it is not <i>required</i> to select the median point. In that case, the result is simply that there is no guarantee that the tree will be balanced. A simple heuristic to avoid coding a complex linear-time median-finding algorithm nor using an O(<i>n</i> log <i>n</i>) sort is to use sort to find the median of a <i>fixed</i> number of <i>randomly</i> selected points to serve as the cut line. Practically this technique often results in nicely balanced trees.</p>
+<p>Given a list of <i>n</i> points, the following <a href="/wiki/Algorithm" title="Algorithm">algorithm</a> will construct a balanced <i>k</i>d-tree containing those points.</p>
+<pre>
+<b>function</b> kdtree (<i>list of points</i> pointList, <i>int</i> depth)
+{
+    <b>if</b> pointList <b>is empty</b>
+        <b>return</b> <b>nil</b>;
+    <b>else</b>
+    {
+        <i>// Select axis based on depth so that axis cycles through all valid values</i>
+        <b>var</b> <i>int</i> axis := depth <b>mod</b> k;
+
+        <i>// Sort point list and choose median as pivot element</i>
+        <b><a href="/wiki/Selection_algorithm" title="Selection algorithm">select</a></b> median <b>by</b> axis <b>from</b> pointList;
+
+        <i>// Create node and construct subtrees</i>
+        <b>var</b> <i>tree_node</i> node;
+        node.location := median;
+        node.leftChild := kdtree(points <b>in</b> pointList <b>before</b> median, depth+1);
+        node.rightChild := kdtree(points <b>in</b> pointList <b>after</b> median, depth+1);
+        <b>return</b> node;
+    }
+}
+</pre>
+<p>It is common that points "after" the median include only ones that are greater than or equal to the median. Another approach is to define a "superkey" function that compares the points in other dimensions. Lastly, it may be acceptable to let points equal to the median lie on either side.</p>
+<p>This algorithm implemented in the <a href="/wiki/Python_(programming_language)" title="Python (programming language)">Python programming language</a> is as follows:</p>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-python">
+<span class="kw1">class</span> Node:<span class="kw1">pass</span>
+ 
+<span class="kw1">def</span> kdtree<span class="br0">(</span>pointList, depth=<span class="nu0">0</span><span class="br0">)</span>:
+    <span class="kw1">if</span> <span class="kw1">not</span> pointList:
+        <span class="kw1">return</span>
+ 
+    <span class="co1"># Select axis based on depth so that axis cycles through all valid values</span>
+    k = <span class="kw2">len</span><span class="br0">(</span>pointList<span class="br0">[</span><span class="nu0">0</span><span class="br0">]</span><span class="br0">)</span> <span class="co1"># assumes all points have the same dimension</span>
+    axis = depth % k
+ 
+    <span class="co1"># Sort point list and choose median as pivot element</span>
+    pointList.<span class="me1">sort</span><span class="br0">(</span>key=<span class="kw1">lambda</span> point: point<span class="br0">[</span>axis<span class="br0">]</span><span class="br0">)</span>
+    median = <span class="kw2">len</span><span class="br0">(</span>pointList<span class="br0">)</span>/<span class="nu0">2</span> <span class="co1"># choose median</span>
+ 
+    <span class="co1"># Create node and construct subtrees</span>
+    node = Node<span class="br0">(</span><span class="br0">)</span>
+    node.<span class="me1">location</span> = pointList<span class="br0">[</span>median<span class="br0">]</span>
+    node.<span class="me1">leftChild</span> = kdtree<span class="br0">(</span>pointList<span class="br0">[</span><span class="nu0">0</span>:median<span class="br0">]</span>, depth<span class="nu0">+1</span><span class="br0">)</span>
+    node.<span class="me1">rightChild</span> = kdtree<span class="br0">(</span>pointList<span class="br0">[</span>median<span class="nu0">+1</span>:<span class="br0">]</span>, depth<span class="nu0">+1</span><span class="br0">)</span>
+    <span class="kw1">return</span> node
+</pre></div>
+<div class="thumb tright">
+<div class="thumbinner" style="width:302px;"><a href="/wiki/File:Kdtree_2d.svg" class="image" title="The resulting kd-tree decomposition."><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/b/bf/Kdtree_2d.svg/300px-Kdtree_2d.svg.png" width="300" height="298" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Kdtree_2d.svg" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+The resulting <i>k</i>d-tree decomposition.</div>
+</div>
+</div>
+<div class="thumb tright">
+<div class="thumbinner" style="width:302px;"><a href="/wiki/File:Tree_0001.svg" class="image" title="The resulting kd-tree."><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Tree_0001.svg/300px-Tree_0001.svg.png" width="300" height="143" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Tree_0001.svg" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+The resulting <i>k</i>d-tree.</div>
+</div>
+</div>
+<p>Example usage would be:</p>
+<pre>
+pointList = [(2,3), (5,4), (9,6), (4,7), (8,1), (7,2)]
+tree = kdtree(pointList)
+</pre>
+<p>The tree generated is shown on the right.</p>
+<p>This algorithm creates the <a href="/wiki/Invariant_(computer_science)" title="Invariant (computer science)">invariant</a> that for any node, all the nodes in the left <a href="/wiki/Subtree" title="Subtree" class="mw-redirect">subtree</a> are on one side of a splitting <a href="/wiki/Plane_(mathematics)" title="Plane (mathematics)" class="mw-redirect">plane</a>, and all the nodes in the right subtree are on the other side. Points that lie on the splitting plane may appear on either side. The splitting plane of a node goes through the point associated with that node (referred to in the code as <i>node.location</i>).</p>
+<p><a name="Adding_elements" id="Adding_elements"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=4" title="Edit section: Adding elements">edit</a>]</span> <span class="mw-headline">Adding elements</span></h3>
+<table class="metadata plainlinks ambox ambox-notice" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Wiki_letter_w.svg" class="image" title="Wiki letter w.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Wiki_letter_w.svg/44px-Wiki_letter_w.svg.png" width="44" height="44" border="0" /></a></div>
+</td>
+<td class="mbox-text" style=""><b>Please help <a href="http://en.wikipedia.org/w/index.php?title=Kd-tree&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Kd-tree&amp;action=edit" rel="nofollow">improve this article or section</a> by expanding it.</b> Further information might be found on the <a href="/wiki/Talk:Kd-tree" title="Talk:Kd-tree">talk page</a>. <small><i>(November 2008)</i></small></td>
+</tr>
+</table>
+<p>One adds a new point to a <i>k</i>d-tree in the same way as one adds an element to any other <a href="/wiki/Binary_search_tree" title="Binary search tree">search tree</a>. First, traverse the tree, starting from the root and moving to either the left or the right child depending on whether the point to be inserted is on the "left" or "right" side of the splitting plane. Once you get to node under which the child should be located, add the new point as either the left or right child of the leaf node, again depending on which side of the node's splitting plane contains the new node.</p>
+<p>Adding points in this manner can cause the tree to become unbalanced, leading to decreased tree performance. The rate of tree performance degradation is dependant upon the spatial distribution of tree points being added, and the number of points added in relation to the tree size. If a tree becomes too unbalanced, it may need to be re-balanced to restore the performance of queries that rely on the tree balancing, such as nearest neighbour searching.</p>
+<p><a name="Removing_elements" id="Removing_elements"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=5" title="Edit section: Removing elements">edit</a>]</span> <span class="mw-headline">Removing elements</span></h3>
+<p>To remove a point from an existing <i>k</i>d-tree, without breaking the invariant, the easiest way is to form the set of all nodes and leaves from the children of the target node, and recreate that part of tree. This differs from regular search trees in that no child can be selected for a "promotion", since the splitting plane for lower-level nodes is not along the required axis for the current tree level.</p>
+<table class="metadata plainlinks ambox ambox-notice" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Wiki_letter_w.svg" class="image" title="Wiki letter w.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Wiki_letter_w.svg/44px-Wiki_letter_w.svg.png" width="44" height="44" border="0" /></a></div>
+</td>
+<td class="mbox-text" style=""><b>Please help <a href="http://en.wikipedia.org/w/index.php?title=Kd-tree&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Kd-tree&amp;action=edit" rel="nofollow">improve this article or section</a> by expanding it.</b> Further information might be found on the <a href="/wiki/Talk:Kd-tree" title="Talk:Kd-tree">talk page</a>. <small><i>(November 2008)</i></small></td>
+</tr>
+</table>
+<p><a name="Balancing" id="Balancing"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=6" title="Edit section: Balancing">edit</a>]</span> <span class="mw-headline">Balancing</span></h3>
+<p>Balancing a <i>k</i>d-tree requires care. Because <i>k</i>d-trees are sorted in multiple dimensions, the <a href="/wiki/Tree_rotation" title="Tree rotation">tree rotation</a> technique cannot be used to balance them — this may break the invariant.</p>
+<table class="metadata plainlinks ambox ambox-notice" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Wiki_letter_w.svg" class="image" title="Wiki letter w.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Wiki_letter_w.svg/44px-Wiki_letter_w.svg.png" width="44" height="44" border="0" /></a></div>
+</td>
+<td class="mbox-text" style=""><b>Please help <a href="http://en.wikipedia.org/w/index.php?title=Kd-tree&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Kd-tree&amp;action=edit" rel="nofollow">improve this article or section</a> by expanding it.</b> Further information might be found on the <a href="/wiki/Talk:Kd-tree" title="Talk:Kd-tree">talk page</a>. <small><i>(November 2008)</i></small></td>
+</tr>
+</table>
+<p><a name="Nearest_neighbor_search" id="Nearest_neighbor_search"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=7" title="Edit section: Nearest neighbor search">edit</a>]</span> <span class="mw-headline">Nearest neighbor search</span></h3>
+<div class="thumb tright">
+<div class="thumbinner" style="width:302px;"><a href="/wiki/File:KDTree-animation.gif" class="image" title="Animation of NN searching with a KD Tree in 2D"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/9/9c/KDTree-animation.gif" width="300" height="112" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:KDTree-animation.gif" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+Animation of NN searching with a KD Tree in 2D</div>
+</div>
+</div>
+<p>The nearest neighbor (NN) algorithm aims to find the point in the tree which is nearest to a given input point. This search can be done efficiently by using the tree properties to quickly eliminate large portions of the search space. Searching for a nearest neighbor in a <i>k</i>d-tree proceeds as follows:</p>
+<ol>
+<li>Starting with the root node, the algorithm moves down the tree recursively, in the same way that it would if the search point were being inserted (i.e. it goes right or left depending on whether the point is greater or less than the current node in the split dimension).</li>
+<li>Once the algorithm reaches a leaf node, it saves that node point as the "current best"</li>
+<li>The algorithm unwinds the recursion of the tree, performing the following steps at each node:
+<ol>
+<li>If the current node is closer than the current best, then it becomes the current best.</li>
+<li>The algorithm checks whether there could be any points on the other side of the splitting plane that are closer to the search point than the current best. In concept, this is done by intersecting the splitting <a href="/wiki/Hyperplane" title="Hyperplane">hyperplane</a> with a <a href="/wiki/Hypersphere" title="Hypersphere" class="mw-redirect">hypersphere</a> around the search node that has a radius equal to the current nearest distance. Since the hyperplanes are all axis-aligned this is implemented as a simple comparison to see whether the difference between the splitting coordinate and the search point is less than the distance from the search point to the current best.
+<ol>
+<li>If the sphere crosses the plane, there could be nearer points on the other side of the plane, so the algorithm must move down the other branch of the tree from the current node looking for closer points, following the same recursive process as the entire search.</li>
+<li>If the hypersphere doesn't intersect the splitting plane, then the algorithm continues walking up the tree, and the entire branch on the other side of that node is eliminated.</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>When the algorithm finishes this process for the root node, then the search is complete.</li>
+</ol>
+<p>Generally the algorithm uses squared distances for comparison to avoid computing square roots. Additionally, it can save computation by holding the squared current best distance in a variable for comparison.</p>
+<p>Finding the nearest point is an O(log N) operation in the case of randomly distributed points if N. Analyses of binary search trees has found that the worst case search time for an k-dimensional KD tree containing M nodes is given by the following equation<sup id="cite_ref-Lee1977_0-0" class="reference"><a href="#cite_note-Lee1977-0" title=""><span>[</span>1<span>]</span></a></sup>.</p>
+<p><img class="tex" alt="t_{worst} = O(k \cdot M^{1-\frac{1}{k}})" src="http://upload.wikimedia.org/math/9/6/0/960a5a7e964460280d2bd8d1f6f6d587.png" /></p>
+<p>These asymptotic behaviors only apply when N is much greater than the number of dimensions. In very high dimensional spaces, the <a href="/wiki/Curse_of_dimensionality" title="Curse of dimensionality">curse of dimensionality</a> causes the algorithm to need to visit many more branches than in lower dimensional spaces. In particular, when the number of points is only slightly higher than the number of dimensions, the algorithm is only slightly better than a linear search of all of the points.</p>
+<p>The algorithm can be extended in several ways by simple modifications. It can provide the <i>k</i>-Nearest Neighbors to a point by maintaining k current bests instead of just one. Branches are only eliminated when they can't have points closer than any of the k current bests.</p>
+<p>It can also be converted to an approximation algorithm to run faster. For example, approximate nearest neighbour searching can be achieved by simply setting an upper bound on the number points to examine in the tree, or by interrupting the search process based upon a real time clock (which may be more appropriate in hardware implementations). Nearest neighbour for points that are in the tree already can be achieved by not updating the refinement for nodes that give zero distance as the result, this has the downside of discarding points that are not unique, but are co-located with the original search point.</p>
+<p>Approximate nearest neighbor is useful in real time applications such as robotics due to the significant speed increase gained by not searching for the best point exhaustively. One of its implementations is <a href="/wiki/Best_Bin_First" title="Best Bin First">Best Bin First</a>.</p>
+<p><a name="High-Dimensional_Data" id="High-Dimensional_Data"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=8" title="Edit section: High-Dimensional Data">edit</a>]</span> <span class="mw-headline">High-Dimensional Data</span></h2>
+<p><i>k</i>d-trees are not suitable for efficiently finding the nearest neighbour in high dimensional spaces. As a general rule, if the dimensionality is <i>D</i>, then number of points in the data, <i>N</i>, should be <i>N &gt;&gt; 2<sup>D</sup></i>. Otherwise, when <i>k</i>d-trees are used with high-dimensional data, most of the points in the tree will be evaluated and the efficiency is no better than exhaustive search. The problem of finding NN in high-dimensional data is thought to be <a href="/wiki/NP-hard" title="NP-hard">NP-hard</a><sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup>, and approximate nearest-neighbour methods are used instead.</p>
+<p><a name="Complexity" id="Complexity"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=9" title="Edit section: Complexity">edit</a>]</span> <span class="mw-headline">Complexity</span></h2>
+<ul>
+<li>Building a static <i>k</i>d-tree from <i>n</i> points takes <a href="/wiki/Big_O_notation" title="Big O notation">O</a>(<i>n</i> log <sup>2</sup> <i>n</i>) time if an <a href="/wiki/Big_O_notation" title="Big O notation">O</a>(<i>n</i> log <i>n</i>) sort is used to compute the median at each level. The complexity is <a href="/wiki/Big_O_notation" title="Big O notation">O</a>(<i>n</i> log <i>n</i>) if a linear <a href="/wiki/Selection_algorithm" title="Selection algorithm">median-finding</a> algorithm such as the one described in Cormen <i>et al</i><sup id="cite_ref-2" class="reference"><a href="#cite_note-2" title=""><span>[</span>3<span>]</span></a></sup> is used.</li>
+</ul>
+<ul>
+<li>Inserting a new point into a balanced <i>k</i>d-tree takes O(log <i>n</i>) time.</li>
+<li>Removing a point from a balanced <i>k</i>d-tree takes O(log <i>n</i>) time.</li>
+<li>Querying an axis-parallel range in a balanced <i>k</i>d-tree takes O(<i>n</i><sup>1-1/d</sup> +<i>k</i>) time, where k is the number of the reported points, and d the dimension of the <i>k</i>d-tree.</li>
+</ul>
+<p><a name="Variations" id="Variations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=10" title="Edit section: Variations">edit</a>]</span> <span class="mw-headline">Variations</span></h2>
+<p><a name="Instead_of_points" id="Instead_of_points"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=11" title="Edit section: Instead of points">edit</a>]</span> <span class="mw-headline">Instead of points</span></h3>
+<p>Instead of points, a <i>k</i>d-tree can also contain <a href="/wiki/Rectangle" title="Rectangle">rectangles</a> or hyperrectangles. A 2D rectangle is considered a 4D object (x<sub>low</sub>, x<sub>high</sub>, y<sub>low</sub>, y<sub>high</sub>). Thus range search becomes the problem of returning all rectangles intersecting the search rectangle. The tree is constructed the usual way with all the rectangles at the leaves. In an <a href="/w/index.php?title=Orthogonal_range_search&amp;action=edit&amp;redlink=1" class="new" title="Orthogonal range search (page does not exist)">orthogonal range search</a>, the <i>opposite</i> coordinate is used when comparing against the median. For example, if the current level is split along x<sub>high</sub>, we check the x<sub>low</sub> coordinate of the search rectangle. If the median is less than the x<sub>low</sub> coordinate of the search rectangle, then no rectangle in the left branch can ever intersect with the search rectangle and so can be pruned. Otherwise both branches should be traversed. See also <a href="/wiki/Interval_tree" title="Interval tree">interval tree</a>, which is a 1-dimensional special case.</p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=12" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Implicit_kd-tree" title="Implicit kd-tree">implicit <i>k</i>d-tree</a></li>
+<li><a href="/wiki/Min/max_kd-tree" title="Min/max kd-tree">min/max <i>k</i>d-tree</a></li>
+<li><a href="/wiki/Quadtree" title="Quadtree">Quadtree</a></li>
+<li><a href="/wiki/Octree" title="Octree">Octree</a></li>
+<li><a href="/wiki/Bounding_Interval_Hierarchy" title="Bounding Interval Hierarchy" class="mw-redirect">Bounding Interval Hierarchy</a></li>
+<li><a href="/wiki/Nearest_neighbor_search" title="Nearest neighbor search">Nearest neighbor search</a></li>
+<li><a href="/wiki/Klee%27s_measure_problem" title="Klee's measure problem">Klee's measure problem</a></li>
+<li><a href="/wiki/Kd-trie" title="Kd-trie">kd-trie</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=13" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://libkdtree.alioth.debian.org" class="external text" title="http://libkdtree.alioth.debian.org" rel="nofollow">libkdtree++</a>, an open-source STL-like implementation of <i>k</i>d-trees in C++.</li>
+<li><a href="http://www.autonlab.org/autonweb/14665/version/2/part/5/data/moore-tutorial.pdf?branch=main&amp;language=en" class="external autonumber" title="http://www.autonlab.org/autonweb/14665/version/2/part/5/data/moore-tutorial.pdf?branch=main&amp;language=en" rel="nofollow">[1]</a> A tutorial on KD Trees</li>
+<li><a href="http://babel.isa.uma.es/mrpt/index.php/The_hierarchical_model_of_metric_maps#Point_maps" class="external autonumber" title="http://babel.isa.uma.es/mrpt/index.php/The_hierarchical_model_of_metric_maps#Point_maps" rel="nofollow">[2]</a> A C++ implementation of <i>k</i>d-trees for 3D point clouds, part of the <a href="/wiki/Mobile_Robot_Programming_Toolkit" title="Mobile Robot Programming Toolkit">Mobile Robot Programming Toolkit (MRPT)</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kd-tree&amp;action=edit&amp;section=14" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-Lee1977-0"><b><a href="#cite_ref-Lee1977_0-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFLeeWong1977"><a href="/wiki/Der-Tsai_Lee" title="Der-Tsai Lee">Lee, D. T.</a>; Wong, C. K. (1977), "Worst-case analysis for region and partial region searches in multidimensional binary search trees and balanced quad trees", <i>Acta Informatica</i> <b>9</b> (1): 23–29, <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1007%2FBF00263763" class="external text" title="http://dx.doi.org/10.1007%2FBF00263763" rel="nofollow">10.1007/BF00263763</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Worst-case+analysis+for+region+and+partial+region+searches+in+multidimensional+binary+search+trees+and+balanced+quad+trees&amp;rft.jtitle=Acta+Informatica&amp;rft.aulast=Lee&amp;rft.aufirst=D.+T.&amp;rft.au=Lee%2C+D.+T.&amp;rft.au=Wong%2C+C.+K.&amp;rft.date=1977&amp;rft.volume=9&amp;rft.issue=1&amp;rft.pages=23%E2%80%9329&amp;rft_id=info:doi/10.1007%2FBF00263763&amp;rfr_id=info:sid/en.wikipedia.org:Kd-tree"><span style="display: none;">&#160;</span></span></li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> <a href="/wiki/Piotr_Indyk" title="Piotr Indyk">Piotr Indyk</a>. Nearest neighbors in high-dimensional spaces. Handbook of Discrete and Computational Geometry, chapter 39. Editors: Jacob E. Goodman and <a href="/wiki/Joseph_O%27Rourke_(professor)" title="Joseph O'Rourke (professor)">Joseph O'Rourke</a>, CRC Press, 2nd edition, 2004.</li>
+<li id="cite_note-2"><b><a href="#cite_ref-2" title="">^</a></b> <cite style="font-style:normal" class="book" id="CITEREFCormen.5B.5BCharles_E._Leiserson.7CLeiserson.2C_Charles_E..5D.5D.2C_.5B.5BRon_Rivest.7CRivest.2C_Ronald_L..5D.5D"><a href="/wiki/Thomas_H._Cormen" title="Thomas H. Cormen">Cormen, Thomas H.</a>; <a href="/wiki/Charles_E._Leiserson" title="Charles E. Leiserson">Leiserson, Charles E.</a>, <a href="/wiki/Ron_Rivest" title="Ron Rivest">Rivest, Ronald L.</a>. <i><a href="/wiki/Introduction_to_Algorithms" title="Introduction to Algorithms">Introduction to Algorithms</a></i>. <a href="/wiki/MIT_Press" title="MIT Press">MIT Press</a> and <a href="/wiki/McGraw-Hill" title="McGraw-Hill">McGraw-Hill</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=%5B%5BIntroduction+to+Algorithms%5D%5D&amp;rft.aulast=Cormen&amp;rft.aufirst=Thomas+H.&amp;rft.au=Cormen%2C+Thomas+H.&amp;rft.au=%5B%5BCharles+E.+Leiserson%7CLeiserson%2C+Charles+E.%5D%5D%2C+%5B%5BRon+Rivest%7CRivest%2C+Ronald+L.%5D%5D&amp;rft.pub=%5B%5BMIT+Press%5D%5D+and+%5B%5BMcGraw-Hill%5D%5D&amp;rfr_id=info:sid/en.wikipedia.org:Kd-tree"><span style="display: none;">&#160;</span></span> Chapter 10.</li>
+</ol>
+</div>
+<ul>
+<li>Bentley, J. L. 1975. <a href="http://portal.acm.org/citation.cfm?id=361007" class="external text" title="http://portal.acm.org/citation.cfm?id=361007" rel="nofollow">Multidimensional binary search trees used for associative searching</a>. Commun. ACM 18, 9 (Sep. 1975), 509–517.</li>
+<li>Bentley, J. L. 1990. <a href="http://doi.acm.org/10.1145/98524.98564" class="external text" title="http://doi.acm.org/10.1145/98524.98564" rel="nofollow">K-d Trees for Semidynamic Point Sets</a>. SCG '90: Proc. 6th Annual Symposium on Computational Geometry (1990), 187–197</li>
+<li>H. Samet, <i>The Design and Analysis of Spatial Data Structures</i>, Addison-Wesley, Reading, MA, 1990.</li>
+<li><cite style="font-style:normal" class="book" id="CITEREF.5B.5BMark_de_Berg.5D.5D.2C_.5B.5BMarc_van_Kreveld.5D.5D.2C_.5B.5BMark_Overmars.5D.5D.2C_and_.5B.5BOtfried_Schwarzkopf.5D.5D2000"><a href="/w/index.php?title=Mark_de_Berg&amp;action=edit&amp;redlink=1" class="new" title="Mark de Berg (page does not exist)">Mark de Berg</a>, <a href="/w/index.php?title=Marc_van_Kreveld&amp;action=edit&amp;redlink=1" class="new" title="Marc van Kreveld (page does not exist)">Marc van Kreveld</a>, <a href="/wiki/Mark_Overmars" title="Mark Overmars">Mark Overmars</a>, and <a href="/w/index.php?title=Otfried_Schwarzkopf&amp;action=edit&amp;redlink=1" class="new" title="Otfried Schwarzkopf (page does not exist)">Otfried Schwarzkopf</a> (2000). <i>Computational Geometry</i> (2nd revised edition ed.). <a href="/wiki/Springer-Verlag" title="Springer-Verlag" class="mw-redirect">Springer-Verlag</a>. <a href="/wiki/Special:BookSources/3540656200" class="internal">ISBN 3-540-65620-0</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Computational+Geometry&amp;rft.aulast=%5B%5BMark+de+Berg%5D%5D%2C+%5B%5BMarc+van+Kreveld%5D%5D%2C+%5B%5BMark+Overmars%5D%5D%2C+and+%5B%5BOtfried+Schwarzkopf%5D%5D&amp;rft.au=%5B%5BMark+de+Berg%5D%5D%2C+%5B%5BMarc+van+Kreveld%5D%5D%2C+%5B%5BMark+Overmars%5D%5D%2C+and+%5B%5BOtfried+Schwarzkopf%5D%5D&amp;rft.date=2000&amp;rft.edition=2nd+revised+edition&amp;rft.pub=%5B%5BSpringer-Verlag%5D%5D&amp;rft.isbn=3-540-65620-0&amp;rfr_id=info:sid/en.wikipedia.org:Kd-tree"><span style="display: none;">&#160;</span></span> Section 5.2: Kd-Trees, pp.99–105.</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 2043/1000000
+Post-expand include size: 20633/2048000 bytes
+Template argument size: 5802/2048000 bytes
+Expensive parser function count: 3/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1676725-0!1!0!default!!en!2 and timestamp 20090413123226 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Kd-tree">http://en.wikipedia.org/wiki/Kd-tree</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Computer_graphics_data_structures" title="Category:Computer graphics data structures">Computer graphics data structures</a></span> | <span dir='ltr'><a href="/wiki/Category:Trees_(structure)" title="Category:Trees (structure)">Trees (structure)</a></span> | <span dir='ltr'><a href="/wiki/Category:Geometric_algorithms" title="Category:Geometric algorithms">Geometric algorithms</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Articles_to_be_expanded_since_November_2008" title="Category:Articles to be expanded since November 2008">Articles to be expanded since November 2008</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_to_be_expanded" title="Category:All articles to be expanded">All articles to be expanded</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Kd-tree" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Kd-tree" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Kd-tree&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Kd-tree&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Kd-tree" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Kd-tree" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Kd-tree" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Kd-tree&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Kd-tree&amp;oldid=283040747" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Kd-tree&amp;id=283040747">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/K-d-Baum">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/%C3%81rbol_kd">Español</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/Kd%E6%9C%A8">日本語</a></li>
+				<li class="interwiki-he"><a href="http://he.wikipedia.org/wiki/%D7%A2%D7%A5_kd">עברית</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 10 April 2009, at 20:13 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv98 in 0.071 secs. --></body></html>

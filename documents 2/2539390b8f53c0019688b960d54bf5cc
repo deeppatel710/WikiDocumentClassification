@@ -1,0 +1,423 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Producer-consumer problem,Andrew S. Tanenbaum,Buffer (computer science),Cigarette smokers problem,Computer science,Critical section,Deadlock,Dining philosophers problem,Flow-based programming,Inter-process communication,Maurice Herlihy" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Producer-consumer_problem&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Producer-consumer_problem&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Producer-consumer problem - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Producer-consumer_problem";
+		var wgTitle = "Producer-consumer problem";
+		var wgAction = "view";
+		var wgArticleId = "8843405";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282599495;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Producer-consumer_problem skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Producer-consumer problem</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>In <a href="/wiki/Computer_science" title="Computer science">computer science</a>, the <b>producer-consumer problem</b> (also known as the <b>bounded-buffer problem</b>) is a classical example of a multi-<a href="/wiki/Process_(computing)" title="Process (computing)">process</a> <a href="/wiki/Synchronization_(computer_science)" title="Synchronization (computer science)">synchronization</a> problem. The problem describes two processes, the producer and the consumer, who share a common, fixed-size <a href="/wiki/Buffer_(computer_science)" title="Buffer (computer science)" class="mw-redirect">buffer</a>. The producer's job is to generate a piece of data, put it into the buffer and start again. At the same time the consumer is consuming the data (i.e. removing it from the buffer) one piece at a time. The problem is to make sure that the producer won't try to add data into the buffer if it's full and that the consumer won't try to remove data from an empty buffer.</p>
+<p>The solution for the producer is to go to sleep if the buffer is full. The next time the consumer removes an item from the buffer, it wakes up the producer who starts to fill the buffer again. In the same way, the consumer goes to sleep if it finds the buffer to be empty. The next time the producer puts data into the buffer, it wakes up the sleeping consumer. The solution can be reached by means of <a href="/wiki/Inter-process_communication" title="Inter-process communication">inter-process communication</a>, typically using <a href="/wiki/Semaphore_(programming)" title="Semaphore (programming)">semaphores</a>. An inadequate solution could result in a <a href="/wiki/Deadlock" title="Deadlock">deadlock</a> where both processes are waiting to be awakened.</p>
+<p>The problem can also be generalized to have multiple producers and consumers.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Implementations"><span class="tocnumber">1</span> <span class="toctext">Implementations</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Inadequate_implementation"><span class="tocnumber">1.1</span> <span class="toctext">Inadequate implementation</span></a></li>
+<li class="toclevel-2"><a href="#Using_semaphores"><span class="tocnumber">1.2</span> <span class="toctext">Using semaphores</span></a></li>
+<li class="toclevel-2"><a href="#Using_monitors"><span class="tocnumber">1.3</span> <span class="toctext">Using monitors</span></a></li>
+<li class="toclevel-2"><a href="#Using_Composable_Memory_Transactions"><span class="tocnumber">1.4</span> <span class="toctext">Using Composable Memory Transactions</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">2</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">3</span> <span class="toctext">See also</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Implementations" id="Implementations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit&amp;section=1" title="Edit section: Implementations">edit</a>]</span> <span class="mw-headline">Implementations</span></h2>
+<p><a name="Inadequate_implementation" id="Inadequate_implementation"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit&amp;section=2" title="Edit section: Inadequate implementation">edit</a>]</span> <span class="mw-headline">Inadequate implementation</span></h3>
+<p>This solution has a <a href="/wiki/Race_condition" title="Race condition">race condition</a>. To solve the problem, a careless programmer might come up with a solution shown below. In the solution two library routines are used, sleep and wakeup. When sleep is called, the caller is blocked until another process wakes it up by using the wakeup routine. itemCount is the number of items in the buffer.</p>
+<pre>
+<b>int</b> itemCount
+
+<b>procedure</b> producer() {
+    <b>while</b> (true) {
+        item = produceItem()
+
+        <b>if</b> (itemCount == BUFFER_SIZE) {
+            sleep()
+        }
+
+        putItemIntoBuffer(item)
+        itemCount = itemCount + 1
+        
+        <b>if</b> (itemCount == 1) {
+            wakeup(consumer)
+        }
+    }
+}
+
+<b>procedure</b> consumer() {
+    <b>while</b> (true) {
+
+        <b>if</b> (itemCount == 0) {
+            sleep()
+        }
+        
+        item = removeItemFromBuffer()
+        itemCount = itemCount - 1
+        
+        <b>if</b> (itemCount == BUFFER_SIZE - 1) {
+            wakeup(producer)
+        }
+        
+        consumeItem(item)
+    }
+}
+</pre>
+<p>The problem with this solution is that it contains a <a href="/wiki/Race_condition" title="Race condition">race condition</a> that can lead into a deadlock. Consider the following scenario:</p>
+<ol>
+<li>The consumer has just read the variable itemCount, noticed it's zero and is just about to move inside the if-block.</li>
+<li>Just before calling sleep, the consumer is interrupted and the producer is resumed.</li>
+<li>The producer creates an item, puts it into the buffer, and increases itemCount.</li>
+<li>Because the buffer was empty prior to the last addition, the producer tries to wake up the consumer.</li>
+<li>Unfortunately the consumer wasn't yet sleeping, and the wakeup call is lost. When the consumer resumes, it goes to sleep and will never be awakened again. This is because the consumer is only awakened by the producer when itemCount is equal to 1.</li>
+<li>The producer will loop until the buffer is full, after which it will also go to sleep.</li>
+</ol>
+<p>Since both processes will sleep forever, we have run into a deadlock. This solution therefore is unsatisfactory.</p>
+<p>An alternative analysis is that if the programming language does not define the semantics of concurrent accesses to shared variables (in this case itemCount) without use of synchronization, then the solution is unsatisfactory for that reason, without needing to explicitly demonstrate a race condition.</p>
+<p><a name="Using_semaphores" id="Using_semaphores"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit&amp;section=3" title="Edit section: Using semaphores">edit</a>]</span> <span class="mw-headline">Using semaphores</span></h3>
+<p><a href="/wiki/Semaphore_(programming)" title="Semaphore (programming)">Semaphores</a> solve the problem of lost wakeup calls. In the solution below we use two semaphores, fillCount and emptyCount, to solve the problem. fillCount is incremented and emptyCount decremented when a new item has been put into the buffer. If the producer tries to decrement emptyCount while its value is zero, the producer is put to sleep. The next time an item is consumed, emptyCount is incremented and the producer wakes up. The consumer works analogously.</p>
+<pre>
+<b>semaphore</b> fillCount = 0
+<b>semaphore</b> emptyCount = BUFFER_SIZE
+
+<b>procedure</b> producer() {
+    <b>while</b> (true) {
+        item = produceItem()
+        down(emptyCount)
+        putItemIntoBuffer(item)
+        up(fillCount)
+    }
+ }
+
+<b>procedure</b> consumer() {
+    <b>while</b> (true) {
+        down(fillCount)
+        item = removeItemFromBuffer()
+        up(emptyCount)
+        consumeItem(item)
+    }
+}
+</pre>
+<p>The solution above works fine when there is only one producer and consumer. Unfortunately, with multiple producers or consumers this solution contains a serious race condition that could result in two or more processes reading or writing into the same slot at the same time. To understand how this is possible, imagine how the procedure putItemIntoBuffer() can be implemented. It could contain two actions, one determining the next available slot and the other writing into it. If the procedure can be executed concurrently by multiple producers, then the following scenario is possible:</p>
+<ol>
+<li>Two producers decrement emptyCount</li>
+<li>One of the producers determines the next empty slot in the buffer</li>
+<li>Second producer determines the next empty slot and gets the same result as the first producer</li>
+<li>Both producers write into the same slot</li>
+</ol>
+<p>To overcome this problem, we need a way to make sure that only one producer is executing putItemIntoBuffer() at a time. In other words we need a way to execute a <a href="/wiki/Critical_section" title="Critical section">critical section</a> with <a href="/wiki/Mutual_exclusion" title="Mutual exclusion">mutual exclusion</a>. To accomplish this we use a binary semaphore called mutex. Since the value of a binary semaphore can be only either one or zero, only one process can be executing between down(mutex) and up(mutex). The solution for multiple producers and consumers is shown below.</p>
+<pre>
+<b>semaphore</b> mutex = 1
+<b>semaphore</b> fillCount = 0
+<b>semaphore</b> emptyCount = BUFFER_SIZE
+
+<b>procedure</b> producer() {
+    <b>while</b> (true) {
+        item = produceItem()
+        down(emptyCount)
+        down(mutex)
+        putItemIntoBuffer(item)
+        up(mutex)
+        up(fillCount)
+    }
+    up(fillCount) //the consumer may not finish before the producer.
+ }
+
+<b>procedure</b> consumer() {
+    <b>while</b> (true) {
+        down(fillCount)
+        down(mutex)
+        item = removeItemFromBuffer()
+        up(mutex)
+        up(emptyCount)
+        consumeItem(item)
+    }
+}
+</pre>
+<p>Notice that the order in which different semaphores are incremented or decremented is essential: changing the order might result in a deadlock.</p>
+<p><a name="Using_monitors" id="Using_monitors"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit&amp;section=4" title="Edit section: Using monitors">edit</a>]</span> <span class="mw-headline">Using monitors</span></h3>
+<p>The following <a href="/wiki/Pseudo_code" title="Pseudo code" class="mw-redirect">pseudo code</a> shows a solution to the producer-consumer problem using <a href="/wiki/Monitor_(synchronization)" title="Monitor (synchronization)">monitors</a>. Since mutual exclusion is implicit with monitors, no extra effort is necessary to protect critical section. In other words, the solution shown below works with any number of producers and consumers without any modifications. It is also noteworthy that using monitors makes race conditions much less likely than when using semaphores.</p>
+<pre>
+<b>monitor</b> ProducerConsumer {
+    
+    <b>int</b> itemCount
+    <b>condition</b> full
+    <b>condition</b> empty
+    
+    <b>procedure</b> add(item) {
+        <b>while</b> (itemCount == BUFFER_SIZE) {
+            wait(full)
+        }
+        
+        putItemIntoBuffer(item)
+        itemCount = itemCount + 1
+        
+        <b>if</b> (itemCount == 1) {
+            notify(empty)
+        }
+    }
+    
+    <b>procedure</b> remove() {
+        <b>while</b> (itemCount == 0) {
+            wait(empty)
+        }
+        
+        item = removeItemFromBuffer()
+        itemCount = itemCount - 1
+        
+        <b>if</b> (itemCount == BUFFER_SIZE - 1) {
+            notify(full)
+        }
+        
+        <b>return</b> item;
+    }
+}
+
+<b>procedure</b> producer() {
+    <b>while</b> (true) {
+        item = produceItem()
+        ProducerConsumer.add(item)
+    }
+}
+
+<b>procedure</b> consumer() {
+    <b>while</b> (true) {
+        item = ProducerConsumer.remove()
+        consumeItem()
+    }
+}
+</pre>
+<p><a name="Using_Composable_Memory_Transactions" id="Using_Composable_Memory_Transactions"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit&amp;section=5" title="Edit section: Using Composable Memory Transactions">edit</a>]</span> <span class="mw-headline">Using Composable Memory Transactions</span></h3>
+<p>Composable Memory Transactions is a special form of <a href="/wiki/Software_Transactional_Memory" title="Software Transactional Memory" class="mw-redirect">Software Transactional Memory</a> as proposed in 2005 by Tim Harris, Simon Marlow, <a href="/wiki/Simon_Peyton_Jones" title="Simon Peyton Jones">Simon Peyton Jones</a>, and <a href="/wiki/Maurice_Herlihy" title="Maurice Herlihy">Maurice Herlihy</a>. Duilio Protti implemented the library libCMT in C, the following link is a source code example.</p>
+<p><a href="http://sourceforge.krugle.com/kse/files/svn/svn.sourceforge.net/libcmt/libcmt/tests/classic/prod-cons.c#2" class="external text" title="http://sourceforge.krugle.com/kse/files/svn/svn.sourceforge.net/libcmt/libcmt/tests/classic/prod-cons.c#2" rel="nofollow">Producers-Consumers example with libCMT</a></p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit&amp;section=6" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><i>Modern Operating Systems (2nd Edition)</i> by <a href="/wiki/Andrew_S._Tanenbaum" title="Andrew S. Tanenbaum">Andrew S. Tanenbaum</a> (<a href="/wiki/Special:BookSources/0130926418" class="internal">ISBN 0-13-092641-8</a>)</li>
+<li><i>Foundations of Multithreaded, Parallel, and Distributed Programming</i> by Gregory R. Andrews (<a href="/wiki/Special:BookSources/0201357526" class="internal">ISBN 0-201-35752-6</a>)</li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit&amp;section=7" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Sleeping_barber_problem" title="Sleeping barber problem">Sleeping barber problem</a></li>
+<li><a href="/wiki/Dining_philosophers_problem" title="Dining philosophers problem">Dining philosophers problem</a></li>
+<li><a href="/wiki/Cigarette_smokers_problem" title="Cigarette smokers problem">Cigarette smokers problem</a></li>
+<li><a href="/wiki/Readers-writers_problem" title="Readers-writers problem">Readers-writers problem</a></li>
+<li><a href="/wiki/Flow-based_programming" title="Flow-based programming">Flow-based programming</a></li>
+<li>Blocking Queue</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 8/1000000
+Post-expand include size: 0/2048000 bytes
+Template argument size: 0/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:8843405-0!1!0!default!!en!2 and timestamp 20090408181551 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Producer-consumer_problem">http://en.wikipedia.org/wiki/Producer-consumer_problem</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Concurrency" title="Category:Concurrency">Concurrency</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Producer-consumer_problem" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Producer-consumer_problem" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Producer-consumer_problem&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Producer-consumer_problem&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Producer-consumer_problem" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Producer-consumer_problem" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Producer-consumer_problem" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Producer-consumer_problem&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Producer-consumer_problem&amp;oldid=282599495" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Producer-consumer_problem&amp;id=282599495">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Erzeuger-Verbraucher-Problem">Deutsch</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/%EC%83%9D%EC%82%B0%EC%9E%90-%EC%86%8C%EB%B9%84%EC%9E%90_%EB%AC%B8%EC%A0%9C">한국어</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Problema_del_produttore/consumatore">Italiano</a></li>
+				<li class="interwiki-he"><a href="http://he.wikipedia.org/wiki/%D7%91%D7%A2%D7%99%D7%99%D7%AA_%D7%99%D7%A6%D7%A8%D7%9F-%D7%A6%D7%A8%D7%9B%D7%9F">עברית</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Problem_producenta_i_konsumenta">Polski</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 8 April 2009, at 18:15 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv93 in 0.099 secs. --></body></html>

@@ -1,0 +1,595 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Shor's algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Shor\'s_algorithm";
+		var wgTitle = "Shor\'s algorithm";
+		var wgAction = "view";
+		var wgArticleId = "42674";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = "278264208";
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Shor's algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article's citation style may be unclear. The references used may be clearer with a different or consistent style of citation, footnoting, or external linking.
+
+
+Shor's algorithm, first introduced by mathematician Peter Shor, is a quantum algorithm for integer factorization. On a quantum computer, to factor an integer N, Shor's algorithm takes polynomial time in logN, specifically O((logN)3), demonstrating that integer factorization is in the complexity class BQP. This is exponentially faster than the best-known classical factoring algorithm, the general number field sieve, which works in sub-exponential time - about . Peter Shor discovered the eponymous algorithm in 1994.
+Shor's algorithm is important because it can, in theory, be used to "break" the widely used public-key cryptography scheme known as RSA. RSA is based on the assumption that factoring large numbers is computationally infeasible. So far as is known, this assumption is valid for classical computers; no classical algorithm is known that can factor in polynomial time. However, Shor's algorithm shows that factoring is efficient on a quantum computer, so an appropriately large quantum computer can "break" RSA. It was also a powerful motivator for the design and construction of quantum computers and for the study of new quantum computer algorithms.
+In 2001, Shor's algorithm was demonstrated by a group at IBM, who factored 15 into 3 × 5, using an NMR implementation of a quantum computer with 7 qubits. [1] However, some doubts have been raised as to whether IBM's experiment was a true demonstration of quantum computation, since no entanglement was observed. [2] Since IBM's implementation, several other groups have implemented Shor's algorithm using photonic qubits, emphasizing that entanglement was observed. [3][4]
+
+
+
+
+Contents
+
+
+1 Procedure
+
+1.1 Classical part
+1.2 Quantum part: Period-finding subroutine
+
+
+2 Explanation of the algorithm
+
+2.1 I. Obtaining factors from period
+2.2 II. Finding the period
+
+
+3 Modifications to Shor's Algorithm
+4 Deutsch and the many worlds interpretation
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Procedure
+The problem we are trying to solve is: given a composite number N, find an integer p, strictly between 1 and N, that divides N.
+Shor's algorithm consists of two parts:
+
+A reduction, which can be done on a classical computer, of the factoring problem to the problem of order-finding.
+A quantum algorithm to solve the order-finding problem.
+
+
+[edit] Classical part
+
+Pick a random number a < N
+Compute gcd(a, N). This may be done using the Euclidean algorithm.
+If gcd(a, N) ≠ 1, then there is a non-trivial factor of N, so we are done.
+Otherwise, use the period-finding subroutine (below) to find r, the period of the following function:
+
+,
+
+i.e. the order r of a in , or the smallest positive integer r for which f(x + r) = f(x).
+If r is odd, go back to step 1.
+If a r /2 ≡ -1 (mod N), go back to step 1.
+gcd(ar/2 ± 1, N) is a nontrivial factor of N. We are done.
+
+
+[edit] Quantum part: Period-finding subroutine
+The quantum circuits used for this algorithm are custom designed for each choice of N and the random a used in f(x) = ax mod N. Given N, find Q = 2q such that , which implies Q / r > N. The input and output qubit registers need to hold superpositions of values from 0 to Q − 1, and so have q qubits each. Using what might appear to be twice as many qubits as necessary guarantees that there are at least N different x which produce the same f(x), even as the period r approaches N/2.
+Proceed as follows:
+
+Initialize the registers to
+
+
+
+where x runs from 0 to Q − 1. This initial state is a superposition of Q states.
+Construct f(x) as a quantum function and apply it to the above state, to obtain
+
+.
+
+This is still a superposition of Q states.
+Apply the quantum Fourier transform to the input register. This transform (operating on a superposition of power-of-two Q = 2q states) uses a Qth root of unity such as ω = e2πi / Q to distribute the amplitude of any given  state equally among all Q of the  states, and to do so in a different way for each different x:
+
+.
+
+This leads to the final state
+
+.
+
+This is a superposition of many more than Q states, but many fewer than Q2 states. Although there are Q2 terms in the sum, the state  can be factored out whenever x0 and x produce the same value. Let
+
+ω = e2πi / Q be a Qth root of unity,
+r be the period of f,
+x0 be the smallest of a set of x which yield the same given f(x) (we have x0 < r), and
+
+
+b run from 0 to  so that x0 + rb < Q.
+
+Then ωry is a unit vector in the complex plane (ω is a root of unity and r and y are integers), and the coefficient of  in the final state is
+
+.
+
+Each term in this sum represents a different path to the same result, and quantum interference occurs—constructive when the unit vectors ωryb point in nearly the same direction in the complex plane, which requires that ωry point along the positive real axis.
+Perform a measurement. We obtain some outcome y in the input register and f(x0) in the output register. Since f is periodic, the probability of measuring some pair y and f(x0) is given by
+
+.
+
+Analysis now shows that this probability is higher, the closer unit vector ωry is to the positive real axis, or the closer yr/Q is to an integer.
+Perform Continued Fraction Expansion on y/Q to make a an approximation of it, and produce some c/r′ by it that satisfies two conditions:
+
+A: r′<N
+B: |y/Q - c/r′| < 1/2Q
+
+By satisfaction of these conditions, r′ would be the appropriate period r with high probability.
+Check if f(x) = f(x + r′)  . If so, we are done.
+Otherwise, obtain more candidates for r by using values near y, or multiples of r′. If any candidate works, we are done.
+Otherwise, go back to step 1 of the subroutine.
+
+
+[edit] Explanation of the algorithm
+The algorithm is composed of two parts. The first part of the algorithm turns the factoring problem into the problem of finding the period of a function, and may be implemented classically. The second part finds the period using the quantum Fourier transform, and is responsible for the quantum speedup.
+
+[edit] I. Obtaining factors from period
+The integers less than N and coprime with N form a finite group under multiplication modulo N. By the end of step 3, we have an integer a in this group. Since the group is finite, a must have a finite order r, the smallest positive integer such that
+
+
+
+Therefore, N | (a r − 1 ). Suppose we are able to obtain r, and it is even. Then
+
+
+
+
+r is the smallest positive integer such that a r ≡ 1, so N cannot divide (a r / 2 − 1). If N also does not divide (a r / 2 + 1), then N must have a nontrivial common factor with each of (a r / 2 − 1) and (a r / 2 + 1).
+Proof: For simplicity, denote (a r / 2 − 1) and (a r / 2 + 1) by u and v respectively. N | uv, so kN = uv for some integer k. Suppose gcd(u, N) = 1; then mu + nN = 1 for some integers m and n (this is a property of the greatest common divisor.) Multiplying both sides by v, we find that mkN + nvN = v, so N | v. By contradiction, gcd(u, N) ≠ 1. By a similar argument, gcd(v, N) ≠ 1.
+This supplies us with a factorization of N. If N is the product of two primes, this is the only possible factorization.
+
+[edit] II. Finding the period
+Shor's period-finding algorithm relies heavily on the ability of a quantum computer to be in many states simultaneously. Physicists call this behavior a "superposition" of states. To compute the period of a function f, we evaluate the function at all points simultaneously.
+Quantum physics does not allow us to access all this information directly, though. A measurement will yield only one of all possible values, destroying all others. But for the no cloning theorem, we could first measure f(x) without measuring x, and then make a few copies of the resulting state (which is a superposition of states all having the same f(x)). Measuring x on these states would provide different x values which give the same f(x), leading to the period. Because we cannot make exact copies of a quantum state, this method does not work. Therefore we have to carefully transform the superposition to another state that will return the correct answer with high probability. This is achieved by the quantum Fourier transform.
+Shor thus had to solve three "implementation" problems. All of them had to be implemented "fast", which means that they can be implemented with a number of quantum gates that is polynomial in logN.
+
+Create a superposition of states. This can be done by applying Hadamard gates to all qubits in the input register. Another approach would be to use the quantum Fourier transform (see below).
+Implement the function f as a quantum transform. To achieve this, Shor used repeated squaring for his modular exponentiation transformation. It is important to note that this step is more difficult to implement than the quantum Fourier transform, in that it requires ancillary qubits and substantially more gates to accomplish.
+Perform a quantum Fourier transform. By using controlled rotation gates and Hadamard gates Shor designed a circuit for the quantum Fourier transform (with Q = 2q) that uses just q(q − 1) / 2 = O((logQ)2) gates. [5]
+
+After all these transformations a measurement will yield an approximation to the period r. For simplicity assume that there is a y such that yr/Q is an integer. Then the probability to measure y is 1. To see that we notice that then
+
+
+
+for all integers b. Therefore the sum whose square gives us the probability to measure y will be Q/r since b takes roughly Q/r values and thus the probability is 1 / r2. There are r y such that yr/Q is an integer and also r possibilities for f(x0), so the probabilities sum to 1.
+Note: another way to explain Shor's algorithm is by noting that it is just the quantum phase estimation algorithm in disguise.
+
+[edit] Modifications to Shor's Algorithm
+There have been many modifications to Shor's algorithm. For example, whereas an order of twenty to thirty runs are required on a quantum computer in the case of Shor's original algorithm, in the case of the modification done by David McAnally at the University of Queensland an order of only four to eight runs on the quantum computer is required. [1]
+
+[edit] Deutsch and the many worlds interpretation
+Quantum physicist David Deutsch uses Shor's algorithm as an argument against single-universe theory in his book, The Fabric of Reality. His argument is as follows: Consider quantum factorization of a 250-digit number. This requires on the order of 10500 times the amount of computational resources which appear to be present. If our visible universe contains only 1080 atoms, how, where and when was the computation performed? Deutsch suggests that the computations are performed in other universes, and concludes that this supports the many worlds interpretation.
+
+[edit] References
+
+
+^ L. M. K. Vandersypen et al. (2001). "Experimental realization of Shor’s quantum factoring algorithm using nuclear magnetic resonance". Nature 414: 883-887. 
+^ Lieven M.K. Vandersypen et al. (1999). "Separability of Very Noisy Mixed States and Implications for NMR Quantum Computing". Phys. Rev. Lett 83: 1054-1057. 
+^ Chao-Yang Lu et al. (2007). "Demonstration of Shor’s quantum factoring algorithm using photonic qubits". Phys. Rev. Lett 99. 
+^ B. P. Lanyon et al. (2007). "Experimental Demonstration of a Compiled Version of Shor's Algorithm with Quantum Entanglement". Phys. Rev. Lett 99. 
+^ "Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer". 14. http://arxiv.org/abs/quant-ph/9508027v2. 
+
+
+
+arXiv:quant-ph/9508027v2 Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer, Peter W. Shor
+
+
+Revised version of the original paper by Peter Shor ("28 pages, LaTeX. This is an expanded version of a paper that appeared in the Proceedings of the 35th Annual Symposium on Foundations of Computer Science, Santa Fe, NM, Nov. 20--22, 1994. Minor revisions made January, 1996"). This preprint was eventually published as SIAM J.Sci.Statist.Comput. 26 (1997) 1484.
+
+
+Quantum Computation and Quantum Information, Michael A. Nielsen, Isaac L. Chuang, Cambridge University Press, 2000.
+
+
+A general textbook on quantum computing.
+
+This book was recommended (includes "a complete review of Shor’s algorithm") in the discussion of Aaronson's blog article (see below).
+
+
+
+
+Efficient Networks for Quantum Factoring, David Beckman, Amalavoyal N. Chari, Srikrishna Devabhaktuni, and John Preskill, Phys. Rev. A 54, 1034–1063 (1996).
+
+
+
+
+The authors investigate and optimize the resource requirements of Shor's algorithm. They determine the time complexity of factoring N to be about 72(logN)3, using a quantum computer with about 5logN qubits.
+
+
+
+
+Experimental realization of Shor's quantum factoring algorithm using nuclear magnetic resonance
+
+
+Lieven M. K. Vandersypen, Matthias Steffen, Gregory Breyta, Costantino S. Yannoni, Mark H. Sherwood & Isaac L. Chuang, Nature 414, 883–887 (20 Dec 2001). abstract
+
+An implementation of Shor's Algorithm that factorizes the number 15.
+
+
+
+
+arXiv:quant-ph/0308171v3 Implementing Shor's algorithm on Josephson Charge Qubits
+
+
+Juha J. Vartiainen, Antti O. Niskanen, Mikio Nakahara, Martti M. Salomaa
+
+
+arXiv:quant-ph/0402196v1 Implementation of Shor's Algorithm on a Linear Nearest Neighbour Qubit Array
+
+
+Austin G. Fowler, Simon J. Devitt, Lloyd C. L. Hollenberg
+Quant. Info. Comput. 4, 237-251 (2004)
+
+
+arXiv:quant-ph/0112055v4 A Refinement of Shor's Algorithm
+
+
+David McAnally. 45 pages. A refinement of Shor's Algorithm for determining order is introduced, which determines a divisor of the order after any one run of a quantum computer with almost absolute certainty. The information garnered from each run is accumulated to determine the order, and for any k greater than 1, there is a guaranteed minimum positive probability that the order will be determined after at most k runs. The probability of determination of the order after at most k runs exponentially approaches a value negligibly less than one, so that the accumulated information determines the order with almost absolute certainty. The probability of determining the order after at most two runs is more than 60%, and the probability of determining the order after at most four runs is more than 90%.
+
+
+[edit] External links
+
+"Explanation for the man in the street" by Scott Aaronson, "approved" by Peter Shor. (Shor wrote "Great article, Scott! That’s the best job of explaining quantum computing to the man on the street that I’ve seen."). Scott Aaronson suggests the following 12 sites as further reading (out of "the 10105000 quantum algorithm tutorials that are already on the web."):
+
+
+arXiv quant-ph/9508027 Shor's revised paper. See above for details.
+Quantum Computing and Shor's Algorithm, Matthew Hayward, 2005-02-17, imsa.edu, LaTeX2HTML version of the original 2750 line LaTeX document, also available as a 61 page PDF or postscript document.
+Quantum Computation and Shor's Factoring Algorithm, Ronald de Wolf, CWI and University of Amsterdam, January 12, 1999, 9 page postscript document.
+Shor's Factoring Algorithm, Notes from Lecture 9 of Berkeley CS 294-2, dated 4 Oct 2004, 7 page postscript document.
+Chapter 6 Quantum Computation, 91 page postscript document, Caltech, Preskill, PH229.
+Quantum computation: a tutorial by Samuel L. Braunstein.
+The Quantum States of Shor's Algorithm, by Neal Young, Last modified: Tue May 21 11:47:38 1996.
+A now-circular reference via the Wikipedia copy of this article; clearly Aaronson's link originally reached the 20 Feb 2007 version.
+III. Breaking RSA Encryption with a Quantum Computer: Shor's Factoring Algorithm, LECTURE NOTES ON QUANTUM COMPUTATION, Cornell University, Physics 481-681, CS 483; Spring, 2006 by N. David Mermin. Last revised 2006-03-28, 30 page PDF document.
+arXiv quant-ph/0303175 Shor's Algorithm for Factoring Large Integers. C. Lavor, L.R.U. Manssur, R. Portugal. Submitted on 29 Mar 2003. This work is a tutorial on Shor's factoring algorithm by means of a worked out example. Some basic concepts of Quantum Mechanics and quantum circuits are reviewed. It is intended for non-specialists which have basic knowledge on undergraduate Linear Algebra. 25 pages, 14 figures, introductory review.
+arXiv quant-ph/0010034 Shor's Quantum Factoring Algorithm, Samuel J. Lomonaco, Jr, Submitted on 9 Oct 2000, This paper is a written version of a one hour lecture given on Peter Shor's quantum factoring algorithm. 22 pages.
+Chapter 20 Quantum Computation, from Computational Complexity: A Modern Approach, Draft of a book: Dated January 2007, Comments welcome!, Sanjeev Arora and Boaz Barak, Princeton University.
+
+
+
+
+
+
+
+
+v • d • e
+
+Quantum computing
+
+
+
+
+
+General
+
+Qubit • Quantum computer • Quantum information • Quantum programming • Quantum virtual machine • Timeline of quantum computing • Topological computing
+
+
+
+
+
+
+Quantum communication
+
+Quantum channel • Quantum cryptography • Quantum teleportation • LOCC • Entanglement distillation
+
+
+
+
+
+
+Quantum algorithms
+
+Universal quantum simulator • Deutsch-Jozsa algorithm • Grover's search • Shor's factorization • Simon's Algorithm • (BQP)
+
+
+
+
+
+
+Quantum computing models
+
+Quantum circuit (quantum gate) • One-way quantum computer (cluster state) • Adiabatic quantum computation
+
+
+
+
+
+
+Decoherence prevention
+
+Quantum error correction • Topological quantum computer
+
+
+
+
+
+
+
+Physical implementations
+
+
+
+
+
+
+Quantum optics
+
+Linear optics QC • Cavity QED
+
+
+
+
+
+
+Ultracold atoms
+
+Trapped ion quantum computer • Optical lattice
+
+
+
+
+
+
+Spin-based
+
+Nuclear magnetic resonance (NMR) quantum computing • Kane QC • Loss-DiVincenzo (quantum dot) QC
+
+
+
+
+
+
+Other
+
+Superconducting quantum computing (Charge qubit • Flux qubit) • Nitrogen-vacancy center
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Number-theoretic algorithms
+
+
+
+
+
+Primality tests
+
+AKS · APR · Ballie-PSW · ECPP · Fermat · Lucas–Lehmer · Lucas–Lehmer (Mersenne numbers) · Lucas–Lehmer–Riesel · Proth's theorem · Pépin's · Solovay–Strassen · Miller–Rabin · Trial division
+
+
+
+
+
+
+Sieving algorithms
+
+Sieve of Atkin · Sieve of Eratosthenes · Sieve of Sundaram · Wheel factorization
+
+
+
+
+
+
+Integer factorization algorithms
+
+CFRAC · Dixon's · ECM · Euler's · Pollard's rho · P − 1 · P + 1 · QS · GNFS · SNFS · rational sieve · Fermat's · Shanks' square forms · Trial division · Shor's
+
+
+
+
+
+
+Other algorithms
+
+Ancient Egyptian multiplication · Aryabhata · Binary GCD · Chakravala · Euclidean · Extended Euclidean · integer relation algorithm · integer square root · Modular exponentiation · Schoof's · Shanks-Tonelli
+
+
+
+
+
+
+Italics indicate that algorithm is for numbers of special forms; bold indicates deterministic algorithm for primality tests.
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Shor%27s_algorithm"
+Categories: Quantum algorithms | Integer factorization algorithms | Quantum information science | Articles containing proofsHidden categories: Wikipedia references cleanup 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Deutsch
+Español
+Français
+한국어
+Italiano
+Lietuvių
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 19 March 2009, at 03:37.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

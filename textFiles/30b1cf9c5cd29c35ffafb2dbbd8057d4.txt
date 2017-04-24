@@ -1,0 +1,359 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sieve of Atkin - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Sieve_of_Atkin";
+		var wgTitle = "Sieve of Atkin";
+		var wgAction = "view";
+		var wgArticleId = "2150920";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281503791;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Sieve of Atkin
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In mathematics, the sieve of Atkin is a fast, modern algorithm for finding all prime numbers up to a specified integer. It is an optimized version of the ancient sieve of Eratosthenes, but does some preliminary work and then marks off multiples of primes squared, rather than multiples of primes. It was created by A. O. L. Atkin and Daniel J. Bernstein.[1]
+
+
+
+
+Contents
+
+
+1 Algorithm
+2 Pseudocode
+3 Explanation
+4 Computational complexity
+5 Addendum
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Algorithm
+In the algorithm:
+
+All remainders are modulo-sixty remainders (divide the number by sixty and return the remainder).
+All numbers, including x and y, are whole numbers (positive integers).
+Flipping an entry in the sieve list means to change the marking (prime or nonprime) to the opposite marking.
+
+
+Create a results list, filled with 2, 3, and 5.
+Create a sieve list with an entry for each positive whole number; all entries of this list should initially be marked nonprime.
+For each entry in the sieve list :
+
+If the entry is for a number with remainder 1, 13, 17, 29, 37, 41, 49, or 53, flip it for each possible solution to 4x2 + y2 = entry_number.
+If the entry is for a number with remainder 7, 19, 31, or 43, flip it for each possible solution to 3x2 + y2 = entry_number.
+If the entry is for a number with remainder 11, 23, 47, or 59, flip it for each possible solution to 3x2 - y2 = entry_number when x > y.
+If the entry has some other remainder, ignore it completely.
+
+
+Start with the lowest number in the sieve list.
+Take the next number in the sieve list still marked prime.
+Include the number in the results list.
+Square the number and mark all multiples of that square as nonprime.
+Repeat steps five through eight.
+
+
+[edit] Pseudocode
+The following is pseudocode for a straightforward version of the algorithm:
+
+// arbitrary search limit
+limit ← 1000000         
+
+// initialize the sieve
+is_prime(i) ← false, i ∈ [5, limit] 
+
+// put in candidate primes: 
+// integers which have an odd number of
+// representations by certain quadratic forms
+for (x, y) in [1, √limit] × [1, √limit]:
+    n ← 4x²+y²
+    if (n ≤ limit) ∧ (n mod 12 = 1 ∨ n mod 12 = 5):
+        is_prime(n) ← ¬is_prime(n)
+    n ← 3x²+y²
+    if (n ≤ limit) ∧ (n mod 12 = 7):
+        is_prime(n) ← ¬is_prime(n)
+    n ← 3x²-y²
+    if (x > y) ∧ (n ≤ limit) ∧ (n mod 12 = 11):
+        is_prime(n) ← ¬is_prime(n)
+  
+// eliminate composites by sieving
+for n in [5, √limit]:
+    if is_prime(n):
+        // n is prime, omit multiples of its square; this is
+        // sufficient because composites which managed to get
+        // on the list cannot be square-free
+        is_prime(k) ← false, k ∈ {n², 2n², 3n², ..., limit} 
+
+print 2, 3
+for n in [5, limit]:
+    if is_prime(n): print n
+
+This pseudocode is written for clarity. Repeated and wasteful calculations mean that it would run slower than the sieve of Eratosthenes. To improve its efficiency, faster methods must be used to find solutions to the three quadratics. At the least, separate loops could have tighter limits than [1, √limit].
+
+[edit] Explanation
+The algorithm completely ignores any numbers divisible by two, three, or five. All numbers with modulo-sixty remainder 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, or 58 are divisible by two and not prime. All numbers with modulo-sixty remainder 3, 9, 15, 21, 27, 33, 39, 45, 51, or 57 are divisible by three and not prime. All numbers with modulo-sixty remainder 5, 25, 35, or 55 are divisible by five and not prime. All these remainders are ignored.
+All numbers with modulo-sixty remainder 1, 13, 17, 29, 37, 41, 49, or 53 have a modulo-four remainder of 1. These numbers are prime if and only if the number of solutions to 4x2 + y2 = n is odd and the number is squarefree (proven as theorem 6.1 of [1]).
+All numbers with modulo-sixty remainder 7, 19, 31, or 43 have a modulo-six remainder of 1. These numbers are prime if and only if the number of solutions to 3x2 + y2 = n is odd and the number is squarefree (proven as theorem 6.2 of [1]).
+All numbers with modulo-sixty remainder 11, 23, 47, or 59 have a modulo-twelve remainder of 11. These numbers are prime if and only if the number of solutions to 3x2 − y2 = n is odd and the number is squarefree (proven as theorem 6.3 of [1]).
+None of the potential primes are divisible by 2, 3, or 5, so they can't be divisible by their squares. This is why squarefree checks don't include 22, 32, and 52.
+
+[edit] Computational complexity
+This sieve computes primes up to N using O(N/log log N) operations with only N1/2+o(1) bits of memory. That is a little better than the sieve of Eratosthenes which uses O(N) operations and O(N1/2(log log N)/log N) bits of memory[1]. These asymptotic computational complexities include simple optimizations, such as wheel factorization, and splitting the computation to smaller blocks.
+
+[edit] Addendum
+The first two equations used to determine if a number is prime after their respective modulo tests are equations for ellipses. They can be rewritten into standard form for an ellipse by dividing both sides of the equation by n, where n is the entry number being tested for primality. Using the equations in this form is easier to implement a test for various reasons. See ellipse for more information.
+
+[edit] References
+
+^ a b c d e A.O.L. Atkin, D.J. Bernstein, Prime sieves using binary quadratic forms, Math. Comp. 73 (2004), 1023-1030.[1]
+
+
+[edit] External links
+
+An optimized implementation of the sieve (in C)
+Python implementation
+Simple implementation of the sieve (in C)
+
+
+
+
+
+
+
+
+v • d • e
+
+Number-theoretic algorithms
+
+
+
+
+
+Primality tests
+
+AKS · APR · Ballie-PSW · ECPP · Fermat · Lucas–Lehmer · Lucas–Lehmer (Mersenne numbers) · Lucas–Lehmer–Riesel · Proth's theorem · Pépin's · Solovay–Strassen · Miller–Rabin · Trial division
+
+
+
+
+
+
+Sieving algorithms
+
+Sieve of Atkin · Sieve of Eratosthenes · Sieve of Sundaram · Wheel factorization
+
+
+
+
+
+
+Integer factorization algorithms
+
+CFRAC · Dixon's · ECM · Euler's · Pollard's rho · P − 1 · P + 1 · QS · GNFS · SNFS · rational sieve · Fermat's · Shanks' square forms · Trial division · Shor's
+
+
+
+
+
+
+Other algorithms
+
+Ancient Egyptian multiplication · Aryabhata · Binary GCD · Chakravala · Euclidean · Extended Euclidean · integer relation algorithm · integer square root · Modular exponentiation · Schoof's · Shanks-Tonelli
+
+
+
+
+
+
+Italics indicate that algorithm is for numbers of special forms; bold indicates deterministic algorithm for primality tests.
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Sieve_of_Atkin"
+Categories: Primality tests 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+فارسی
+Français
+Italiano
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 3 April 2009, at 14:17.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,461 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Denotational semantics - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Denotational_semantics";
+		var wgTitle = "Denotational semantics";
+		var wgAction = "view";
+		var wgArticleId = "55275";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280307704;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Denotational semantics
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+The Wikibook Haskell has a page on the topic of
+Denotational semantics
+
+
+
+In computer science, denotational semantics is an approach to formalizing the meanings of programming languages by constructing mathematical objects (called denotations) which describe the meanings of expressions from the languages. Other approaches to providing a formal semantics of programming languages include axiomatic semantics and operational semantics.
+Denotational semantics originated in the work of Christopher Strachey and Dana Scott in the 1960s. As originally developed by Strachey and Scott, denotational semantics provided the denotation (meaning) of a computer program as a function that mapped input into output.[1] To give denotations to recursively defined programs, Scott proposed working with continuous functions between domains, specifically complete partial orders. Work continues in the present day in investigating appropriate denotational semantics for aspects of programming languages such as sequentiality, concurrency, non-determinism and local state.
+Broadly speaking, denotational semantics is concerned with finding mathematical objects that represent what programs do. Collections of such objects are called domains. For example, programs (or program phrases) might be represented by partial functions, or by Actor event diagram scenarios, or by games between the environment and the system: these are all general examples of domains.
+An important tenet of denotational semantics is that semantics should be compositional: the denotation of a program phrase should be built out of the denotations of its subphrases. A simple example: the meaning of "3 + 4" is determined by the meanings of "3", "4", and "+".
+Denotational semantics was first developed as a framework for functional and sequential programs modeled as mathematical functions mapping input to output. The first section of this article describes denotational semantics developed within this framework. Later sections deal with issues of polymorphism, concurrency, etc.
+
+
+
+
+Contents
+
+
+1 Semantics of recursive programs
+2 Development of denotational semantics
+
+2.1 Denotational semantics of state
+2.2 Denotations of data types
+2.3 Denotational semantics for programs of restricted complexity
+2.4 Denotational semantics of non-deterministic programs
+2.5 Denotational semantics of concurrency
+2.6 Denotational semantics of sequentiality
+2.7 Denotational semantics as source-to-source translation
+
+
+3 Full abstraction
+4 Semantics versus implementation
+5 Connections to other areas of computer science
+6 References
+7 Further reading
+
+7.1 Textbooks
+7.2 Other references
+
+
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Semantics of recursive programs
+In this section we review the semantics of functional recursive programs which were the initial subject matter of denotational semantics.
+The problem is as follows. We need to give a semantics to programs such as the definition of the factorial function as
+
+
+
+function factorial(n:Nat):Nat ≡ if (n==0)then 1 else n*factorial(n-1).
+
+
+
+The meaning of this factorial program should be a function on the natural numbers, but, because of its recursive definition, it is not clear how to understand this in a compositional way.
+In the semantics of recursion, a domain is typically a partial order, which can be understood as an order of definedness. For instance, the set of partial functions on the natural numbers can be given an order as follows:
+
+
+
+given partial functions f and g, let "f≤g" mean that "f agrees with g on all values for which f is defined".
+
+
+
+The core idea behind using partial orders is that each recursive step broadens the domain on which a function is defined. Thus, for example, if f was the factorial function, recursively defined for only n iterations, then g could be the factorial function, recursively defined for n+1 (or more) iterations.
+It is usual to assume some properties of the domain, such as the existence of limits of chains (see cpo) and a bottom element. The partial order of partial functions has a bottom element, the totally undefined function. It also has least upper bounds of chains. Various additional properties are often reasonable and helpful: the article on domain theory has more details. One particularly important property is that of Scott continuity: one is interested in the continuous functions between domains (in the Scott topology). These are functions that preserve the order structure, and that preserve least upper bounds.
+In this setting, types are denoted by domains, and the elements of the domains roughly capturing the elements of the types. A denotational semantics is given to a program phrase with free variables in terms of a continuous function from the denotation of its environment type to the denotation of its type. For example, the phrase n*g(n-1) has type Nat, and it has two free variables: n, of type Nat, and g of type Nat -> Nat. Thus its denotation will be a continuous function
+
+
+
+.
+
+
+
+Under this order on the partial functions, the denotation of the factorial program can be given as follows. First, we must develop denotations (as Scott-continuous functions) for the basic constructions such as if-then-else, ==, and multiplication. One must also develop a denotational semantics for function abstraction and application. The program phrase
+
+
+
+λ n:N. if (n==0)then 1 else n*g(n-1)
+
+
+
+can then be given a denotation as a continuous function between the domains of partial functions
+
+
+
+.
+
+
+
+The denotation of the factorial program is defined to be the least fixed point of this function F. It is thus an element of the domain . The reason that such a fixed point exists is because F is a continuous function. A version of Tarski's fixed point theorem says that continuous functions on domains have least fixed points.
+One way of proving the fixed point theorem gives an intuition as to why it is appropriate to give a semantics for recursion in this way. Every continuous function F:D→D on a domain D with bottom element ⊥ has a fixed point given by
+
+
+
+⊔i∈NFi(⊥).
+
+
+
+Here, the notation Fi indicates i-many applications of F. The symbol "⊔" means "least upper bound".
+It is instructive to think of the components of the chain as "iterates". In the case of the factorial program above, we had a function F on the domain of partial functions.
+
+F0(⊥) is the totally undefined partial function N→N;
+F1(⊥) is the function that is defined at 0, to be 1, and undefined elsewhere;
+F5(⊥) is the factorial function defined up to 4: F5(⊥)(4) = 24. It is undefined for arguments greater than 4.
+
+Thus the least upper bound of this chain, then, is the full factorial function (which happens to be a total function).
+
+[edit] Development of denotational semantics
+Denotational semantics has developed by investigating more elaborate constructions of programming languages and different models of computation.
+
+[edit] Denotational semantics of state
+State (such as a heap) and imperative features can be straightforwardly modeled in the denotational semantics described above. All the textbooks below have the details. The key idea is to consider a command as a partial function on some domain of states. The denotation of "x:=3" is then the function that takes a state to the state with 3 assigned to x. The sequencing operator ";" is denoted by composition of functions. Fixed-point constructions are then used to give a semantics to looping constructs, such as "while".
+Things become more difficult in modelling programs with local variables. One approach is to no longer work with domains, but instead to interpret types as functors from some category of worlds to a category of domains. Programs are then denoted by natural continuous functions between these functors.[2][3]
+
+[edit] Denotations of data types
+Many programming languages allow users to define recursive data types. For example, the type of lists of numbers can be specified by
+
+
+
+datatype list = Cons of (Nat, list) | Empty.
+
+
+
+This section deals only with functional data structures that cannot change. Conventional programming languages would typically allow the elements of such a recursive list to be changed.
+For another example: the type of denotations of the untyped lambda calculus is
+
+
+
+datatype D = (D → D)
+
+
+
+The problem of solving domain equations is concerned with finding domains that model these kinds of datatypes. One approach, roughly speaking, is to consider the collection of all domains as a domain itself, and then solve the recursive definition there. The textbooks below give more details.
+Polymorphic data types are data types that are defined with a parameter. For example, the type of α lists is defined by
+
+
+
+datatype α list = Cons of (α, list) | Empty.
+
+
+
+Lists of numbers, then, are of type Nat list, while lists of strings are of String list.
+Some researchers have developed domain theoretic models of polymorphism. Other researchers have also modeled parametric polymorphism within constructive set theories. Details are found in the textbooks listed below.
+A recent research area has involved denotational semantics for object and class based programming languages.[4]
+
+[edit] Denotational semantics for programs of restricted complexity
+Following the development of programming languages based on linear logic, denotational semantics have been given to languages for linear usage (see e.g. proof nets, coherence spaces) and also polynomial time complexity[5].
+
+[edit] Denotational semantics of non-deterministic programs
+The concept of power domains has been developed to give a denotational semantics to non-deterministic sequential programs. Writing P for a power domain constructor, the domain P(D) is the domain of non-deterministic computations of type denoted by D.
+There are difficulties with fairness and unboundedness in domain-theoretic models of non-determinism.[6] See Power domains for nondeterminism.
+
+[edit] Denotational semantics of concurrency
+Many researchers have argued that the domain theoretic models given above do not suffice for the more general case of concurrent computation. For this reason various new models have been introduced. In the early 1980s, people began using the style of denotational semantics to give semantics for concurrent languages. Examples include Will Clinger's work with the actor model; Glynn Winskel's work with event structures and petri nets[7]; and the work by Francez, Hoare, Lehmann, and de Roever (1979) on trace semantics for CSP.[8] All these lines of enquiry remain under investigation (see e.g. Hewitt's Timed Diagrams Model,[9] or the various denotational models for CSP[10]).
+Recently, Winskel and others have proposed the category of profunctors as a domain theory for concurrency.[11][12]
+
+[edit] Denotational semantics of sequentiality
+The problem of full abstraction (see below) for the sequential programming language PCF was, for a long time, a big open question in denotational semantics. The difficulty with PCF is that it is a very sequential language. For example, there is no way to define the parallel-or function in PCF. It is for this reason that the approach using domains, as introduced above, yields a denotational semantics that is not fully abstract.
+This open question was mostly resolved in the 1990s with the development of game semantics and also with techniques involving logical relations.[13] For more details, see the page on PCF.
+
+[edit] Denotational semantics as source-to-source translation
+It is often useful to translate one programming language into another. For example, a concurrent programming language might be translated into a process calculus; a high-level programming language might be translated into byte-code. (Indeed, conventional denotational semantics can be seen as the interpretation of programming languages into the internal language of the category of domains.)
+In this context, notions from denotational semantics, such as full abstraction, help to satisfy security concerns.[14][15]
+
+[edit] Full abstraction
+It is often considered important to connect the properties of a denotational semantics with those of an established operational semantics. This is especially important when the denotational semantics is rather mathematical and abstract, and the operational semantics is more concrete or closer to the computational intuitions. The following properties of a denotational semantics are often of interest.
+
+Independence of denotational and operational semantics: The denotational semantics should be formalized using mathematical structures that are independent of the operational semantics of a programming language;
+Soundness: All observably distinct programs have distinct denotations;
+Full abstraction: Two programs have the same denotations precisely when they are observationally equivalent.
+
+Additional desirable properties we may wish to hold between operational and denotational semantics are:
+
+Constructivity: The semantic model should be constructive in the sense that it should only include elements that can be intuitively constructed. One way of formalizing this is that every element must be the limit of a directed set of finite elements.
+Progressivity:[9] For each system S, there is a progressionS function for the semantics such that the denotation (meaning) of a system S is ⊔i∈ωprogressionSi(⊥S) where ⊥S is the initial configuration of S.
+Full completeness or definability: Every morphism of the semantic model should be the denotation of a program.[citation needed]
+
+For semantics in the traditional style, full abstraction may be understood roughly as the requirement that "operational equivalence coincides with denotational equality". For denotational semantics in more intensional models, such as the Actor model and process calculi, there are different notions of equivalence within each model, and so the concept of full abstraction is a matter of debate, and harder to pin down. Also the mathematical structure of operational semantics and denotational semantics can become very close.
+
+[edit] Semantics versus implementation
+According to Dana Scott [1980]:
+
+It is not necessary for the semantics to determine an implementation, but it should provide criteria for showing that an implementation is correct.
+
+According to Clinger [1981]:
+
+Usually, however, the formal semantics of a conventional sequential programming language may itself be interpreted to provide an (inefficient) implementation of the language. A formal semantics need not always provide such an implementation, though, and to believe that semantics must provide an implementation leads to confusion about the formal semantics of concurrent languages. Such confusion is painfully evident when the presence of unbounded nondeterminism in a programming language's semantics is said to imply that the programming language cannot be implemented.
+
+
+[edit] Connections to other areas of computer science
+Some work in denotational semantics has interpreted types as domains in the sense of domain theory which can be seen as a branch of model theory, leading to connections with type theory and category theory. Within computer science, there are connections with abstract interpretation, program verification, and model checking.
+Monads were introduced to denotational semantics as a way of organising semantics, and these ideas have had a big impact in functional programming (see monads in functional programming).
+
+[edit] References
+
+
+^ Dana Scott and Christopher Strachey. Toward a mathematical semantics for computer languages Oxford Programming Research Group Technical Monograph. PRG-6. 1971.
+^ Peter W. O'Hearn, John Power, Robert D. Tennent, Makoto Takeyama: Syntactic control of interference revisited. Electr. Notes Theor. Comput. Sci. 1. 1995.
+^ Frank J. Oles: A Category-Theoretic Approach to the Semanics of Programming. PhD thesis, Syracuse University. 1982.
+^ Bernhard Reus, Thomas Streicher: Semantics and logic of object calculi. Theor. Comput. Sci. 316(1): 191-213 (2004)
+^ P. Baillot. Stratified coherence spaces: a denotational semantics for Light Linear Logic ( ps.gz) Theoretical Computer Science , 318 (1-2), pp.29-55, 2004.
+^ Paul Blain Levy: Amb Breaks Well-Pointedness, Ground Amb Doesn't. Electr. Notes Theor. Comput. Sci. 173: 221-239 (2007)
+^ Event Structure Semantics for CCS and Related Languages. DAIMI Research Report, University of Aarhus, 67 pp., April 1983.
+^ Nissim Francez, C.A.R. Hoare, Daniel Lehmann, and Willem-Paul de Roever. Semantics of nondeterminism, concurrency, and communication Journal of Computer and System Sciences. December 1979.
+^ a b Carl Hewitt (2006) What is Commitment? Physical, Organizational, and Social COIN@AAMAS. 2006.
+^ A. W. Roscoe: The Theory and Practice of Concurrency, Prentice Hall, ISBN 0-13-674409-5. Revised 2005.
+^ Gian Luca Cattani, Glynn Winskel: Profunctors, open maps and bisimulation. Mathematical Structures in Computer Science 15(3): 553-614 (2005)
+^ Mikkel Nygaard, Glynn Winskel: Domain theory for concurrency. Theor. Comput. Sci. 316(1): 153-190 (2004)
+^ P. W. O'Hearn and J. G. Riecke, Kripke Logical Relations and PCF, Information and Computation, Volume 120, Issue 1, July 1995, Pages 107-116.
+^ Martin Abadi. Protection in programming-language translations. Proc. of ICALP'98. LNCS 1443. 1998.
+^ Andrew Kennedy. Securing the .NET programming model. Theoretical Computer Science, 364(3). 2006
+
+
+
+[edit] Further reading
+
+[edit] Textbooks
+
+Joseph E. Stoy, Denotational Semantics: The Scott-Strachey Approach to Programming Language Semantics. MIT Press, Cambridge, Massachusetts, 1977. (A classic if dated textbook.)
+Carl Gunter, "Semantics of Programming Languages: Structures and Techniques". MIT Press, Cambridge, Massachusetts, 1992. (ISBN 978-0262071437)
+Glynn Winskel, Formal Semantics of Programming Languages. MIT Press, Cambridge, Massachusetts, 1993. (ISBN 978-0262731034)
+R. D. Tennent, Denotational semantics. Handbook of logic in computer science, vol. 3 pp 169--322. Oxford University Press, 1994. (ISBN 0-19-853762-X)
+
+
+[edit] Other references
+
+S. Abramsky and A. Jung: Domain theory. In S. Abramsky, D. M. Gabbay, T. S. E. Maibaum, editors, Handbook of Logic in Computer Science, vol. III. Oxford University Press, 1994. (ISBN 0-19-853762-X)
+Irene Greif. Semantics of Communicating Parallel Processes MIT EECS Doctoral Dissertation. August 1975.
+Gordon Plotkin. A powerdomain construction SIAM Journal of Computing September 1976.
+Edsger Dijkstra. A Discipline of Programming Prentice Hall. 1976.
+Krzysztof R. Apt, J. W. de Bakker. Exercises in Denotational Semantics MFCS 1976: 1-11
+J. W. de Bakker. Least Fixed Points Revisited Theor. Comput. Sci. 2(2): 155-181 (1976)
+Carl Hewitt and Henry Baker Actors and Continuous Functionals Proceeding of IFIP Working Conference on Formal Description of Programming Concepts. August 1-5, 1977.
+Henry Baker. Actor Systems for Real-Time Computation MIT EECS Doctoral Dissertation. January 1978.
+Michael Smyth. Power domains Journal of Computer and System Sciences. 1978.
+George Milne and Robin Milner. Concurrent processes and their syntax JACM. April, 1979.
+Nissim Francez, C.A.R. Hoare, Daniel Lehmann, and Willem-Paul de Roever. Semantics of nondeterminism, concurrency, and communication Journal of Computer and System Sciences. December 1979.
+Nancy Lynch and Michael Fischer. On describing the behavior of distributed systems in Semantics of Concurrent Computation. Springer-Verlag. 1979.
+Jerald Schwartz Denotational semantics of parallelism in Semantics of Concurrent Computation. Springer-Verlag. 1979.
+William Wadge. An extensional treatment of dataflow deadlock Semantics of Concurrent Computation. Springer-Verlag. 1979.
+Ralph-Johan Back. Semantics of Unbounded Nondeterminism ICALP 1980.
+David Park. On the semantics of fair parallelism Proceedings of the Winter School on Formal Software Specification. Springer-Verlag. 1980.
+Will Clinger, Foundations of Actor Semantics. MIT Mathematics Doctoral Dissertation, June 1981.
+Lloyd Allison, A Practical Introduction to Denotational Semantics Cambridge University Press. 1987.
+P. America, J. de Bakker, J. N. Kok and J. Rutten. Denotational semantics of a parallel object-oriented language Information and Computation, 83(2): 152 - 205 (1989)
+David A. Schmidt, The Structure of Typed Programming Languages. MIT Press, Cambridge, Massachusetts, 1994. ISBN 0-262-69171-X.
+M. Korff True concurrency semantics for single pushout graph transformations with applications to actor systems Working papers of the Int. Workshop on Information Systems - Correctness and Reusability. World Scientific. 1995.
+M. Korff and L. Ribeiro Concurrent derivations as single pushout graph grammar processes Proceedings of the Joint COMPUGRAPH/SEMAGRAPH Workshop on Graph Rewriting and Computation. ENTCS Vol 2, Elsevier. 1995.
+Thati, Prasanna, Carolyn Talcott, and Gul Agha. Techniques for Executing and Reasoning About Specification Diagrams International Conference on Algebraic Methodology and Software Technology (AMAST), 2004.
+J.C.M. Baeten, T. Basten, and M.A. Reniers. Algebra of Communicating Processes Cambridge University Press. 2005.
+He Jifeng and C.A.R. Hoare. Linking Theories of Concurrency United Nations University International Institute for Software Technology UNU-IIST Report No. 328. July, 2005.
+Luca Aceto and Andrew D. Gordon (editors). Algebraic Process Calculi: The First Twenty Five Years and Beyond Process Algebra. Bertinoro, Forlì, Italy, August 1–5, 2005.
+A. W. Roscoe: The Theory and Practice of Concurrency, Prentice Hall, ISBN 0-13-674409-5. Revised 2005.
+
+
+[edit] External links
+
+Denotational Semantics. Overview of book by Lloyd Allison
+Structure of Programming Languages I: Denotational Semantics. Course notes from 1995 by Wolfgang Schreiner
+Denotational Semantics: A Methodology for Language Development by David Schmidt
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Denotational_semantics"
+Categories: Logic in computer science | Computational models | Formal specification languages | Denotational semantics | Programming language semanticsHidden categories: All articles with unsourced statements | Articles with unsourced statements since September 2007 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Hrvatski
+日本語
+Português
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 28 March 2009, at 23:23.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

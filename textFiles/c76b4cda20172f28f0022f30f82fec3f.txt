@@ -1,0 +1,382 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Web Server Gateway Interface - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Web_Server_Gateway_Interface";
+		var wgTitle = "Web Server Gateway Interface";
+		var wgAction = "view";
+		var wgArticleId = "1441500";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279885181;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-python {line-height: normal;}
+.source-python li, .source-python pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for python
+ * CSS class: source-python, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-python .de1, .source-python .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-python  {}
+.source-python .head {}
+.source-python .foot {}
+.source-python .imp {font-weight: bold; color: red;}
+.source-python .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-python li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-python li.li2 {font-weight: bold;}
+.source-python .kw1 {color: #ff7700;font-weight:bold;}
+.source-python .kw2 {color: #008000;}
+.source-python .kw3 {color: #dc143c;}
+.source-python .kw4 {color: #0000cd;}
+.source-python .co1 {color: #808080; font-style: italic;}
+.source-python .coMULTI {color: #808080; font-style: italic;}
+.source-python .es0 {color: #000099; font-weight: bold;}
+.source-python .br0 {color: #66cc66;}
+.source-python .st0 {color: #483d8b;}
+.source-python .nu0 {color: #ff4500;}
+.source-python .me1 {color: black;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Web Server Gateway Interface
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+The Web Server Gateway Interface defines a simple and universal interface between web servers and web applications or frameworks for the Python programming language. The latest version 3.0 of Python, released in December 2008, is already supported by mod_wsgi (a module for the Apache Web server).
+
+
+
+
+Contents
+
+
+1 Idea
+2 Specification overview
+3 Example application
+4 Example of calling an application
+5 WSGI-compatible applications and frameworks
+6 Wrappers
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Idea
+Historically Python web application frameworks have been a problem for new Python users because, generally speaking, the choice of web framework would limit the choice of usable web servers, and vice versa. Python applications were often designed for either CGI, FastCGI, mod_python or even custom API interfaces of specific web-servers.
+WSGI[1] (sometimes pronounced 'whiskey' or 'wiz-gee') was created as a low-level interface between web servers and web applications or frameworks to promote common ground for portable web application development. WSGI is based on the existing CGI standard.
+
+[edit] Specification overview
+The WSGI has two sides: the "server" or "gateway" side, and the "application" or "framework" side. The server side invokes[clarification needed] a callable object (usually a function or a method) that is provided by the application side. Additionally WSGI provides middleware; WSGI middleware implements both sides of the API, so that it can be inserted "between" a WSGI server and a WSGI application -- the middleware will act as an application from the server's point of view, and as a server from the application's point of view.
+A "middleware" component can perform such functions as:
+
+Routing a request to different application objects based on the target URL, after changing the environment variables accordingly.
+Allowing multiple applications or frameworks to run side-by-side in the same process
+Load balancing and remote processing, by forwarding requests and responses over a network
+Perform content postprocessing, such as applying XSLT stylesheets
+
+
+[edit] Example application
+A WSGI compatible "Hello World" application in Python syntax:
+
+
+def app(environ, start_response):
+    start_response('200 OK', [('Content-Type', 'text/plain')])
+    return ['Hello World\n']
+
+
+[edit] Example of calling an application
+An example of calling an application and retrieving its response:
+
+
+def call_application(app, environ):
+    body = []
+    status_headers = [None, None]
+    def start_response(status, headers):
+        status_headers[:] = [status, headers]
+        return body.append
+    app_iter = app(environ, start_response)
+    try:
+        for item in app_iter:
+            body.append(item)
+    finally:
+        if hasattr(app_iter, 'close'):
+            app_iter.close()
+    return status_headers[0], status_headers[1], ''.join(body)
+ 
+status, headers, body = call_application(app, {...environ...})
+
+
+[edit] WSGI-compatible applications and frameworks
+There are numerous Web application frameworks supporting WSGI:
+
+CherryPy
+Django[2]
+TurboGears
+PyAMF
+Pylons
+web.py (webpy.org)
+Zope 3
+Google App Engine
+web2py
+Werkzeug (werkzeug.pocoo.org, Tool "werkzeug" on pocoo.org)
+
+
+[edit] Wrappers
+The server or gateway invokes the application callable once for each request it receives from an HTTP client, that is directed at the application.
+Currently wrappers are available for FastCGI, CGI, SCGI, AJP (using flup), Apache (using mod_wsgi or mod_python) and Microsoft IIS (using isapi-wsgi, PyISAPIe, or an ASP gateway).
+
+[edit] References
+
+^ PEP 333, Python Web Server Gateway Interface v1.0
+^ [1] Django with WSGI support
+
+
+[edit] External links
+
+WSGI metaframework
+Comprehensive wiki about everything WSGI
+WSGI Tutorial
+Python standard library module wsgiref
+
+
+
+
+
+
+
+
+v • d • e
+
+Web server interfaces
+
+
+
+
+
+General
+
+Common Gateway Interface (CGI) · Simple CGI · FastCGI
+
+
+
+
+
+
+Technology specific
+
+ISAPI · Java Servlet · NSAPI · AJP · Python WSGI · Rack
+
+
+
+
+
+
+Apache modules
+
+mod_perl · mod_php · mod_python (mod_wsgi) · mod_ruby · mod_jk
+
+
+
+
+
+
+Other
+
+ASP · ASP.NET · ColdFusion
+
+
+
+
+
+
+
+ This computer programming-related article is a stub. You can help Wikipedia by expanding it.
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Web_Server_Gateway_Interface"
+Categories: Python programming language | Computer programming stubsHidden categories: All pages needing cleanup | Wikipedia articles needing clarification from March 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Italiano
+日本語
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 21:59.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

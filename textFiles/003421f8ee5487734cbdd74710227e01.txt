@@ -1,0 +1,421 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sender Policy Framework - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Sender_Policy_Framework";
+		var wgTitle = "Sender Policy Framework";
+		var wgAction = "view";
+		var wgArticleId = "555928";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 266728665;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Sender Policy Framework
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computing, Sender Policy Framework (SPF) allows software to identify messages that are or are not authorized to use the domain name in the SMTP HELO and MAIL FROM (Return-Path) commands, based on information published in a sender policy of the domain owner. Forged return paths are common in e-mail spam and result in backscatter. SPF is defined in RFC 4408.
+
+
+
+
+Contents
+
+
+1 Principles of operation
+
+1.1 FAIL and forwarding
+1.2 HELO tests
+
+
+2 Implementation
+
+2.1 Mechanisms
+2.2 Qualifiers
+2.3 Modifiers
+2.4 Error handling
+
+
+3 Caveats
+
+3.1 SPF FAIL rejection
+3.2 Checkpoints
+3.3 DoS attack
+
+
+4 History
+
+4.1 Controversy
+4.2 Deployment
+
+
+5 See also
+6 References
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Principles of operation
+Further information: Sender Rewriting Scheme (SRS)
+Normal SMTP allows any computer to send an e-mail claiming to be from anyone. Thus, it is easy for spammers to send e-mail from forged addresses. This makes it difficult to trace back to where the spam truly comes from, and easy for spammers to hide their true identity in order to avoid responsibility. Many believe that the ability for anyone to forge sender addresses (also known as Return-Paths) is a security flaw in modern SMTP, caused by an undesirable side-effect of the deprecation of source routes.
+SPF allows the owner of an Internet domain to use special format of DNS TXT records or the newer SPF records to specify which machines are authorized to transmit e-mail for that domain. For example, the owner of the example.org domain can designate which machines are authorized to send e-mail whose sender e-mail address ends with "@example.org". Receivers checking SPF can reject messages from unauthorized machines before receiving the body of the message. Thus, principles of operations are quite similar to those of DNSBL, except that SPF leverages the authority delegation scheme of the real Domain Name System.
+The sender address is transmitted at the beginning of the SMTP dialog. If the server rejects the sender, the unauthorized client should send a bounce message to that address. If the server accepts the sender, and subsequently also accepts the recipient(s) and the body of the message, it should insert a Return-Path header in the message's body in order to save the sender address. While the address in the Return-Path often matches other originator addresses in the mail header like "From:" or "Sender:" this is not necessarily the case, and SPF does not prevent forgeries of these other addresses.
+Spammers can send e-mail with an SPF PASS result if they have an account in a domain with a sender policy, or abuse a compromised system in this domain. However, doing so makes the spammer easier to trace and prosecute.
+The main benefit of SPF is to people whose e-mail addresses are forged in the Return-Paths. They receive a large mass of unsolicited error messages and other auto-replies, making it difficult to use e-mail normally. If such people use SPF to specify their legitimate sending IPs with a FAIL result for all other IPs, then receivers checking SPF can reject forgeries, reducing the amount of back-scatter.
+SPF has potential advantages beyond helping identify unwanted e-mail. In particular, if a sender provides SPF information, then receivers can use SPF PASS results in combination with a white list to identify known reliable senders. Scenarios like compromised systems and shared sending mailers limit this use.
+
+[edit] FAIL and forwarding
+SPF does not allow plain message forwarding. When a domain publishes an SPF FAIL policy, then legitimate mails sent to receivers forwarding their mail to third parties can be rejected and bounced if
+
+the forwarder does not rewrite the Return-Path, unlike mailing lists,
+the next hop does not white list the forwarder, and
+this hop checks SPF.
+
+This is a necessary and obvious feature of SPF – checks behind the "border" MTA (MX) of the receiver cannot work directly.
+Publishers of SPF FAIL policies must accept this potential problem. They should test (e.g., with a SOFTFAIL policy) until they are satisfied with the results. See below for a list of alternatives to plain message forwarding.
+
+[edit] HELO tests
+For an empty Return-Path as used in error messages and other auto-replies, an SPF check of the HELO-identity is mandatory.
+With a bogus HELO identity the result NONE would not help, but for valid host names SPF also protects the HELO identity. This SPF feature was always supported as an option for receivers, and later SPF drafts including the final specification recommend to check the HELO always.
+This allows to white list sending mailers based on a HELO PASS, or to reject all mails after a HELO FAIL. It can also be used in reputation systems (any white or black list is a simple case of a reputation system).
+
+[edit] Implementation
+Compliance with SPF consists of three loosely related tasks:
+
+Publish a policy 
+Domains identify the machines authorized to send e-mail on their behalf. Domains do this by adding additional records to their existing DNS information: every domain name that has an A record or MX record deserves a TXT record specifying the policy if it is used either in an email address or as HELO/EHLO argument.
+Check and use SPF information 
+Receivers use ordinary DNS queries, which are typically cached to enhance performance. Receivers then interpret the SPF information as specified and act upon the result.
+Revise mail forwarding
+Plain mail forwarding is not allowed by SPF. The alternatives are
+
+remailing, i.e. replacing the original sender with one belonging to the local domain,
+refusing, i.e. answering 551 User not local; please try <user@example.com>,
+whitelisting on the target server, so that it will not refuse a forwarded message, and
+Sender Rewriting Scheme, a more complicated mechanism that handles forwarding back-scatter back.
+
+
+
+Thus, the key issue in SPF is the specification for the new DNS information that domains set and receivers use. The records are laid out like this (in typical DNS-syntax):
+
+example.org. IN TXT "v=spf1 a mx -all"
+
+"v=" defines the version of SPF used. The following words provide mechanisms to use to determine if a domain is eligible to send mail. The "a" and "mx" specify the systems permitted to send messages for the given domain. The "-all" at the end specifies that, if the previous mechanisms did not match, the message should be rejected.
+
+[edit] Mechanisms
+Eight mechanisms are defined:
+
+
+ALL
+Matches always, used for a default result like -all for all IPs not matched by prior mechanisms.
+
+
+A
+If the domain name has an A (or AAAA for IPv6) record corresponding to the sender's address, it will match. (That is, the mail comes directly from the domain name.)
+
+
+IP4
+If the sender is in a given IPv4 range, match.
+
+
+IP6
+If the sender is in a given IPv6 range, match.
+
+
+MX
+If the domain name has an MX record resolving to the sender's address, it will match. (That is, the mail comes from one of the domain's mail servers.)
+
+
+PTR
+If the Forward Confirmed reverse DNS domain of the sending IP ending in the domain name.
+
+
+EXISTS
+If the given domain resolves, match (no matter the address it resolves to). This is rarely used. Along with the SPF macro language it offers more complex matches like DNSBL-queries.
+
+
+INCLUDE
+If the included (a misnomer) policy passes the test this mechanism matches. This is typically used to include policies of more than one ISP.
+
+
+
+[edit] Qualifiers
+Each mechanism can be combined with one of four qualifiers:
+
++ for a PASS result. This can be omitted; e.g., +mx is the same as mx.
+? for a NEUTRAL result interpreted like NONE (no policy).
+~ for SOFTFAIL, a debugging aid between NEUTRAL and FAIL.
+- for FAIL, the mail should be rejected (see below).
+
+
+[edit] Modifiers
+The modifiers allow for future extensions to the framework. To date only the two modifiers defined in the RFC 4408 have been widely deployed:
+exp=some.example.com gives the name of a domain with a DNS TXT record (interpreted using SPF's macro language) to get an explanation for FAIL results – typically a URL which is added to the SMTP error code. This feature is rarely used.
+redirect=some.example.com can be used instead of the ALL-mechanism to link to the policy record of another domain. This modifier is easier to understand than the somewhat similar INCLUDE-mechanism.
+
+[edit] Error handling
+As soon as SPF implementations detect syntax errors in a sender policy they must abort the evaluation with result PERMERROR. Skipping erroneous mechanisms cannot work as expected, therefore include:bad.example and redirect=bad.example also cause a PERMERROR.
+Another safety guard is the maximum of ten mechanisms querying DNS, i.e. any mechanism except from IP4, IP6, and ALL. Implementations can abort the evaluation with result SOFTERROR when it takes too long or a DNS query times out, but they must return PERMERROR if the policy directly or indirectly needs more than ten queries for mechanisms. Any redirect= also counts towards this processing limit.
+A typical SPF HELO policy v=spf1 a -all needs three DNS queries: (1) TXT, (2) SPF, and (3) A or AAAA. This last query counts as the first mechanism towards the limit (10). In this example it is also the last, because ALL needs no DNS lookup.
+
+[edit] Caveats
+SPF avoids abuses of domain names; it does not validate that a given e-mail actually comes from the claimed user. Users within a given domain can forge each others' address, if permitted by the signature process. In addition, domains that share a mail sender (e.g. with virtual hosting) can forge each others' domain even if dire policies are applied.
+
+[edit] SPF FAIL rejection
+SPF FAIL policies can be an effective but dangerous tool. Some publishers of SPF policies try to avoid the dangers by using SOFTFAIL (designed for limited testing periods) instead of FAIL. But SOFTFAIL can be even more dangerous than FAIL with receivers rejecting FAIL and accepting SOFTFAIL tagged as potential junk.
+A reject in a forwarding scenario is a clean decision. The forwarder will send an error message to the address in the Return-Path. Typically the error message (bounce) contains an explanation of the SMTP error and the failing (forwarded to) address. The original sender can then send his mail again directly to this address bypassing the forwarder, a crude emulation of the normal SMTP error code 551 user not local.
+However, an accepted SOFTFAIL tagged as potential junk could be deleted by the final recipient. This is a user who has arranged his forwarding in a way that cannot work with SPF; this user could also be careless with checking his potential junk and simply delete it.
+The same line of argument also suggests that receivers should take the SPF recommendation to reject SPF FAIL seriously where possible. Accepting SPF FAIL results as potential junk can be more dangerous than simply rejecting FAILed mails. While senders with an SPF FAIL can be expected to know what it means, the same is obviously not the case for a receiver arranging his forwarding in a way that cannot work with SPF.
+
+[edit] Checkpoints
+Checking SPF behind the "border" MTA (MX) is not impossible; the relevant info is usually noted in a Received timestamp line added by one of the MXs of the receiver. But at this time it is too late to reject SPF FAIL; the checking entity can essentially only delete FAILing mail.
+Experts should be able to get this right, but it is no "plug and play" situation; therefore the SPF specification recommends to check SPF only at the "border" (MX) in the SMTP session, not later. Later SPF checks can also have unexpected results if the publishers of sender policies do not plan modifications of their policy carefully with regard to DNS cache expiration.
+
+[edit] DoS attack
+An Internet draft[1] discussed concerns related to the scale of an SPF answer leading to network exploits as a means to corrupt the DNS. This issue is also covered in the security considerations of the SPF RFC. The SPF project did a detailed analysis [2] of this draft and claimed that SPF does not pose any unique threat of DNS DoS.
+
+[edit] History
+The idea to limit by IP address who could send mail using a given sender domain dates back to 1997.[3] The SPF concept was presented at YAPC and OSCON (O'Reilly Open Source Convention) in 2003, in a short paper titled "Repudiating Mail-From" written by Paul Vixie in 2002. Other predecessors were "Reverse MX" by Hadmut Danisch, and "Designated Mailer Protocol" by Gordon Fecyk.
+In June 2003, Meng Weng Wong merged the RMX and DMP specifications[4] and solicited suggestions from other programmers. Over the next six months, a large number of changes were made and a large community had started working on SPF.
+Originally SPF stood for Sender Permitted From and was sometimes also called SMTP+SPF, but it was changed to Sender Policy Framework in February 2004.
+In early 2004, the IETF created the MARID working group and tried to use SPF and Microsoft's CallerID proposal as the basis for what is now known as Sender ID.
+After the collapse of MARID the SPF community returned to the original "classic" version of SPF. In July 2005 this version of the specification was approved by the IESG as an IETF experiment, inviting the community to observe SPF during the two years following publication. On April 28, 2006, the SPF RFC was published as experimental RFC 4408.
+
+[edit] Controversy
+In 2004, Steven M. Bellovin wrote a long e-mail that discusses his concerns with SPF.[5] Some of these include:
+
+SPF uses TXT records in DNS, which are supposed to be free-form text with no semantics attached. SPF proponents readily acknowledge that it would be better to have records specifically designated for SPF, but this choice was made to enable rapid implementation of SPF. In July 2005, IANA assigned the Resource Record type 99 to SPF. SPF publishers may publish both record types and SPF checkers may check for either types. It will likely take many years before all DNS software fully supports this new record.
+As of the time he wrote his message, there was no consensus that this is the right way to go. Some major e-mail service providers have not bought into this scheme. Unless and until they do, it does not help much, either for their customers (who make up a substantial proportion of the user population) or for everyone else (since their addresses could be forged). It is worth noting that since this concern was raised, Google Mail and AOL, among others, have embraced SPF.[6]
+Bellovin's strongest concerns involve the underlying assumptions of SPF (SPF's "semantic model"). When using SPF, the SPF DNS records determine how a sender is allowed to send. That means that the owner of the domain will control how senders are allowed to send. People who use "portable" e-mail addresses (such as e-mail addresses created by professional organizations) will be required to use the domain owner's SMTP sender, which may not currently even exist. Organizations providing these "portable" addresses could, however, create their own 'mail submission agents (MSAs) (RFC 4409) or offer VPNs. Besides, SPF only ties the SMTP Return-Path to permitted MSAs; users are still free to use their RFC 2822 addresses elsewhere.
+
+
+[edit] Deployment
+Anti-spam software such as SpamAssassin version 3.0.0 and ASSP implement SPF. Many mail transfer agents (MTAs) support SPF directly such as Courier, CommuniGate Pro, Wildcat, and Microsoft Exchange, or have patches/plug-ins available that support SPF, including Postfix, Sendmail, Exim, and Qmail. More than one million domains publish SPF FAIL -all policies.[7]
+In a survey published in as of 2007[update], 5% of the .com and .net domains had some kind of SPF policy – this might include overall useless policies like v=spf1 ?all.[8] In April 2007, BITS, a division of the Financial Services Roundtable, published e-mail security recommendations for its members including SPF deployment.[9]
+In 2008, the Messaging Anti-Abuse Working Group (MAAWG) published a paper about email-authentication covering SPF, Sender ID, and DKIM.[10]. In their "Sender Best Communication Practices" the MAAWG stated: "At the very least, senders should incorporate SPF records for their mailing domains".[11]
+
+[edit] See also
+
+E-mail authentication
+Sender Rewriting Scheme
+Author Domain Signing Practises
+
+
+[edit] References
+
+
+^ SPF DoS Exploitation (expired Internet draft)
+^ OpenSPF analysis of the DoS attack draft
+^ Yakov Shafranovich (2004-09-02). "Sender ID: A Tale of Open Standards and Corporate Greed? - Part I". CircleID. http://www.circleid.com/posts/sender_id_a_tale_of_open_standards_and_corporate_greed_part_i. Retrieved on 16 November 2008.  This tale mentions that Paul Vixie attributed the idea to Jim Miller.
+^ The IETF proposal for RMX is draft-danisch-dns-rr-smtp-04. For a comparison among RMX, DMP and SPF, see RMX and DMP compared on the historical openspf site.
+^ Steve Bellovin expresses doubts (Jan 2004)
+^ "SPF Information". AOL Postmaster. http://postmaster.aol.com/spf/. Retrieved on 2007-10-04. 
+^ "SPF -all Domain Survey". 2008. http://spf-all.com/stats.html. Retrieved on 2008-07-23. 
+^ Liu, Cricket (January 2007). "Handicapping New DNS Extensions and Applications". ONLamp. http://www.onlamp.com/pub/a/onlamp/2007/01/11/dns-extensions.html. Retrieved on 2007-10-04. 
+^ "BITS Email Security Toolkit" (PDF). BITS. April 2007. http://bitsinfo.org/downloads/Publications%20Page/BITSSecureEmailFINALAPRIL1507.pdf. Retrieved on 2008-06-13. 
+^ Crocker, Dave (March 2008). "Trust in Email Begins with Authentication" (PDF). MAAWG. http://www.maawg.org/about/publishedDocuments/MAAWG_Email_Authentication_Paper.pdf. Retrieved on 2008-06-13. 
+^ "MAAWG Sender Best Communications Practices - Version 2.0" (PDF). MAAWG. 2008-06-02. http://www.maawg.org/about/MAAWG_Sender_BCP/MAAWG_Senders_BCP_Ver2.pdf. Retrieved on 2008-06-13. 
+
+
+
+[edit] External links
+
+"SPF homepage". http://www.openspf.org.  and "SPF Mailing List Archives". http://dir.gmane.org/index.php?prefix=gmane.mail.spam.spf. 
+Gillette, BJ (2005-09-01). "SPF Claws Sender-ID". emailbattles. http://www.emailbattles.com/archive/battles/spam_aabeeighag_ef/. 
+Industry Canada (May 2005). "Stopping Spam: Creating a Stronger, Safer Internet Report of the Task Force on Spam". Government of Canada. http://e-com.ic.gc.ca/epic/internet/inecic-ceac.nsf/en/gv00329e.html. 
+"CBR Staff Writer" (2005-03-04). "Sender authentication hops off the standards track". CBR. http://www.cbronline.com/article_news.asp?guid=44D2955C-3C04-4BA1-AC45-AF8277B8B455. 
+Woodhouse, David (2005-01-13). "Why you shouldn't jump on the SPF bandwagon". http://david.woodhou.se/why-not-spf.html. 
+Leyden, John (2004-09-03). "Spammers embrace email authentication". The Register. http://www.theregister.co.uk/2004/09/03/email_authentication_spam/. 
+"An Interview with the Lead Developer of SPF - Part I". CircleID. 2004-06-29. http://www.circleid.com/posts/an_interview_with_the_lead_developer_of_spf_part_i/. 
+Knowles, Brad (2004-05-19). "SPF...". http://bradknowles.typepad.com./considered_harmful/2004/05/spf.html. 
+de Boyne Pollard, Jonathan (2004). "SPF is harmful. Adopt it.". http://homepages.tesco.net./~J.deBoynePollard/FGA/smtp-spf-is-harmful.html. 
+Diagram of e-mail flow and SPF's impact (PDF, PNG )
+MIT Spam Conference Handout on SPF (Jan 2004)
+SpamCop FAQ entry about bogus bounces discusses also SPF (2005)
+M. Wong's Deployment White Paper (PDF, Nov 2004)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Sender_Policy_Framework"
+Categories: E-mail authentication | Internet protocols | Spam filteringHidden categories: Articles containing potentially dated statements from 2007 | All articles containing potentially dated statements 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+Svenska
+
+
+
+
+
+
+
+
+
+ This page was last modified on 27 January 2009, at 11:31 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

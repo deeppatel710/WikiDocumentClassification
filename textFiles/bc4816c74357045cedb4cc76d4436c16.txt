@@ -1,0 +1,331 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Reference counting - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Reference_counting";
+		var wgTitle = "Reference counting";
+		var wgAction = "view";
+		var wgArticleId = "26490";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283142900;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Reference counting
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, reference counting is a technique of storing the number of references, pointers, or handles to a resource such as an object or block of memory. It is typically used as a means of deallocating objects which are no longer referenced.
+
+
+
+
+Contents
+
+
+1 Use in garbage collection
+2 Advantages and disadvantages
+3 Graph interpretation
+4 Dealing with inefficiency of updates
+5 Dealing with reference cycles
+6 Variants of reference counting
+
+6.1 Weighted reference counting
+6.2 Indirect reference counting
+
+
+7 Examples of use
+
+7.1 COM
+7.2 Cocoa
+7.3 Delphi
+7.4 GObject
+7.5 PHP
+7.6 Python
+7.7 Squirrel
+
+
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Use in garbage collection
+Reference counting is often known as a garbage collection algorithm where each object contains a count of the number of references to it held by other objects. If an object's reference count reaches zero, the object has become inaccessible, and it is put on a list of objects to be destroyed.
+Simple reference counts require frequent updates. Whenever a reference is destroyed or overwritten, the reference count of the object it references is decremented, and whenever one is created or copied, the reference count of the object it references is incremented.
+Reference counting is also used in disk operating systems and distributed systems, where full non-incremental tracing garbage collection is too time consuming because of the size of the object graph and slow access speed.
+
+[edit] Advantages and disadvantages
+The main advantage of reference counting over tracing garbage collection is that objects are reclaimed as soon as they can no longer be referenced, and in an incremental fashion, without long pauses for collection cycles and with clearly defined lifetime of every object. In real-time applications or systems with limited memory, this is important to maintain responsiveness. Reference counting is also among the simplest forms of garbage collection to implement. It also allows for effective management of non-memory resources such as operating system objects, which are often much scarcer than memory (tracing GC systems use finalizers for this, but the delayed reclamation may cause problems). Weighted reference counts are a good solution for garbage collecting a distributed system.
+Reference counts are also useful information to use as input to other runtime optimizations. For example, systems that depend heavily on immutable objects such as many functional programming languages can suffer an efficiency penalty due to frequent copies. However, if we know an object has only one reference (as most do in many systems), and that reference is lost at the same time that a similar new object is created (as in the string append statement str ← str + "a"), we can replace the operation with a mutation on the original object.
+Reference counting in naive form has two main disadvantages over the tracing garbage collection, both of which require additional mechanisms to ameliorate:
+
+The frequent updates it involves are a source of inefficiency. While tracing garbage collectors can impact efficiency severely via context switching and cache line faults, they collect relatively infrequently, while accessing objects is done continually. Also, less importantly, reference counting requires every memory-managed object to reserve space for a reference count. In tracing garbage collectors, this information is stored implicitly in the references that refer to that object, saving space, although tracing garbage collectors, particularly incremental ones, can require additional space for other purposes.
+The naive algorithm described above can't handle reference cycles, an object which refers directly or indirectly to itself. A mechanism relying purely on reference counts will never consider cyclic chains of objects for deletion, since their reference count is guaranteed to stay nonzero. Methods for dealing with this issue exist but can also increase the overhead and complexity of reference counting — on the other hand, these methods need only be applied to data that might form cycles, often a small subset of all data. One such method is the use of weak references.
+
+
+[edit] Graph interpretation
+When dealing with garbage collection schemes, it's often helpful to think of the reference graph, which is a directed graph where the vertices are objects and there is an edge from an object A to an object B if A holds a reference to B. We also have a special vertex or vertices representing the local variables and references held by the runtime system, and no edges ever go to these nodes, although edges can go from them to other nodes.
+In this context, the simple reference count of an object is the in-degree of its vertex. Deleting a vertex is like collecting an object. It can only be done when the vertex has no incoming edges, so it does not affect the out-degree of any other vertices, but it can affect the in-degree of other vertices, causing their corresponding objects to be collected as well.
+The connected component containing the special vertex contains the objects that can't be collected, while other connected components of the graph only contain garbage. By the nature of reference counting, each of these garbage components must contain at least one cycle.
+
+[edit] Dealing with inefficiency of updates
+Incrementing and decrementing reference counts every time a reference is created or destroyed can significantly impede performance. Not only do the operations take time, but they damage cache performance and can lead to pipeline bubbles. Even read-only operations like calculating the length of a list require a large number of reads and writes for reference updates with naive reference counting.
+One simple technique is for the compiler to combine a number of nearby reference updates into one. This is especially effective for references which are created and quickly destroyed. Care must be taken, however, to put the combined update at the right position so that a premature free is avoided.
+The Deutsch-Bobrow method of reference counting capitalizes on the fact that most reference count updates are in fact generated by references stored in local variables. It ignores these references, only counting references in data structures, but before an object with reference count zero can be deleted, the system must verify with a scan of the stack and registers that no other reference to it still exists.
+Another technique devised by Henry Baker involves deferred increments,[1] in which references which are stored in local variables do not immediately increment the corresponding reference count, but instead defer this until it is necessary. If such a reference is destroyed quickly, then there is no need to update the counter. This eliminates a large number of updates associated with short-lived references. However, if such a reference is copied into a data structure, then the deferred increment must be performed at that time. It is also critical to perform the deferred increment before the object's count drops to zero, resulting in a premature free.
+A dramatic decrease in the overhead on counter updates was obtained by Levanoni and Petrank. Their update coalescing method eliminates more than 99% of the counter updates for typical Java benchmarks. In addition, they eliminate the need for atomic operations during pointer updates on parallel processors. Finally, they present an enhanced algorithm that may run concurrently with multithreaded applications employing only fine synchronization. See the paper for more.
+Blackburn and McKinley's ulterior reference counting[2] combines deferred reference counting with a copying nursery, observing that the majority of pointer mutations occur in young objects. This algorithm achieves throughput comparable with the fastest generational copying collectors with the low bounded pause times of reference counting.
+More work on improving performance of reference counting collectors can be found in Paz's Ph.D thesis. In particular, he advocates the use of age oriented collectors and prefetching.
+
+[edit] Dealing with reference cycles
+There are a variety of ways of handling the problem of detecting and collecting reference cycles. One is that a system may explicitly forbid reference cycles. In some systems like filesystems this is a common solution. Cycles are also sometimes ignored in systems with short lives and a small amount of cyclic garbage, particularly when the system was developed using a methodology of avoiding cyclic data structures wherever possible, typically at the expense of efficiency.
+Another solution is to periodically use a tracing garbage collector to reclaim cycles. Since cycles typically constitute a relatively small amount of reclaimed space, the collection cycles can be spaced much farther apart than with an ordinary tracing garbage collector.
+Bacon describes a cycle-collection algorithm for reference counting systems with some similarities to tracing systems, including the same theoretical time bounds, but that takes advantage of reference count information to run much more quickly and with less cache damage. It's based on the observation that an object cannot appear in a cycle until its reference count is decremented to a nonzero value. All objects which this occurs to are put on a roots list, and then periodically the program searches through the objects reachable from the roots for cycles. It knows it has found a cycle when decrementing all the reference counts on a cycle of references brings them all down to zero. An enhanced version of this algorithm by Paz et al. is able to run concurrently with other operations and improve its efficiency by using the update coalescing method of Levanoni and Petrank. See the paper for more.
+
+[edit] Variants of reference counting
+Although it's possible to augment simple reference counts in a variety of ways, often a better solution can be found by performing reference counting in a fundamentally different way. Here we describe some of the variants on reference counting and their benefits and drawbacks.
+
+[edit] Weighted reference counting
+In weighted reference counting, we assign each reference a weight, and each object tracks not the number of references referring to it, but the total weight of the references referring to it. The initial reference to a newly-created object has a large weight, such as 216. Whenever this reference is copied, half of the weight goes to the new reference, and half of the weight stays with the old reference. Because the total weight does not change, the object's reference count does not need to be updated.
+Destroying a reference decrements the total weight by the weight of that reference. When the total weight becomes equal to the partial weight, all references have been destroyed. If an attempt is made to copy a reference with a weight of 1, we have to "get more weight" by adding to the total weight and then adding this new weight to our reference, and then split it.
+The property of not needing to access a reference count when a reference is copied is particularly helpful when the object's reference count is expensive to access, for example because it is in another process, on disk, or even across a network. It can also help increase concurrency by avoiding many threads locking a reference count to increase it. Thus, weighted reference counting is most useful in parallel, multiprocess, database, or distributed applications.
+The primary problem with simple weighted reference counting is that destroying a reference still requires accessing the reference count, and if many references are destroyed this can cause the same bottlenecks we seek to avoid. Some adaptations of weighted reference counting seek to avoid this by attempting to give weight back from a dying reference to one which is still active.
+Weighted reference counting was independently devised by Bevan, in the paper Distributed garbage collection using reference counting, and Watson, in the paper An efficient garbage collection scheme for parallel computer architectures, both in 1987.
+
+[edit] Indirect reference counting
+In indirect reference counting, it is necessary to keep track of who the reference was obtained from. This means that two references are kept to the object: a direct one which is used for invocations; and an indirect one which forms part of a diffusion tree, such as in the Dijkstra-Scholten algorithm, which allows a garbage collector to identify dead objects. This approach prevents an object from being discarded prematurely.
+
+[edit] Examples of use
+
+[edit] COM
+Microsoft's Component Object Model (COM) makes pervasive use of reference counting. In fact, the three methods that all COM objects must provide (in the IUnknown interface) all increment or decrement the reference count. Much of the Windows Shell and many Windows applications (including MS Internet Explorer, MS Office, and countless third-party products) are built on COM, demonstrating the viability of reference counting in large-scale systems.
+One primary motivation for reference counting in COM is to enable interoperability across different programming languages and runtime systems. A client need only know how to invoke object methods in order to manage object life cycle; thus, the client is completely abstracted from whatever memory allocator the implementation of the COM object uses. As a typical example, a Visual Basic program using a COM object is agnostic towards whether that object was allocated (and must later be deallocated) by a C++ allocator or another Visual Basic component.
+However, this support for heterogeneity has a major cost: it requires correct reference count management by all parties involved. While high-level languages like Visual Basic manage reference counts automatically, C/C++ programmers are entrusted to increment and decrement reference counts at the appropriate time. C++ programs can and should avoid the task of managing reference counts manually by using smart pointers. Bugs caused by incorrect reference counting in COM systems are notoriously hard to resolve, especially because the error may occur in an opaque, third-party component.
+Microsoft has abandoned reference counting in favor of tracing garbage collection for the .NET Framework.
+
+[edit] Cocoa
+Apple's Cocoa framework (and related frameworks, such as Core Foundation) use manual reference counting, much like COM. However, as of Mac OS X v10.5, Cocoa when used with Objective C 2.0 also has automatic garbage collection.
+
+[edit] Delphi
+One language that uses reference counting for garbage collection is Delphi. Delphi is not a completely garbage collected language, in that user-defined types must still be manually allocated and deallocated. It does provide automatic collection, however, for a few built-in types, such as strings, dynamic arrays, and interfaces, for ease of use and to simplify the generic database functionality. It is important to note that it is up to the programmer to decide whether to use the built-in types or not; Delphi programmers have complete access to low-level memory management like in C/C++. So all potential cost of Delphi's reference counting can, if desired, be easily circumvented.
+Some of the reasons reference counting may have been preferred to other forms of garbage collection in Delphi include:
+
+The general benefits of reference counting, such as prompt collection.
+Cycles either cannot occur or do not occur in practice using only the small set of garbage-collected built-in types.
+The overhead in code size required for reference counting is very small (typically a single LOCK INC or LOCK DEC instruction, which ensures atomicity in any environment), and no separate thread of control is needed for collection as would be needed for a tracing garbage collector.
+Many instances of the most commonly used garbage-collected type, the string, have a short lifetime, since they are typically intermediate values in string manipulation.
+The reference count of a string is checked before mutating a string. This allows reference count 1 strings to be mutated directly whilst higher reference count strings are copied before mutation. This allows the general behaviour of old style pascal strings to be preserved whilst eliminating the cost of copying the string on every assignment.
+Because garbage-collection is only done on built-in types, reference counting can be efficiently integrated into the library routines used to manipulate each datatype, keeping the overhead needed for updating of reference counts low.
+
+
+[edit] GObject
+The GObject object-oriented programming framework implements reference counting on its base types, including weak references. Reference incrementing and decrementing uses atomic operations for thread safety. A significant amount of the work in writing bindings to GObject from high-level languages lies in adapting GObject reference counting to work with the language's own memory management system.
+
+[edit] PHP
+PHP uses a reference counting mechanism for its internal variable management. Since PHP 5.3, it implements the algorithm from Bacon's above mentioned paper. PHP allows you to turn on and off the cycle collection with user-level functions. It also allows you to manually force the purging mechanism to be run.
+
+[edit] Python
+Python also uses reference counting and offers cycle detection as well. See Extending and Embedding the Python Interpreter.
+
+[edit] Squirrel
+Squirrel also uses reference counting and offers cycle detection as well. This tiny language is relatively unknown outside the video game industry; however, it is a concrete example of how reference counting can be practical and efficient (especially in realtime environments).
+
+[edit] References
+
+
+^ Henry Baker (September 1994). "Minimizing Reference Count Updating with Deferred and Anchored Pointers for Functional Data Structures". ACM SIGPLAN Notices 29 (9): 38–43. doi:10.1145/185009.185016. http://citeseer.ist.psu.edu/baker94minimizing.html. 
+^ Stephen Blackburn, Kathryn McKinley (2003). "Ulterior Reference Counting: Fast Garbage Collection without a Long Wait" in OOPSLA 2003. Proceedings of the 18th annual ACM SIGPLAN conference on Object-oriented programing, systems, languages, and applications: 344–358. doi:10.1145/949305.949336. ISBN 1-58113-712-5. 
+
+
+This article was originally based on material from the Free On-line Dictionary of Computing, which is licensed under the GFDL.
+
+[edit] External links
+
+The Memory Manager Reference: Beginner's Guide: Recycling: Reference Counts
+Minimizing Reference Count Updating with Deferred and Anchored Pointers for Functional Data Structures, Henry G. Baker
+Concurrent Cycle Collection in Reference Counted Systems, David F. Bacon
+An On-the-Fly Reference-Counting Garbage Collector for Java, Yossi Levanoni and Erez Petrank
+Atomic Reference Counting Pointers: A lock-free, async-free, thread-safe, multiprocessor-safe reference counting pointer, Kirk Reinholtz
+Extending and Embedding the Python Interpreter: Extending Python with C or C++: Reference Counts, Guido van Rossum
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Reference_counting"
+Categories: Garbage collection (computer science) | Memory managementHidden categories: Wikipedia articles incorporating text from FOLDOC 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Italiano
+日本語
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 11 April 2009, at 08:53 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

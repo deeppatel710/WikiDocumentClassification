@@ -1,0 +1,517 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Scalable Link Interface - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Scalable_Link_Interface";
+		var wgTitle = "Scalable Link Interface";
+		var wgAction = "view";
+		var wgArticleId = "1088674";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282755859;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Scalable Link Interface
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For other uses, see SLI.
+
+
+
+
+NVIDIA's SLI Ready logo.
+Products that are SLI certified bear this logo.
+
+
+Scalable Link Interface (SLI) is a brand name for a multi-GPU solution developed by Nvidia for linking two or more video cards together to produce a single output. SLI is an application of parallel processing for computer graphics, meant to increase the processing power available for graphics.
+The name SLI was first used by 3dfx under the full name Scan-Line Interleave, which was introduced to the consumer market in 1998 and used in the Voodoo2 line of video cards. After buying out 3dfx, Nvidia acquired the technology but did not use it. Nvidia later reintroduced the SLI name in 2004 and intended for it to be used in modern computer systems based on the PCI Express (PCIe) bus. However, the technology behind the name SLI has changed dramatically.
+
+
+
+
+Contents
+
+
+1 Implementation
+2 Other implementations
+
+2.1 Two GPUs on one PCI-E slot
+2.2 Quad SLI
+2.3 3-Way SLI
+2.4 Quadro Plex
+2.5 Physics calculation
+2.6 Hybrid SLI
+
+
+3 Caveats
+4 See also
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Implementation
+The basic idea of SLI is to allow two or more graphics processing units (GPUs) to share the work load when rendering a 3D scene. Ideally, two identical graphics cards are installed in a motherboard that contains two PCI-Express x16 slots, set up in a master-slave configuration. Both cards are given the same part of the 3D scene to render, but effectively half of the work load is sent to the slave card through a connector called the SLI Bridge. As an example, the master card works on the top half of the scene while the slave card works on the bottom half. When the slave card is done, it sends its output to the master card, which combines the two images to form one and then outputs the final render to the monitor.
+In its early implementations, motherboards capable of SLI required a special card (colloquially known as a "paddle card") which came with the motherboard. This card would fit into a socket usually located between both of the PCI-Express x16 slots. Depending on which way the card was inserted, the motherboard would either channel all 16 lanes into the primary PCI-Express x16 slot, or split lanes equally to both PCI-Express x16 slots. This was necessary as no motherboard at that time had enough PCI-Express lanes for both to have 16 lanes each. Thanks to the advancement in available PCI-Express lanes, most modern SLI-capable motherboards allow each video card to use all 16 lanes in both PCI-Express x16 slots.
+The SLI bridge is used to reduce bandwidth constraints and send data between both graphics cards directly. It is possible to run SLI without using the bridge connector on a pair of low-end to mid-range graphics cards (e.g. 7100GS or 6600GT) with Nvidia's Forceware drivers 80.XX or later. Since these graphics cards do not use as much bandwidth, data can be relayed through just the chipsets on the motherboard. However, if no SLI bridge is used on two high-end graphics cards, the performance suffers severely as the chipset does not have enough bandwidth.
+SLI offers two rendering and one anti-aliasing method for splitting the work between the video cards:
+
+Split Frame Rendering (SFR), the first rendering method. This analyzes the rendered image in order to split the workload 50/50 between the two GPUs. To do this, the frame is split horizontally in varying ratios depending on geometry. For example, in a scene where the top half of the frame is mostly empty sky, the dividing line will lower, balancing geometry workload between the two GPUs. This method does not scale geometry or work as well as AFR, however.
+Alternate Frame Rendering (AFR), the second rendering method. Here, each GPU renders entire frames in sequence – one GPU processes even frames, and the second processes odd frames, one after the other. When the slave card finishes work on a frame (or part of a frame) the results are sent via the SLI bridge to the master card, which then outputs the completed frames. Ideally, this would result in the rendering time being cut in half, and thus performance from the video cards would double. In their advertising, Nvidia claims up to 1.9x the performance of one card with the dual-card setup.
+SLI Antialiasing. This is a standalone rendering mode that offers up to double the antialiasing performance by splitting the antialiasing workload between the two graphics cards, offering superior image quality. One GPU performs an antialiasing pattern which is slightly offset to the usual pattern (for example, slightly up and to the right), and the second GPU uses a pattern offset by an equal amount in the opposite direction (down and to the left). Compositing both the results gives higher image quality than is normally possible. This mode is not intended for higher frame rates, and can actually lower performance, but is instead intended for games which are not GPU-bound, offering a clearer image in place of better performance. When enabled, SLI Antialiasing offers advanced antialiasing options: SLI 8X, SLI 16X, and SLI 32x (8800-series only). A Quad SLI system is capable of up to SLI 64X antialiasing.
+
+Nvidia has created a set of custom video game profiles in cooperation with video game publishers that will automatically enable SLI in the mode that gives the largest performance boost. It is also possible to create custom game profiles or modify pre-defined profiles using their Coolbits software.
+For more information on SLI-optimized games, visit Nvidia's SLI Zone.
+
+[edit] Other implementations
+
+[edit] Two GPUs on one PCI-E slot
+In February 2005, Gigabyte Technology released the GV-3D1[1], a single video card that uses Nvidia's SLI technology to run two 6600-series GPUs. Due to technical issues with compatibility, at release the card was supported by only one of Gigabyte's own motherboards, with which it was bundled. Later came the GV-3D1-68GT, functionally similar and possessing similarly-limited motherboard compatibility, but with 6800 GPUs in place of the GV-3D1's 6600 units.
+Around March 2006, ASUS released the N7800GT Dual. Similar to Gigabyte's design, it had two 7800GT GPUs mounted on one video card. Again, this faced several issues, such as high price (it retailed for around US$800, while two separate 7800GTs were cheaper at the time), limited release, and limited compatibility. It would only be supported on the nForce4 chipset and only a few motherboards could actually utilize it. It was also one of the first video cards with the option to use an external power supply if needed.[2]
+In January 2006, Nvidia released the 7900 GX2, their own attempt at a dual-GPU card. Effectively, this product is a pair of slightly lower clocked 7900GTX cards "bridged" together into one discrete unit, with separate frame buffers for both GPUs (512MB of GDDR3 each). The GeForce 7900 GX2 is only available to OEM companies for inclusion in quad-GPU systems, and it cannot be bought in the consumer market. The Dell XPS, announced at the 2006 Consumer Electronics Show, used two 7900 GX2's to build a quad-GPU system. Later, Alienware acquired the technology in March.
+The official implementations of dual-GPU graphics cards work in the same fashion. Two GPUs are placed on two separate printed circuit boards (PCBs), with their own power circuitry and memory. Both boards have slim coolers, cooling the GPU and memory. The 'primary' GPU can be considered to be the one on the rear board, or 'top' board (being on top when in a standard ATX system). The primary board has a physical PCIe x16 connector, and the other has a round gap in it to provide cooling for the primary HSF. Both boards are connected to each other by two physical links; one for 16 PCI-Express lanes, and one for the 400 MHz SLI bridge. An onboard PCI-Express bridge chip, with 48 lanes in total, acts as the MCP does in SLI motherboards, connecting to both GPUs and the physical PCI-Express slot, removing the need for the motherboard to support SLI.
+A newer version, the GeForce 7950 GX2, which addressed many issues in the 7900 GX2, was available to consumers for separate purchase.
+The GeForce 9800 GX2 was Nvidia's next attempt at a multi-GPU solution released in March 2008 at a launch price of $599, this time using separate PCBs facing each other, thus sharing one large double wide cooling fan. This GX2 could expand to a total of four GPUs when paired in SLI. The 9800 GX2 was concurrent with the launch of a single-GPU 65 nm 9800 GTX whose own launch price was $349. Three months later, with the 9800 GX2 selling at $299, Nvidia found their product line competing with itself, as the GTX 260 and the 55 nm improved 9800 GTX+ became available, Nvidia elected to venture into the GTX200 series and beyond lineups, rather than expanding the 55 nm G92 into a GX2 form factor, thus leaving mid-range audiences with the options of the 9800 GT and 9800 GTX+.
+On January 2009, the new GTX200 series based GeForce GTX 295 was released at a price of $499. It combines two GeForce GTX 260 GPUs, with a similar sandwich design of two graphics PCBs facing each other with a large double wide cooling fan solution in-between, but with all the GDDR3 ram modules on the same half of each board as each corresponding GPU; a feature the initial GTX200 boards as well as the 9800 GX2 board didn't have. It manages to maintain the same amount of shaders as the GTX 280 bringing it to a total of 480 shader units.
+
+[edit] Quad SLI
+
+
+
+
+
+This article may need to be updated. Please update this article to reflect recent events or newly available information, and remove this template when finished. Please see the talk page for more information. (September 2007)
+
+
+In early 2006, Nvidia revealed its plans for Quad SLI. When the 9800GX2 was originally demonstrated, it was with two such cards in an SLI configuration. This is possible because each GX2 has two extra SLI connectors, separate from the bridges used to link the two GPUs in one unit – one on each PCB, one per GPU, for a total of two links per GPU. When two GX2 graphics cards are installed in an SLI motherboard, these SLI connectors are bridged using two separate SLI bridges. (In such a configuration, if the four PCBs were labeled A, B, C, D from top to bottom, A and C would be linked by an SLI bridge, as would B and D.) This way, four GPUs can contribute to performance. The 7950GX2, sold as an enthusiast-friendly card, omits the external SLI connector on one of its PCBs, meaning that only one SLI bridge is required to run two 7950GX2s in SLI.
+Quad SLI did not show any massive improvements in gaming using the common resolutions of 1280x1024 and 1600x1200, but has shown improvements by enabling 32x anti-aliasing in SLI-AA mode, and support for 2560x1600 resolutions at much higher framerates than is possible with single or dual GPU systems with maximum settings in modern games. It was believed that high latencies severely marginalized the benefits of four GPUs, however much of the blame for poor performance scaling is due to Windows XP's API which only allows for a maximum storage of 3 extra frames. Windows Vista is not limited in this fashion and shows promise for future multi-GPU configurations.
+In March 2008, Nvidia released the GeForce 9800GX2 GPU. Targeted at the high-end gaming populace with a suggested retail price of $599.99 US, the 9800GX2 is essentially two updated G92 8800GTS cores on a dual-PCB graphics card to compete with ATI's HD3870 X2. The 9800GX2 features a total of 256 stream processors, 1GB video memory buffer and clock speeds only slightly slower than the cheaper, single-core but otherwise comparable G92 8800GTS. Though Nvidia did not release Quad SLI drivers for the 9800GX2 at time of release, the telltale SLI connector on the top of the card leaves little doubt that users in the future will be able to equip themselves with 2 9800GX2s, thus allowing for a total of 4 GPUs in one system via only 2 PCI Express x16 graphics slots, a feat impossible since the 7950GX2. Note that Nvidia no longer supports Quad SLI on Windows XP (Nvidia will automatically prevent you from using two 9800GX2s without Windows Vista.)
+
+[edit] 3-Way SLI
+Nvidia has also revealed a triple SLI setup for the nForce 700 series motherboards, which only works on Vista. The setup can be achieved using three high-end video cards with two MIO ports and a specially wired connector (or three flexible connectors used in a specific arrangement).[3][4] The technology was officially announced in December 2007, shortly after the revised G92-based 8800GTS made its way out of the factory. In practical terms, it delivers up to a 2.8x performance increase over a single GPU system.[5]
+Unlike traditional SLI, or CrossFire X, 3-way SLI is limited to the GeForce 8800 GTX, 8800 Ultra, 9800 GTX and June 2008 introduced the GTX 260 and GTX 280, and later the 9800GTX+ graphics cards on the 680i, 780i and 790i chipsets, whereas CrossFire X can be theoretically used on multiple Radeon HD 2400 cards.[6]
+
+[edit] Quadro Plex
+The Nvidia Quadro Plex is an external graphics processing unit (VCS) designed for large-scale 3D visualizations. The system consists of a box containing a pair of high-end Nvidia graphics cards featuring a variety of external video connectors. A special PCI Express card is installed in the host computer, and the two are connected by VHDCI cables. [7]
+The Nvidia Quadro Plex system supports up to four GPUs per unit. It connects to the host PC via a small form factor PCI Express card connected to the host, and a 2 meter (6.5 foot) Nvidia Quadro Plex Interconnect Cable. The system is housed in an external case that is approximately 9.49 inches in height, 5.94 inches in width, and 20.55 inches in depth and weighs about 19 pounds. The system relies heavily on Nvidia's SLI technology.
+
+[edit] Physics calculation
+In response to ATI offering a discrete physics calculation solution in a tri-GPU system, Nvidia announced a partnership with physics middleware company Havok to incorporate a similar system using a similar approach. Although this would eventually become the Quantum Effects technology, many motherboard companies began producing boards with three PCI-Express x16 slots in anticipation of this implementation being used.
+In February 2008, Nvidia acquired physics hardware and software firm Ageia, with plans to increase the market penetration for PhysX beyond its fairly limited use in games; notably Unreal Engine 3. In July 2008, Nvidia released a beta PhysX driver supporting GPU acceleration, followed by an official launch on August 12, 2008.[8] This allows PhysX acceleration on the primary GPU, a different GPU, or on both GPUs in SLI.
+In January 2009 Mirrors Edge on Microsoft Windows by DICE and distributed by E.A., became the first major title to add Nvidia PhysX to enhance visual effects in-game and add gameplay elements.
+
+[edit] Hybrid SLI
+Also in response to the PowerXpress technology from AMD, a configuration of similar concept named "Hybrid SLI" was announced on January 7, 2008. The setup consists of an IGP as well as a GPU on MXM module. The IGP would assist the GPU to boost performance when the laptop is plugged to a power socket while the MXM module would be shut down when the laptop was unplugged from power socket to lower overall graphics power consumption.[9][10]
+Hybrid SLI is also available on desktop Motherboards and PC's with PCI-E discrete video cards. nVidia claims that twice the performance can be achieved with a Hybrid SLI capable IGP motherboard and a GeForce 8400 GS video card.[11][12]
+On November 5, 2008 in Microsoft’s Guidelines for Graphics in Windows 7 document, Microsoft stated that Windows 7 will not offer native support for hybrid graphics systems. Microsoft added the reason for the decision saying that hybrid graphics systems ‘can be unstable and provide a poor user experience,’ and that it would ‘strongly discourage system manufacturers from shipping such systems.’ Microsoft also added that ‘such systems require a reboot to switch between GPUs.’[13]
+On desktop systems, the motherboard chipsets nForce 720a, 730a, 750a SLI and 780a SLI and the motherboard GPUs GeForce 8100, 8200, 8300 and 9300 support Hybrid SLI (GeForce Boost and HybridPower). The GPUs GeForce 8400 GS and 8500 GT support GeForce Boost, the GPUs 9800 GT, 9800 GTX, 9800 GTX+ 9800 GX2, GTX 260 and GTX 280 support HybridPower.[14]
+
+[edit] Caveats
+
+In an SLI configuration, cards can be of mixed manufacturers, card model names, BIOS revisions or clock speeds. However, they must be of the same GPU series (e.g. 8600, 8800) and GPU model name (e.g. GT, GTS, GTX).[15] There are rare exceptions for "mixed SLI" configurations on some cards that only have a matching core codename (e.g. G70, G73, G80, etc), but this is otherwise not possible, and only happens when two matched cards differ only very slightly, an example being a differing amount of video memory, stream processors, or clockspeed. In this case, the slower/lesser card becomes dominant, and the other card matches.
+In cases where two cards are not identical, the fastest card – or the card with more memory - will run at the speed of the slower card or disable its additional memory. (Note that while the FAQ still claims different memory size support, the support has been removed since revision 100.xx of Nvidia's Forceware driver suite.[16])
+SLI doesn't always give a performance benefit – in some extreme cases, it can lower the frame rate due to the particulars of an application's coding.[17] This is also true for ATI's CrossFire, as the problem is inherent in multi-GPU systems. This is often witnessed when running an application at low resolutions.
+In order to use SLI, a motherboard with an nForce4, nForce 500, nForce 600 or nForce 700 SLI chipset must be used. Although with the use of hacks and older drivers, one can make SLI work on motherboards with Intel, ATI and ULi chipsets, Nvidia has stated that only their own chipsets can allow SLI to function optimally, and that they will not allow SLI to work on any other vendor's chipsets. Some early SLI systems used Intel's E7525 Xeon chipset, which caused problems when Nvidia started locking out other vendor's chipsets as it limited them to an outdated driver set. In 2007, Intel has licensed Nvidia's SLI technology for its SkullTrail platform, and select motherboards supporting the Intel X58 (Tylersburg) chipset have unlocked SLI capabilities. Not all X58 motherboards support this technology, as Nvidia offered it to motherboard manufacturers at the cost of $5 per motherboard sold.[18]
+Vsync + Triple buffering is not supported in some cases in SLI AFR mode.
+A single high-end GPU is generally preferable to using SLI with low to medium-end GPUs when considering the above caveats and the price-performance ratio of the setup.
+Users having a Hybrid SLI setup must manually change modes between HybridPower and GeForce Boost, while automatically changing mode will not be available until the future updates. The Hybrid SLI currently support only single link DVI at 1920x1200 screen resolution.[19]
+
+
+[edit] See also
+
+Scan-Line Interleave by 3Dfx
+ATI CrossFire – ATI's competing solution
+MultiChrome
+
+
+[edit] References
+
+
+^ Gigabyte 3D1 Review at hardCOREware.net, retrieved February 15, 2005
+^ Brown, Michael (2006-02-17). "Asus N7800GT Dual". Maximum PC. http://www.maximumpc.com/2006/02/asus_n7800gt_du.html. Retrieved on 2007-09-26. 
+^ ExpReview, retrieved October 12, 2007
+^ VR-Zone report, retrieved October 12, 2007
+^ bit-tech review of Triple SLI, retrieved January 03, 2008
+^ DailyTech report, retrieved October 12, 2007
+^ Nvidia.com Quadro Plex VCS, retrieved January 28, 2009
+^ Del Rizzo, Bryan (2008-08-12). "NVIDIA Makes Physics A Reality For Gamers". Nvidia. http://www.nvidia.com/object/io_1218533603421.html. Retrieved on 2008-08-14. 
+^ Valich, Theo (2007-06-26). "Nvidia's Hybrid SLI attacks AMD's PowerXPress". The Inquirer. http://www.theinquirer.net/en/inquirer/news/2007/06/26/nvidias-hybrid-sli-attacks-amds-powerxpress. Retrieved on 2007-09-26. 
+^ Shilov, Anton (2007-06-25). "Nvidia Readies Hybrid SLI Technology". X-bit labs. http://www.xbitlabs.com/news/video/display/20070625083756.html. Retrieved on 2007-10-17. 
+^ Abazovic, Faud (2007-08-08). "Hybrid SLI first for AMD". http://www.fudzilla.com/index.php?option=com_content&task=view&id=2348&Itemid=1. Retrieved on 2007-10-17. 
+^ "Growth Opportunities." (PDF). Nvidia. 2007-06-20. 9. http://media.corporate-ir.net/media_files/irol/11/116466/Analyst07/JenHsun.pdf. Retrieved on 2007-10-17. 
+^ Hybrid SLI and CrossFire unstable, says Microsoft, retrieved November 6, 2008
+^ Nvidia Hybrid SLI page
+^ "SLI FAQs". Nvidia. http://www.slizone.com/page/slizone_faq.html#c3. Retrieved on 2008-12-04. 
+^ "SLI FAQs". Nvidia. http://www.slizone.com/page/slizone_faq.html#c3. Retrieved on 2007-05-05. 
+^ Kreiss, Tino; Töpelt, Bert, Schuhmann, Daniel (2005-12-02). "Performance Comparison Between Single Configurations And SLI Setups". Tom's Hardware. http://www.tomshardware.com/2005/12/02/vga_charts_viii/page20.html. Retrieved on 2007-06-01. 
+^ "Mainboard Makers Set to Pay Nvidia $5 per Mainboard for SLI License". http://www.xbitlabs.com/news/mainboards/display/20081020235121_Mainboard_Makers_Set_to_Pay_Nvidia_5_Per_Mainboard_for_SLI_License.html. Retrieved on 2009-01-01. 
+^ Bit-Tech interview (page 2), retrieved January 23, 2008
+
+
+
+[edit] External links
+
+Nvidia's Official SLI Technology website
+Official SLI Forums
+Nvidia's Windows Vista Capable GPUs
+Article "Multiple Graphics Card Technology" by Tim Smalley
+
+
+Article "Nvidia's SLI: An Introduction" by Ryszard Sommefeldt
+Article "Dell's Quad SLI: A Story in Pictures" by Charlie Demerjian
+Article "Nvidia SLI Support - Getting Better" by Brent Justice
+Nvidia's Quad SLI: Demystifying the rumors by Brandon Bell
+Article "Quad SLI: GeForce 7900 GX2" by Tim Smalley
+Article "Quad SLI part deux: Build It Yourself" by Tim Smalley
+Article "Nvidia and Havok bring SLI physics to life."
+Article "SLI vs. CrossFire" by Gabriel Torres
+NVIDIA® SLI® with CUDA™
+
+
+
+
+
+
+
+
+v • d • e
+
+Nvidia
+
+
+
+
+
+GPUs
+
+
+
+
+
+Early chipsets
+
+
+NV1 · NV2
+
+
+
+
+
+
+
+RIVA Series
+
+
+RIVA 128 · RIVA TNT · RIVA TNT2
+
+
+
+
+
+
+
+GeForce Series
+
+
+GeForce 256 · GeForce 2 · GeForce 3 · GeForce 4 · GeForce FX · GeForce 6 · GeForce 7 · GeForce 8 · GeForce 9 · GeForce 200
+
+
+
+
+
+
+
+Technologies
+
+
+SLI  · PureVideo  · TurboCache  · PhysX
+
+
+
+
+
+
+
+
+
+Chipsets
+
+
+
+
+
+GeForce Series
+
+
+8-series  · 9-series
+
+
+
+
+
+
+
+nForce Series
+
+
+nForce 220 / 415 / 420  · nForce2  · nForce3  · nForce4  · nForce 500  · nForce 600  · nForce 700
+
+
+
+
+
+
+
+Technologies
+
+
+ESA · LinkBoost  · MCP  · EPP · SoundStorm
+
+
+
+
+
+
+
+
+
+Workstation and HPC
+
+Quadro · Quadro Plex · Quadro CX  · Tesla
+
+
+
+
+
+
+Consoles
+
+NV2A (Xbox)  · RSX (PlayStation 3)
+
+
+
+
+
+
+Handheld
+
+GoForce · Tegra
+
+
+
+
+
+
+Driver and software
+technologies
+
+ForceWare  · System Tools  · nView  · Gelato  · CUDA  · Cg
+
+
+
+
+
+
+Acquisitions
+
+3dfx Interactive  · Ageia  · ULi
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Scalable_Link_Interface"
+Categories: Video cards | NvidiaHidden categories: Wikipedia articles in need of updating 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Bosanski
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Српски / Srpski
+Suomi
+Svenska
+Türkçe
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 12:44 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

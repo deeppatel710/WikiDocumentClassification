@@ -1,0 +1,433 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NTFS junction point - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "NTFS_junction_point";
+		var wgTitle = "NTFS junction point";
+		var wgAction = "view";
+		var wgArticleId = "483838";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276953150;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); NTFS junction point
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computing, an NTFS junction point is a feature of the NTFS file system that provide the ability to create a link to a directory that is, for most intents and purposes, the same as the directory itself. This has many benefits over a Windows shell shortcut (.lnk) file, such as allowing access to files within the directory via Windows Explorer, the Command Prompt, etc.
+Junction points can only link to directories on a local volume; junction points to remote shares are unsupported.[1]
+Junctions points are a type of NTFS reparse point; they were introduced with NTFS 3.0, the default file system for Windows 2000. The Windows 2000 and Windows XP Resource Kits include a program called linkd to create junction points; Mark Russinovich of Winternals released a tool called junction which provided more complete functionality. Windows NT 6.0 and later operating systems include an mklink command-line utility for creating junction points.
+
+
+
+
+Contents
+
+
+1 Warning
+2 Examples of use
+
+2.1 Program redirection
+
+
+3 Observed effects
+
+3.1 Windows XP Professional
+
+3.1.1 Windows Explorer
+3.1.2 Command Prompt (cmd.exe)
+3.1.3 General
+
+
+3.2 Windows Vista
+
+3.2.1 Windows Explorer
+3.2.2 Symbolic link
+
+
+
+
+4 References
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Warning
+
+Microsoft strongly recommends[2]:
+
+Use NTFS ACLs to protect junction points from inadvertent deletion.
+Use NTFS ACLs to protect files and directories targeted by junction points from inadvertent deletion or other file system operations.
+Never delete a junction point using Explorer, a del /s command, or other file system utilities that walk recursively into directory trees. These utilities will affect the target directory and all subdirectories. Instead, use the utilities described below to delete junction points.
+Use caution when applying ACLs or changing file compression in a directory tree that includes NTFS Junction Points.
+Do not create namespace cycles with NTFS or DFS junction points.
+Place all junction points at a secure location in a namespace where they can be tested safely, and other users will not mistakenly delete them or walk through them.
+
+
+Obscure: There are issues relating to junction points on MS Windows 2000 domain controllers & certain Active Directory files.[3]
+
+
+[edit] Examples of use
+
+[edit] Program redirection
+By setting a junction point that points to a directory containing a particular version of a piece of software, it may be possible to add another version of the software and redirect the junction point to point to the version desired.
+
+[edit] Observed effects
+
+
+
+
+
+This section may contain original research or unverified claims. Please improve the article by adding references. See the talk page for details. (September 2007)
+
+
+
+[edit] Windows XP Professional
+
+[edit] Windows Explorer
+
+Deleting a junction point using Windows Explorer will delete the targeted files immediately as if using shift-delete.
+If the junction point is sent to the Recycle Bin, the targeted files will look safe, but will be deleted when the Recycle Bin is emptied.
+Moving the junction point to a different location on the same drive only moves the junction point. However, moving it to another drive turns the junction point into a regular directory and moves all files there (leaving the original targeted directory empty). Undoing the move puts the junction directory and its contents back on the original drive, but the original targeted directory is still empty (that is, the junction is not recreated).
+While walking through the directory with Windows Explorer, use shift-delete to delete directories, however files can be deleted normally. Disabling the recycle bin for the drive hosting the junction point will allow regular deletion of folders.
+
+
+[edit] Command Prompt (cmd.exe)
+
+The dir command in Windows 2000 or later recognizes junction points, displaying <JUNCTION> instead of <DIR> in directory listings (use dir with the /A or /AL command-line switch).
+Any commands that would normally affect files inside a normal directory will act the same here. Thus the command del myjunction should not be used — this will just delete all the files in the targeted directory.
+The commands rmdir and move work fine with junctions, with the caveat that move won't let the junction move to another volume (as opposed to Windows Explorer, as mentioned above.)
+The rmdir command is safe in that it only deletes the junction point, not the targeted files.
+Whilst walking through the directory with the command line interface, files can be deleted, but unlike explorer, directories can also be deleted (using rmdir /s dirname for example.)
+Using the linkd command with the /d switch is a safe way to delete junction points.
+
+
+[edit] General
+
+An infinite loop in the file structure can be created by placing a junction point in the directory it targets. (Creating this is not recommended.)
+ACL inheritance is by design based on volumes and not working across junctions.
+Disk free space might not show up correctly. This depends on the API call the application is using. The old style GetDiskFreeSpace() function the Windows Explorer is using does only accept the root directory of a device and will therefore only show the amount of free space of the root volume. Reparse point-aware applications use GetDiskFreeSpaceEx() to determine the free disk space of a device containing a specific directory.
+
+
+[edit] Windows Vista
+
+[edit] Windows Explorer
+
+Junction points are indicated with an arrow icon overlay.
+Deleting a junction point using explorer is now safe.
+A junction point can be restored from the recycle bin.
+
+
+[edit] Symbolic link
+Main article: NTFS symbolic link
+Windows Vista supports a new symbolic link capability that replaces junction points in Windows 2000 and Windows XP. They are designed to aid in migration and application compatibility with UNIX operating systems.[4]
+Unlike a junction point, a symbolic link can also point to a file or remote SMB network path. Additionally, the NTFS symbolic link implementation provides full support for cross-filesystem links. However, the functionality enabling cross-host symbolic links requires that the remote system also support them, which effectively limits their support to Windows Vista and later Windows operating systems.
+
+[edit] References
+
+^ Sysinternals Junction documentation
+^ "How to create and manipulate NTFS junction points". Microsoft. http://support.microsoft.com/kb/205524. Retrieved on 2007-08-08. 
+^ Neohapsis.
+^ "Symbolic Links". MSDN. http://msdn2.microsoft.com/en-us/library/aa365680.aspx. Retrieved on 2007-07-20. 
+
+
+[edit] External links
+
+Microsoft Knowledge Base Article – 'How to Create and Manipulate NTFS Junction Points'
+Junction command line utility from Microsoft TechNet
+Codeproject Article – discussion on the source code of a junction point utility, aimed at programmers
+PC Mag Article about adding any directoryto the start menu (allowing a preview within the startmenu as a submenu).
+Hermann Schinagl's Link Shell Extension, arguably the better freeware implementation for XP and Vista
+
+
+
+
+
+
+
+
+v • d • e
+
+Windows components
+
+
+
+
+
+Core
+
+Aero · AutoRun · ClearType · Desktop Window Manager · DirectX · Explorer · Taskbar · Start menu · Shell (namespace · Special Folders · File associations) · Search (Saved search · iFilters) · Graphics Device Interface · Imaging Format · .NET Framework · Server Message Block  · XML Paper Specification · Active Scripting (WSH · VBScript · JScript) · COM (OLE · OLE Automation · DCOM · ActiveX · ActiveX Document · Structured storage · Transaction Server) · Previous Versions · Win32 console
+
+
+
+
+
+
+Management
+tools
+
+Backup and Restore Center · command.com · cmd.exe · Control Panel (Applets) · Device Manager · Disk Cleanup · Disk Defragmenter · Driver Verifier · Event Viewer · Management Console · Netsh · Problem Reports and Solutions · Sysprep · System Policy Editor · System Configuration · Task Manager · System File Checker · System Restore · Windows Installer · PowerShell · Windows Update · WAIK · WinSAT · Windows Easy Transfer
+
+
+
+
+
+
+Applications
+
+Calculator · Calendar · Character Map · Contacts · DVD Maker · Fax and Scan · Internet Explorer · Journal · Mail · Magnifier · Media Center · Media Player · Meeting Space · Mobile Device Center · Mobility Center · Movie Maker · Narrator · Notepad · Paint · Photo Gallery · Private Character Editor · Remote Assistance · Sidebar · Snipping Tool · Sound Recorder · Speech Recognition · WordPad
+
+
+
+
+
+
+Games
+
+Chess Titans · FreeCell · Hearts · Hold 'Em · InkBall · Mahjong Titans · Minesweeper · Purble Place · Solitaire · Spider Solitaire  · Tinker
+
+
+
+
+
+
+Kernel
+
+Ntoskrnl.exe · hal.dll · System Idle Process · Svchost.exe · Registry · Windows service · Service Control Manager · DLL · EXE · NTLDR / Boot Manager · Winlogon · Recovery Console · I/O · WinRE · WinPE · Kernel Patch Protection
+
+
+
+
+
+
+Services
+
+BITS · Task Scheduler · Wireless Zero Configuration · Shadow Copy · Error Reporting · Multimedia Class Scheduler · CLFS
+
+
+
+
+
+
+File systems
+
+NTFS (Hard link · Junction point · Mount Point · Reparse point · Symbolic link · TxF · EFS) · FAT32·FAT16·FAT12 · exFAT · CDFS · UDF · DFS · IFS
+
+
+
+
+
+
+Server
+
+Domains · Active Directory · DNS · Group Policy · Roaming user profiles · Folder redirection · Distributed Transaction Coordinator · MSMQ · Windows Media Services · Rights Management Services · IIS · Terminal Services · WSUS · Windows SharePoint Services · Network Access Protection · DFS Replication · Remote Differential Compression · Print Services for UNIX · Remote Installation Services · Windows Deployment Services · System Resource Manager · Hyper-V
+
+
+
+
+
+
+Architecture
+
+NT series architecture · Object Manager · Startup process (Vista) · I/O request packets · Kernel Transaction Manager · Logical Disk Manager · Security Accounts Manager · Windows Resource Protection · LSASS · CSRSS · SMSS · MinWin
+
+
+
+
+
+
+Security
+
+UAC · BitLocker · Defender · DEP · Protected Media Path · Mandatory Integrity Control · UIPI · Windows Firewall · Security Center
+
+
+
+
+
+
+Compatibility
+
+Unix subsystem (Microsoft POSIX  · Interix) · Virtual DOS machine · Windows on Windows · WOW64
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/NTFS_junction_point"
+Categories: Disk file systems | Windows disk file systemsHidden categories: Articles that may contain original research since September 2007 | All articles that may contain original research 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Русский
+Español
+
+
+
+
+
+
+
+
+
+ This page was last modified on 13 March 2009, at 11:43 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

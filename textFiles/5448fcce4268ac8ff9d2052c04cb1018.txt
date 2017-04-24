@@ -1,0 +1,326 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GObject - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "GObject";
+		var wgTitle = "GObject";
+		var wgAction = "view";
+		var wgArticleId = "1404654";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279302164;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); GObject
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+A typical piece of GObject class initialization code. The example shows a property file-size being added to some class.
+
+
+The GLib Object System, or GObject, is a free software library (covered by the LGPL) that provides a portable object system and transparent cross-language interoperability. GObject is designed for use both directly in C programs and through bindings to other languages.
+
+
+
+
+Contents
+
+
+1 History
+2 Relation to GLib
+3 The type system
+
+3.1 Fundamental types
+3.2 Derived types
+
+
+4 Messaging system
+5 Class implementation
+6 Usage
+7 Comparisons to other object systems
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+Depending only on GLib and libc, GObject is a cornerstone of GNOME and is used throughout GTK+, Pango, Accessibility Toolkit, and most higher-level GNOME libraries and applications. Prior to GTK+ 2.0, the GObject code was part of the GTK+ codebase. (The name “GObject” was not yet in use — the common baseclass was called GtkObject.)
+The release of GTK+ 2.0 had the object system extracted into a separate library due to its general utility. In the process, most non-GUI-specific parts of the GtkObject class was moved up into GObject, the new common baseclass. Having existed as a separate library since March 11, 2002 (the release date of GTK+ 2.0), the GObject library is now used by many non-GUI programs such as command-line and server applications.
+
+[edit] Relation to GLib
+Though GObject has its own separate set of documentation[1] and is usually compiled into its own shared library file, the source code for GObject resides in the GLib source tree and is distributed along with GLib. For this reason, GObject uses the GLib version numbers and is typically packaged together with GLib (for example, Debian puts GObject in its libglib2.0 package family).
+
+[edit] The type system
+At the most basic level of the GObject framework lies a generic and dynamic type system called GType. The GType system holds a runtime description of all objects allowing glue code to facilitate multiple language bindings. The type system can handle any singly-inherited class structure, in addition to non-classed types such as opaque pointers, strings, and variously sized integers and floating point numbers.
+The type system knows how to copy, assign, and destroy values belonging to any of the registered types. This is trivial for types like integers, but many complex objects are reference-counted, while some are complex but not reference-counted. When the type system “copies” a reference-counted object, it will typically just increase its reference count, whereas when copying a complex, non-reference-counted object (such as a string), it will typically create an actual copy by allocating memory.
+This basic functionality is used to implement GValue, a type of generic container that can hold values of any type known by the type system. Such containers are particularly useful when interacting with dynamically typed language environments in which all native values reside in such type-tagged containers.
+
+[edit] Fundamental types
+Types that do not have any associated classes are called non-classed. These types, together with all types that correspond to some form of root class, are known as fundamental types: the types from which all other types are derived. These make up a relatively closed set, but although the average user is not expected to create his own fundamental types, the possibility does exist and has been exploited to create custom class hierarchies — i.e., class hierarchies not based on the GObject class.
+As of GLib 2.9.2 [1], the non-classed built-in fundamental types are
+
+an empty type, corresponding to C’s void (G_TYPE_NONE);
+types corresponding to C’s signed and unsigned char, int, long, and 64-bit integers (G_TYPE_CHAR, G_TYPE_UCHAR, G_TYPE_INT, G_TYPE_UINT, G_TYPE_LONG, G_TYPE_ULONG, G_TYPE_INT64, and G_TYPE_UINT64);
+a boolean type (G_TYPE_BOOLEAN);
+an enumeration type and a “flags” type, both corresponding to C’s enum type, but differing in that the latter is only used for bit fields (G_TYPE_ENUM and G_TYPE_FLAGS);
+types for single- and double-precision IEEE floats, corresponding to C’s float and double (G_TYPE_FLOAT and G_TYPE_DOUBLE);
+a string type, corresponding to C’s char * (G_TYPE_STRING);
+an opaque pointer type, corresponding to C’s void * (G_TYPE_POINTER).
+
+The classed built-in fundamental types are
+
+a base class type for instances of GObject, the root of the standard class inheritance tree (G_TYPE_OBJECT)
+a base interface type, analoguous to the base class type but representing the root of the standard interface inheritance tree (G_TYPE_INTERFACE)
+a type for boxed structures, which are used to wrap simple value objects or foreign objects in reference-counted “boxes” (G_TYPE_BOXED)
+a type for “parameter specification objects,” which are used in GObject to describe metadata for object properties (G_TYPE_PARAM).
+
+Types that can be instantiated automatically by the type system are called instantiable. An important characteristic of these types is that the first bytes of any instance always contain a pointer to the class structure (a form of virtual table) associated to the type of the instance. For this reason, any instantiable type must be classed. Contrapositively, any non-classed type (such as integer or string) must be non-instantiable. On the other hand, most classed types are instantiable, but some, such as interface types, are not.
+
+[edit] Derived types
+The types that are derived from the built-in GObject fundamental types fall roughly into four categories:
+
+Enumerated types and “flags” types 
+In general, every enumerated type and every integer-based bitfield type (i.e., every enum type) that one wishes to use in some way that is related to the object system — for example, as the type of an object property — should be registered with the type system. Typically, the initialization code that takes care of registering these types is generated by an automated tool called glib-mkenums [2] and stored in a separate file.
+Boxed types 
+Some data structures that are too simple to be made full-fledged class types (with all the overhead incurred) may still need to be registered with the type system. For example, we might have a class to which we want to add a background-color property, whose values should be instances of a structure that looks like struct color { int r, g, b; }. To avoid having to subclass GObject, we can create a boxed type to represent this structure, and provide functions for copying and freeing. GObject ships with a handful of boxed types wrapping simple GLib data types. Another use for boxed types is as a way to wrap foreign objects in a tagged container that the type system can identify and will know how to copy and free.
+Opaque pointer types 
+Sometimes, for objects that need to be neither copied or reference-counted nor freed, even a boxed type would be overkill. While such objects can be used in GObject by simply treating them as opaque pointers (G_TYPE_POINTER), it is often a good idea to create a derived pointer type, documenting the fact that the pointers should reference a particular kind of object, even though nothing else is said about it.
+Class and interface types 
+Most types in a GObject application will be classes — in the normal object-oriented sense of the word — derived directly or indirectly from the root class, GObject. There are also Java-style interfaces, although as of 2006[update] these are still relatively rarely used, likely because they have only been around since GLib 2.4 (which was released on March 16, 2004). The GNU Image Manipulation Program uses GObject interfaces.
+
+
+[edit] Messaging system
+The GObject messaging system consists of two complementary parts: closures and signals.
+
+Closures 
+A GObject closure is a generalized version of a callback. Support exists for closures written in C and C++, as well as arbitrary languages (when bindings are provided). This allows code written in (for example) Python and Java to be invoked via a GObject closure.
+
+
+Signals 
+Signals are the primary mechanism by which closures are invoked. Objects register signal listeners with the type system, specifying a mapping between a given signal and a given closure. Upon emission of a registered signal, that signal's closure is invoked. In GTK+, all native GUI events (such as mouse motion and keyboard actions) can generate GObject signals for listeners to potentially act upon.
+
+
+[edit] Class implementation
+Each GObject class is implemented by at least two structures: the class structure and the instance structure.
+
+The class structure 
+The class structure corresponds to the vtable of a C++ class. It must begin with the class structure of the superclass. Following that, it will hold a set of function pointers — one for each virtual method of the class. Class-specific variables can be used to emulate class members.
+The instance structure 
+The instance structure, which will exist in one copy per object instance, must begin with the instance structure of the superclass (this ensures that all instances begin with a pointer to the class structure, since all fundamental instantiable types share this property). After the data belonging to the superclass, the structure can hold any instance-specific variables, corresponding to C++ member variables.
+
+Since a C structure cannot have access modifiers like “public”, “protected”, or “private”, a common technique is to include a pointer to the private data — conventionally called _priv — in the instance structure. The private structure can be declared in the public header file, but defined only in the implementation file, with the effect that the private data is opaque to users, but transparent to the implementor. If the private structure is registered with GType, it will be automatically allocated by the object system. Indeed, it is not even necessary to include the _priv pointer, if one is willing to utter the incantation G_TYPE_INSTANCE_GET_PRIVATE every time the private data is needed.
+The main drawback of the GObject framework is its verbosity. Large amounts of boilerplate code, such as manual definitions of type casting macros and obscure type registration incantations, are necessary to create a new class. The GObject Builder, or GOB2, is a tool that attempts to remedy this problem by offering a template syntax reminiscent of Java. Code written using GOB2 is pre-processed into vanilla C code prior to compilation. Another compiler-to-C for the GObject type system is Vala, which uses a C#-style syntax.
+
+[edit] Usage
+The combination of C and GObject is used in many successful free software projects, such as the GNOME desktop, the GTK toolkit and the GIMP image manipulation program.
+Though many GObject applications are written entirely in C, the GObject system maps nicely into the native object systems of many other languages, like C++, Java, Ruby, Python, and .NET/Mono. As a result, it is usually relatively painless to create language bindings for well-written libraries that use the GObject framework.
+Writing GObject code in C in the first place, however, is relatively painful. The learning curve is quite steep, and programmers with experience in high-level object-oriented languages are likely to find it very tedious to work with GObject in C. For example, creating a non-trivial subclass (even just a subclass of GObject) can require writing and/or copying hundreds of lines of code. Nevertheless, adopting GObject can lead to a significant improvement of C code that is, or wants to be, object-oriented.
+Although they are not really first-class objects (there are no actual metatypes in GType), metaobjects like classes and interfaces are created by GObject applications at runtime, and provide good support for introspection. The introspective capabilities are used by language bindings and user interface design applications like Glade to allow doing things like load a shared library that provides a GObject class - usually some kind of widget, in the case of Glade - and then obtain a list of all properties of the class, complete with type information and documentation strings.
+
+[edit] Comparisons to other object systems
+Since GObject provides a complete object system for C, it can be seen as an alternative to C-derived languages such as C++ and Objective-C. (Though C++, in particular, also has many other features apart from its object system.) An easily observed difference between C++ and GObject is that GObject (like Java) does not support multiple inheritance.
+Another important difference is that while C++ and Objective-C are separate languages, GObject is strictly a library and as such does not introduce any new syntax or compiler intelligence. For example, when writing GObject-based C code, it is frequently necessary to perform explicit upcasting. Hence, “C with GObject”, considered as a language separate from plain C, is a strict superset of plain C — unlike C++.
+Since there is no standard ABI that works across all C++ compilers (except on Windows, where COM serves that function), a library compiled with one C++ compiler is not always able to call a library compiled with a different one. If such compatibility is required, the C++ methods must be exported as plain C functions, partly defeating the purpose of the C++ object system. The problem occurs in part because different C++ compilers use different kinds of name mangling to ensure the uniqueness of all exported symbols. (This is necessary because, for example, two different classes may have identically named member functions, one function name may be overloaded multiple times, or identically named functions may appear in different namespaces, but in object code these overlaps are not allowed.) In contrast, since C does not support any form of overloading or namespacing, authors of C libraries will typically use explicit prefixes to ensure the global uniqueness of their exported names. Hence, despite being object-oriented, a GObject-based library written in C will always use the same external symbol names regardless of which compiler is used.
+Perhaps the most profound difference is GObject’s emphasis on signals (called events in other languages). This emphasis derives from the fact that GObject was specifically designed to meet the needs of a GUI toolkit. To be sure, there are signal libraries for most object-oriented languages out there, but in the case of GObject it is built right into the object system. Because of this, a typical GObject application will tend to use signals to a much larger extent than a non-GObject application would, making GObject components much more encapsulated and reusable than the ones using plain C++ or Java.
+
+[edit] References
+
+^ GObject Reference Manual
+
+
+[edit] External links
+
+
+
+
+Free software portal
+
+
+
+
+The GObject Reference Manual (and tutorial)
+GObject Tutorial Aug 2004
+GOB2 — the GObject Builder
+Vala Homepage
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/GObject"
+Categories: C libraries | GNOME | GTK | Freedesktop.orgHidden categories: Articles containing potentially dated statements from 2006 | All articles containing potentially dated statements 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+日本語
+Polski
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 24 March 2009, at 04:08.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

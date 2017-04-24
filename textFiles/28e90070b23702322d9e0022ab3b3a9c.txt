@@ -1,0 +1,735 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Red-black tree - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Red-black_tree";
+		var wgTitle = "Red-black tree";
+		var wgAction = "view";
+		var wgArticleId = "26397";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282468693;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-c {line-height: normal;}
+.source-c li, .source-c pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for c
+ * CSS class: source-c, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-c .de1, .source-c .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-c  {}
+.source-c .head {}
+.source-c .foot {}
+.source-c .imp {font-weight: bold; color: red;}
+.source-c .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-c li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-c li.li2 {font-weight: bold;}
+.source-c .kw1 {color: #b1b100;}
+.source-c .kw2 {color: #000000; font-weight: bold;}
+.source-c .kw3 {color: #000066;}
+.source-c .kw4 {color: #993333;}
+.source-c .co1 {color: #808080; font-style: italic;}
+.source-c .co2 {color: #339933;}
+.source-c .coMULTI {color: #808080; font-style: italic;}
+.source-c .es0 {color: #000099; font-weight: bold;}
+.source-c .br0 {color: #66cc66;}
+.source-c .st0 {color: #ff0000;}
+.source-c .nu0 {color: #cc66cc;}
+.source-c .me1 {color: #202020;}
+.source-c .me2 {color: #202020;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Red-black tree
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A red-black tree is a type of self-balancing binary search tree, a data structure used in computer science, typically used to implement associative arrays. The original structure was invented in 1972 by Rudolf Bayer[citation needed] who called them "symmetric binary B-trees", but acquired its modern name in a paper in 1978 by Leonidas J. Guibas and Robert Sedgewick.[1] It is complex, but has good worst-case running time for its operations and is efficient in practice: it can search, insert, and delete in O(log n) time, where n is total number of elements in the tree. Put very simply, a red-black tree is a binary search tree which inserts and removes intelligently, to ensure the tree is reasonably balanced.
+
+
+
+
+Contents
+
+
+1 Terminology
+2 Properties
+3 Analogy to B-trees of order 4
+4 Applications and related data structures
+5 Operations
+
+5.1 Insertion
+5.2 Removal
+
+
+6 Proof of asymptotic bounds
+7 Complexity
+8 Notes
+9 References
+10 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Terminology
+A red-black tree is a special type of binary tree, used in computer science to organize pieces of comparable data, such as numbers.
+In red-black trees, the leaf nodes are not relevant and do not contain data. These leaves need not be explicit in computer memory — a null child pointer can encode the fact that this child is a leaf — but it simplifies some algorithms for operating on red-black trees if the leaves really are explicit nodes. To save memory, sometimes a single sentinel node performs the role of all leaf nodes; all references from internal nodes to leaf nodes then point to the sentinel node.
+Red-black trees, like all binary search trees, allow efficient in-order traversal of elements provided that there is a way to locate the parent of any node. The search-time results from the traversal from root to leaf, and therefore a balanced tree, having the least possible tree height, results in O(log n) search time.
+
+[edit] Properties
+
+
+
+
+An example of a red-black tree
+
+
+A red-black tree is a binary search tree where each node has a color attribute, the value of which is either red or black. In addition to the ordinary requirements imposed on binary search trees, the following additional requirements of any valid red-black tree apply:
+
+A node is either red or black.
+The root is black. (This rule is used in some definitions and not others. Since the root can always be changed from red to black but not necessarily vice-versa this rule has little effect on analysis.)
+All leaves are black.
+Both children of every red node are black.
+Every simple path from a node to a descendant leaf contains the same number of black nodes.
+
+These constraints enforce a critical property of red-black trees: that the longest path from the root to a leaf is no more than twice as long as the shortest path from the root to a leaf in that tree. The result is that the tree is roughly balanced. Since operations such as inserting, deleting, and finding values require worst-case time proportional to the height of the tree, this theoretical upper bound on the height allows red-black trees to be efficient in the worst-case, unlike ordinary binary search trees.
+To see why these properties guarantee this, it suffices to note that no path can have two red nodes in a row, due to property 4. The shortest possible path has all black nodes, and the longest possible path alternates between red and black nodes. Since all maximal paths have the same number of black nodes, by property 5, this shows that no path is more than twice as long as any other path.
+In many of the presentations of tree data structures, it is possible for a node to have only one child, and leaf nodes contain data. It is possible to present red-black trees in this paradigm, but it changes several of the properties and complicates the algorithms. For this reason, this article uses "null leaves", which contain no data and merely serve to indicate where the tree ends, as shown above. These nodes are often omitted in drawings, resulting in a tree which seems to contradict the above principles, but which in fact does not. A consequence of this is that all internal (non-leaf) nodes have two children, although one or both of those children may be null leaves.
+Some explain a red-black tree as a binary search tree whose edges, instead of nodes, are colored in red or black, but this does not make any difference. The color of a node in this article's terminology corresponds to the color of the edge connecting the node to its parent, except that the root node is always black (property 2) whereas the corresponding edge does not exist.
+
+[edit] Analogy to B-trees of order 4
+
+
+
+
+The same red-black tree as in the example above, seen as a B-tree.
+
+
+A red-black tree is similar in structure to a B-tree of order 4, where each node can contain between 1 to 3 values and (accordingly) between 2 to 4 child pointers. In such B-tree, each node will contain only one value matching the value in a black node of the red-black tree, with an optional value before and/or after it in the same node, both matching an equivalent red node of the red-black tree.
+One way to see this equivalence is to "move up" the red nodes in a graphical representation of the red-black tree, so that they align horizontally with their parent black node, by creating together a horizontal cluster. In the B-tree, or in the modified graphical representation of the red-black tree, all leaf nodes are at the same depth.
+The red-black tree is then structurally equivalent to a B-tree of order 4, with a minimum fill factor of 33% of values per cluster with a maximum capacity of 3 values.
+However, the conversion of the structurally equivalent B-tree back to a red-black tree can produce multiple results. Effectively, if a B-tree cluster contains only 1 value, the minimum (and has two child pointers), then this value will be black in the red-black tree. If the cluster contains 3 values, then the central value will be black and each value stored on its sides will be red in the red-black tree. However if the cluster contains two values, each one can become the black node in the red-black tree (and the other one will be red).
+So the order-4 B-tree does not maintain which of the values contained in each cluster is the root black tree for the whole cluster and the parent of the other values in the same cluster. Despite this, the operations on red-black trees are more economical because you don't have to maintain the vector of values (it may be costly if values are stored directly in each node rather than being stored by simple reference. But B-tree nodes are more economical in space, because you don't need to store the colors attribute for each node (instead you have to know which slot in the vector of 3 values of the cluster is used; if values are stored by references, for example they are objects, you just need to be able to make a distinction with null references, and so the cluster is just represented by a vector containing 3 slots for value pointers plus 4 slots for child references in the tree). In that case, the B-tree can be more compact in memory, it will increase the data locality.
+The same analogy can be made with B-trees with larger orders that can be structurally equivalent to a colored binary tree: you just need more colors. Suppose that you add blue, then the blue-red-black tree defined like red-black trees but with the additional constraint that no two successive nodes in the hierarchy will be blue and all blue nodes will be children of a red node, then it becomes equivalent to a B-tree whose clusters will have at most 7 values in the following colors: blue, red, blue, black, blue, red, blue (For each cluster, there will be at most 1 black node, 2 red nodes, and 4 blue nodes).
+For moderate volumes of values, insertions and deletions in a colored binary tree are faster compared to B-trees because colored trees don't attempt to maximize the fill factor of each horizontal cluster of nodes (only the minimum fill factor is guaranteed in colored binary trees, limiting the number of splits or junctions of clusters). B-trees will be faster for performing rotations (because rotations will frequently occur within the same cluster rather than with multiple separate nodes in a colored binary tree). However for storing large volumes, B-trees will be much faster as they will be more compact by grouping several children in the same cluster where they can be accessed locally.
+All optimizations possible in B-trees to increase the average fill factors of clusters are possible in the equivalent multicolored binary tree. Notably, maximizing the average fill factor in a structurally equivalent B-tree is the same as reducing the total height of the multicolored tree, by increasing the number of non-black nodes. The worst case occurs when all nodes in a colored binary tree are black, the best case occurs when only a third of them are black (and the other two thirds are red nodes).
+
+[edit] Applications and related data structures
+Red-black trees offer worst-case guarantees for insertion time, deletion time, and search time. Not only does this make them valuable in time-sensitive applications such as real-time applications, but it makes them valuable building blocks in other data structures which provide worst-case guarantees; for example, many data structures used in computational geometry can be based on red-black trees.
+The AVL tree is another structure supporting O(log n) search, insertion, and removal. It is more rigidly balanced than Red-Black trees, leading to slower insertion and removal but faster retrieval.
+Red-black trees are also particularly valuable in functional programming, where they are one of the most common persistent data structures, used to construct associative arrays and sets which can retain previous versions after mutations. The persistent version of red-black trees requires O(log n) space for each insertion or deletion, in addition to time.
+Red-black trees are an isometry of 2-4 trees. In other words, for every 2-4 tree, there is a corresponding red-black tree with data elements in the same order. The insertion and deletion operations on 2-4 trees are also equivalent to color-flipping and rotations in red-black trees. This makes 2-4 trees an important tool for understanding the logic behind red-black trees, and this is why many introductory algorithm texts introduce 2-4 trees just before red-black trees, even though 2-4 trees are not often used in practice.
+In 2008, Sedgewick introduced a simpler version of red-black trees called Left-Leaning Red-Black Trees by eliminating a previously unspecified degree of freedom in the implementation. The LLRB maintains an additional invariant that all red links must lean left except during inserts and deletes. Red-black trees can be made isometric to either 2-3 trees [1], or 2-4 trees [2], for any sequence of operations. The 2-4 tree isometry was described in 1978 by Sedgewick. With 2-4 trees, the isometry is resolved by a "color flip," corresponding to a split, in which the red color of two children nodes leaves the children and moves to the parent node.
+
+[edit] Operations
+Read-only operations on a red-black tree require no modification from those used for binary search trees, because every red-black tree is a special case of a simple binary search tree. However, the immediate result of an insertion or removal may violate the properties of a red-black tree. Restoring the red-black properties requires a small number (O(log n) or amortized O(1)) of color changes (which are very quick in practice) and no more than three tree rotations (two for insertion). Although insert and delete operations are complicated, their times remain O(log n).
+
+[edit] Insertion
+Insertion begins by adding the node much as we would in a simple binary search tree and coloring it red. Whereas in the binary search tree, we always add a leaf, in the red-black tree leaves contain no information, so instead we add a red interior node, with two black leaves, in place of an existing black leaf.
+What happens next depends on the color of other nearby nodes. The term uncle node will be used to refer to the sibling of a node's parent, as in human family trees. Note that:
+
+Property 3 (All leaves are black) always holds.
+Property 4 (Both children of every red node are black) is threatened only by adding a red node, repainting a black node red, or a rotation.
+Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes) is threatened only by adding a black node, repainting a red node black, or a rotation.
+
+
+Note: The label N will be used to denote the node being inserted; P will denote N's parent node, G will denote N's grandparent, and U will denote N's uncle. Note that in between some cases, the roles and labels of the nodes are exchanged, but in each case, every label continues to represent the same node it represented at the beginning of the case. Any color shown in the diagram is either assumed in its case or implied by these assumptions.
+
+Each case will be demonstrated with example C code. The uncle and grandparent nodes can be found by these functions:
+
+
+struct node *
+grandparent(struct node *n)
+{
+	if ((n != NULL) && (n->parent != NULL))
+		return n->parent->parent;
+	else
+		return NULL;
+}
+ 
+struct node *
+uncle(struct node *n)
+{
+	struct node *g = grandparent(n);
+	if (g == NULL)
+		return NULL; // No grandparent means no uncle
+	if (n->parent == g->left)
+		return g->right;
+	else
+		return g->left;
+}
+
+Case 1: The new node N is at the root of the tree. In this case, it is repainted black to satisfy Property 2 (The root is black). Since this adds one black node to every path at once, Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes) is not violated.
+
+
+void
+insert_case1(struct node *n)
+{
+	if (n->parent == NULL)
+		n->color = BLACK;
+	else
+		insert_case2(n);
+}
+
+Case 2: The new node's parent P is black, so Property 4 (Both children of every red node are black) is not invalidated. In this case, the tree is still valid. Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes) is not threatened, because the new node N has two black leaf children, but because N is red, the paths through each of its children have the same number of black nodes as the path through the leaf it replaced, which was black, and so this property remains satisfied.
+
+
+void
+insert_case2(struct node *n)
+{
+	if (n->parent->color == BLACK)
+		return; /* Tree is still valid */
+	else
+		insert_case3(n);
+}
+
+
+Note: In the following cases it can be assumed that N has a grandparent node G, because its parent P is red, and if it were the root, it would be black. Thus, N also has an uncle node U, although it may be a leaf in cases 4 and 5.
+
+
+
+
+
+Case 3: If both the parent P and the uncle U are red, then both nodes can be repainted black and the grandparent G becomes red (to maintain Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes)). Now, the new red node N has a black parent. Since any path through the parent or uncle must pass through the grandparent, the number of black nodes on these paths has not changed. However, the grandparent G may now violate properties 2 (The root is black) or 4 (Both children of every red node are black) (property 4 possibly being violated since G may have a red parent). To fix this, this entire procedure is recursively performed on G from case 1. Note that this is a tail-recursive call, so it could be rewritten as a loop; since this is the only loop, and any rotations occur after this loop, this proves that a constant number of rotations occur.
+
+
+
+
+
+void
+insert_case3(struct node *n)
+{
+	struct node *u = uncle(n), *g;
+ 
+	if ((u != NULL) && (u->color == RED)) {
+		n->parent->color = BLACK;
+		u->color = BLACK;
+		g = grandparent(n);
+		g->color = RED;
+		insert_case1(g);
+	} else {
+		insert_case4(n);
+	}
+}
+
+
+Note: In the remaining cases, it is assumed that the parent node P is the left child of its parent. If it is the right child, left and right should be reversed throughout cases 4 and 5. The code samples take care of this.
+
+
+
+
+
+Case 4: The parent P is red but the uncle U is black; also, the new node N is the right child of P, and P in turn is the left child of its parent G. In this case, a left rotation that switches the roles of the new node N and its parent P can be performed; then, the former parent node P is dealt with using Case 5 (relabeling N and P) because property 4 (Both children of every red node are black) is still violated. The rotation causes some paths (those in the sub-tree labelled "1") to pass through the new node where they did not before, but both these nodes are red, so Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes) is not violated by the rotation.
+
+
+
+
+
+void
+insert_case4(struct node *n)
+{
+	struct node *g = grandparent(n);
+ 
+	if ((n == n->parent->right) && (n->parent == g->left)) {
+		rotate_left(n->parent);
+		n = n->left;
+	} else if ((n == n->parent->left) && (n->parent == g->right)) {
+		rotate_right(n->parent);
+		n = n->right;
+	}
+	insert_case5(n);
+}
+
+
+
+
+
+Case 5: The parent P is red but the uncle U is black, the new node N is the left child of P, and P is the left child of its parent G. In this case, a right rotation on the parent of P is performed; the result is a tree where the former parent P is now the parent of both the new node N and the former grandparent G. G is known to be black, since its former child P could not have been red otherwise. Then, the colors of P and G are switched, and the resulting tree satisfies Property 4 (Both children of every red node are black). Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes) also remains satisfied, since all paths that went through any of these three nodes went through G before, and now they all go through P. In each case, this is the only black node of the three.
+
+
+
+
+
+void
+insert_case5(struct node *n)
+{
+	struct node *g = grandparent(n);
+ 
+	n->parent->color = BLACK;
+	g->color = RED;
+	if ((n == n->parent->left) && (n->parent == g->left)) {
+		rotate_right(g);
+	} else {
+		/*
+		 * Here, (n == n->parent->right) && (n->parent == g->right).
+		 */
+		rotate_left(g);
+	}
+}
+
+Note that inserting is actually in-place, since all the calls above use tail recursion.
+
+[edit] Removal
+In a normal binary search tree, when deleting a node with two non-leaf children, we find either the maximum element in its left subtree or the minimum element in its right subtree, and move its value into the node being deleted (as shown here). We then delete the node we copied the value from, which must have less than two non-leaf children. Because merely copying a value does not violate any red-black properties, this reduces the problem of deleting to the problem of deleting a node with at most one non-leaf child. It does not matter whether this node is the node we originally wanted to delete or the node we copied the value from.
+For the remainder of this discussion we can assume we are deleting a node with at most one non-leaf child, which we will call its child (if it has only leaf children, let one of them be its child). If we are deleting a red node, we can simply replace it with its child, which must be black. All paths through the deleted node will simply pass through one less red node, and both the deleted node's parent and child must be black, so properties 3 (All leaves, including nulls, are black) and 4 (Both children of every red node are black) still hold. Another simple case is when the deleted node is black and its child is red. Simply removing a black node could break Properties 4 (Both children of every red node are black) and 5 (All paths from any given node to its leaf nodes contain the same number of black nodes), but if we repaint its child black, both of these properties are preserved.
+The complex case is when both the node to be deleted and its child are black. We begin by replacing the node to be deleted with its child. We will call (or label) this child (in its new position) N, and its sibling (its new parent's other child) S. In the diagrams below, we will also use P for N's new parent, SL for S's left child, and SR for S's right child (it can be shown that S cannot be a leaf).
+
+Note: In between some cases, we exchange the roles and labels of the nodes, but in each case, every label continues to represent the same node it represented at the beginning of the case. Any color shown in the diagram is either assumed in its case or implied by these assumptions. White represents an unknown color (either red or black).
+
+We will find the sibling using this function:
+
+
+struct node *
+sibling(struct node *n)
+{
+	if (n == n->parent->left)
+		return n->parent->right;
+	else
+		return n->parent->left;
+}
+
+
+Note: In order that the tree remains well-defined, we need that every null leaf remains a leaf after all transformations (that it will not have any children). If the node we are deleting has a non-leaf (non-null) child N, it is easy to see that the property is satisfied. If, on the other hand, N would be a null leaf, it can be verified from the diagrams (or code) for all the cases that the property is satisfied as well.
+
+We can perform the steps outlined above with the following code, where the function replace_node substitutes child into n's place in the tree. For convenience, code in this section will assume that null leaves are represented by actual node objects rather than NULL (the code in the Insertion section works with either representation).
+
+
+void
+delete_one_child(struct node *n)
+{
+	/*
+	 * Precondition: n has at most one non-null child.
+	 */
+	struct node *child = is_leaf(n->right) ? n->left : n->right;
+ 
+	replace_node(n, child);
+	if (n->color == BLACK) {
+		if (child->color == RED)
+			child->color = BLACK;
+		else
+			delete_case1(child);
+	}
+	free(n);
+}
+
+
+Note: If N is a null leaf and we do not want to represent null leaves as actual node objects, we can modify the algorithm by first calling delete_case1() on its parent (the node that we delete, n in the code above) and deleting it afterwards. We can do this because the parent is black, so it behaves in the same way as a null leaf (and is sometimes called a 'phantom' leaf). And we can safely delete it at the end as n will remain a leaf after all operations, as shown above.
+
+If both N and its original parent are black, then deleting this original parent causes paths which proceed through N to have one fewer black node than paths that do not. As this violates Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes), the tree must be rebalanced. There are several cases to consider:
+Case 1: N is the new root. In this case, we are done. We removed one black node from every path, and the new root is black, so the properties are preserved.
+
+
+void
+delete_case1(struct node *n)
+{
+	if (n->parent != NULL)
+		delete_case2(n);
+}
+
+
+Note: In cases 2, 5, and 6, we assume N is the left child of its parent P. If it is the right child, left and right should be reversed throughout these three cases. Again, the code examples take both cases into account.
+
+
+
+
+
+Case 2: S is red. In this case we reverse the colors of P and S, and then rotate left at P, turning S into N's grandparent. Note that P has to be black as it had a red child. Although all paths still have the same number of black nodes, now N has a black sibling and a red parent, so we can proceed to step 4, 5, or 6. (Its new sibling is black because it was once the child of the red S.) In later cases, we will relabel N's new sibling as S.
+
+
+
+
+
+void
+delete_case2(struct node *n)
+{
+	struct node *s = sibling(n);
+ 
+	if (s->color == RED) {
+		n->parent->color = RED;
+		s->color = BLACK;
+		if (n == n->parent->left)
+			rotate_left(n->parent);
+		else
+			rotate_right(n->parent);
+	} 
+	delete_case3(n);
+}
+
+
+
+
+
+Case 3: P, S, and S's children are black. In this case, we simply repaint S red. The result is that all paths passing through S, which are precisely those paths not passing through N, have one less black node. Because deleting N's original parent made all paths passing through N have one less black node, this evens things up. However, all paths through P now have one fewer black node than paths that do not pass through P, so Property 5 (All paths from any given node to its leaf nodes contain the same number of black nodes) is still violated. To correct this, we perform the rebalancing procedure on P, starting at case 1.
+
+
+
+
+
+void
+delete_case3(struct node *n)
+{
+	struct node *s = sibling(n);
+ 
+	if ((n->parent->color == BLACK) &&
+	    (s->color == BLACK) &&
+	    (s->left->color == BLACK) &&
+	    (s->right->color == BLACK)) {
+		s->color = RED;
+		delete_case1(n->parent);
+	} else
+		delete_case4(n);
+}
+
+
+
+
+
+Case 4: S and S's children are black, but P is red. In this case, we simply exchange the colors of S and P. This does not affect the number of black nodes on paths going through S, but it does add one to the number of black nodes on paths going through N, making up for the deleted black node on those paths.
+
+
+
+
+
+void
+delete_case4(struct node *n)
+{
+	struct node *s = sibling(n);
+ 
+	if ((n->parent->color == RED) &&
+	    (s->color == BLACK) &&
+	    (s->left->color == BLACK) &&
+	    (s->right->color == BLACK)) {
+		s->color = RED;
+		n->parent->color = BLACK;
+	} else
+		delete_case5(n);
+}
+
+
+
+
+
+Case 5: S is black, S's left child is red, S's right child is black, and N is the left child of its parent. In this case we rotate right at S, so that S's left child becomes S's parent and N's new sibling. We then exchange the colors of S and its new parent. All paths still have the same number of black nodes, but now N has a black sibling whose right child is red, so we fall into case 6. Neither N nor its parent are affected by this transformation. (Again, for case 6, we relabel N's new sibling as S.)
+
+
+
+
+
+void
+delete_case5(struct node *n)
+{
+	struct node *s = sibling(n);
+ 
+	if  (s->color == BLACK) { /* this if statement is trivial, 
+due to Case 2 (even though Case two changed the sibling to a sibling's child, 
+the sibling's child can't be red, since no red parent can have a red child). */
+// the following statements just force the red to be on the left of the left of the parent, 
+// or right of the right, so case six will rotate correctly.
+		if ((n == n->parent->left) &&
+		    (s->right->color == BLACK) &&
+		    (s->left->color == RED)) { // this last test is trivial too due to cases 2-4.
+			s->color = RED;
+			s->left->color = BLACK;
+			rotate_right(s);
+		} else if ((n == n->parent->right) &&
+		           (s->left->color == BLACK) &&
+		           (s->right->color == RED)) {// this last test is trivial too due to cases 2-4.
+			s->color = RED;
+			s->right->color = BLACK;
+			rotate_left(s);
+		}
+	}
+	delete_case6(n);
+}
+
+
+
+
+
+Case 6: S is black, S's right child is red, and N is the left child of its parent P. In this case we rotate left at P, so that S becomes the parent of P and S's right child. We then exchange the colors of P and S, and make S's right child black. The subtree still has the same color at its root, so Properties 4 (Both children of every red node are black) and 5 (All paths from any given node to its leaf nodes contain the same number of black nodes) are not violated. However, N now has one additional black ancestor: either P has become black, or it was black and S was added as a black grandparent. Thus, the paths passing through N pass through one additional black node.
+Meanwhile, if a path does not go through N, then there are two possibilities:
+
+It goes through N's new sibling. Then, it must go through S and P, both formerly and currently, as they have only exchanged colors and places. Thus the path contains the same number of black nodes.
+It goes through N's new uncle, S's right child. Then, it formerly went through S, S's parent, and S's right child (which was red), but now only goes through S, which has assumed the color of its former parent, and S's right child, which has changed from red to black (assuming S's color: black). The net effect is that this path goes through the same number of black nodes.
+
+Either way, the number of black nodes on these paths does not change. Thus, we have restored Properties 4 (Both children of every red node are black) and 5 (All paths from any given node to its leaf nodes contain the same number of black nodes). The white node in the diagram can be either red or black, but must refer to the same color both before and after the transformation.
+
+
+
+
+
+void
+delete_case6(struct node *n)
+{
+	struct node *s = sibling(n);
+ 
+	s->color = n->parent->color;
+        n->parent->color = BLACK;
+ 
+	if (n == n->parent->left) {
+                s->right->color = BLACK;
+		rotate_left(n->parent);
+	} else {
+		s->left->color = BLACK;
+		rotate_right(n->parent);
+	}
+}
+
+Again, the function calls all use tail recursion, so the algorithm is in-place. In the algorithm above, all cases are chained in order, except in delete case 3 where it can recurse to case 1 back to the parent node: this is the only case where an in-place implementation will effectively loop (after only one rotation in case 3).
+Additionally, no tail recursion ever occurs on a child node, so the tail recursion loop can only move from a child back to its successive ancestors. No more than O(log n) loops back to case 1 will occur (where n is the total number of nodes in the tree before deletion). If a rotation occurs in case 2 (which is the only possibility of rotation within the loop of cases 1–3), then the parent of the node N becomes red after the rotation and we will exit the loop. Therefore at most one rotation will occur within this loop. Since no more than two additional rotations will occur after exiting the loop, at most three rotations occur in total.
+
+[edit] Proof of asymptotic bounds
+A red black tree which contains n internal nodes has a height of O(log(n)).
+Definitions:
+
+h(v) = height of subtree rooted at node v
+bh(v) = the number of black nodes (not counting v if it is black) from v to any leaf in the subtree (called the black-height).
+
+Lemma: A subtree rooted at node v has at least 2bh(v) − 1 internal nodes.
+Proof of Lemma (by induction height):
+Basis: h(v) = 0
+If v has a height of zero then it must be null, therefore bh(v) = 0. So:
+
+2bh(v) − 1 = 20 − 1 = 1 − 1 = 0
+
+Inductive Step: v such that h(v) = k, has at least 2bh(v) − 1 internal nodes implies that v' such that h(v') = k+1 has at least 2bh(v') − 1 internal nodes.
+Since v' has h(v') > 0 it is an internal node. As such it has two children each of which has a black-height of either bh(v') or bh(v')-1 (depending on whether the child is red or black). By the inductive hypothesis each child has at least 2bh(v') − 1 − 1 internal nodes, so v' has at least:
+
+2bh(v') − 1 − 1 + 2bh(v') − 1 − 1 + 1 = 2bh(v') − 1
+
+internal nodes.
+Using this lemma we can now show that the height of the tree is logarithmic. Since at least half of the nodes on any path from the root to a leaf are black (property 4 of a red black tree), the black-height of the root is at least h(root)/2. By the lemma we get:
+
+
+
+Therefore the height of the root is O(log(n)).
+
+[edit] Complexity
+In the tree code there is only one loop where the node of the root of the red-black property that we wish to restore, x, can be moved up the tree by one level at each iteration.
+Since the original height of the tree is O(log n), there are O(log n) iterations. So overall the insert routine has O(log n) complexity.
+
+[edit] Notes
+
+^ Leonidas J. Guibas, Robert Sedgewick: A Dichromatic Framework for Balanced Trees FOCS 1978: 8-21
+
+
+[edit] References
+
+Mathworld: Red-Black Tree
+San Diego State University: CS 660: Red-Black tree notes, by Roger Whitney
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7 . Chapter 13: Red-Black Trees, pp.273–301.
+Pfaff, Ben (June 2004). "Performance Analysis of BSTs in System Software" (PDF). Stanford University. http://www.stanford.edu/~blp/papers/libavl.pdf. 
+Okasaki, Chris. "Red-Black Trees in a Functional Setting" (PS). http://www.eecs.usma.edu/webs/people/okasaki/jfp99.ps. 
+
+
+[edit] External links
+
+In the C++ Standard Template Library, the containers std::set<Value> and std::map<Key,Value> are often based on red-black trees
+Red-Black Tree in GNU libavl C library by Ben Pfaff
+Red-Black Tree C Code
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Red-black_tree"
+Categories: Articles containing proofs | Articles with example C code | B-treeHidden categories: All articles with unsourced statements | Articles with unsourced statements since February 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+فارسی
+Français
+한국어
+Hrvatski
+Bahasa Indonesia
+Italiano
+עברית
+Lietuvių
+日本語
+Polski
+Português
+Русский
+Српски / Srpski
+Suomi
+Svenska
+Tiếng Việt
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 April 2009, at 01:43.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

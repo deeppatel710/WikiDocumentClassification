@@ -1,0 +1,414 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Selection algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Selection_algorithm";
+		var wgTitle = "Selection algorithm";
+		var wgAction = "view";
+		var wgArticleId = "552786";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 265806713;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Selection algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article is missing citations or needs footnotes. Please help add inline citations to guard against copyright violations and factual inaccuracies. (December 2008)
+
+
+In computer science, a selection algorithm is an algorithm for finding the kth smallest number in a list (such a number is called the kth order statistic.) This includes the cases of finding the minimum, maximum, and median elements. There are worst-case linear time selection algorithms. Selection is a subproblem of more complex problems like the nearest neighbor problem and shortest path problems.
+The term "selection" is used in other contexts in computer science, including the stage of a genetic algorithm in which genomes are chosen from a population for later breeding; see Selection (genetic algorithm). This article addresses only the problem of determining order statistics.
+
+
+
+
+Contents
+
+
+1 Selection by sorting
+2 Linear minimum/maximum algorithms
+3 Nonlinear general selection algorithm
+4 Partition-based general selection algorithm
+5 Linear general selection algorithm - "Median of Medians algorithm"
+6 Introselect
+7 Selection as incremental sorting
+8 Using data structures to select in sublinear time
+9 Selecting k smallest or largest elements
+
+9.1 Repeated application of simple selection algorithms
+9.2 Direct application of the quick sort based selection algorithm
+9.3 Data structure based solutions
+9.4 Optimised sorting algorithms
+9.5 Tournament Algorithm
+
+
+10 Lower bounds
+11 Language support
+12 Online selection algorithm
+13 Notes
+14 References
+15 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Selection by sorting
+Selection can be reduced to sorting by sorting the list and then extracting the desired element. This method is efficient when many selections need to be made from a list, in which case only one initial, expensive sort is needed, followed by many cheap extraction operations. In general, this method requires  time, where n is the length of the list.
+
+[edit] Linear minimum/maximum algorithms
+Linear time algorithms to find minimums or maximums work by iterating over the list and keeping track of the minimum or maximum element so far.
+
+[edit] Nonlinear general selection algorithm
+Using the same ideas used in minimum/maximum algorithms, we can construct a simple, but inefficient general algorithm for finding the kth smallest or kth largest item in a list, requiring O(kn) time, which is effective when k is small. To accomplish this, we simply find the most extreme value and move it to the beginning until we reach our desired index. This can be seen as an incomplete selection sort. Here is the minimum-based algorithm:
+
+ function select(list[1..n], k)
+     for i from 1 to k
+         minIndex = i
+         minValue = list[i]
+         for j from i+1 to n
+             if list[j] < minValue
+                 minIndex = j
+                 minValue = list[j]
+         swap list[i] and list[minIndex]
+     return list[k]
+
+Other advantages of this method are:
+
+After locating the jth smallest element, it requires only O(j + (k-j)2) time to find the kth smallest element, or only O(k) for k ≤ j.
+It can be done with linked list data structures, whereas the one based on partition requires random access.
+
+
+[edit] Partition-based general selection algorithm
+A worst-case linear algorithm for the general case of selecting the kth largest element was published by Blum, Floyd, Pratt, Rivest, and Tarjan in their 1973 paper Time bounds for selection, sometimes called BFPRT after the last names of the authors. The algorithm that it is based on was conceived by the inventor of quicksort, C.A.R. Hoare, and is known as Hoare's selection algorithm or quickselect.
+In quicksort, there is a subprocedure called partition that can, in linear time, group a list (ranging from indices left to right) into two parts, those less than a certain element, and those greater than or equal to the element. Here is pseudocode that performs a partition about the element list[pivotIndex]:
+
+ function partition(list, left, right, pivotIndex)
+     pivotValue := list[pivotIndex]
+     swap list[pivotIndex] and list[right]  // Move pivot to end
+     storeIndex := left
+     for i from left to right-1
+         if list[i] < pivotValue
+             swap list[storeIndex] and list[i]
+             storeIndex := storeIndex + 1
+     swap list[right] and list[storeIndex]  // Move pivot to its final place
+     return storeIndex
+
+In quicksort, we recursively sort both branches, leading to best-case Ω(n log n) time. However, when doing selection, we already know which partition our desired element lies in, since the pivot is in its final sorted position, with all those preceding it in sorted order preceding it and all those following it in sorted order following it. Thus a single recursive call locates the desired element in the correct partition:
+
+ function select(list, left, right, k)
+     select pivotIndex between left and right
+     pivotNewIndex := partition(list, left, right, pivotIndex)
+     if k = pivotNewIndex
+         return list[k]
+     else if k < pivotNewIndex
+         return select(list, left, pivotNewIndex-1, k)
+     else
+         return select(list, pivotNewIndex+1, right, k)
+
+Note the resemblance to quicksort; indeed, just as the minimum-based selection algorithm is a partial selection sort, this is a partial quicksort, generating and partitioning only O(log n) of its O(n) partitions. This simple procedure has expected linear performance, and, like quicksort, has quite good performance in practice. It is also an in-place algorithm, requiring only constant memory overhead, since the tail recursion can be eliminated with a loop like this:
+
+ function select(list, left, right, k)
+     loop
+         select pivotIndex between left and right
+         pivotNewIndex := partition(list, left, right, pivotIndex)
+         if k = pivotNewIndex
+             return list[k]
+         else if k < pivotNewIndex
+             right := pivotNewIndex-1
+         else
+             left := pivotNewIndex+1
+
+
+Like quicksort, the performance of the algorithm is sensitive to the pivot that is chosen. If bad pivots are consistently chosen, this degrades to the minimum-based selection described previously, and so can require as much as O(n2) time. David Musser describes a "median-of-3 killer" sequence that can force the well-known median-of-three pivot selection algorithm to fail with worst-case behavior (see Introselect section below).
+
+[edit] Linear general selection algorithm - "Median of Medians algorithm"
+The key to making the previous algorithm worst-case linear and the primary contribution of "Time bounds for selection" is the "median of medians algorithm", which consistently finds good pivots.
+This algorithm divides the list into groups of five elements. Left over elements are ignored for now. Then, for each group of five, the median is calculated: an operation that can potentially be made very fast if the five values can be loaded into registers and compared. These medians are moved into one contiguous block in the list, select is called recursively on this sublist of n/5 elements to find new median values. Finally, the "median of medians" is the pivot.
+The chosen pivot is both less than and greater than half of the elements in the list of medians, which is around n/10 elements for each half. Each of these elements is a median of 5, making it less than 2 other elements and greater than 2 other elements outside the block. Hence, the pivot is less than 2(n / 10) elements outside the block, and greater than another 2(n / 10) elements outside the block. Thus the chosen median splits the elements somewhere between 30%/70% and 70%/30%, which assures worst-case linear behavior of the algorithm.
+The median-calculating recursive call does not exceed worst-case linear behavior because the list of medians is 20% of the size of the list, while the other recursive call recurs on at most 70% of the list, making the running time
+
+ T(n) ≤ T(n/5) + T(7n/10) + O(n)
+
+The O(n) is for the partitioning work. An induction argument can then show that T(n) is indeed O(n).
+Although this approach optimizes quite well, it is typically outperformed in practice by the expected linear algorithm with random pivot choices.
+The worst-case algorithm can construct a worst-case O(nlogn) quicksort algorithm, by using it to find the median at every step.
+
+[edit] Introselect
+David Musser's well-known introsort achieves practical performance comparable to quicksort while preserving O(n log n) worst-case behavior by creating a hybrid of quicksort and heapsort. In the same paper, Musser introduced an "introspective selection" algorithm, popularly called introselect, which combines Hoare's algorithm with the worst-case linear algorithm described above to achieve worst-case linear selection with performance similar to Hoare's algorithm.[1] It works by optimistically starting out with Hoare's algorithm and only switching to the worst-time linear algorithm if it recurs too many times without making sufficient progress. Simply limiting the recursion to constant depth is not good enough, since this would make the algorithm switch on all sufficiently large lists. Musser discusses a couple of simple approaches:
+
+Keep track of the list of sizes of the subpartitions processed so far. If at any point k recursive calls have been made without halving the list size, for some small positive k, switch to the worst-case linear algorithm.
+Sum the size of all partitions generated so far. If this exceeds the list size times some small positive constant k, switch to the worst-case linear algorithm. This sum is easy to track in a single scalar variable.
+
+Both approaches limit the recursion depth to O(klog n), which is O(log n) since k is a predetermined constant. The paper suggested that more research on introselect was forthcoming, but as of 2007 it has not appeared.
+
+[edit] Selection as incremental sorting
+One of the advantages of the sort-and-index approach, as mentioned, is its ability to amortize the sorting cost over many subsequent selections. However, sometimes the number of selections that will be done is not known in advance, and may be either small or large. In these cases, we can adapt the algorithms given above to simultaneously select an element while partially sorting the list, thus accelerating future selections.
+Both the selection procedure based on minimum-finding and the one based on partitioning can be seen as a form of partial sort. The minimum-based algorithm sorts the list up to the given index, and so clearly speeds up future selections, especially of smaller indexes. The partition-based algorithm does not achieve the same behaviour automatically, but can be adapted to remember its previous pivot choices and reuse them wherever possible, avoiding costly partition operations, particularly the top-level one. The list becomes gradually more sorted as more partition operations are done incrementally; no pivots are ever "lost." If desired, this same pivot list could be passed on to quicksort to reuse, again avoiding many costly partition operations.
+
+[edit] Using data structures to select in sublinear time
+Given an unorganized list of data, linear time (Ω(n)) is required to find the minimum element, because we have to examine every element (otherwise, we might miss it). If we organize the list, for example by keeping it sorted at all times, then selecting the kth largest element is trivial, but then insertion requires linear time, as do other operations such as combining two lists.
+The strategy to find an order statistic in sublinear time is to store the data in an organized fashion using suitable data structures that facilitate the selection. Two such data structures are tree based structures and frequency tables.
+When only the minimum (or maximum) is needed, a good approach is to use a priority queue, which is able to find the minimum (or maximum) element in constant time, while all other operations, including insertion, are O(log n) or better. More generally, a self-balancing binary search tree can easily be augmented to make it possible to both insert an element and find the kth largest element in O(log n) time. We simply store in each node a count of how many descendants it has, and use this to determine which path to follow. The information can be updated efficiently since adding a node only affects the counts of its O(log n) ancestors, and tree rotations only affect the counts of the nodes involved in the rotation.
+Another simple strategy is based on some of the same concepts as the hash table. When we know the range of values beforehand, we can divide that range into h subintervals and assign these to h buckets. When we insert an element, we add it to the bucket corresponding to the interval it falls in. To find the minimum or maximum element, we scan from the beginning or end for the first nonempty bucket and find the minimum or maximum element in that bucket. In general, to find the kth element, we maintain a count of the number of elements in each bucket, then scan the buckets from left to right adding up counts until we find the bucket containing the desired element, then use the expected linear-time algorithm to find the correct element in that bucket.
+If we choose h of size roughly sqrt(n), and the input is close to uniformly distributed, this scheme can perform selections in expected O(sqrt(n)) time. Unfortunately, this strategy is also sensitive to clustering of elements in a narrow interval, which may result in buckets with large numbers of elements (clustering can be eliminated through a good hash function, but finding the element with the kth largest hash value isn't very useful). Additionally, like hash tables this structure requires table resizings to maintain efficiency as elements are added and n becomes much larger than h2. A useful case of this is finding an order statistic or extremum in a finite range of data, like marks limited 1 to 100 numbers for much higher number of students. Using above table with bucket interval 1 and maintaining counts in each bucket is much superior to other methods. Such hash tables are like frequency tables used to classify the data in descriptive statistics.
+
+[edit] Selecting k smallest or largest elements
+Another fundamental selection problem is that of selecting the k smallest or k largest elements, which is particularly useful where we want to present just the "top k" of an unsorted list, such as the top 100 corporations by gross sales.
+
+[edit] Repeated application of simple selection algorithms
+A number of simple but inefficient solutions are possible. We can use the linear-time solutions discussed above to select each element one at a time, resulting in time O(kn) — we can achieve the same time just by running the first k iterations of selection sort. If log n is much less than k, a better simple strategy is to sort the list and then take the first or last k elements.
+
+[edit] Direct application of the quick sort based selection algorithm
+The quick sort based selection algorithm can be used to find k smallest or k largest elements. To find k smallest elements find the kth smallest element using the median of medians quick sort based algorithm. After the partition that finds the kth smallest element, all the elements smaller than the kth smaller element will be present left to the kth element and all element larger will be present right to the kth smallest element. Thus all elements from 1st to kth element inclusive constitute the k smallest elements. The time complexity is linear in n, the total number of elements.
+
+[edit] Data structure based solutions
+Another simple method is to add each element of the list into an ordered set data structure, such as a heap or self-balancing binary search tree, with at most k elements. Whenever the data structure has more than k elements, we remove the largest element, which can be done in O(log k) time. Each insertion operation also takes O(log k) time, resulting in O(nlog k) time overall.
+It is possible to transform the list into a heap in Θ(n) time, and then traverse the heap using a modified Breadth-first search algorithm that places the elements in a Priority Queue (instead of the ordinary queue that is normally used in a BFS), and terminate the scan after traversing exactly k elements. As the queue size remains O(k) throughout the traversal, it would require O(klog k) time to complete, leading to a time bound of O(n + klog k) on this algorithm.
+
+[edit] Optimised sorting algorithms
+More efficient than any of these are specialized partial sorting algorithms based on mergesort and quicksort. The simplest is the quicksort variation: there is no need to recursively sort partitions which only contain elements that would fall after the kth place in the end. Thus, if the pivot falls in position k or later, we recur only on the left partition:
+
+ function quicksortFirstK(list, left, right, k)
+     if right > left
+         select pivotIndex between left and right
+         pivotNewIndex := partition(list, left, right, pivotIndex)
+         quicksortFirstK(list, left, pivotNewIndex-1, k)
+         if pivotNewIndex < k
+             quicksortFirstK(list, pivotNewIndex+1, right, k)
+
+The resulting algorithm requires an expected time of only O(n + klogk), and is quite efficient in practice, especially if we substitute selection sort when k becomes small relative to n.
+Even better is if we don't require those k items to be themselves sorted. Losing that requirement means we can ignore all partitions that fall entirely before or after the kth place. We recur only into the partition that actually contains the kth element itself.
+
+ function findFirstK(list, left, right, k)
+     if right > left
+         select pivotIndex between left and right
+         pivotNewIndex := partition(list, left, right, pivotIndex)
+         if pivotNewIndex > k  // new condition
+             findFirstK(list, left, pivotNewIndex-1, k)
+         if pivotNewIndex < k
+             findFirstK(list, pivotNewIndex+1, right, k)
+
+The resulting algorithm requires an expected time of only O(n), which is just about the best any algorithm can hope for.
+
+[edit] Tournament Algorithm
+Another method is tournament algorithm. The idea is to conduct a knockout minimal round tournament to decide the ranks. It first organises the games(comparisons) between adjacent pairs and moves the winners to next round until championship(the first best) is decided. It also constructs the tournament tree along the way. Now the second best element must be among the direct losers to winner and these losers can be found out by walking in the binary tree in O(log n) time. It organises another tournament to decide the second best among these potential elements. The third best must be one among the losers of the second best in either of the two tournament trees. The approach continues until we find k elements. This algorithm takes O(n + k log n) complexity, which for any fixed k independent of n is O(n).
+
+[edit] Lower bounds
+In his seminal The Art of Computer Programming, Donald E. Knuth discussed a number of lower bounds for the number of comparisons required to locate the k smallest entries of an unorganized list of n items (using only comparisons). There's a trivial lower bound of n − 1 for the minimum or maximum entry. To see this, consider a tournament where each game represents one comparison. Since every player except the winner of the tournament must lose a game before we know the winner, we have a lower bound of n − 1 comparisons.
+The story becomes more complex for other indexes. To find the k smallest values requires at least this many comparisons:
+
+
+
+This bound is achievable for k=2 but better, more complex bounds exist for larger k.
+
+[edit] Language support
+Very few languages have built-in support for general selection, although many provide facilities for finding the smallest or largest element of a list. A notable exception is C++, which provides a templated nth_element method with a guarantee of expected linear time. It is implied but not required that it is based on Hoare's algorithm by its requirement of expected linear time. (Ref section 25.3.2 of ISO/IEC 14882:2003(E) and 14882:1998(E), see also SGI STL description of nth_element)
+C++ also provides the partial_sort algorithm, which solves the problem of selecting the smallest k elements (sorted), with a time complexity of O(nlog k). No algorithm is provided for selecting the greatest k elements, but this can easily be achieved by inverting the ordering predicate.
+For Perl, the module Sort::Key::Top, available from CPAN, provides a set of functions to select the top n elements from a list using several orderings and custom key extraction procedures.
+Because language support for sorting is more ubiquitous, the simplistic approach of sorting followed by indexing is preferred in many environments despite its disadvantage in speed. Indeed for lazy languages, this simplistic approach can even get you the best complexity possible for the k smallest/greatest sorted (with maximum/minimum as a special case) if your sort is lazy enough.
+
+[edit] Online selection algorithm
+In certain selection problems, selection must be online, that is, an element can only be selected from a sequential input at the instance of observation and each selection, respectively refusal, is irrevocable. The problem is to select, under these constraints, a	 specific element of the input sequence (as for example the largest or the smallest value)	 with largest probability. This problem can be tackled by the Odds algorithm which is known to be optimal under an independence condition. The algorithm is also optimal itself	 with the number of operations being linear in the length of input.
+
+[edit] Notes
+
+^ David R. Musser. Introspective Sorting and Selection Algorithms. Software: Practice and Experience, vol. 27, no. 8, pp.983–993. 1997. Section: Introspective Selection Algorithms.
+
+
+[edit] References
+
+M. Blum, R.W. Floyd, V. Pratt, R. Rivest and R. Tarjan, "Time bounds for selection," J. Comput. System Sci. 7 (1973) 448-461.
+Donald Knuth. The Art of Computer Programming, Volume 3: Sorting and Searching, Third Edition. Addison-Wesley, 1997. ISBN 0-201-89685-0. Section 5.3.3: Minimum-Comparison Selection, pp.207–219.
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Chapter 9: Medians and Order Statistics, pp.183–196. Section 14.1: Dynamic order statistics, pp.302–308.
+ This article incorporates public domain material from the NIST Dictionary of Algorithms and Data Structures document "Select".
+
+
+
+[edit] External links
+
+Design and Analysis of Algorithms, for a detailed explanation of the recurrence relation for the median-of-medians
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Selection_algorithm"
+Categories: Selection algorithmsHidden categories: Articles with unsourced statements since December 2008 | All articles with unsourced statements | Wikipedia articles incorporating text from public domain works of the United States Government | Wikipedia articles incorporating text from the NIST Dictionary of Algorithms and Data Structures 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Bahasa Indonesia
+日本語
+Polski
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 22 January 2009, at 23:21 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

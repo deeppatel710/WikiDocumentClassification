@@ -1,0 +1,732 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GPGPU - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "GPGPU";
+		var wgTitle = "GPGPU";
+		var wgAction = "view";
+		var wgArticleId = "1268939";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279861900;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); GPGPU
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (November 2008)
+
+
+
+
+
+
+
+Please help improve this article or section by expanding it. Further information might be found on the talk page. (August 2008)
+
+
+General-purpose computing on graphics processing units (GPGPU, also referred to as GPGP and to a lesser extent GP²) is the technique of using a GPU, which typically handles computation only for computer graphics, to perform computation in applications traditionally handled by the CPU. It is made possible by the addition of programmable stages and higher precision arithmetic to the rendering pipelines, which allows software developers to use stream processing on non-graphics data.
+
+
+
+
+Contents
+
+
+1 GPU improvements
+
+1.1 Programmability
+1.2 Data types
+
+
+2 GPGPU programming concepts
+
+2.1 Stream processing
+2.2 GPU programming concepts
+
+2.2.1 Computational resources
+2.2.2 Textures as stream
+2.2.3 Kernels
+
+2.2.3.1 Flow control
+
+
+
+
+2.3 GPU techniques
+
+2.3.1 Map
+2.3.2 Reduce
+2.3.3 Stream filtering
+2.3.4 Scatter
+2.3.5 Gather
+2.3.6 Sort
+2.3.7 Search
+2.3.8 Data structures
+
+
+
+
+3 Applications
+4 Misconceptions
+5 References
+6 See also
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] GPU improvements
+GPU functionality has, traditionally, been very limited. In fact, for many years the GPU was only used to accelerate certain parts of the graphics pipeline. Some improvements were needed before GPGPU became feasible.
+
+[edit] Programmability
+Programmable vertex and fragment shaders were added to the graphics pipeline to enable game programmers to generate even more realistic effects. Vertex shaders allow the programmer to alter per-vertex attributes, such as position, color, texture coordinates, and normal vector. Fragment shaders are used to calculate the color of a fragment, or per-pixel. Programmable fragment shaders allow the programmer to substitute, for example, a lighting model other than those provided by default by the graphics card, typically simple Gouraud shading. Shaders have enabled graphics programmers to create lens effects, displacement mapping, and depth of field.
+The programmability of the pipelines have trended according to Microsoft’s DirectX specification[citation needed] , with DirectX8 introducing Shader Model 1.1, DirectX8.1 Pixel Shader Models 1.2, 1.3 and 1.4, and DirectX9 defining Shader Model 2.x and 3.0. Each shader model increased the programming model flexibilities and capabilities, ensuring the conforming hardware follows suit. The DirectX10 specification introduces Shader Model 4.0 which unifies the programming specification for vertex, geometry (“Geometry Shaders” are new to DirectX10) and fragment processing allowing for a better fit for unified shader hardware, thus providing a single computational pool of programmable resource.[vague]
+
+[edit] Data types
+Pre-DirectX9 graphics cards only supported paletted or integral color types[vague]. Various formats are available, each containing a red element, a green element, and a blue element[citation needed]. Sometimes an additional alpha value is added, to be used for transparency. Common formats are:
+
+8 bits per pixel – Palette mode[vague], where each value is an index in a table with the real color value specified in one of the other formats. Possibly 2 bits for red, 3 bits for green, and 3 bits for blue.
+16 bits per pixel – Usually allocated as 5 bits for red, 6 bits for green, and 5 bits for blue.
+24 bits per pixel – 8 bits for each of red, green, and blue
+32 bits per pixel – 8 bits for each of red, green, blue, and alpha
+
+For early fixed function or limited programmability graphics (i.e. up to and including DirectX8.1 compliant GPUs) this was sufficient because this is also the representation used in displays. This representation does have certain limitations, however. Given sufficient graphics processing power even graphics programmers would like to use better formats, such as floating point data formats, in order to obtain effects such as high dynamic range imaging. Many GPGPU applications require floating point accuracy, which came with graphics cards conforming to the DirectX9 specification.
+DirectX9 Shader Model 2.x suggested the support of two precision types: full and partial precision. Full precision support could either be FP32 and FP24 (floating point 24-bit per component) or greater, while partial precision was FP16. ATI’s R300 series of GPUs supported FP24 precision only in the programmable fragment pipeline (although FP32 was supported in the vertex processors) while Nvidia’s NV30 series supported both FP16 and FP32; other vendors such as S3 Graphics and XGI supported a mixture of formats up to FP24.
+Shader Model 3.0 altered the specification, increasing full precision requirements to a minimum of FP32 support in the fragment pipeline. ATI’s Shader Model 3.0 compliant R5xx generation (Radeon X1000 series) supports just FP32 throughout the pipeline while Nvidia’s NV4x and G7x series continued to support both FP32 full precision and FP16 partial precisions. Although not stipulated by Shader Model 3.0, both ATI and Nvidia’s Shader Model 3.0 GPUs introduced support for blendable FP16 render targets, easier facilitating the support for High Dynamic Range Rendering.[citation needed]
+The implementations of floating point on Nvidia GPUs are mostly IEEE compliant; however, this is not true across all vendors.[1] This has implications for correctness which are considered important to some scientific applications. While 64-bit floating point values (double precision float) are commonly available on CPUs, these are not universally supported on GPUs; some GPU architectures sacrifice IEEE-compliance while others lack double-precision altogether. There have been efforts to emulate double precision floating point values on GPUs; however, the speed tradeoff negates any benefit to offloading the computation onto the GPU in the first place.[2]
+Most operations on the GPU operate in a vectorized fashion: a single operation can be performed on up to four values at once. For instance, if one color <R1, G1, B1> is to be modulated by another color <R2, G2, B2>, the GPU can produce the resulting color <R1*R2, G1*G2, B1*B2> in a single operation. This functionality is useful in graphics because almost every basic data type is a vector (either 2, 3, or 4 dimensional). Examples include vertices, colors, normal vectors, and texture coordinates. Many other applications can put this to good use, and because of their higher performance, vector instructions (SIMD) have long been available on CPUs.
+In November 2006 Nvidia launched CUDA, a SDK and API that allows a programmer to use the C programming language to code algorithms for execution on Geforce 8 series GPUs. AMD offers a similar SDK for their ATI-based GPUs and that SDK and technology is called Stream SDK (formerly CTM, Close to Metal), designed to compete directly with Nvidia's CUDA. CTM provides a thin hardware interface[clarification needed]. AMD has also announced the AMD FireStream product line (combining CPU and GPU technology on one chip). Compared, for example, to traditional floating point accelerators such as the 64-bit CSX700 boards from ClearSpeed that are used in today's supercomputers, current top-end GPUs from Nvidia and AMD emphasize single-precision (32-bit) computation; double-precision (64-bit) computation executes much more slowly.
+
+[edit] GPGPU programming concepts
+GPUs are designed specifically for graphics and thus are very restrictive in terms of operations and programming. Because of their nature, GPUs are only effective at tackling problems that can be solved using stream processing and the hardware can only be used in certain ways.
+
+[edit] Stream processing
+Main article: Stream processing
+GPUs can only process independent vertices and fragments, but can process many of them in parallel. This is especially effective when the programmer wants to process many vertices or fragments in the same way. In this sense, GPUs are stream processors – processors that can operate in parallel by running a single kernel on many records in a stream at once.
+A stream is simply a set of records that require similar computation. Streams provide data parallelism. Kernels are the functions that are applied to each element in the stream. In the GPUs, vertices and fragments are the elements in streams and vertex and fragment shaders are the kernels to be run on them. Since GPUs process elements independently there is no way to have shared or static data. For each element we can only read from the input, perform operations on it, and write to the output. It is permissible to have multiple inputs and multiple outputs, but never a piece of memory that is both readable and writable[vague].
+Arithmetic intensity is defined as the operations performed per word of memory transferred. It is important for GPGPU applications to have high arithmetic intensity or memory access latency will limit computation speed.[citation needed]
+Ideal GPGPU applications have large data sets, high parallelism, and minimal dependency between data elements.
+
+[edit] GPU programming concepts
+
+[edit] Computational resources
+There are a variety of computational resources available on the GPU:
+
+Programmable processors – Vertex, primitive and fragment pipelines allow programmer to perform kernel on streams of data
+Rasterizer – creates fragments and interpolates per-vertex constants such as texture coordinates and color
+Texture Unit – read only memory interface
+Framebuffer – write only memory interface
+
+In fact, the programmer can substitute a write only texture for output instead of the framebuffer. This is accomplished either through Render-To-Texture (RTT), Render-To-Backbuffer-Copy-To-Texture(RTBCTT), or the more recent stream-out.
+
+[edit] Textures as stream
+The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs. Many computations naturally map into grids: matrix algebra, image processing, physically based simulation, and so on.
+Since textures are used as memory, texture lookups are then used as memory reads. Certain operations can be done automatically by the GPU because of this.
+
+[edit] Kernels
+Kernels can be thought of as the body of loops. For example, if the programmer were operating on a grid on the CPU they might have code that looked like this:
+
+/* Pseudocode */
+
+make array A[10000 by 10000]  // 100 million elements
+
+for x from 1..10000 {
+  for y from 1..10000 {
+    do_some_hard_work( A[x,y] )  // This function is called 100 million times in sequence
+  }
+}
+
+On the GPU, the programmer only specifies the body of the loop as the kernel and what data to loop over by invoking geometry processing.
+
+[edit] Flow control
+In sequential code it is possible to control the flow of the program using if-then-else statements and various forms of loops. Such flow control structures have only recently been added to GPUs.[3] Conditional writes could be accomplished using a series of simpler instructions[vague], but looping and conditional branching were not possible.
+Recent GPUs allow branching, but usually with a performance penalty. Branching should generally be avoided in inner loops, whether in CPU or GPU code, and various techniques, such as static branch resolution, pre-computation, and Z-cull[4] can be used to achieve branching when hardware support does not exist.
+
+[edit] GPU techniques
+
+[edit] Map
+The map operation simply applies the given function (the kernel) to every element in the stream. A simple example is multiplying each value in the stream by a constant (increasing the brightness of an image). The map operation is simple to implement on the GPU. The programmer generates a fragment for each pixel on screen and applies a fragment program to each one. The result stream of the same size is stored in the output buffer.
+
+[edit] Reduce
+Some computations require calculating a smaller stream (possibly a stream of only 1 element) from a larger stream. This is called a reduction of the stream. Generally a reduction can be accomplished in multiple steps. The results from the previous step are used as the input for the current step and the range over which the operation is applied is reduced until only one stream element remains.
+
+[edit] Stream filtering
+Stream filtering is essentially a non-uniform reduction. Filtering involves removing items from the stream based on some criteria.
+
+[edit] Scatter
+The scatter operation is most naturally defined on the vertex processor. The vertex processor is able to adjust the position of the vertex, which allows the programmer to control where information is deposited on the grid. Other extensions are also possible, such as controlling how large an area the vertex affects.
+The fragment processor cannot perform a direct scatter operation because the location of each fragment on the grid is fixed at the time of the fragment's creation and cannot be altered by the programmer. However, a logical scatter operation may sometimes be recast or implemented with an additional gather step. A scatter implementation would first emit both an output value and an output address. An immediately following gather operation uses address comparisons to see whether the output value maps to the current output slot.
+
+[edit] Gather
+The fragment processor is able to read textures in a random access fashion, so it can gather information from any grid cell, or multiple grid cells, as desired[vague].
+
+[edit] Sort
+The sort operation transforms an unordered set of elements into an ordered set of elements. The most common implementation on GPUs is using sorting networks.[4]
+
+[edit] Search
+The search operation allows the programmer to find a particular element within the stream, or possibly find neighbors of a specified element. The GPU is not used to speed up the search for an individual element, but instead is used to run multiple searches in parallel.[citation needed]
+
+[edit] Data structures
+A variety of data structures can be represented on the GPU:
+
+Dense arrays
+Sparse arrays – static or dynamic
+Adaptive structures
+
+
+[edit] Applications
+The following are some of the areas where GPUs have been used for general purpose computing:
+
+Computer clusters or a variation of a parallel computing (utilizing GPU cluster technology) for highly calculation-intensive tasks:
+
+High-performance clusters (HPC) (often referred to as supercomputers)
+
+including cluster technologies like Message Passing Interface, and single-system image (SSI), distributed computing, and Beowulf
+
+
+Grid computing (a form of distributed computing) (networking many heterogeneous computers to create a virtual computer architecture)
+Load-balancing clusters (sometimes referred to as a server farm)
+
+
+Physical based simulation and physics engines (usually based on Newtonian physics models)
+
+Conway's Game of Life, cloth simulation, incompressible fluid flow by solution of Navier-Stokes equations
+
+
+Lattice gauge theory
+Segmentation – 2D and 3D
+Level-set methods
+CT reconstruction
+Fast Fourier transform
+Tone mapping
+Audio signal processing
+
+Audio and Sound Effects Processing, to use a GPU for DSP (digital signal processing)
+Analog signal processing
+Speech processing
+
+
+Digital image processing
+Video Processing
+
+Hardware accelerated video decoding and post-processing
+
+Motion compensation (mo comp)
+Inverse discrete cosine transform (iDCT)
+Variable-length decoding (VLD)
+Inverse quantization (IQ)
+In-loop deblocking
+Bitstream processing (CAVLC/CABAC)
+Deinterlacing
+
+Spatial-temporal de-interlacing
+
+
+Noise reduction
+Edge enhancement
+Color correction
+
+
+Hardware accelerated video encoding and pre-processing
+
+
+Raytracing
+Global illumination – photon mapping, radiosity, subsurface scattering
+Geometric computing – constructive solid geometry, distance fields, collision detection, transparency computation, shadow generation
+Scientific computing
+
+Weather forecasting
+Climate research
+Molecular modeling on GPU
+Quantum mechanical physics
+
+
+Bioinformatics[5][6]
+Computational finance
+Medical imaging
+Computer vision
+Digital signal processing / signal processing
+Control engineering
+Neural networks
+Database operations[7]
+Lattice Boltzmann methods
+Cryptography and cryptanalysis
+
+Implementation of MD6
+
+
+
+
+[edit] Misconceptions
+While GPGPU can achieve a 100-250x speedup vs a single CPU, only embarrassingly parallel applications will see this kind of benefit[citation needed]. A single GPU processing core is not equivalent to a single processing core found in a desktop CPU.
+
+[edit] References
+
+
+^ Mapping computational concepts to GPUs: Mark Harris. Mapping computational concepts to GPUs. In ACM SIGGRAPH 2005 Courses (Los Angeles, California, July 31 – August 4, 2005). J. Fujii, Ed. SIGGRAPH '05. ACM Press, New York, NY, 50.
+^ Double precision on GPUs (Proceedings of ASIM 2005): Dominik Goddeke, Robert Strzodka, and Stefan Turek. Accelerating Double Precision (FEM) Simulations with (GPUs). Proceedings of ASIM 2005 – 18th Symposium on Simulation Technique, 2005.
+^ GPU Gems - Chapter 34, GPU Flow-Control Idioms
+^ a b GPGPU survey paper: John D. Owens, David Luebke, Naga Govindaraju, Mark Harris, Jens Krüger, Aaron E. Lefohn, and Tim Purcell. "A Survey of General-Purpose Computation on Graphics Hardware". Computer Graphics Forum, volume 26, number 1, 2007, pp. 80-113.
+^ Schatz, M.C., Trapnell, C., Delcher, A.L., Varshney, A. (2007) High-throughput sequence alignment using Graphics Processing Units. BMC Bioinformatics 8:474.
+^ Svetlin A. Manavski, Giorgio Valle (2008). "CUDA compatible GPU cards as efficient hardware accelerators for Smith-Waterman sequence alignment". [1] BMC Bioinformatics 9(Suppl 2):S10. 
+^ http://www.cs.cmu.edu/afs/cs.cmu.edu/Web/People/ngm/15-823/project/Final.pdf
+
+
+
+[edit] See also
+
+Graphics processing unit
+
+Comparison of ATI graphics processing units
+Comparison of Nvidia graphics processing units
+Graphics pipeline
+Graphics card
+
+
+Stream processing
+BrookGPU
+Physics engine is a computer program or that simulates Newtonian physics (on CPU, GPU or PPU)
+
+Physics processing unit
+List of games using physics engines
+
+
+Havok Physics / Havok FX, commercial physics engine middleware SDK for computer and video games
+PhysX SDK, commercial realtime physics engine middleware SDK developed by AGEIA
+
+AGEIA also designed a dedicated physics processing unit expansion card designed to accelerate the PhysX SDK
+
+
+GPU programming libraries/layers:
+
+Close to Metal, now called Stream, AMD/ATI's GPGPU technology for ATI Radeon-based GPUs
+CUDA (Compute Unified Device Architecture), Nvidia's GPGPU technology for Nvidia GeForce-based GPUs
+Sh, a GPGPU library for C++
+OpenCL (Open Computing Language), Apple's GPU utilization introduced in Mac OS X v10.6 ‘Snow Leopard’
+
+
+Audio processing unit (DSP can also be done on a GPU with GPGPU technology)
+Elemental Technologies
+Acceleware
+Brahma - open-source library written for the .NET 3.5 framework (in C# 3.0), to provide high-level. Its focus is GPGPU.
+List of emerging technologies
+
+
+[edit] External links
+
+General-Purpose Computation Using Graphics Hardware
+GPGPU Wiki
+SIGGRAPH 2005 GPGPU Course Notes
+IEEE VIS 2005 GPGPU Course Notes
+http://developer.nvidia.com
+http://www.atitech.com/developer
+Ascalaph Liquid GPU molecular dynamics.
+C# Backpropagation library written for GPU
+Slideshow for ATI GPGPU physics demonstration by Stanford grad student Mike Houston See p.13 for overview of mapping of conventional program tasks to GPU hardware.
+Tech Report article: "ATI stakes claims on physics, GPGPU ground" by Scott Wasson
+http://www.elementaltechnologies.com
+http://www.acceleware.com
+http://www.vision4ce.com/ ruggeded PC with GPGPU accelerated image and signal processing
+GPGPU in Israel
+http://www.gpu4vision.org GPGPU Publications, Videos and Software
+
+
+
+
+
+
+
+
+v • d • e
+
+CPU technologies
+
+
+
+
+
+Architecture
+
+ISA : CISC  · EDGE  · EPIC · MISC  · OISC · RISC · VLIW · ZISC · Harvard architecture · Von Neumann architecture · 8-bit · 32-bit · 64-bit · 128-bit
+
+
+
+
+
+
+Parallelism
+
+
+
+
+
+Pipeline
+
+
+Instruction pipelining · In-Order & Out-of-Order execution · Register renaming · Speculative execution
+
+
+
+
+
+
+
+Level
+
+
+Bit · Instruction · Superscalar · Data · Task
+
+
+
+
+
+
+
+Threads
+
+
+Multithreading · Simultaneous multithreading · Hyperthreading · Superthreading
+
+
+
+
+
+
+
+Flynn's taxonomy
+
+
+SISD · SIMD · MISD · MIMD
+
+
+
+
+
+
+
+
+
+Types
+
+Digital signal processor · Microcontroller · System-on-a-chip · Vector processor
+
+
+
+
+
+
+Components
+
+Arithmetic logic unit (ALU) · Barrel shifter · Floating-point unit (FPU) · Backside bus · Multiplexer · Demultiplexer · Registers · Memory management unit (MMU) · Translation lookaside buffer (TLB) · Cache · register file · microcode · control unit · CPU clock
+
+
+
+
+
+
+Power management
+
+APM · ACPI (states) · Dynamic frequency scaling · Dynamic voltage scaling · Clock gating
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Parallel computing topics
+
+
+
+
+
+General
+
+High-performance computing  · Cluster computing  · Distributed computing  · Grid computing
+
+
+
+
+
+
+Parallelism (levels)
+
+Bit · Instruction  · Data  · Task
+
+
+
+
+
+
+Threads
+
+Superthreading · Hyperthreading
+
+
+
+
+
+
+Theory
+
+Amdahl's law  · Gustafson's law  · Cost efficiency · Karp-Flatt metric  · slowdown  · speedup
+
+
+
+
+
+
+Elements
+
+Process · Thread · Fiber · PRAM
+
+
+
+
+
+
+Coordination
+
+Multiprocessing · Multithreading · Memory coherency · Cache coherency · Barrier · Synchronization  · Application checkpointing
+
+
+
+
+
+
+Programming
+
+Models (Implicit parallelism · Explicit parallelism  · Concurrency)  · Flynn's taxonomy (SISD • SIMD • MISD • MIMD)
+
+
+
+
+
+
+Hardware
+
+Multiprocessing (Symmetric  · Asymmetric)  · Memory (NUMA  · COMA  · distributed  · shared  · distributed shared)  · SMT
+MPP  · Superscalar  · Vector processor  · Supercomputer · Beowulf
+
+
+
+
+
+
+APIs
+
+POSIX Threads · OpenMP · MPI · UPC · Intel Threading Building Blocks · Boost.Thread · Global Arrays · Charm++
+
+
+
+
+
+
+Problems
+
+Embarrassingly parallel · Grand Challenge · Software lockout
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/GPGPU"
+Categories: Computational science | Graphics hardware | Graphics cards | Instruction processing | Parallel computing | Video game development | GPGPUHidden categories: Articles lacking in-text citations | Articles to be expanded since August 2008 | All articles to be expanded | All articles with unsourced statements | Articles with unsourced statements since February 2007 | All pages needing cleanup | Wikipedia articles needing clarification from March 2008 | Articles with unsourced statements since February 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Deutsch
+Español
+Français
+한국어
+Italiano
+עברית
+日本語
+Русский
+Türkçe
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 26 March 2009, at 20:03.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,562 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Multiplication algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Multiplication_algorithm";
+		var wgTitle = "Multiplication algorithm";
+		var wgAction = "view";
+		var wgArticleId = "57411";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280333199;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Multiplication algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A multiplication algorithm is an algorithm (or method) to multiply two numbers. Depending on the size of the numbers, different algorithms are in use. Efficient multiplication algorithms have been around since the advent of the decimal system.
+
+
+
+
+Contents
+
+
+1 Long multiplication
+
+1.1 Example
+1.2 Space complexity
+
+
+2 Lattice multiplication
+
+2.1 Example
+
+
+3 Peasant or binary multiplication
+
+3.1 Examples
+
+
+4 Shift and add
+5 Multiplication algorithms for computer algebra
+
+5.1 Karatsuba multiplication
+5.2 Toom–Cook
+5.3 Fourier transform methods
+5.4 Quarter square multiplier
+5.5 Polynomial multiplication
+
+
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Long multiplication
+If a positional numeral system is used, a natural way of multiplying numbers is taught in schools as long multiplication, sometimes called grade-school multiplication: multiply the multiplicand by each digit of the multiplier and then add up all the properly shifted results. It requires memorization of the multiplication table for single digits.
+Humans usually use this algorithm in base 10. Computers usually use a very similar shift and add algorithm in base 2. Humans doing long multiplication on paper will write down all the products and then add them together; computers (and abacus operators) will sum the products as soon as each one is computed.
+Some chips implement this algorithm for various integer and floating-point sizes in hardware or in microcode. In arbitrary-precision arithmetic, it's common to use long multiplication with the base set to 2w, where w is the number of bits in a word, for multiplying relatively small numbers.
+To multiply two numbers with n digits using this method, one needs about n2 operations. More formally: using a natural size metric of number of digits, the time complexity of multiplying two n-digit numbers using long multiplication is Θ(n2).
+When implemented in software, long multiplication algorithms have to deal with overflow during additions, which can be expensive. For this reason, a typical approach is to represent the number in a small base b such that, for example, 8b2 is a representable machine integer (for example Richard Brent used this approach in his Fortran package MP[1]); we can then perform several additions before having to deal with overflow. When the number becomes too large, we add part of it to the result or carry and map the remaining part back to a number less than b; this process is called normalization.
+
+[edit] Example
+This example uses long multiplication to multiply 23,958,233 (multiplicand) by 5,830 (multiplier) and arrives at 139,676,498,390 for the result (product).
+
+        23958233
+            5830 ×
+    ------------
+        00000000 (= 23,958,233 ×     0)
+       71874699  (= 23,958,233 ×    30)
+     191665864   (= 23,958,233 ×   800)
+    119791165    (= 23,958,233 × 5,000)
+    ------------
+    139676498390 (= 139,676,498,390)
+
+
+[edit] Space complexity
+Let n be the total number of bits in the two input numbers. Long multiplication has the advantage that it can easily be formulated as a log space algorithm; that is, an algorithm that only needs working space proportional to the logarithm of the number of digits in the input (Θ(log n)). This is the double logarithm of the numbers being multiplied themselves (log log N). We don't include the input or output bits in this measurement, since that would trivially make the space requirement linear; instead we make the input bits read-only and the output bits write-only. (This just means that input and output bits are not counted as we only count read- AND writable bits. )
+The method is simple: we add the columns right-to-left, keeping track of the carry as we go. We don't have to store the columns to do this. To show this, let the ith bit from the right of the first and second operands be denoted ai and bi respectively, both starting at i=0, and let ri be the ith bit from the right of the result. Then:
+
+
+ri = c +
+∑
+ajbk,
+
+
+
+j + k = i
+
+
+
+where c is the carry from the previous column. Provided neither c nor the total sum exceed log space, we can implement this formula in log space, since the indexes j and k each have O(log n) bits.
+A simple inductive argument shows that the carry can never exceed n and the total sum for ri can never exceed 2n: the carry into the first column is zero, and for all other columns, there are at most n bits in the column, and a carry of at most n coming in from the previous column (by the induction hypothesis). Their sum is at most 2n, and the carry to the next column is at most half of this, or n. Thus both these values can be stored in O(log n) bits.
+In pseudocode, the log-space algorithm is:
+
+multiply(a[0..n-1], b[0..n-1]) // Arrays representing the binary representations
+    x ← 0
+    for i from 0 to 2n-1
+        for j from 0 to i
+            k ← i - j
+            x ← x + (a[j] × b[k])
+        result[i] ← x mod 2
+        x ← floor(x/2)
+
+
+[edit] Lattice multiplication
+
+
+
+
+First, set up the grid by marking its rows and columns with the numbers to be multiplied. Then, fill in the boxes with tens digits in the top triangles and units digits on the bottom.
+
+
+
+
+
+
+Finally, sum along the diagonal tracts and carry as needed to get the answer
+
+
+Lattice, or sieve, multiplication is algorithmically equivalent to long multiplication. It requires the preparation of a lattice (a grid drawn on paper) which guides the calculation and separates all the multiplications from the additions. It was introduced to Europe in 1202 in Fibonacci's Liber Abaci. Leonardo described the operation as mental, using his right and left hands to carry the intermediate calculations. Napier's bones, or Napier's rods also used this method, as published by Napier in 1617, the year of his death.
+As shown in the example, the multiplicand and multiplier are written above and to the right of a lattice, or a sieve. It is found in Muhammad ibn Musa al-Khwarizmi's "Arithmetic", one of Leonardo's sources mentioned by Sigler, author of "Fibonacci's Liber Abaci", 2002.
+
+During the multiplication phase, the lattice is filled in with two-digit products of the corresponding digits labeling each row and column: the tens digit goes in the top-left corner.
+During the addition phase, the lattice is summed on the diagonals.
+Finally, if a carry phase is necessary, the answer as shown along the left and bottom sides of the lattice is converted to normal form by carrying ten's digits as in long addition or multiplication.
+
+
+[edit] Example
+The pictures on the right show how to calculate 345 × 12 using lattice multiplication. As a more complicated example, consider the picture below displaying the computation of 23,958,233 multiplied by 5,830 (multiplier); the result is 139,676,498,390. Notice 23,958,233 is along the top of the lattice and 5,830 is along the right side. The products fill the lattice and the sum of those products (on the diagonal) are along the left and bottom sides. Then those sums are totaled as shown.
+
+
+
+
+     2   3   9   5   8   2   3   3
+   +---+---+---+---+---+---+---+---+-
+   |1 /|1 /|4 /|2 /|4 /|1 /|1 /|1 /|
+   | / | / | / | / | / | / | / | / | 5
+ 01|/ 0|/ 5|/ 5|/ 5|/ 0|/ 0|/ 5|/ 5|
+   +---+---+---+---+---+---+---+---+-
+   |1 /|2 /|7 /|4 /|6 /|1 /|2 /|2 /|
+   | / | / | / | / | / | / | / | / | 8
+ 02|/ 6|/ 4|/ 2|/ 0|/ 4|/ 6|/ 4|/ 4|
+   +---+---+---+---+---+---+---+---+-
+   |0 /|0 /|2 /|1 /|2 /|0 /|0 /|0 /|
+   | / | / | / | / | / | / | / | / | 3
+ 17|/ 6|/ 9|/ 7|/ 5|/ 4|/ 6|/ 9|/ 9|
+   +---+---+---+---+---+---+---+---+-
+   |0 /|0 /|0 /|0 /|0 /|0 /|0 /|0 /|
+   | / | / | / | / | / | / | / | / | 0
+ 24|/ 0|/ 0|/ 0|/ 0|/ 0|/ 0|/ 0|/ 0|
+   +---+---+---+---+---+---+---+---+-
+     26  15  13  18  17  13  09  00
+
+
+
+01           
+002          
+0017         
+00024        
+000026       
+0000015      
+00000013     
+000000018    
+0000000017   
+00000000013  
+000000000009 
+0000000000000
+=============
+ 139676498390
+
+
+
+
+
+= 139,676,498,390
+
+
+
+
+A Powerpoint presentation about ancient mathematics
+
+
+[edit] Peasant or binary multiplication
+Main article: Peasant multiplication
+In base 2, long multiplication reduces to a nearly trivial operation. For each '1' bit in the multiplier, shift the multiplicand an appropriate amount and then sum the shifted values. Depending on computer processor architecture and choice of multiplier, it may be faster to code this algorithm using hardware bit shifts and adds rather than depend on multiplication instructions, when the multiplier is fixed and the number of adds required is small.
+This algorithm is also known as Peasant multiplication, because it has been widely used among those who are unschooled and thus have not memorized the multiplication tables required by long multiplication. The algorithm was also in use in ancient Egypt.
+On paper, write down in one column the numbers you get when you repeatedly halve the multiplier, ignoring the remainder; in a column beside it repeatedly double the multiplicand. Cross out each row in which the last digit of the first number is even, and add the remaining numbers in the second column to obtain the product.
+The main advantages of this method are that it can be taught quickly, no memorization is required, and it can be performed using tokens such as poker chips if paper and pencil are not available. It does however take more steps than long multiplication so it can be unwieldy when large numbers are involved.
+
+[edit] Examples
+This example uses peasant multiplication to multiply 11 by 3 to arrive at a result of 33.
+
+11   3
+5    6
+2   12
+1   24
+   ---
+    33
+
+Describing the steps explicitly:
+
+11 and 3 are written at the top
+11 is halved (5.5) and 3 is doubled (6). The fractional portion is discarded (5.5 becomes 5).
+5 is halved (2.5) and 6 is doubled (12). The fractional portion is discarded (2.5 becomes 2). The figure in the left column (2) is even, so the figure in the right column (12) is discarded.
+2 is halved (1) and 12 is doubled (24).
+All not-scratched-out values are summed: 3 + 6 + 24 = 33.
+
+The method works because multiplication is distributive, so:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+A more complicated example, using the figures from the earlier examples (23,958,233 and 5,830):
+
+5830  23958233
+2915  47916466
+1457  95832932
+728  191665864
+364  383331728
+182  766663456
+91  1533326912
+45  3066653824
+22  6133307648
+11 12266615296
+5  24533230592
+2  49066461184
+1  98132922368
+  ------------
+  139676498390
+
+
+Video of a simple multiplication
+
+
+[edit] Shift and add
+Most computers use a "shift and add" algorithm for multiplying small integers. Both base 2 long multiplication and base 2 peasant multiplication reduce to this same algorithm.
+In base 2, multiplying by the single digit of the multiplier reduces to a simple series of logical AND operations. Each partial product is added to a running sum as soon as each partial product is computed. Most currently available microprocessors implement this or other similar algorithms (such as Booth encoding) for various integer and floating-point sizes in hardware or in microcode.
+Even on those processors however bit-wise shifts are faster and can be used to multiply (shift left) and divide (shift right) by powers of two. In some cases even sequences of shifts and adds (an example for multiplication by 10 is to first multiply by five with one two-bit-shift and one addition, and then do another one-bit left shift) will still outperform hardware multipliers and especially dividers. These sequences have to be used always for computers that do not have a "multiply" instruction[2], and can also be used by extension to floating point numbers if one replaces the shifts with computation of 2*x as x+x.
+
+[edit] Multiplication algorithms for computer algebra
+
+[edit] Karatsuba multiplication
+Main article: Karatsuba algorithm
+For systems that need to multiply numbers in the range of several thousand digits, such as computer algebra systems and bignum libraries, long multiplication is too slow. These systems may employ Karatsuba multiplication, which was discovered in 1960 (published in 1962). The heart of Karatsuba's method lies in the observation that two-digit multiplication can be done with only three rather than the four multiplications classically required. Suppose we want to multiply two 2-digit numbers: x1x2· y1y2:
+
+compute x1 · y1, call the result A
+compute x2 · y2, call the result B
+compute (x1 + x2) · (y1 + y2), call the result C
+compute C − A − B,call the result "K"; this number is equal to x1 · y2 + x2 · y1.
+compute A · 100 + K · 10 + B
+
+Bigger numbers x1x2 can be split into two parts x1 and x2. Then the method works analogously. To compute these three products of m-digit numbers, we can employ the same trick again, effectively using recursion. Once the numbers are computed, we need to add them together (step 5.), which takes about n operations.
+Karatsuba multiplication has a time complexity of Θ. The number (log23) is approximately 1.585, so this method is significantly faster than long multiplication. Because of the overhead of recursion, Karatsuba's multiplication is slower than long multiplication for small values of n; typical implementations therefore switch to long multiplication if n is below some threshold.
+Later the Karatsuba method was called ‘divide and conquer’, the other names of this method, used at the present, are ‘binary splitting’ and ‘dichotomy principle’.
+The appearance of the method ‘divide and conquer’ was the starting point of the theory of fast multiplications. A number of authors (among them Toom, Cook and Schönhage) continued to look for an algorithm of multiplication with the complexity close to the optimal one, and 1971 saw the construction of the Schönhage-Strassen algorithm, which has the best known (at present) upper bound for M(n).
+The Karatsuba ‘divide and conquer’ is the most fundamental and general fast method. Hundreds of different algorithms are constructed on its basis. Among these algorithms the most well known are the algorithms based on Fast Fourier Transform (FFT) and Fast Matrix Multiplication.
+
+[edit] Toom–Cook
+Main article: Toom–Cook multiplication
+Another method of multiplication is called Toom–Cook or Toom-3. The Toom–Cook method splits each number to be multiplied into multiple parts. The Toom–Cook method is one of the generalizations of the Karatsuba method. A three-way Toom–Cook can do a size-N3 multiplication for the cost of five size-N multiplications, improvement by a factor of 9/5 compared to the Karatsuba method's improvement by a factor of 4/3.
+Although using more and more parts can reduce the time spent on recursive multiplications further, the overhead from additions and digit management also grows. For this reason, the method of Fourier transforms is typically faster for numbers with several thousand digits, and asymptotically faster for even larger numbers.
+
+
+[edit] Fourier transform methods
+The idea, due to Strassen (1968), is the following: We choose the largest integer w that will not cause overflow during the process outlined below. Then we split the two numbers into m groups of w bits :
+ and 
+We can then say that
+
+by setting bj=0 and ai=0 for j, i > m, k=i+j and {ck} as the convolution of {ai} and {bj}. Using the convolution theorem ab can be computed by
+
+Computing the fast Fourier transforms of {ai} and {bj},
+Multiplying the two results entry by entry,
+Computing the inverse Fourier transform and
+Adding the part of ck that is greater than 2w to ck+1
+
+For many years, the fastest known method based on this idea was described in 1971 by Schönhage and Strassen (Schönhage-Strassen algorithm) and has a time complexity of Θ(n ln(n) ln(ln(n))). In 2007 this was improved by Martin Fürer (Fürer's algorithm) to give a time complexity of Θ(n ln(n) 2Θ(ln*(n))).
+Applications of the Schönhage-Strassen algorithm include GIMPS.
+Using number-theoretic transforms instead of discrete Fourier transforms avoids rounding error problems by using modular arithmetic instead of complex numbers.
+
+[edit] Quarter square multiplier
+This is any device that multiplies two quantities employing the identity,
+
+Quarter square multipliers were first used to form an analog signal that was the product of two analog input signals in analog computers. In this application, the sum and difference of two input voltages are formed using operational amplifiers. The square of each of these is approximated using piecewise linear circuits. Finally the the difference of the two squares is formed and scaled by a factor of one fourth using yet another operational amplifier.
+In 1980, Everett L. Johnson proposed a method of using the quarter square method in a digital multiplier.[3] To form the product of two 8-bit integers, for example, the digital device forms the sum and difference, looks both quantities up in a table of squares, takes the difference of the results, and divides by four by shifting two bits to the right. The difficulty with this, though, is that the sum of two 8-bit integers can span as many as 9 bits. Hence the table of squares would have to be twice nine, that is 18 bits wide. Computer memories are typically available in widths of 8 or 16 bits. An 18 bit wide table of squares does not fit conveniently into such memories. Johnson proposed that, rather than providing squares, the table should provide for the lookup of n2/4 given n, discarding the remainder when n is odd. In this way, entries in such a table for n from 0 to 510 (the possible range of the sum of two 8-bit integers) would never be wider than 16 bits. Using a table in this form also removes the need for dividing by 4 at the end. A simple algebraic proof shows that the discarded remainder would have canceled when the final difference is taken, so no accuracy is lost by discarding the remainders.
+Below is a lookup table for applying Johnson's method on the digits, 0 through 9.
+
+
+n  
+  0
+  1
+  2
+  3
+  4
+  5
+  6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+
+
+n2/4
+0
+0
+1
+2
+4
+6
+9
+12
+16
+20
+25
+30
+36
+42
+49
+56
+64
+72
+81
+
+
+If, for example, you wanted to multiply 9 by 3, you observe that the sum and difference are 12 and 6 respectively. Looking both those values up on the table yields 36 and 9, the difference of which is 27, which is the product of 9 and 3.
+
+[edit] Polynomial multiplication
+
+
+
+This section requires expansion.
+
+
+All the above multiplication algorithms can also be expanded to multiply polynomials.
+
+[edit] See also
+
+Slide rule
+Prosthaphaeresis
+Binary multiplier
+Trachtenberg system
+Mental calculation
+
+
+[edit] References
+
+^ Richard P. Brent. A Fortran Multiple-Precision Arithmetic Package. Australian National University. March 1978.
+^ "Novel Methods of Integer Multiplication and Division" by G. Reichborn-Kjennerud
+^ Everett L., Johnson (March, 1980), "A Digital Quarter Square Multiplier", IEEE Transactions on Computers (Washington, DC, USA: IEEE Computer Society) C-29 (3): 258-261, ISSN 0018-9340, http://www2.computer.org/portal/web/csdl/doi/10.1109/TC.1980.1675558, retrieved on 2009-03-26 
+
+
+[edit] External links
+Basic arithmetic:
+
+The Many Ways of Arithmetic in UCSMP Everyday Mathematics
+
+Advanced algorithms:
+
+Multiplication Algorithms used by GMP
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Multiplication_algorithm"
+Categories: Arbitrary precision algorithms | MultiplicationHidden categories: Articles to be expanded since October 2008 | All articles to be expanded 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Español
+Français
+Italiano
+Türkçe
+
+
+
+
+
+
+
+
+
+ This page was last modified on 29 March 2009, at 02:09.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

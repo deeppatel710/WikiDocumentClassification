@@ -1,0 +1,354 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Classpath (Java) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Classpath_(Java)";
+		var wgTitle = "Classpath (Java)";
+		var wgAction = "view";
+		var wgArticleId = "6328370";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 276464803;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Classpath (Java)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about the argument on the command line of Java programs. For the Free Software Foundation's implementation of the Java standard library, see GNU Classpath.
+The Classpath is an argument set on the command-line, or through an environment variable, that tells the Java Virtual Machine where to look for user-defined classes and packages in Java programs.
+
+
+
+
+Contents
+
+
+1 Overview and Architecture
+2 Setting the path to execute Java programs
+
+2.1 Basic usage
+2.2 Setting the path through an environment variable
+2.3 Setting the path of a Jar file
+2.4 Setting the path in a Manifest file
+
+
+3 OS specific notes
+4 See also
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview and Architecture
+See also: Java Classloader
+Similar to the classic dynamic loading behavior, when executing Java programs, the Java Virtual Machine finds and loads classes lazily (the bytecode of a class is loaded only when this class is first used). The classpath tells java where to look on the filesystem for files defining these classes.
+The virtual machine searches and loads classes in this order:
+
+Bootstrap classes: the classes that are fundamental to the Java Platform (comprising the public classes of the Java Class Library, and the private classes that are necessary for this library to be functional).
+Extension classes: packages that are in the extension directory of the JRE or JDK.
+User-defined packages and libraries
+
+By default only the packages of the JDK standard API and extension packages are accessible without needing to set where to find them. The path for all user-defined packages and libraries must be set in the command-line (or in the Manifest associated with the Jar file containing the classes).
+
+[edit] Setting the path to execute Java programs
+
+[edit] Basic usage
+Suppose we have a package called org.mypackage containing the classes:
+
+HelloWorld (main class),
+SupportClass,
+UtilClass.
+
+and the files defining this package is stored physically under the directory D:\myprogram (on Windows).
+The file structure will look like this:
+
+D:\myprogram\
+      |
+      ---> org\  
+            |
+            ---> mypackage\
+                     |
+                     ---> HelloWorld.class       
+                     ---> SupportClass.class   
+                     ---> UtilClass.class     
+
+When we invoke java, we specifiy the name of the application to run: org.mypackage.HelloWorld. However we must also tell java where to look for the files and directories defining our package. So to launch the program, we use the following command :
+
+java -classpath D:\myprogram org.mypackage.HelloWorld
+
+where :
+
+-classpath D:\myprogram set the path to the packages used in the program
+org.mypackage.HelloWorld is the name of the main class
+
+Note that if we ran java in D:\myprogram\ then we would not need to specify the classpath since java implicitly looks in the current working directory for files containing classes.
+
+[edit] Setting the path through an environment variable
+The Environment variable named CLASSPATH may be alternatively used to set the Classpath. For the above example, we could also use on Windows :
+
+set CLASSPATH=D:\myprogram
+java org.mypackage.HelloWorld
+
+
+[edit] Setting the path of a Jar file
+Now, suppose the program uses a supporting library enclosed in a Jar file called supportLib.jar, physically in the directory D:\myprogram\lib\.
+The corresponding physical file structure is :
+
+D:\myprogram\
+      |
+      ---> lib\
+            |
+            ---> supportLib.jar
+                      |
+                      ---> org\
+                            |
+                            ---> mypackage\/
+                                     |
+                                     ---> HelloWorld.class
+                                     ---> SupportClass.class
+                                     ---> UtilClass.class
+
+We should use the following command-line option :
+
+java -classpath D:\myprogram;D:\myprogram\lib\supportLib.jar 
+     org.mypackage.HelloWorld
+
+or alternatively :
+
+set CLASSPATH=D:\myprogram;D:\myprogram\lib\supportLib.jar
+java org.mypackage.HelloWorld
+
+
+[edit] Setting the path in a Manifest file
+Suppose that our program has been enclosed in a Jar file called helloWorld.jar, put directly in the D:\myprogram directory. We have the following file structure:
+
+D:\myprogram\
+      |
+      ---> helloWorld.jar 
+      |
+      -----------> lib\  
+                    |
+                    ---> supportLib.jar
+
+The manifest file defined in this Jar file has this definition:
+
+Main-Class: org.mypackage.HelloWorld
+Class-Path: lib/supportLib.jar
+
+
+Note: It's important that the manifest file ends with either a new line or carriage return.
+Also, note that the classpath string in this case describes the location of the supportLib.jar file relative to the location of the helloWorld.jar file, and not as an absolute file path (as it might be when setting the -classpath parameter on the command line, for example). Thus, the actual locations of the jar file and its support library are irrelevant so long as the relative directory structure between the two is preserved.
+To launch the program, we can use the following command:
+
+java -jar D:\myprogram\helloWorld.jar
+
+It is not necessary to define the Main class at launch, the Classpath to the program classes, and the support library classes, because they are already defined in the manifest file.
+The syntax for specifying multiple library JAR files in the manifest file is to separate the entries with a space:
+
+Class-Path: lib/supportLib.jar lib/supportLib2.jar
+
+
+[edit] OS specific notes
+Being closely associated with the file system, the command-line Classpath syntax depends on the operating system. For example :
+
+on Linux, Mac OS X, and more generally on all Unix-like operating systems, the directory structure has a Unix syntax, and each filepath must be separated by a colon (":").
+on Windows, the directory structure has a Windows syntax, and each filepath must be separated by a semicolon (";").
+
+This does not apply when the Classpath is defined in Manifest files, where each filepath must be separated by a space (" "), regardless of the operating system.
+
+[edit] See also
+
+Java Classloader
+Java package
+Jar file format
+Java programming language
+Manifest files
+
+
+[edit] References
+
+
+[edit] External links
+
+Note explaining how Java classes are found, on Sun website
+Specification of how to set the Classpath on Sun site
+Tutorial on using Classpath for compiling Java programs
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Classpath_(Java)"
+Categories: Java platform 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+Español
+
+
+
+
+
+
+
+
+
+ This page was last modified on 11 March 2009, at 06:57 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

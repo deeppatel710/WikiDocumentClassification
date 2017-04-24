@@ -1,0 +1,283 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+IEEE 802.1Q - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "IEEE_802.1Q";
+		var wgTitle = "IEEE 802.1Q";
+		var wgAction = "view";
+		var wgArticleId = "1379565";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281778112;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); IEEE 802.1Q
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+IEEE 802.1Q (also known as VLAN Tagging) was a project in the IEEE 802 standards process to develop a mechanism to allow multiple bridged networks to transparently share the same physical network link without leakage of information between networks. IEEE 802.1Q is also the name of the standard issued by this process, and in common usage the name of the encapsulation protocol used to implement this mechanism over Ethernet networks.
+IEEE 802.1Q also defines the meaning of a virtual LAN or VLAN with respect to the specific conceptual model underpinning bridging at the MAC layer and to the IEEE 802.1D spanning tree protocol. This protocol allows for individual VLANs to communicate with one another with the use of a switch with layer-3 capabilities, or a router. See also Cisco's proprietary DTP, VTP and ISL for information on inter-switch and inter-VLAN communication.
+As an illustration of the utility of VLANs, consider a company whose IT department wishes to provide separate logical networks for each department in the company while using only one physical corporate network. The IT department assigns a unique VLAN per department. Edge switches on the corporate network are configured to insert an appropriate VLAN tag into all data frames arriving from equipment in a given department. After the frames are switched through the corporate network, the VLAN tag is stripped before the frame is sent back to the department's equipment, possibly at a different geographical location. In this way, traffic from one department cannot be leaked to or snooped from another department.
+
+
+
+
+Contents
+
+
+1 Frame format
+2 Multiple VLAN Registration Protocol
+3 Multiple spanning-tree protocol
+4 See also
+5 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Frame format
+
+
+
+
+
+Insertion of 802.1Q Tag in Ethernet-II frame
+
+
+
+802.1Q does not actually encapsulate the original frame. Instead, for Ethernet II frames, it adds a 32-bit field between the source MAC address and the EtherType/Length fields of the original frame. The VLAN tag field has the following format:
+
+
+16 bits
+3 bits
+1 bit
+12 bits
+
+
+TPID
+PCP
+CFI
+VID
+
+
+
+Tag Protocol Identifier (TPID): a 16-bit field set to a value of 0x8100 in order to identify the frame as an IEEE 802.1Q-tagged frame.
+
+
+Priority Code Point (PCP): a 3-bit field which refers to the IEEE 802.1p priority. It indicates the frame priority level from 0 (lowest) to 7 (highest), which can be used to prioritize different classes of traffic (voice, video, data, etc).
+
+
+Canonical Format Indicator (CFI): a 1-bit field. If the value of this field is 1, the MAC address is in non-canonical format. If the value is 0, the MAC address is in canonical format. It is always set to zero for Ethernet switches. CFI is used for compatibility between Ethernet and Token Ring networks. If a frame received at an Ethernet port has a CFI set to 1, then that frame should not be bridged to an untagged port.
+
+
+VLAN Identifier (VID): a 12-bit field specifying the VLAN to which the frame belongs. A value of 0 means that the frame doesn't belong to any VLAN; in this case the 802.1Q tag specifies only a priority and is referred to as a priority tag. A value of hex FFF is reserved for implementation use. All other values may be used as VLAN identifiers, allowing up to 4094 VLANs. On bridges, VLAN 1 is often reserved for management.
+
+For frames using IEEE 802.2/SNAP encapsulation with an OUI field of 00-00-00 (so that the protocol ID field in the SNAP header is an EtherType), as would be the case on LANs other than Ethernet, the EtherType value in the SNAP header is set to hex 8100 and the aforementioned extra 4 bytes are appended after the SNAP header.
+Because inserting this header changes the frame, 802.1Q encapsulation forces a recalculation of the original FCS field in the Ethernet trailer. It also increases the maximum frame size by 4 bytes.
+Double-tagging(QinQ) can be useful for Internet Service Providers, allowing them to use VLANs internally while mixing traffic from clients that are already VLAN-tagged. The outer tag comes first, followed by the inner tag. In such cases, an alternate TPID such as hex 9100, or even 9200 or 9300, sometimes may be used for the outer tag; however this is being deprecated by 802.1ad, which specifies 88a8 for service-provider outer tags.
+
+
+
+
+
+Insertion of 802.1ad DoubleTag in Ethernet-II frame
+
+
+
+Triple-tagging is also possible.
+
+[edit] Multiple VLAN Registration Protocol
+In addition, IEEE 802.1Q defines Multiple VLAN Registration Protocol (MVRP), an application of the Multiple Registration Protocol, allowing bridges to negotiate the set of VLANs to be used over a specific link.
+MVRP replaced the slower GARP VLAN Registration Protocol (GVRP) in 2007 with the IEEE 802.1ak-2007 amendment.
+
+[edit] Multiple spanning-tree protocol
+The 2003 revision of the standard also rolled in the Multiple Spanning Tree Protocol (MSTP) originally defined in IEEE 802.1s.
+
+[edit] See also
+
+Cisco Inter-Switch Link (ISL), another VLAN management protocol that is proprietary to Cisco
+
+
+[edit] References
+
+IEEE Std. 802.1Q-2005, Virtual Bridged Local Area Networks. ISBN 0-7381-3662-X. http://standards.ieee.org/getieee802/download/802.1Q-2005.pdf. 
+ISL & 802.1q Frame Formats
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/IEEE_802.1Q"
+Categories: Networking standards | Ethernet | IEEE 802 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+Polski
+Português
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 April 2009, at 21:44 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,591 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Discrete cosine transform - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Discrete_cosine_transform";
+		var wgTitle = "Discrete cosine transform";
+		var wgAction = "view";
+		var wgArticleId = "59962";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282358032;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Discrete cosine transform
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A discrete cosine transform (DCT) expresses a sequence of finitely many data points in terms of a sum of cosine functions oscillating at different frequencies. DCTs are important to numerous applications in science and engineering, from lossy compression of audio and images (where small high-frequency components can be discarded), to spectral methods for the numerical solution of partial differential equations. The use of cosine rather than sine functions is critical in these applications: for compression, it turns out that cosine functions are much more efficient (as explained below, fewer are needed to approximate a typical signal), whereas for differential equations the cosines express a particular choice of boundary conditions.
+In particular, a DCT is a Fourier-related transform similar to the discrete Fourier transform (DFT), but using only real numbers. DCTs are equivalent to DFTs of roughly twice the length, operating on real data with even symmetry (since the Fourier transform of a real and even function is real and even), where in some variants the input and/or output data are shifted by half a sample. There are eight standard DCT variants, of which four are common.
+The most common variant of discrete cosine transform is the type-II DCT, which is often called simply "the DCT"; its inverse, the type-III DCT, is correspondingly often called simply "the inverse DCT" or "the IDCT". Two related transforms are the discrete sine transform (DST), which is equivalent to a DFT of real and odd functions, and the modified discrete cosine transform (MDCT), which is based on a DCT of overlapping data.
+
+
+
+
+Contents
+
+
+1 Applications
+
+1.1 JPEG
+
+
+2 Informal overview
+3 Formal definition
+
+3.1 DCT-I
+3.2 DCT-II
+3.3 DCT-III
+3.4 DCT-IV
+3.5 DCT V-VIII
+
+
+4 Inverse transforms
+5 Multidimensional DCTs
+6 Computation
+7 Notes
+8 References
+9 See also
+10 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Applications
+The DCT, and in particular the DCT-II, is often used in signal and image processing, especially for lossy data compression, because it has a strong "energy compaction" property (Rao and Yip, 1990): most of the signal information tends to be concentrated in a few low-frequency components of the DCT, approaching the Karhunen-Loève transform (which is optimal in the decorrelation sense) for signals based on certain limits of Markov processes. As explained below, this stems from the boundary conditions implicit in the cosine functions.
+
+
+
+
+DCT-II (bottom) compared to the DFT (middle) of an input signal (top).
+
+
+A related transform, the modified discrete cosine transform, or MDCT (based on the DCT-IV), is used in AAC, Vorbis, WMA, and MP3 audio compression.
+DCTs are also widely employed in solving partial differential equations by spectral methods, where the different variants of the DCT correspond to slightly different even/odd boundary conditions at the two ends of the array.
+DCTs are also closely related to Chebyshev polynomials, and fast DCT algorithms (below) are used in Chebyshev approximation of arbitrary functions by series of Chebyshev polynomials, for example in Clenshaw–Curtis quadrature.
+
+[edit] JPEG
+Main article: JPEG: Discrete cosine transform
+The DCT is used in JPEG image compression, MJPEG, MPEG, and DV video compression. There, the two-dimensional DCT-II of  blocks are computed and the results are quantized and entropy coded. In this case, N is typically 8 and the DCT-II formula is applied to each row and column of the block. The result is an 8 × 8 transform coefficient array in which the (0,0) element (top-left) is the DC (zero-frequency) component and entries with increasing vertical and horizontal index values represent higher vertical and horizontal spatial frequencies.
+
+[edit] Informal overview
+Like any Fourier-related transform, discrete cosine transforms (DCTs) express a function or a signal in terms of a sum of sinusoids with different frequencies and amplitudes. Like the discrete Fourier transform (DFT), a DCT operates on a function at a finite number of discrete data points. The obvious distinction between a DCT and a DFT is that the former uses only cosine functions, while the latter uses both cosines and sines (in the form of complex exponentials). However, this visible difference is merely a consequence of a deeper distinction: a DCT implies different boundary conditions than the DFT or other related transforms.
+The Fourier-related transforms that operate on a function over a finite domain, such as the DFT or DCT or a Fourier series, can be thought of as implicitly defining an extension of that function outside the domain. That is, once you write a function f(x) as a sum of sinusoids, you can evaluate that sum at any x, even for x where the original f(x) was not specified. The DFT, like the Fourier series, implies a periodic extension of the original function. A DCT, like a cosine transform, implies an even extension of the original function.
+
+
+
+
+Illustration of the implicit even/odd extensions of DCT input data, for N=11 data points (red dots), for the four most common types of DCT (types I-IV).
+
+
+However, because DCTs operate on finite, discrete sequences, two issues arise that do not apply for the continuous cosine transform. First, one has to specify whether the function is even or odd at both the left and right boundaries of the domain (i.e. the min-n and max-n boundaries in the definitions below, respectively). Second, one has to specify around what point the function is even or odd. In particular, consider a sequence abcd of four equally spaced data points, and say that we specify an even left boundary. There are two sensible possibilities: either the data is even about the sample a, in which case the even extension is dcbabcd, or the data is even about the point halfway between a and the previous point, in which case the even extension is dcbaabcd (a is repeated).
+These choices lead to all the standard variations of DCTs and also discrete sine transforms (DSTs). Each boundary can be either even or odd (2 choices per boundary) and can be symmetric about a data point or the point halfway between two data points (2 choices per boundary), for a total of  possibilities. Half of these possibilities, those where the left boundary is even, correspond to the 8 types of DCT; the other half are the 8 types of DST.
+These different boundary conditions strongly affect the applications of the transform, and lead to uniquely useful properties for the various DCT types. Most directly, when using Fourier-related transforms to solve partial differential equations by spectral methods, the boundary conditions are directly specified as a part of the problem being solved. Or, for the MDCT (based on the type-IV DCT), the boundary conditions are intimately involved in the MDCT's critical property of time-domain aliasing cancellation. In a more subtle fashion, the boundary conditions are responsible for the "energy compaction" properties that make DCTs useful for image and audio compression, because the boundaries affect the rate of convergence of any Fourier-like series.
+In particular, it is well known that any discontinuities in a function reduce the rate of convergence of the Fourier series, so that more sinusoids are needed to represent the function with a given accuracy. The same principle governs the usefulness of the DFT and other transforms for signal compression: the smoother a function is, the fewer terms in its DFT or DCT are required to represent it accurately, and the more it can be compressed. (Here, we think of the DFT or DCT as approximations for the Fourier series or cosine series of a function, respectively, in order to talk about its "smoothness.") However, the implicit periodicity of the DFT means that discontinuities usually occur at the boundaries: any random segment of a signal is unlikely to have the same value at both the left and right boundaries. (A similar problem arises for the DST, in which the odd left boundary condition implies a discontinuity for any function that does not happen to be zero at that boundary.) In contrast, a DCT where both boundaries are even always yields a continuous extension at the boundaries (although the slope is generally discontinuous). This is why DCTs, and in particular DCTs of types I, II, V, and VI (the types that have two even boundaries) generally perform better for signal compression than DFTs and DSTs. In practice, a type-II DCT is usually preferred for such applications, in part for reasons of computational convenience.
+
+[edit] Formal definition
+Formally, the discrete cosine transform is a linear, invertible function F : RN -> RN (where R denotes the set of real numbers), or equivalently an invertible N × N square matrix. There are several variants of the DCT with slightly modified definitions. The N real numbers x0, ..., xN-1 are transformed into the N real numbers X0, ..., XN-1 according to one of the formulas:
+
+[edit] DCT-I
+
+
+
+Some authors further multiply the x0 and xN-1 terms by √2, and correspondingly multiply the X0 and XN-1 terms by 1/√2. This makes the DCT-I matrix orthogonal, if one further multiplies by an overall scale factor of , but breaks the direct correspondence with a real-even DFT.
+The DCT-I is exactly equivalent (up to an overall scale factor of 2), to a DFT of 2N − 2 real numbers with even symmetry. For example, a DCT-I of N=5 real numbers abcde is exactly equivalent to a DFT of eight real numbers abcdedcb (even symmetry), divided by two. (In contrast, DCT types II-IV involve a half-sample shift in the equivalent DFT.)
+Note, however, that the DCT-I is not defined for N less than 2. (All other DCT types are defined for any positive N.)
+Thus, the DCT-I corresponds to the boundary conditions: xn is even around n=0 and even around n=N-1; similarly for Xk.
+
+[edit] DCT-II
+
+
+
+The DCT-II is probably the most commonly used form, and is often simply referred to as "the DCT".
+This transform is exactly equivalent (up to an overall scale factor of 2) to a DFT of 4N real inputs of even symmetry where the even-indexed elements are zero. That is, it is half of the DFT of the 4N inputs yn, where y2n = 0, y2n + 1 = xn for , and y4N − n = yn for 0 < n < 2N.
+Some authors further multiply the X0 term by 1/√2 (see below for the corresponding change in DCT-III). This makes the DCT-II matrix orthogonal, if one further multiplies by an overall scale factor of , but breaks the direct correspondence with a real-even DFT of half-shifted input.
+The DCT-II implies the boundary conditions: xn is even around n=-1/2 and even around n=N-1/2; Xk is even around k=0 and odd around k=N.
+
+[edit] DCT-III
+
+
+
+Because it is the inverse of DCT-II (up to a scale factor, see below), this form is sometimes simply referred to as "the inverse DCT" ("IDCT").
+Some authors further multiply the x0 term by √2 (see above for the corresponding change in DCT-II), so that the DCT-II and DCT-III are transposes of one another. This makes the DCT-III matrix orthogonal, if one further multiplies by an overall scale factor of , but breaks the direct correspondence with a real-even DFT of half-shifted output.
+The DCT-III implies the boundary conditions: xn is even around n=0 and odd around n=N; Xk is even around k=-1/2 and even around k=N-1/2.
+
+[edit] DCT-IV
+
+
+
+The DCT-IV matrix becomes orthogonal if one further multiplies by an overall scale factor of .
+A variant of the DCT-IV, where data from different transforms are overlapped, is called the modified discrete cosine transform (MDCT).
+The DCT-IV implies the boundary conditions: xn is even around n=-1/2 and odd around n=N-1/2; similarly for Xk.
+
+[edit] DCT V-VIII
+DCT types I-IV are equivalent to real-even DFTs of even order (regardless of whether N is even or odd), since the corresponding DFT is of length 2(N−1) (for DCT-I) or 4N (for DCT-II/III) or 8N (for DCT-VIII). In principle, there are actually four additional types of discrete cosine transform (Martucci, 1994), corresponding essentially to real-even DFTs of logically odd order, which have factors of  in the denominators of the cosine arguments.
+Equivalently, DCTs of types I-IV imply boundaries that are even/odd around either a data point for both boundaries or halfway between two data points for both boundaries. DCTs of types V-VIII imply boundaries that even/odd around a data point for one boundary and halfway between two data points for the other boundary.
+However, these variants seem to be rarely used in practice. One reason, perhaps, is that FFT algorithms for odd-length DFTs are generally more complicated than FFT algorithms for even-length DFTs (e.g. the simplest radix-2 algorithms are only for even lengths), and this increased intricacy carries over to the DCTs as described below.
+(The trivial real-even array, a length-one DFT (odd length) of a single number a, corresponds to a DCT-V of length N=1.)
+
+[edit] Inverse transforms
+Using the normalization conventions above, the inverse of DCT-I is DCT-I multiplied by 2/(N-1). The inverse of DCT-IV is DCT-IV multiplied by 2/N. The inverse of DCT-II is DCT-III multiplied by 2/N and vice versa. (See e.g. Rao & Yip, 1990.)
+Like for the DFT, the normalization factor in front of these transform definitions is merely a convention and differs between treatments. For example, some authors multiply the transforms by  so that the inverse does not require any additional multiplicative factor. Combined with appropriate factors of √2 (see above), this can be used to make the transform matrix orthogonal.
+
+[edit] Multidimensional DCTs
+Multidimensional variants of the various DCT types follow straightforwardly from the one-dimensional definitions: they are simply a separable product (equivalently, a composition) of DCTs along each dimension.
+For example, a two-dimensional DCT-II of an image or a matrix is simply the one-dimensional DCT-II, from above, performed along the rows and then along the columns (or vice versa). That is, the 2d DCT-II is given by the formula (omitting normalization and other scale factors, as above):
+
+
+
+Technically, computing a two- (or multi-) dimensional DCT by sequences of one-dimensional DCTs along each dimension is known as a row-column algorithm (after the two-dimensional case). As with multidimensional FFT algorithms, however, there exist other methods to compute the same thing while performing the computations in a different order (i.e. interleaving/combining the algorithms for the different dimensions).
+The inverse of a multi-dimensional DCT is just a separable product of the inverse(s) of the corresponding one-dimensional DCT(s) (see above), e.g. the one-dimensional inverses applied along one dimension at a time in a row-column algorithm.
+
+
+
+
+Two-dimensional DCT frequencies
+
+
+The image to the right shows combination of horizontal and vertical frequencies for an 8 x 8 (N1 = N2 = 8) two-dimensional DCT. Each step from left to right and top to bottom is an increase in frequency by 1/2 cycle. For example, moving right one from the top-left square yields a half-cycle increase in the horizontal frequency (goes from white to black). Another move to the right yields two half-cycles (white to black to white). A move down yields two half-cycles horizontally and a half-cycle vertically. The source data (8x8) is transformed to a linear combination of these 64 frequency squares.
+
+[edit] Computation
+Although the direct application of these formulas would require O(N2) operations, it is possible to compute the same thing with only O(N log N) complexity by factorizing the computation similarly to the fast Fourier transform (FFT). One can also compute DCTs via FFTs combined with O(N) pre- and post-processing steps. In general, O(N log N) methods to compute DCTs are known as fast cosine transform (FCT) algorithms.
+The most efficient algorithms, in principle, are usually those that are specialized directly for the DCT, as opposed to using an ordinary FFT plus O(N) extra operations (see below for an exception). However, even "specialized" DCT algorithms (including all of those that achieve the lowest known arithmetic counts, at least for power-of-two sizes) are typically closely related to FFT algorithms—since DCTs are essentially DFTs of real-even data, one can design a fast DCT algorithm by taking an FFT and eliminating the redundant operations due to this symmetry. This can even be done automatically (Frigo & Johnson, 2005). Algorithms based on the Cooley-Tukey FFT algorithm are most common, but any other FFT algorithm is also applicable. For example, the Winograd FFT algorithm leads to minimal-multiplication algorithms for the DFT, albeit generally at the cost of more additions, and a similar algorithm was proposed by Feig & Winograd (1992) for the DCT. Because the algorithms for DFTs, DCTs, and similar transforms are all so closely related, any improvement in algorithms for one transform will theoretically lead to immediate gains for the other transforms as well (Duhamel & Vetterli, 1990).
+While DCT algorithms that employ an unmodified FFT often have some theoretical overhead compared to the best specialized DCT algorithms, the former also have a distinct advantage: highly optimized FFT programs are widely available. Thus, in practice, it is often easier to obtain high performance for general lengths N with FFT-based algorithms. (Performance on modern hardware is typically not dominated simply by arithmetic counts, and optimization requires substantial engineering effort.) Specialized DCT algorithms, on the other hand, see widespread use for transforms of small, fixed sizes such as the  DCT-II used in JPEG compression, or the small DCTs (or MDCTs) typically used in audio compression. (Reduced code size may also be a reason to use a specialized DCT for embedded-device applications.)
+In fact, even the DCT algorithms using an ordinary FFT are sometimes equivalent to pruning the redundant operations from a larger FFT of real-symmetric data, and they can even be optimal from the perspective of arithmetic counts. For example, a type-II DCT is equivalent to a DFT of size 4N with real-even symmetry whose even-indexed elements are zero. One of the most common methods for computing this via an FFT (e.g. the method used in FFTPACK and FFTW) was described by Narasimha & Peterson (1978) and Makhoul (1980), and this method in hindsight can be seen as one step of a radix-4 decimation-in-time Cooley-Tukey algorithm applied to the "logical" real-even DFT corresponding to the DCT II. (The radix-4 step reduces the size 4N DFT to four size-N DFTs of real data, two of which are zero and two of which are equal to one another by the even symmetry, hence giving a single size-N FFT of real data plus O(N) butterflies.) Because the even-indexed elements are zero, this radix-4 step is exactly the same as a split-radix step; if the subsequent size-N real-data FFT is also performed by a real-data split-radix algorithm (as in Sorensen et al., 1987), then the resulting algorithm actually matches what was long the lowest published arithmetic count for the power-of-two DCT-II (2Nlog2N − N + 2 real-arithmetic operations[1]). So, there is nothing intrinsically bad about computing the DCT via an FFT from an arithmetic perspective—it is sometimes merely a question of whether the corresponding FFT algorithm is optimal. (As a practical matter, the function-call overhead in invoking a separate FFT routine might be significant for small N, but this is an implementation rather than an algorithmic question since it can be solved by unrolling/inlining.)
+
+[edit] Notes
+
+^ The precise count of real arithmetic operations, and in particular the count of real multiplications, depends somewhat on the scaling of the transform definition. The 2Nlog2N − N + 2 count is for the DCT-II definition shown here; two multiplications can be saved if the transform is scaled by an overall  factor. Additional multiplications can be saved if one permits the outputs of the transform to be rescaled individually, as was shown by Arai et al. (1988) for the size-8 case used in JPEG.
+
+
+[edit] References
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (February 2008)
+
+
+
+N. Ahmed, T. Natarajan, and K. R. Rao, "Discrete Cosine Transform", IEEE Trans. Computers, 90-93, Jan 1974.
+W.-H. Chen, C. H. Smith, and S. Fralick, “A Fast Computational Algorithm for the Discrete Cosine Transform", IEEE Trans. on Communications 25, 1004–1009, Sep 1977.
+M. J. Narasimha and A. M. Peterson, "On the computation of the discrete cosine transform," IEEE Trans. Commun. 26 (6), p. 934–936 (1978).
+Y. Arai, T. Agui, and M. Nakajima, "A fast DCT-SQ scheme for images," Trans. IEICE 71 (11), 1095–1097 (1988).
+P. Duhamel and M. Vetterli, "Fast Fourier transforms: a tutorial review and a state of the art," Signal Processing 19, 259–299 (1990).
+E. Feig, S. Winograd. "Fast algorithms for the discrete cosine transform," IEEE Transactions on Signal Processing 40 (9), 2174-2193 (1992).
+Matteo Frigo and Steven G. Johnson: FFTW, http://www.fftw.org/. A free (GPL) C library that can compute fast DCTs (types I-IV) in one or more dimensions, of arbitrary size. Also M. Frigo and S. G. Johnson, "The Design and Implementation of FFTW3," Proceedings of the IEEE 93 (2), 216–231 (2005).
+John Makhoul, "A fast cosine transform in one and two dimensions," IEEE Trans. Acoust. Speech Sig. Proc. 28 (1), 27-34 (1980).
+S. A. Martucci, "Symmetric convolution and the discrete sine and cosine transforms," IEEE Trans. Sig. Processing SP-42, 1038-1051 (1994).
+A. V. Oppenheim, R. W. Schafer, and J. R. Buck, Discrete-Time Signal Processing, second edition (Prentice-Hall, New Jersey, 1999).
+K. R. Rao and P. Yip, Discrete Cosine Transform: Algorithms, Advantages, Applications (Academic Press, Boston, 1990).
+H. V. Sorensen, D. L. Jones, M. T. Heideman, and C. S. Burrus, "Real-valued fast Fourier transform algorithms," IEEE Trans. Acoust. Speech Sig. Processing ASSP-35, 849–863 (1987).
+
+
+[edit] See also
+
+JPEG - Contains an easier to understand example of DCT transformation
+
+
+[edit] External links
+
+discrete cosine transform on PlanetMath
+Some code in various forms
+The Discrete Cosine Transform (DCT): Theory and Application
+
+
+
+
+
+
+
+
+v • d • e
+
+Data compression methods
+
+
+
+
+
+Lossless
+
+
+
+
+
+Theory
+
+
+Entropy · Complexity · Redundancy
+
+
+
+
+
+
+
+Entropy encoding
+
+
+Huffman · Adaptive Huffman · Arithmetic (Shannon-Fano · Range) · Golomb · Exp-Golomb · Universal (Elias · Fibonacci)
+
+
+
+
+
+
+
+Dictionary
+
+
+RLE · DEFLATE · LZ Family (LZ77/78 · LZSS · LZW · LZWL · LZO · LZMA · LZX · LZRW · LZJB · LZT)
+
+
+
+
+
+
+
+Others
+
+
+CTW · BWT · PPM · DMC
+
+
+
+
+
+
+
+
+
+Audio
+
+
+
+
+
+Theory
+
+
+Convolution · Sampling · Nyquist–Shannon theorem
+
+
+
+
+
+
+
+Audio codec parts
+
+
+LPC (LAR · LSP) · WLPC · CELP · ACELP · A-law · μ-law · MDCT · Fourier transform · Psychoacoustic model
+
+
+
+
+
+
+
+Others
+
+
+Dynamic range compression · Speech compression · Sub-band coding
+
+
+
+
+
+
+
+
+
+Image
+
+
+
+
+
+Terms
+
+
+Color space · Pixel · Chroma subsampling · Compression artifact
+
+
+
+
+
+
+
+Methods
+
+
+RLE · DPCM · Fractal · Wavelet · EZW · SPIHT · LP · DCT · KLT
+
+
+
+
+
+
+
+Others
+
+
+Bit rate · Test images · PSNR quality measure · Quantization
+
+
+
+
+
+
+
+
+
+Video
+
+
+
+
+
+Terms
+
+
+Video Characteristics · Frame · Frame types · Video quality
+
+
+
+
+
+
+
+Video codec parts
+
+
+Motion compensation · DCT · Quantization
+
+
+
+
+
+
+
+Others
+
+
+Video codecs · Rate distortion theory (CBR · ABR · VBR)
+
+
+
+
+
+
+
+
+
+
+Timeline of information theory, data compression, and error-correcting codes
+
+
+
+
+
+
+See Compression Formats and Standards for formats and Compression Software Implementations for codecs
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Discrete_cosine_transform"
+Categories: Digital signal processing | Fourier analysis | TransformsHidden categories: Articles lacking in-text citations from February 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Česky
+Català
+Deutsch
+Español
+Français
+한국어
+Italiano
+Magyar
+日本語
+Polski
+Português
+Română
+Русский
+Simple English
+Српски / Srpski
+Svenska
+ไทย
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 7 April 2009, at 15:29.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

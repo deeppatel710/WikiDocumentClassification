@@ -1,0 +1,350 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Real-time operating system - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Real-time_operating_system";
+		var wgTitle = "Real-time operating system";
+		var wgAction = "view";
+		var wgArticleId = "26123";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281157298;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Real-time operating system
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+A Real-Time Operating System (RTOS) is a multitasking operating system intended for real-time applications. Such applications include embedded systems (programmable thermostats, household appliance controllers), industrial robots, spacecraft, industrial control (see SCADA), and scientific research equipment.
+A RTOS facilitates the creation of a real-time system, but does not guarantee the final result will be real-time; this requires correct development of the software. An RTOS does not necessarily have high throughput; rather, an RTOS provides facilities which, if used properly, guarantee deadlines can be met generally (soft real-time) or deterministically (hard real-time). An RTOS will typically use specialized scheduling algorithms in order to provide the real-time developer with the tools necessary to produce deterministic behavior in the final system. An RTOS is valued more for how quickly and/or predictably it can respond to a particular event than for the amount of work it can perform over a given period of time. Key factors in an RTOS are therefore a minimal interrupt latency and a minimal thread switching latency.
+An early example of a large-scale real-time operating system was Transaction Processing Facility developed by American Airlines and IBM for the Sabre Airline Reservations System.
+
+
+
+
+Contents
+
+
+1 Design philosophies
+2 Scheduling
+
+2.1 Algorithms
+
+
+3 Intertask communication and resource sharing
+4 Interrupt handlers and the scheduler
+5 Memory allocation
+6 Examples
+7 See also
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Design philosophies
+Two basic designs exist:
+
+Event-driven (priority scheduling) designs switch tasks only when an event of higher priority needs service, called pre-emptive priority.
+Time-sharing designs switch tasks on a clock interrupt, and on events, called round robin.
+
+Time-sharing designs switch tasks more often than is strictly needed, but give smoother, more deterministic multitasking, giving the illusion that a process or user has sole use of a machine.
+Early CPU designs needed many cycles to switch tasks, during which the CPU could do nothing useful. So early OSes tried to minimize wasting CPU time by maximally avoiding unnecessary task-switches.
+More recent CPUs take far less time to switch from one task to another; the extreme case is barrel processors that switch from one task to the next in zero cycles. Newer RTOSes almost invariably implement time-sharing scheduling with priority driven pre-emptive scheduling.
+
+[edit] Scheduling
+In typical designs, a task has three states: 1) running, 2) ready, 3) blocked. Most tasks are blocked, most of the time. Only one task per CPU is running. In simpler systems, the ready list is usually short, two or three tasks at most.
+The real key is designing the scheduler. Usually the data structure of the ready list in the scheduler is designed to minimize the worst-case length of time spent in the scheduler's critical section, during which preemption is inhibited, and, in some cases, all interrupts are disabled. But, the choice of data structure depends also on the maximum number of tasks that can be on the ready list.
+If there are never more than a few tasks on the ready list, then a simple unsorted bidirectional linked list of ready tasks is likely optimal. If the ready list usually contains only a few tasks but occasionally contains more, then the list should be sorted by priority, so that finding the highest priority task to run does not require iterating through the entire list. Inserting a task then requires walking the ready list until reaching either the end of the list, or a task of lower priority than that of the task being inserted. Care must be taken not to inhibit preemption during this entire search; the otherwise-long critical section should probably be divided into small pieces, so that if, during the insertion of a low priority task, an interrupt occurs that makes a high priority task ready, that high priority task can be inserted and run immediately (before the low priority task is inserted).
+The critical response time, sometimes called the flyback time, is the time it takes to queue a new ready task and restore the state of the highest priority task. In a well-designed RTOS, readying a new task will take 3-20 instructions per ready queue entry, and restoration of the highest-priority ready task will take 5-30 instructions. On a 20MHz 68000 processor, task switch times run about 20 microseconds with two tasks ready. 100 MHz ARM CPUs switch in a few microseconds.
+In more advanced real-time systems, real-time tasks share computing resources with many non-real-time tasks, and the ready list can be arbitrarily long. In such systems, a scheduler ready list implemented as a linked list would be inadequate.
+
+[edit] Algorithms
+Some commonly used RTOS scheduling algorithms are:
+
+Cooperative scheduling
+
+Round-robin scheduling
+
+
+Preemptive scheduling
+
+Fixed priority pre-emptive scheduling, an implementation of preemptive time slicing
+Critical section preemptive scheduling
+Static time scheduling
+
+
+Earliest Deadline First approach
+Advanced scheduling using the stochastic and MTG
+
+
+[edit] Intertask communication and resource sharing
+Multitasking systems must manage sharing data and hardware resources among multiple tasks. It is usually "unsafe" for two tasks to access the same specific data or hardware resource simultaneously. ("Unsafe" means the results are inconsistent or unpredictable, particularly when one task is in the midst of changing a data collection. The view by another task is best done either before any change begins, or after changes are completely finished.) There are three common approaches to resolve this problem:
+
+Temporarily masking/disabling interrupts
+Binary semaphores
+Message passing
+
+General-purpose operating systems usually do not allow user programs to mask (disable) interrupts, because the user program could control the CPU for as long as it wished. Modern CPUs make the interrupt disable control bit (or instruction) inaccessible in user mode to allow operating systems to prevent user tasks from doing this. Many embedded systems and RTOSs, however, allow the application itself to run in kernel mode for greater system call efficiency and also to permit the application to have greater control of the operating environment without requiring OS intervention.
+On single-processor systems, if the application runs in kernel mode and can mask interrupts, often that is the best (lowest overhead) solution to preventing simultaneous access to a shared resource. While interrupts are masked, the current task has exclusive use of the CPU; no other task or interrupt can take control, so the critical section is effectively protected. When the task exits its critical section, it must unmask interrupts; pending interrupts, if any, will then execute. Temporarily masking interrupts should only be done when the longest path through the critical section is shorter than the desired maximum interrupt latency, or else this method will increase the system's maximum interrupt latency. Typically this method of protection is used only when the critical section is just a few source code lines long and contains no loops. This method is ideal for protecting hardware bitmapped registers when the bits are controlled by different tasks.
+When the critical section is longer than a few source code lines or involves lengthy looping, an embedded/real-time programmer must resort to using mechanisms identical or similar to those available on general-purpose operating systems, such as semaphores and OS-supervised interprocess messaging. Such mechanisms involve system calls, and usually invoke the OS's dispatcher code on exit, so they can take many hundreds of CPU instructions to execute, while masking interrupts may take as few as three instructions on some processors. But for longer critical sections, there may be no choice; interrupts cannot be masked for long periods without increasing the system's interrupt latency.
+A binary semaphore is either locked or unlocked. When it is locked, a queue of tasks can wait for the semaphore. Typically a task can set a timeout on its wait for a semaphore. Problems with semaphore based designs are well known: priority inversion and deadlocks.
+In priority inversion, a high priority task waits because a low priority task has a semaphore. A typical solution is to have the task that has a semaphore run at (inherit) the priority of the highest waiting task. But this simplistic approach fails when there are multiple levels of waiting (A waits for a binary semaphore locked by B, which waits for a binary semaphore locked by C). Handling multiple levels of inheritance without introducing instability in cycles is not straightforward.
+In a deadlock, two or more tasks lock a number of binary semaphores and then wait forever (no timeout) for other binary semaphores, creating a cyclic dependency graph. The simplest deadlock scenario occurs when two tasks lock two semaphores in lockstep, but in the opposite order. Deadlock is usually prevented by careful design, or by having floored semaphores (which pass control of a semaphore to the higher priority task on defined conditions).
+The other approach to resource sharing is for tasks to send messages. In this paradigm, the resource is managed directly by only one task; when another task wants to interrogate or manipulate the resource, it sends a message to the managing task. This paradigm suffers from similar problems as binary semaphores: Priority inversion occurs when a task is working on a low-priority message, and ignores a higher-priority message (or a message originating indirectly from a high priority task) in its in-box. Protocol deadlocks occur when two or more tasks wait for each other to send response messages.
+Although their real-time behavior is less crisp than semaphore systems, simple message-based systems usually do not have protocol deadlock hazards, and are generally better-behaved than semaphore systems.
+
+[edit] Interrupt handlers and the scheduler
+Since an interrupt handler blocks the highest priority task from running, and since real time operating systems are designed to keep thread latency to a minimum, interrupt handlers are typically kept as short as possible. The interrupt handler defers all interaction with the hardware as long as possible; typically all that is necessary is to acknowledge or disable the interrupt (so that it won't occur again when the interrupt handler returns). The interrupt handler then queues work to be done at a lower priority level, often by unblocking a driver task (through releasing a semaphore or sending a message). The scheduler often provides the ability to unblock a task from interrupt handler context.
+
+[edit] Memory allocation
+Memory allocation is even more critical in an RTOS than in other operating systems.
+First, speed of allocation is important. A standard memory allocation scheme scans a linked list of indeterminate length to find a suitable free memory block; however, this is unacceptable as memory allocation has to occur in a fixed time in an RTOS.
+Second, memory can become fragmented as free regions become separated by regions that are in use. This can cause a program to stall, unable to get memory, even though there is theoretically enough available. Memory allocation algorithms that slowly accumulate fragmentation may work fine for desktop machines—when rebooted every month or so—but are unacceptable for embedded systems that often run for years without rebooting.
+The simple fixed-size-blocks algorithm works astonishingly well for simple embedded systems.
+Another real strength of fixed size blocks is for DSP systems particularly where one core is performing one section of the pipeline and the next section is being done on another core. In this case, fixed size buffer management with one core filling the buffers and another set of cores returning the buffers is very efficient. A DSP optimized RTOS like Unison Operating System or DSPnano RTOS provides these features.
+See memory allocation for more details.
+
+[edit] Examples
+These are the best known, most widely deployed real-time operating systems. See List of real-time operating systems for a comprehensive list. Also, see List of operating systems for all types of operating systems.
+
+QNX
+RTLinux
+VxWorks
+Windows CE
+
+
+[edit] See also
+
+
+
+The Wikibook Embedded Systems has a page on the topic of
+Real-Time Operating Systems
+
+
+
+
+Adaptive Partition Scheduler
+BIOS
+DO-178B
+Earliest deadline first scheduling
+Least slack time scheduling
+Operating system
+POSIX
+Rate-monotonic scheduling
+Synchronous programming language
+
+
+
+
+
+
+
+
+v • d • e
+
+Real-time operating systems (RTOS)
+
+
+
+
+
+
+ChibiOS/RT · Contiki · DNIX · DSOS · eCos · Embedded Linux · EROS · FreeRTOS · LynxOS · MenuetOS · MERT · Nucleus RTOS · Open AT OS · OS-9 · OSE · pSOS · Prex · QNX · RMX · RSX-11 · RT-11 · RTEMS · RTLinux · SINTRAN III · Symbian · Talon DSP RTOS · THEOS · TPF · TRON · µC/OS-II · VRTX · VxWorks · Windows CE
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Real-time_operating_system"
+Categories: Embedded operating systems | Operating system technology | Real-time operating systems 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Bosanski
+Česky
+Deutsch
+Español
+한국어
+Italiano
+Lietuvių
+Nederlands
+日本語
+‪Norsk (nynorsk)‬
+Polski
+Português
+Русский
+Simple English
+Svenska
+தமிழ்
+ไทย
+Українська
+中文
+Français
+
+
+
+
+
+
+
+
+
+ This page was last modified on 1 April 2009, at 21:24.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

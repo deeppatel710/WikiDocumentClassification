@@ -1,0 +1,475 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Google platform - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Google_platform";
+		var wgTitle = "Google platform";
+		var wgAction = "view";
+		var wgArticleId = "2030607";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 284018792;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Google platform
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+To comply with Wikipedia's guidelines, the introduction of this article may need to be rewritten. Please discuss this issue on the talk page and read the layout guide to make sure the section will be inclusive of all essential details.
+
+
+
+
+
+
+Google's first production server rack, circa 1999
+
+
+Google requires large computational resources in order to provide their service. This article describes the technological infrastructure behind Google's websites, as presented in the company's public announcements.
+
+
+
+
+Contents
+
+
+1 Network topology
+2 Main index
+3 Server types
+4 Server hardware and software
+
+4.1 Original hardware
+4.2 Current hardware
+4.3 Hardware details considered sensitive
+
+
+5 Data centers
+
+5.1 Project 02
+5.2 Summa papermill
+
+
+6 Software
+7 Server operation
+8 References
+9 Further reading
+10 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Network topology
+
+
+
+
+Cluster with load balancing.
+
+
+Though the numbers are not publicly known, some people estimate that Google maintains over 450,000 servers, arranged in racks located in clusters in cities around the world, with major centers in Mountain View, California; Council Bluffs, Iowa; Herndon, Virginia; Lenoir, North Carolina; Atlanta, Georgia; Dublin, Ireland; Saint-Ghislain, Belgium; Zürich, Switzerland; Tokyo, Japan; Beijing, China;[1][2] and new facilities constructed in The Dalles, Oregon.[3] In 2009 Google is planning one of its first sites in the upper midwest to open in Council Bluffs, Iowa close to abundant wind power resources for fulfilling green energy objectives and proximate to fiber optic communications links.[4]
+When an attempt to connect to Google is made, DNS servers resolve www.google.com to multiple IP addresses, which acts as a first level of load balancing by directing clients to different Google clusters. (When a domain name resolves to multiple IP addresses, typical implementation of clients is to use the first IP address for communication; the order of IP addresses provided by DNS servers for a domain name is typically done using Round Robin policy.) Each Google cluster has thousands of servers, and upon connection to a cluster further load balancing is performed by hardware in the cluster, in order to send the queries to the least loaded web server. This makes Google one of the biggest and most complex content delivery networks.[5]
+Racks are custom-made and contain 40 to 80 servers (20 to 40 1U servers on either side), while new servers are 2U Rackmount systems.[6] Each rack has a switch. Servers are connected via a 100 Mbit/s Ethernet link to the local switch. Switches are connected to core gigabit switch using one or two gigabit uplinks.[citation needed]
+
+[edit] Main index
+Since queries are composed of words, an inverted index of documents is required. Such an index allows obtaining a list of documents by a query word. The index is very large due to the number of documents stored in the servers.[5]
+
+[edit] Server types
+Google's server infrastructure is divided in several types, each assigned to a different purpose:[6][5][7][8][1]
+
+Google load balancers take the client request and forward it to one of the Google Web Servers via Squid proxy servers.
+Squid proxy servers take the client request from load balancers and return the result if present in local cache otherwise forward it to Google Web Server.
+Google web servers coordinate the execution of queries sent by users, then format the result into an HTML page. The execution consists of sending queries to index servers, merging the results, computing their rank, retrieving a summary for each hit (using the document server), asking for suggestions from the spelling servers, and finally getting a list of advertisements from the ad server.
+Data-gathering servers are permanently dedicated to spidering the Web. Google's web crawler is known as GoogleBot. They update the index and document databases and apply Google's algorithms to assign ranks to pages.
+Each index server contains a set of index shards. They return a list of document IDs ("docid"), such that documents corresponding to a certain docid contain the query word. These servers need less disk space, but suffer the greatest CPU workload.
+Document servers store documents. Each document is stored on dozens of document servers. When performing a search, a document server returns a summary for the document based on query words. They can also fetch the complete document when asked. These servers need more disk space.
+Ad servers manage advertisements offered by services like AdWords and AdSense.
+Spelling servers make suggestions about the spelling of queries.
+
+
+[edit] Server hardware and software
+
+[edit] Original hardware
+The original hardware (ca. 1998) that was used by Google when it was located at Stanford University, included:[9]
+
+Sun Ultra II with dual 200 MHz processors, and 256MB of RAM. This was the main machine for the original Backrub system.
+2 x 300 MHz Dual Pentium II Servers donated by Intel, they included 512MB of RAM and 9 x 9GB hard drives between the two. It was on these that the main search ran.
+F50 IBM RS/6000 donated by IBM, included 4 processors, 512MB of memory and 8 x 9GB hard drives.
+Two additional boxes included 3 x 9GB hard drives and 6 x 4GB hard drives respectively (the original storage for Backrub). These were attached to the Sun Ultra II.
+IBM disk expansion box with another 8 x 9GB hard drives donated by IBM.
+Homemade disk box which contained 10 x 9GB SCSI hard drives.
+
+
+[edit] Current hardware
+Servers are commodity-class x86 PCs running customized versions of Linux. The goal is to purchase CPU generations that offer the best performance per dollar, not absolute performance.[10] Estimates of the power required for over 450,000 servers range upwards of 20 megawatts, which cost on the order of US$2 million per month in electricity charges.
+
+
+
+More details of Googles Current Hardware can be found in this CNet Article: [3]
+
+
+
+Specifications:
+
+Upwards of 15,000 servers[6] ranging from 533 MHz Intel Celeron to dual 1.4 GHz Intel Pentium III (as of 2003[update]). A 2005 estimate by Paul Strassmann has 200,000 servers,[11] while unspecified sources claimed this number to be upwards of 450,000 in 2006.[3]
+One or more 80GB hard disks per server (2003)
+2–4 GB of memory per machine (2004)
+
+The exact size and whereabouts of the data centers Google uses are unknown, and official figures remain intentionally vague. In a 2000 estimate, Google's server farm consisted of 6000 processors, 12,000 common IDE disks (2 per machine, and one processor per machine), at four sites: two in Silicon Valley, California and one in Virginia.[12] Each site had an OC-48 (2488 Mbit/s) internet connection and an OC-12 (622 Mbit/s) connection to other Google sites. The connections are eventually routed down to 4 x 1 Gbit/s lines connecting up to 64 racks, each rack holding 80 machines and two ethernet switches. The servers run custom server software called Google Web Server.
+
+[edit] Hardware details considered sensitive
+In a 2008 book,[13] the reporter Randall Stross wrote: "Google's executives have gone to extraordinary lengths to keep the company's hardware hidden from view. The facilities are not open to tours, not even to members of the press." He wrote this based on interviews with staff members and his experience of visiting the company.
+
+[edit] Data centers
+Google has numerous data centers scattered around the world. At least 12 significant Google data center installations are located in the United States. The largest known centers are located in The Dalles, Oregon; Atlanta, Georgia; Reston, Virginia; Lenoir, North Carolina; and Goose Creek, South Carolina.[14] In Europe, the largest known centers are in Eemshaven and Groningen in the Netherlands and Mons, Belgium.[14]
+
+[edit] Project 02
+One of the largest Google data centers is located in the town of The Dalles, Oregon, on the Columbia River, approximately 80 miles from Portland. Codenamed "Project 02", the new complex is approximately the size of two football fields, with cooling towers four stories high.[15] The site was chosen to take advantage of inexpensive hydroelectric power, and to tap into the region's large surplus of fiber optic cable, a remnant of the dot-com boom. A blueprint of the site has appeared in print.[16]
+
+[edit] Summa papermill
+In February 2009, Stora Enso announced that they had sold the Summa paper mill in Hamina, Finland to Google for 40 million Euros.[17][18] Google plans to invest 200 million euros on the site to build a data center.[19]
+
+[edit] Software
+Most of the software stack that Google uses on their servers was developed in-house.[20]It is believed that C++, Java and Python are favored over other programming languages. Google has acknowledged that Python has played an important role from the beginning, and that it continues to do so as the system grows and evolves.[21]
+The software that runs the Google infrastructure includes:[22]
+
+Google File System
+BigTable
+Chubby lock service
+MapReduce and Sawzall programming language
+Protocol buffers
+
+
+[edit] Server operation
+Most operations are read-only. When an update is required, queries are redirected to other servers, so as to simplify consistency issues. Queries are divided into sub-queries, where those sub-queries may be sent to different ducts in parallel, thus reducing the latency time.[6]
+To lessen the effects of unavoidable hardware failure, software is designed to be fault tolerant. Thus, when a system goes down, data is still available on other servers, which increases reliability.
+
+[edit] References
+
+
+^ a b Chandler Evans (2008). "Google Platform". Future of Google Earth. Madison Publishing Company. p. 299. ISBN 1419689037. 
+^ "[1]." Invest Wallonia. April 27, 2007. Retrieved on May 10, 2007
+^ a b Carr, David F. "How Google Works." Baseline Magazine. July 6, 2006. Retrieved on July 10, 2006.
+^ "[2]." Council Bluffs. July 9, 2007. Retrieved on August 21, 2007
+^ a b c Fiach Reid (2004). "Case Study: The Google search engine". Network Programming in .NET. Digital Press. pp. 251–253. ISBN 1555583156. 
+^ a b c d Web Search for a Planet: The Google Cluster Architecture (Luiz André Barroso, Jeffrey Dean, Urs Hölzle)
+^ Chris Sherman (2005). "How Google Works". Google Power. McGraw-Hill Professional. pp. 10–11. ISBN 0072257873. 
+^ Michael Miller (2007). "How Google Works". Googlepedia. Pearson Technology Group. pp. 17–18. ISBN 078973639X. 
+^ "Google Stanford Hardware." Stanford University (provided by Internet Archive). Retrieved on July 10, 2006.
+^ Tawfik Jelassi and Albrecht Enders (2004). "Case study 16 — Google". Strategies for E-business. Pearson Education. p. 424. ISBN 0273688405. 
+^ Strassmann, Paul A. "A Model for the Systems Architecture of the Future." December 5, 2005. Retrieved on March 18, 2008.
+^ Hennessy, John; Patterson, David. (2002). Computer Architecture: A Quantitative Approach. Third Edition. Morgan Kaufmann. ISBN 1-55860-596-7.
+^ Randall Stross (2008). Planet Google. New York: Free Press. p. 61. ISBN 1-4165-4691-X. 
+^ a b Rich Miller (March 27th, 2008). "Google Data Center FAQ" (html). Data Center Knowledge. http://www.datacenterknowledge.com/archives/2008/03/27/google-data-center-faq/. Retrieved on 2009-03-15. 
+^ Markoff, John; Hansell, Saul. "Hiding in Plain Sight, Google Seeks More Power." New York Times. June 14, 2006. Retrieved on October 15, 2008.
+^ Strand, Ginger. "Google Data Center" Harper's Magazine. March 2008. Retrieved on October 15, 2008.
+^ "Stora Enso divests Summa Mill premises in Finland for EUR 40 million" (html). Stora Enso. 2009-02-12. http://www.storaenso.com/media-centre/press-releases/2009/02/Pages/stora-enso-divests-summa-mill.aspx. Retrieved on 12.02.2009. 
+^ "Stooora yllätys: Google ostaa Summan tehtaan" (in (Finnish)). Kauppalehti (Helsinki). 2009-02-12. http://www.kauppalehti.fi/5/i/talous/uutiset/etusivu/uutinen.jsp?oid=2009/02/18987. Retrieved on 2009-02-12. 
+^ "Google investoi 200 miljoonaa euroa Haminaan" (in (Finnish)). Taloussanomat (Helsinki). 2009-02-04. http://www.taloussanomat.fi/talous/2009/03/04/google-investoi-200-miljoonaa-euroa-haminaan/20095951/133. Retrieved on 2009-03-15. 
+^ Mark Levene (2005). An Introduction to Search Engines and Web Navigation. Pearson Education. p. 73. ISBN 0321306775. 
+^ http://python.org/about/quotes/
+^ http://highscalability.com/google-architecture
+
+
+
+[edit] Further reading
+
+L.A. Barroso, J. Dean, and U. Hölzle (March/April 2002). "Web search for a planet: The Google cluster architecture" (PDF). IEEE Micro 23: 22–28. doi:10.1109/MM.2003.1196112. http://dcagency.netfirms.com./m2022.pdf. 
+
+
+[edit] External links
+
+Google Research Publications
+The Google Linux Cluster — Video about Google's Linux cluster
+Web Search for a Planet: The Google Cluster Architecture (Luiz André Barroso, Jeffrey Dean, Urs Hölzle)
+Underneath the Covers at Google: Current Systems and Future Directions (Talk gave by Jeff Dean at Google I/O conference in May 2008)
+Original Google Hardware Pictures
+
+
+
+
+
+
+
+
+v • d • e
+
+                  Google Inc.  [full navpage]
+
+
+
+
+
+Chairman/CEO: Eric E. Schmidt · Director/Technology President/Co-Founder: Sergey Brin · Director/Products President/Co-Founder: Larry Page
+Other Directors: John Doerr · John L. Hennessy · Arthur D. Levinson · Ann Mather · Paul Otellini · Ram Shriram · Shirley M. Tilghman · CFO: Patrick Pichette · Senior Advisor: Al Gore
+
+
+
+
+
+Advertising
+
+Ad Manager · Adscape · AdSense · Advertising Professionals · AdWords · Analytics · Checkout · DoubleClick · Insights for Search · Trends
+
+
+
+
+
+
+Communication
+
+Alerts · Calendar · Friend Connect · Gmail (history) · Groups · Gtalk · Latitude · Orkut · Q & A · Reader · Translate · Voice
+
+
+
+
+
+
+Software
+
+Chrome · Desktop · Earth · Gadgets · Gmail Mobile · Pack · Picasa · SketchUp · Talk · Toolbar · Updater · Urchin
+
+
+
+
+
+
+Platforms
+
+Account · Android · App Engine · Apps · Base · BigTable · Caja · Co-op · Gears · GFS · Health · Native Client · OpenSocial
+
+
+
+
+
+
+Development tools
+
+Code · Gadgets API · GData · Googlebot · Guice · GWS · I/O · Image Labeler · KML · MapReduce · Pinyin · SketchUp Ruby · Sitemaps · Summer of Code · TechTalks · Web Toolkit · Website Optimizer
+
+
+
+
+
+
+Publishing
+
+Blogger · Bookmarks · Docs · FeedBurner · iGoogle · Jaiku · Knol · Map Maker · Panoramio · Picasa Web Albums · Sites (JotSpot) · YouTube
+
+
+
+
+
+
+Search (PageRank)
+
+Appliance · Audio · Books (Library Project) · Code · Desktop · Finance · GOOG-411 · Images · Maps (Street View) · News · Patents · Products · Scholar · SearchWiki · Usenet · Video · Web
+
+
+
+
+
+
+Discontinued
+
+Answers · Browser Sync · Click-to-Call · Dodgeball · Joga Bonito · Lively · Mashup Editor · Notebook · Page Creator · Video Marketplace · Web Accelerator
+
+
+
+
+
+
+See also
+
+Acquisitions · Bomb · Censorship · Criticism · Foundation · Google China · Google.org · Googleplex · History · Hoaxes · I'm Feeling Lucky · Labs · Logo · Lunar X Prize · Products · Ventures · WiFi · Zeitgeist
+
+
+
+
+
+
+Annual revenue: US$21.80 billion (▲31% FY 2008) · Employees: 20,222 full-time (Dec. 31, 2008) · Stock symbol: (NASDAQ: GOOG, LSE: GGEA) · Motto: Don't be evil · Website: www.google.com
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Google_platform"
+Categories: Google | SupercomputersHidden categories: Wikipedia introduction cleanup | All pages needing cleanup | All articles with unsourced statements | Articles with unsourced statements since February 2007 | Articles containing potentially dated statements from 2003 | All articles containing potentially dated statements 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Español
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 15 April 2009, at 16:13 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

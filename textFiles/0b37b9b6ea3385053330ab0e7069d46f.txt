@@ -1,0 +1,1419 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Microsoft Jet Database Engine - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Microsoft_Jet_Database_Engine";
+		var wgTitle = "Microsoft Jet Database Engine";
+		var wgAction = "view";
+		var wgArticleId = "1948417";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282059234;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Microsoft Jet Database Engine
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about JET Red used in Microsoft Access. For the JET Blue ISAM implementation, see Extensible Storage Engine.
+
+
+
+
+Jet is the database engine behind Microsoft's Access.
+
+
+The Microsoft Jet Database Engine is a database engine on which several Microsoft products were built. A database engine is the underlying component of a database, a collection of information stored on a computer in a systematic way. The first version of Jet was developed in 1992, consisting of three modules which could be used to manipulate a database.
+JET stands for Joint Engine Technology, sometimes being referred to as Microsoft JET Engine or simply Jet. Microsoft Access and Visual Basic use or have used Jet as their underlying database engine. It has since been superseded, however, first by Microsoft Desktop Engine (MSDE), then later by SQL Server 2005 Express Edition and most recently by SQL Server 2005 Compact Edition, and no longer exists as a component of Microsoft Data Access Components (MDAC). For larger database needs, Jet databases can be upgraded (or in Microsoft parlance, "up-sized") to Microsoft's flagship database product, SQL Server 2005.
+Over the years, Jet has become almost synonymous with Microsoft Access, to the extent where many people incorrectly refer to a Jet database as an "Access database".[citation needed] Even Microsoft themselves do this sometimes, but this nomenclature should always be seen as incorrect. Jet is a database and Access is a database application development tool.
+
+
+
+
+Contents
+
+
+1 Architecture
+
+1.1 Locking
+1.2 Transaction processing
+1.3 Data integrity
+1.4 Security
+1.5 Queries
+
+
+2 History
+3 Future
+4 References
+
+4.1 Notes
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Architecture
+Jet allowed the manipulation of a relational database and was part of a Relational Database Management System (RDBMS). It offered a single interface that other software could use to access Microsoft databases and provided support for security, referential integrity, transaction processing, indexing, record and page locking, and data replication. In later versions, the engine was extended to be able to run SQL queries, store character data in Unicode format, create database views and allowed bi-directional replication with Microsoft SQL Server.
+There were three modules to Jet: One was the Native Jet ISAM Driver, a dynamic link library (DLL) that could directly manipulate Microsoft Access database files (MDB) using Indexed Sequential Access Method (ISAM). Another one of the modules contained the ISAM Drivers, DLLs that allowed access to a variety of ISAM databases, among them being Xbase, Paradox, Btrieve and FoxPro. The final module was the Data Access Objects (DAO) DLL. DAO provided a set of methods that allowed programmers to access JET databases using Visual Basic for Applications and Visual Basic programming languages.
+
+[edit] Locking
+Jet allowed multiple users to access the database concurrently. To prevent that data from being corrupted or invalidated when multiple users tried to write to the database, Jet employed a data write locking policy. Any single user could only modify those database records (that is, items in the database) to which they had applied a lock that gave them exclusive access to the record until the lock was released. Up to Jet 4, a page locking model was used, and in Jet 4 a record locking model was employed. Microsoft databases are organized into data "pages", which are fixed length (2 kB before Jet 4, 4 kB in Jet 4) data structures that divide up the database. Data is stored in "records", but these are of variable length and so may take up less or more than one page. The page locking model worked by locking the pages, instead of individual records, which though less resource intensive also meant that more than one record might be locked at any one time.
+There were two mechanisms that Microsoft used for locking: pessimistic locking, and optimistic locking. With pessimistic locking, the record or page is locked immediately when the lock is requested, while with optimistic locking, the update is delayed until all the editing operations on the record have been completed. Conflicts are less likely to occur with optimistic locking, since the record is locked only for a short period of time. However, with optimistic locking one cannot be certain that the update will succeed because another user could update the record first. With pessimistic locking, the update is guaranteed to succeed once the lock is obtained. Other users must wait until the update is made and the lock released in order to make their changes. Lock conflicts, which either require the user to wait, or cause the request to fail (usually after a timeout) are more common with pessimistic locking.
+
+[edit] Transaction processing
+Jet supported transaction processing for database systems that had this capability (ODBC systems had one level transaction processing, while several ISAM systems like Paradox did not have transaction processing capability). A transaction is a series of operations performed on a database that must be done together — this is known as atomicity and is a part of ACID (Atomicity, Consistency, Isolation, and Durability), concepts considered to be the key transaction processing features of a database management system. For transaction processing to work (until Jet 3.0), the programmer needed to begin the transaction manually, perform the operations needed to be performed in the transaction, and then commit (save) the transaction. Until the transaction is committed, changes are made only in memory and not actually written to disk.[1] Transactions have a number of advantages over independent database updates. One of the main advantages is that transactions can be abandoned if a problem occurs during the transaction. This is called rolling back the transaction, or just rollback, and it restores the state of the database records to precisely the state before the transaction began. Transactions also permit the state of the database to remain consistent if a system failure occurs in the middle of a sequence of updates required to be atomic. There is no chance that only some of the updates will end up written to the database; either all will succeed, or the changes will be discarded when the database system restarts. With ODBC's in-memory policy, transactions also allow for many updates to a record to occur entirely within memory, with only one expensive disk write at the end.
+Implicit transactions were supported in Jet 3.0. These are transactions that are started automatically after the last transaction was committed to the database. Implicit transactions in Jet occurred when an SQL DML statement was issued. However, it was found that this had a negative performance impact in 32 bit Windows (Windows 95, Windows 98), so in Jet 3.5 Microsoft removed implicit transactions when SQL DML statements were made.
+JET 4.0
+
+[edit] Data integrity
+
+
+
+
+An example of a database that has not enforced referential integrity. In this example, there is a foreign key (artist_id) value in the album table that references a non-existent artist — in other words there is a foreign key value with no corresponding primary key value in the referenced table. What happened here was that there was an artist called "Aerosmith", with an artist_id of "4", which was deleted from the artist table. However, the album Eat the rich referred to this artist. With referential integrity enforced, this would not have been possible.
+
+
+Jet enforces entity integrity and referential integrity. Entity integrity is one of the key concepts of relational databases, and ensures that no record is able to be duplicated and also ensures that no field (or group of fields) that identify the record (the primary key) are NULL. Thus, Jet supports primary keys. Referential integrity is where the fields that identify data that exist in a database table (the foreign key) must correspond with an existing primary key in that database. If a foreign key value exists that does not have a corresponding primary key in the referenced table, then the referential integrity is broken and the data between tables will no longer be synchronised.
+For instance, a music lover may have a database that stores information about a record collection, and need to store data about an artist and his/her music. In this example, the artist can record many albums, but the album is only recorded by one artist, so two database tables are created: Artist and Album. The Artist table uses the field artist_id as its primary key, and the Album table uses album_id. The album table references the artist table using artist_id as a foreign key. If, for some reason, an artist is deleted and there is an album in the system that contains a reference to that artist then the referential integrity of this record would be broken. Jet will by default prevent this from happening. Jet is also capable of doing cascading updates and deletes. With cascading deletes enabled for the Album table, if the artist in the previous example were deleted, then all the artists' albums would also be deleted.
+Jet also supports "business rules" (also known as "constraints"), or rules that apply to any column to enforce what data might be placed into the table or column. For example, a rule might be applied that does not allow a date to be entered into a date_logged column that is earlier than the current date and time, or a rule might be applied that forces people to enter a positive value into a numeric only field.
+
+[edit] Security
+Access to Jet databases is done on a per user-level. The user information is kept in a separate system database, and access is controlled on each object in the system (for instance by table or by query). In Jet 4, Microsoft implemented functionality that allowed database administrators to set security via the SQL commands CREATE, ADD, ALTER, DROP USER and DROP GROUP. These commands were a subset of ANSI SQL 92 standard, and they also applied to the GRANT/REVOKE commands.[1] When Jet 2 was released, security could also be set programmatically through DAO.
+
+[edit] Queries
+Queries are the mechanisms that Jet uses to retrieve data from the database. They can be defined in Microsoft QBE (Query By Example), through the Microsoft Access SQL Window or through Access Basic's Data Access Objects (DAO) language. These are then converted to an SQL SELECT statement. The query is then compiled — this involves parsing the query (involves syntax checking and determining the columns to query in the database table), then converted into an internal Jet query object format, which is then tokenized and organised into a tree like structure. In Jet 3.0 onwards these were then optimised using the Microsoft Rushmore query optimisation technology. The query is then executed and the results passed back to the application or user who requested the data.
+Jet passes the data retrieved for the query in a dynaset. This is a set of data that is dynamically linked back to the database. Instead of having the query result stored in a temporary table, where the data cannot be updated directly by the user, the dynaset allows the user to view and update the data contained in the dynaset. Thus, if a university lecturer queried all students who received a distinction in their assignment and found an error in that student's record, they would only need to update the data in the dynaset, which would automatically update the student's database record without the need for them to send a specific update query after storing the query results in a temporary table.
+
+[edit] History
+
+
+Jet DLLs
+
+
+
+
+
+
+
+
+
+Jet version
+Jet engine
+DLL file name
+MDB version
+
+
+1.1
+1.10.0001
+MSAJT110.DLL
+1.0 / 1.1
+
+
+2.0 (comlyr)
+2.00.0000
+MSAJT200.DLL
+1.0 / 1.1 / 2.0
+
+
+2.5 (accsvc)
+2.50.1606
+MSAJT200.DLL
+1.0 / 1.1 / 2.0 / 3.0
+
+
+2.5 (VB4 16)
+2.50.1606
+MSAJT200.DLL
+1.0 / 1.1 / 2.0 / 3.0
+
+
+3.0
+3.0.0.2118
+MSJT3032.DLL
+1.0 / 1.1 / 2.0 / 3.0
+
+
+3.5
+
+MSJET35.DLL
+1.0 / 1.1 / 2.0 / 3.0
+
+
+4.0 (SP8)
+4.0.8015.0
+MSJET40.DLL
+1.0 / 1.1 / 2.0 / 3.0 / 4.0
+
+
+
+Sources:
+
+http://support.microsoft.com/kb/178880/en
+http://support.microsoft.com/kb/282010/en
+http://support.microsoft.com/kb/239114/en
+
+
+
+
+
+
+
+
+
+
+
+Application/Version
+Jet version
+
+
+Microsoft Access 1.0
+1.0
+
+
+Microsoft Access 1.1
+1.1
+
+
+Microsoft Access 2.0
+2.0
+
+
+Microsoft Access 2.0
+2.5 with Microsoft Access Service Pack
+
+
+Microsoft Access 7.0
+3.0
+
+
+Microsoft Access 97
+3.5 with Office 97
+
+
+Microsoft Access 97 SR1
+3.5 with Office 97SR1
+
+
+Visual Basic 3.0
+1.1
+
+
+Visual Basic 3.0
+2.0 with Visual Basic Compatibility Layer
+
+
+Visual Basic 3.0
+2.5 with Microsoft Access Service Pack
+
+
+Visual Basic 4.0 16-bit
+2.5
+
+
+Visual Basic 4.0 32-bit
+3.0
+
+
+Visual Basic 5.0 32-bit
+3.0
+
+
+Visual Basic 5.0 32-bit
+3.5
+
+
+Visual C++ 4.X
+3.0
+
+
+Visual C++ 5.0
+3.5
+
+
+Jet 3.51 (web download)
+3.51 (3.5 Binary compatible)
+
+
+Microsoft Access 2000 Standard Edition
+Microsoft Access 2002 Standard Edition
+Microsoft Access 2003 Standard Edition
+4.0
+
+
+
+Sources:
+
+INFO: Identifying the Jet Database Engine Components
+How to obtain the latest service pack for the Microsoft Jet 4.0 Database Engine
+
+
+
+
+
+
+
+
+Jet originally started in 1992 as an underlying data access technology that came from a Microsoft internal database product development project, code named Cirrus. Cirrus was developed from a pre-release version of Visual Basic code and was used as the database engine of Microsoft Access. Tony Goodhew, who worked for Microsoft at the time, says
+
+"It would be reasonably accurate to say that up until that stage Jet was more the name of the team that was assigned to work on the DB engine modules of Access rather than a component team. For VB [Visual Basic] 3.0 they basically had to tear it out of Access and graft it onto VB. That's why they've had all those Jet/ODBC problems in VB 3.0."
+
+Jet became more componentised when Access 2.0 was released because the Access ODBC developers used parts of the Jet code to produce the ODBC driver. A retrofit was provided that allowed Visual Basic 3.0 users to use the updated Jet issued in Access 2.0.[2]
+Jet 2.0 was released as several dynamic linked libraries (DLLs) that were utilised by application software, such as Microsoft's Access database. DLLs in Windows are "libraries" of common code that can be used by more than one application—by keeping code that more than one application uses under a common library which each of these applications can use independently code maintenance is reduced and the functionality of applications increases, with less development effort. The three DLLs that were comprised by Jet 2.0 were the Jet DLL, the Data Access Objects (DAO) DLL and several external ISAM DLLs. The Jet DLL determined what sort of database it was accessing, and how to perform what was requested of it. If the data source was an MDB file (a Microsoft Access format) then it would directly read and write the data to the file. If the data source was external, then it would call on the correct ODBC driver to perform its request. The DAO DLL was a component that programmers could use to interface with the Jet engine, and was mainly used by Visual Basic and Access Basic programmers. The ISAM DLLs were a set of modules that allowed Jet to access three ISAM based databases: Xbase, Paradox and Btrieve.[2]
+Jet 3.0 included many enhancements, including a new index structure that reduced storage size and the time that was taken to create indices that are highly duplicated, the removal of read locks on index pages, a new mechanism for page reuse, a new compacting method for which compacting the database resulted in the indices being stored in a clustered-index format, a new page allocation mechanism to improve Jet's read-ahead capabilities, improved delete operations that speeded processing, multithreading (three threads were used to perform read ahead, write behind, and cache maintenance), implicit transactions (users did not have to instruct the engine to start manually and commit transactions to the database), a new sort engine, long values (such as memos or binary data types) were stored in separate tables, and dynamic buffering (whereby Jet's cache was dynamically allocated at start up and had no limit and which changed from a first in, first out (FIFO) buffer replacement policy to a least recently used (LRU) buffer replacement policy).[3] Jet 3.0 also allowed for database replication.
+Jet 4.0 was the last version produced by Microsoft. It had numerous additional features and enhancements.[1]
+
+Unicode character storage support, along with an NT sorting method that was also implemented in the Windows 95 version;
+Changes to data types to be more like SQL Server's (LongText or Memo; Binary; LongBinary; Date/Time; Real; Float4; IEEESingle; Double; Byte or Tinyint; Integer or Integer synonyms Smallint, Integer2, and Short; LongInteger or LongInteger synonyms Int, Integer, and Counter; Auto-Increment support was dropped; Currency or Money; Boolean and GUID); a new decimal data type
+Memo fields could be indexed
+Compressible data types
+SQL enhancements to make Jet conform more closely to ANSI SQL-92
+Finer grained security; views support; procedure support
+Invocation and termination (committing or rolling back) of transactions
+Enhanced table creation and modification
+Referential integrity support
+Connection control (connected users remain connected, but once disconnected they cannot reconnect, and new connections cannot be made. This was useful for database administrators to gain control of the database)
+A user list, which allows administrators to determine who is connected to the database
+Record-level locking (previous versions only supported page-locking)
+Bi-directional replication with MS SQL Server.
+
+Jet 4 databases can be "upsized" (upgraded) to "an equivalent database on SQL Server with the same table structure, data, and many other attributes of the original database" if the developer has a copy of Microsoft Office 2000 Professional Edition via a Microsoft Access Upsizing Wizard utility. Reports, queries, macros and security is not handled by this tool, meaning that some manual modifications may need to be done if the developer has been heavily reliant on these Jet features.[3]
+
+[edit] Future
+From a data access technology standpoint, Jet is considered a deprecated technology by Microsoft.[4] The Jet engine is no longer distributed with the latest Microsoft Data Access Components (MDAC). Prior to Access 2007 release, Access relied on the Windows component, the Jet engine, for its data storage and query processing. With version 2007 onwards, Access includes a new engine based on Jet, called the Microsoft Access Engine (ACE Engine). The ACE engine is fully backward-compatible with previous versions of the Jet engine, so it reads and writes (.mdb) files from earlier Access versions. The new engine introduces a new default file format, (.accdb), that brings several improvements to Access, including complex data types such as multivalue fields, the attachment data type and history tracking in memo fields. It also brings security and encryption improvements.[5]
+The Jet Database Engine will remain 32-bit for the foreseeable future. Microsoft has no plans to natively support Jet under 64-bit versions of Windows. This means that native 64-bit applications (such as the 64-bit versions of SQL Server) cannot access data stored in MDB files through ODBC, OLE DB, or any other means, except through intermediate 32-bit software (running in WoW64) that acts as a proxy for the 64 bit client.[6]
+
+[edit] References
+
+
+
+Wikibooks has a book on the topic of
+JET Database
+
+
+
+
+
+^ a b MS KB article 275561 (2007-01-29). "Description of the new features that are included in Microsoft Jet 4.0". Microsoft. http://support.microsoft.com/kb/275561/en. Retrieved on 2008-06-19. 
+^ Goodhew, Tony (11 1996), Jet Engine: History, http://www.avdf.com/nov96/acc_jet.html, retrieved on 2008-06-19 
+^ MS KB article 137039 (2003-12-03). "New Features in Microsoft Jet Version 3.0". Microsoft. http://support.microsoft.com/kb/137039/en. Retrieved on 2008-06-19. 
+^ Shirolkar, Prash; Henry, Alyssa; Pepitone, Stephen; Bunch, Acey J.; (01 2008). "Data Access Technologies Road Map". Microsoft Corporation. http://msdn.microsoft.com/en-us/library/ms810810.aspx. Retrieved on 2008-06-19. 
+^ Aleksandar Jakšić (08 2008). "Developing Access 2007 Solutions with Native C or C++". Microsoft Corporation. http://msdn.microsoft.com/en-us/library/cc811599.aspx. Retrieved on 2008-08-26. 
+^ Gorm Braarvig. "Access database from SQL 2005/64". http://gorm-braarvig.blogspot.com/2005/11/access-database-from-sql-200564.html. Retrieved on 2007-06-18. 
+
+
+
+[edit] Notes
+
+^  Microsoft, "Microsoft Access 2000 Data Engine Options", white paper.
+^  Erik Rucker Access 2007 database limits
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft APIs and frameworks
+
+
+
+
+
+Graphics
+
+Desktop Window Manager · Direct2D · Direct3D (extensions)  · GDI / GDI+ · WPF · Windows Color System · Windows Image Acquisition · Windows Imaging Component
+
+
+
+
+
+
+Audio
+
+DirectMusic · DirectSound · DirectX plugin · XACT · Speech API
+
+
+
+
+
+
+Multimedia
+
+DirectX · (Media Objects · Video Acceleration) · DirectInput · DirectPlay · DirectShow · Image Mastering API · Managed DirectX · Media Foundation · XNA · Windows Media
+
+
+
+
+
+
+Web
+
+MSHTML · RSS Platform · JScript · VBScript · BHO · XDR · SideBar Gadgets
+
+
+
+
+
+
+Data access
+
+Data Access Components · Extensible Storage Engine · ADO.NET · ADO.NET Entity Framework · Sync Framework · Jet Engine · MSXML · OLE DB
+
+
+
+
+
+
+Networking
+
+Winsock (LSP) · Winsock Kernel · Filtering Platform · Network Driver Interface Specification · Windows Rally · BITS · P2P API · MSMQ · MS MPI
+
+
+
+
+
+
+Communication
+
+Messaging API · Telephony API
+
+
+
+
+
+
+
+Administration and
+management
+
+
+Win32 console · Windows Script Host · WMI (extensions) · PowerShell · Task Scheduler · Offline Files · Shadow Copy · Windows Installer · Error Reporting · Event Log · Common Log File System
+
+
+
+
+
+
+Component model
+
+COM · COM+ · ActiveX · Distributed Component Object Model · .NET Framework
+
+
+
+
+
+
+Libraries
+
+Microsoft Foundation Classes (MFC) · Active Template Library (ATL) · Windows Template Library (WTL)
+
+
+
+
+
+
+Device drivers
+
+Windows Driver Model  · Windows Driver Foundation (KMDF · UMDF) · WDDM · NDIS · UAA · Broadcast Driver Architecture  · VxD
+
+
+
+
+
+
+Security
+
+Crypto API (CAPICOM) · Windows CardSpace · Data protection API · Security Support Provider Interface (SSPI)
+
+
+
+
+
+
+.NET
+
+ASP.NET · ADO.NET · Remoting · Silverlight · TPL · WCF · WCS · WPF · WF
+
+
+
+
+
+
+Software factories
+
+EFx Factory · Enterprise Library · Composite UI · CCF · CSF
+
+
+
+
+
+
+IPC
+
+MSRPC · Dynamic Data Exchange (DDE)
+
+
+
+
+
+
+Accessibility
+
+Active Accessibility · UI Automation
+
+
+
+
+
+
+
+Text and multilingual
+support
+
+
+Text Services Framework · Text Object Model · Input method editor · Language Interface Pack · Multilingual User Interface · Uniscribe
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft Windows family
+
+
+
+
+
+MS-DOS-based and 9x
+
+1.0 · 2.0 · 2.1x · 3.0 · 3.1x · 95 · 98 · Me
+
+
+
+
+
+
+NT
+
+NT 3.1 · NT 3.5 · NT 3.51 · NT 4.0 · 2000 · XP (editions) · Server 2003 · Vista (editions) · Home Server · Server 2008
+
+
+
+
+
+
+CE
+
+CE 1.0 · CE 2.0 · CE 3.0 · CE 4.0 · CE 5.0 · CE 6.0 · Mobile
+
+
+
+
+
+
+Upcoming
+
+7 (editions) · Server 2008 R2
+
+
+
+
+
+
+Projects
+
+Cancelled: Cairo · Nashville · Neptune · Odyssey · Related: OS/2
+
+
+
+
+
+
+Related topics
+
+Comparison of Windows versions · Components · Criticism · History of Windows · Timeline of Windows · Versions
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft
+
+
+
+
+
+Desktop software
+
+Windows (components) · Internet Explorer · Office · Visual Studio · Expression · Dynamics · Money · Encarta · Student · Math · Works · MapPoint · Virtual PC · Forefront · Home · Flight Simulator · Bob
+
+
+
+
+
+
+Server software
+
+Windows Server · SQL Server · IIS · PWS · Exchange · BizTalk · Commerce · ISA Server · System Center · Home Server · SharePoint (WSS, MOSS, Search Server)  · OCS · Terminal Services  · Microsoft Host Integration Server
+
+
+
+
+
+
+Technologies
+
+Active Directory · DirectX · .NET · Windows Media · PlaysForSure · App-V · Hyper-V  · Silverlight · Windows Mobile · Windows Embedded · Mediaroom · HDi
+
+
+
+
+
+
+Web properties
+
+Windows Live · Office Live (Workspace) · SQL Server Data Services · MSNBC · msnbc.com · ninemsn · MSN · Hotmail · Live Messenger · Spaces · Groups · Live ID · Ignition · MSDN · Technet · Channel 9 · CodePlex · HealthVault · Microsoft adCenter · Microsoft Store
+
+
+
+
+
+
+Gaming
+
+Microsoft Game Studios · Zone · XNA · Xbox · Xbox 360 · Xbox Live (Arcade · Marketplace · Productions) · Games for Windows (LIVE) · Live Anywhere
+
+
+
+
+
+
+Hardware
+
+Surface · Zune (4 / 8 / 16 · 30 · 80 / 120) · MSN TV · Natural Keyboard · Keyboard · Mouse · LifeCam · LifeChat · SideWinder · Ultra-Mobile PC · Fingerprint · Audio System · Cordless Phone · Pocket PC · RoundTable · Response Point
+
+
+
+
+
+
+
+Education and
+recognition
+
+
+MCPs · MSDNAA · MSCA · Microsoft Press · Microsoft MVP · Student Partners · Research · Studies related to Microsoft
+
+
+
+
+
+
+Licensing
+
+Client Access License · Shared Source · Licensing Services
+
+
+
+
+
+
+Criticism
+
+Windows · Windows Vista · Windows XP · Windows 2000 (section) · Windows Me (section) · Windows 9x (section) · Office (section) · Xbox 360 · Refund
+
+
+
+
+
+
+Litigation
+
+Alcatel-Lucent v. Microsoft · European Union Microsoft competition case · United States v. Microsoft · Microsoft vs. Lindows · Apple v. Microsoft · Microsoft vs. MikeRoweSoft
+
+
+
+
+
+
+Board of directors
+
+Steve Ballmer · James Cash, Jr. · Dina Dublon · Bill Gates · Raymond Gilmartin · Reed Hastings · David Marquardt · Charles Noski · Helmut Panke · Jon Shirley
+
+
+
+
+
+
+Acquisitions
+
+Altamira Software · aQuantive · Blue Ribbon Soundworks · Bungie · Calista Technologies · Colloquis · Connectix · Consumers Software · Danger · Farecast · FASA Interactive · Fast Search & Transfer · Firefly · Forethought · GIANT Company Software · Groove Networks · Hotmail · Jellyfish.com · Korea Telecom · LinkExchange · Lionhead Studios · Massive Incorporated · Onfolio · PlaceWare · Powerset · ProClarity · Rare · ScreenTonic · Teleo · Tellme Networks · Vermeer Technologies · Visio Corporation · VXtreme · WebTV Networks · Winternals · Yupi
+
+
+
+
+
+
+Related
+
+Mergers and acquisitions · Owned assets
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Windows Live
+
+
+
+
+
+Web services
+
+Account · Admin Center · Alerts · Calendar · Events · FrameIt · Gallery · Groups · Home · Hotmail · ID · Messenger IM Control · OneCare Safety Scanner · People · Personalized Experience · Photos · Profile · Silverlight Streaming · SkyDrive · Spaces · Video Messages
+
+
+
+
+
+
+Software applications
+
+Essentials · Family Safety · Mail · Messenger (Agents · Call) · Movie Maker · OneCare · Photo Gallery · Sync · Toolbar · Writer
+
+
+
+
+
+
+Live Search
+
+Club · Farecast · Health · News · Maps · Products (Product Upload) · Translator · Video · Webmaster Center  · xRank
+
+
+
+
+
+
+Developer services
+
+Live Services · Data · Tools
+
+
+
+
+
+
+Mobile services
+
+Hotmail Mobile · Messenger Mobile · Search Mobile · Spaces Mobile
+
+
+
+
+
+
+Microsoft Live Labs
+
+Clipboard · FeedSync · Listas · Photosynth · PhotoZoom · Volta
+
+
+
+
+
+
+Discontinued services
+
+
+
+
+
+Windows Live
+
+
+Barcode · Betas · Expo · Favorites · Help Community · Search Center · Shopping · TV · WiFi Center & Hotspot Locator
+
+
+
+
+
+
+
+Live Search
+
+
+Academic · Books (Publisher Program)
+
+
+
+
+
+
+
+Microsoft Live Labs
+
+
+Deepfish
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+.NET Framework
+
+
+
+
+
+Architecture
+
+Base Class Library · Common Language Runtime · Code Access Security · Assembly · Metadata · COM Interop
+
+
+
+
+
+
+Common Language
+Infrastructure (CLI)
+
+Common Language Infrastructure · Common Type System · Common Intermediate Language · Virtual Execution System
+
+
+
+
+
+
+CLI Languages
+
+
+
+
+
+Common1
+
+
+C# · Visual Basic .NET · C++/CLI (Managed) · F#  · J#  · JScript .NET · Windows PowerShell
+
+
+
+
+
+
+
+Other2
+
+
+Axum · A# · Boo · M · Oxygene  · IronLisp · IronPython · IronRuby · IronSchemec Nemerle · Phalanger · P#
+
+
+
+
+
+
+
+
+
+Components
+
+ADO.NET (Entity Framework · Data Services) · ASP.NET (AJAX · MVC · Dynamic Data) · Language Integrated Query · CardSpace · ClickOnce · Communication Foundation · Dynamic Language Runtime · Forms · Presentation Foundation · Remoting · Workflow Foundation  · XAML
+
+
+
+
+
+
+Other implementations
+
+Mono · Compact Framework · XNA Framework · Micro Framework · Portable.NET · Silverlight · SSCLI
+
+
+
+
+
+
+Comparisons
+
+Java and C# · C# and Visual Basic .NET · Java and .NET platforms
+
+
+
+
+
+
+Upcoming
+
+"Acropolis" · "Jasper" · Parallel Extensions
+
+
+
+
+
+
+1 Languages that are, will be, or have been included with Visual Studio or Microsoft Windows.
+2 Non-academic or research languages with relatively large user-bases.
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft development tools
+
+
+
+
+
+Development
+environments
+
+Visual Studio (Team System · Express) · Visual Studio Tools for Office · Visual Studio Tools for Applications · Expression Web · Expression Blend
+
+
+
+
+
+
+Languages and
+compilers
+
+Visual Basic (VB.NET) · Visual C++ · Visual C# · Visual J# · Visual FoxPro · IronPython · IronRuby · PowerShell · XAML · F#
+
+
+
+
+
+
+Major APIs and
+frameworks
+
+Windows API / SDK · .NET Framework · Managed code frameworks (Presentation · Communication · Workflow · CardSpace) · Silverlight · XNA · ASP.NET (ASP.NET AJAX) · LINQ · ADO.NET · DirectX · Robotics Studio
+
+
+
+
+
+
+Database tools
+and languages
+
+
+
+
+
+SQL Server
+
+
+Express · Compact · Management Studio · Business Intelligence Development Studio · MSDE
+
+
+
+
+
+
+
+SQL services
+
+
+Analysis · Reporting · Integration · Notification
+
+
+
+
+
+
+
+Other
+
+
+Visual FoxPro · Microsoft Access · Extensible Storage Engine
+
+
+
+
+
+
+
+
+
+Source control
+
+Team Foundation Server · Visual SourceSafe
+
+
+
+
+
+
+Driver development
+
+Windows Driver Model · Windows Driver Foundation (KMDF · UMDF) · Windows Driver Kit · Windows Logo Kit
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft Office
+
+
+
+
+
+Desktop applications
+
+Accounting · Access · Communicator · Entourage · Equation Editor · Excel · Groove · InfoPath · InterConnect · MapPoint · OneNote · Outlook · PowerPoint · Project · Publisher · SharePoint Designer · Visio · Word
+
+
+
+
+
+
+Server applications
+
+Communications · Forms · Groove · PerformancePoint · Project · Project Portfolio · SharePoint (Excel Services · InfoPath Forms Services)
+
+
+
+
+
+
+Online services
+
+Office Live (Small Business · Workspace · Meeting) · Office Online
+
+
+
+
+
+
+Discontinued
+
+Binder · Data Analyzer · FrontPage · Graph · Mail · Office Assistants · PhotoDraw · Photo Editor · Schedule+ · Vizact · Web Components
+
+
+
+
+
+
+Tools and technologies
+
+Clip Organizer · Document Imaging · Document Scanning · Picture Manager · SmartArt · Smart tags · Information Bridge Framework · Office Open XML · Outlook Connector · Visual Basic for Applications · WordArt · XML schema formats
+
+
+
+
+
+
+Windows versions
+
+95 · 97 · 2000 · XP · 2003 · 2007 · 2010
+
+
+
+
+
+
+Mac OS versions
+
+98 · 2001 · X · 2004 · 2008
+
+
+
+
+
+
+Related topics
+
+History · Microsoft Office Mobile
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft Expression Studio
+
+
+
+
+
+
+Web · Blend · Design · Media · Encoder
+
+
+
+
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Windows components
+
+
+
+
+
+Core
+
+Aero · AutoRun · ClearType · Desktop Window Manager · DirectX · Explorer · Taskbar · Start menu · Shell (namespace · Special Folders · File associations) · Search (Saved search · iFilters) · Graphics Device Interface · Imaging Format · .NET Framework · Server Message Block  · XML Paper Specification · Active Scripting (WSH · VBScript · JScript) · COM (OLE · OLE Automation · DCOM · ActiveX · ActiveX Document · Structured storage · Transaction Server) · Previous Versions · Win32 console
+
+
+
+
+
+
+Management
+tools
+
+Backup and Restore Center · command.com · cmd.exe · Control Panel (Applets) · Device Manager · Disk Cleanup · Disk Defragmenter · Driver Verifier · Event Viewer · Management Console · Netsh · Problem Reports and Solutions · Sysprep · System Policy Editor · System Configuration · Task Manager · System File Checker · System Restore · Windows Installer · PowerShell · Windows Update · WAIK · WinSAT · Windows Easy Transfer
+
+
+
+
+
+
+Applications
+
+Calculator · Calendar · Character Map · Contacts · DVD Maker · Fax and Scan · Internet Explorer · Journal · Mail · Magnifier · Media Center · Media Player · Meeting Space · Mobile Device Center · Mobility Center · Movie Maker · Narrator · Notepad · Paint · Photo Gallery · Private Character Editor · Remote Assistance · Sidebar · Snipping Tool · Sound Recorder · Speech Recognition · WordPad
+
+
+
+
+
+
+Games
+
+Chess Titans · FreeCell · Hearts · Hold 'Em · InkBall · Mahjong Titans · Minesweeper · Purble Place · Solitaire · Spider Solitaire  · Tinker
+
+
+
+
+
+
+Kernel
+
+Ntoskrnl.exe · hal.dll · System Idle Process · Svchost.exe · Registry · Windows service · Service Control Manager · DLL · EXE · NTLDR / Boot Manager · Winlogon · Recovery Console · I/O · WinRE · WinPE · Kernel Patch Protection
+
+
+
+
+
+
+Services
+
+BITS · Task Scheduler · Wireless Zero Configuration · Shadow Copy · Error Reporting · Multimedia Class Scheduler · CLFS
+
+
+
+
+
+
+File systems
+
+NTFS (Hard link · Junction point · Mount Point · Reparse point · Symbolic link · TxF · EFS) · FAT32·FAT16·FAT12 · exFAT · CDFS · UDF · DFS · IFS
+
+
+
+
+
+
+Server
+
+Domains · Active Directory · DNS · Group Policy · Roaming user profiles · Folder redirection · Distributed Transaction Coordinator · MSMQ · Windows Media Services · Rights Management Services · IIS · Terminal Services · WSUS · Windows SharePoint Services · Network Access Protection · DFS Replication · Remote Differential Compression · Print Services for UNIX · Remote Installation Services · Windows Deployment Services · System Resource Manager · Hyper-V
+
+
+
+
+
+
+Architecture
+
+NT series architecture · Object Manager · Startup process (Vista) · I/O request packets · Kernel Transaction Manager · Logical Disk Manager · Security Accounts Manager · Windows Resource Protection · LSASS · CSRSS · SMSS · MinWin
+
+
+
+
+
+
+Security
+
+UAC · BitLocker · Defender · DEP · Protected Media Path · Mandatory Integrity Control · UIPI · Windows Firewall · Security Center
+
+
+
+
+
+
+Compatibility
+
+Unix subsystem (Microsoft POSIX  · Interix) · Virtual DOS machine · Windows on Windows · WOW64
+
+
+
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Microsoft_Jet_Database_Engine"
+Categories: Database engines | Microsoft database softwareHidden categories: All articles with unsourced statements | Articles with unsourced statements since June 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Bahasa Indonesia
+Italiano
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 April 2009, at 07:19 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

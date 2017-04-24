@@ -1,0 +1,492 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+State pattern - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "State_pattern";
+		var wgTitle = "State pattern";
+		var wgAction = "view";
+		var wgArticleId = "164864";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282746883;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-cpp {line-height: normal;}
+.source-cpp li, .source-cpp pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for cpp
+ * CSS class: source-cpp, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-cpp .de1, .source-cpp .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-cpp  {}
+.source-cpp .head {}
+.source-cpp .foot {}
+.source-cpp .imp {font-weight: bold; color: red;}
+.source-cpp .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-cpp li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-cpp li.li2 {font-weight: bold;}
+.source-cpp .kw1 {color: #0000ff;}
+.source-cpp .kw2 {color: #0000ff;}
+.source-cpp .kw3 {color: #0000dd;}
+.source-cpp .kw4 {color: #0000ff;}
+.source-cpp .co1 {color: #ff0000;}
+.source-cpp .co2 {color: #339900;}
+.source-cpp .coMULTI {color: #ff0000; font-style: italic;}
+.source-cpp .es0 {color: #666666; font-weight: bold;}
+.source-cpp .br0 {color: #000000;}
+.source-cpp .st0 {color: #666666;}
+.source-cpp .nu0 {color: #0000dd;}
+.source-cpp .me1 {color: #00eeff;}
+.source-cpp .me2 {color: #00eeff;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); State pattern
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article's factual accuracy is disputed. Please see the relevant discussion on the talk page. (March 2008)
+
+
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it lacks inline citations. Please improve this article by introducing more precise citations where appropriate. (April 2009)
+
+
+
+
+
+
+State in UML
+
+
+
+
+
+
+State in LePUS3 (legend)
+
+
+The state pattern is a behavioral software design pattern, also known as the objects for states pattern. This pattern is used in computer programming to represent the state of an object. This is a clean way for an object to partially change its type at runtime[1].
+Take for example, a drawing program, in which there could be an abstract interface representing a tool, then concrete instances of that class could each represent a kind of tool. When the user selects a different tool, the appropriate tool would be instantiated.
+
+
+
+
+Contents
+
+
+1 Interface Example
+2 As opposed to using switch
+3 See also
+4 External links
+5 References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Interface Example
+For example, an interface to a drawing tool could be
+
+
+ class AbstractTool {
+ 
+ public:
+   virtual void MoveTo(const Point& inP) = 0;
+   virtual void MouseDown(const Point& inP) = 0;
+   virtual void MouseUp(const Point& inP) = 0;
+ };
+
+That is, any tool needs to handle mouse motion and mouse-up and -down events. Then a simple pen tool could be
+
+
+ class PenTool : public AbstractTool {
+ public:
+   PenTool() : mMouseIsDown(false) {}
+ 
+   virtual void MoveTo(const Point& inP) {
+     if(mMouseIsDown) {
+       DrawLine(mLastP, inP);
+     }
+     mLastP = inP;
+   }
+ 
+   virtual void MouseDown(const Point& inP) {
+     mMouseIsDown = true;
+     mLastP = inP;
+   }
+ 
+   virtual void MouseUp(const Point& inP) { 
+     mMouseIsDown = false;
+   }
+ 
+ private:
+   bool mMouseIsDown;
+   Point mLastP;
+ };
+ 
+ class SelectionTool : public AbstractTool {
+ public:
+   SelectionTool() : mMouseIsDown(false) {}
+ 
+   virtual void MoveTo(const Point& inP) {
+     if(mMouseIsDown) {
+       mSelection.Set(mLastP, inP);
+     }
+   }
+ 
+   virtual void MouseDown(const Point& inP) {
+     mMouseIsDown = true;
+     mLastP = inP;
+     mSelection.Set(mLastP, inP);
+   }
+ 
+   virtual void MouseUp(const Point& inP) { 
+     mMouseIsDown = false;
+   }
+ 
+ private:
+   bool mMouseIsDown;
+   Point mLastP;
+   Rectangle mSelection;
+ };
+
+A client using the state pattern above could look like this:
+
+
+ class DrawingController {
+  public:
+   DrawingController() { selectPenTool(); } // Start with some tool.
+   void MoveTo(const Point& inP) {currentTool->MoveTo(inP); }
+   void MouseDown(const Point& inP) {currentTool->MouseDown(inP); }
+   void MouseUp(const Point& inP) {currentTool->MouseUp(inP); }
+ 
+   void selectPenTool() {
+     currentTool.reset(new PenTool);
+   }
+ 
+   void selectSelectionTool() {
+     currentTool.reset(new SelectionTool);
+   }
+ 
+  private:
+   std::auto_ptr<AbstractTool> currentTool;
+ };
+
+The state of the drawing tool is thus represented entirely by an instance of AbstractTool. This makes it easy to add more tools and to keep their behavior localized to that subclass of AbstractTool.
+
+[edit] As opposed to using switch
+The state pattern can be used to replace switch() statements and if {} statements which can be difficult to maintain and are less type-safe. For example, the following is similar to the above but adding a new tool type to this version would be much more difficult.
+
+
+ class Tool {
+ public:
+   Tool() : mMouseIsDown(false) {}
+   virtual void MoveTo(const Point& inP);
+   virtual void MouseDown(const Point& inP);
+   virtual void MouseUp(const Point& inP);
+ private:
+   enum Mode { Pen, Selection };
+   Mode mMode;
+   Point mLastP;
+   bool mMouseIsDown;
+   Rectangle mSelection;
+ };
+ 
+ void Tool::MoveTo(const Point& inP) {
+   switch(mMode) {
+   case Pen:
+     if(mMouseIsDown) {
+       DrawLine(mLastP, inP);
+     }
+     mLastP = inP;
+     break;
+   case Selection:
+     if(mMouseIsDown) {
+       mSelection.Set(mLastP, inP);
+     }
+     break;
+   default:
+     throw std::exception();
+   }
+ }
+ 
+ void Tool::MouseDown(const Point& inP) {
+   switch(mMode) {
+   case Pen:
+     mMouseIsDown = true;
+     mLastP = inP;
+     break;
+   case Selection:
+     mMouseIsDown = true;
+     mLastP = inP;
+     mSelection.Set(mLastP, inP);
+     break;
+   default:
+     throw std::exception();
+   }
+ }
+ 
+ void Tool::MouseUp(const Point& inP) {
+   mMouseIsDown = false;
+ }
+
+
+[edit] See also
+
+Finite State Machine
+Strategy pattern
+Dynamic classification
+
+
+[edit] External links
+
+Jt J2EE Pattern Oriented Framework
+State pattern in UML and in LePUS3 (a formal modelling language)
+State Pattern using Java : A Different Approach
+
+
+[edit] References
+
+
+^ Gamma, Erich; Richard Helm, Ralph Johnson, John M. Vlissides (1995). Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley. pp. 395. ISBN 0201633612. 
+
+
+
+
+
+
+
+
+
+v • d • e
+
+Design patterns in the book Design Patterns
+
+
+
+
+
+Creational
+
+Abstract factory · Builder · Factory · Prototype · Singleton
+
+
+
+
+
+
+Structural
+
+Adapter · Bridge · Composite · Decorator · Facade · Flyweight · Proxy
+
+
+
+
+
+
+Behavioral
+
+Chain of responsibility · Command · Interpreter · Iterator · Mediator · Memento · Observer · State · Strategy · Template method · Visitor
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/State_pattern"
+Categories: Software design patterns | Articles with example C++ codeHidden categories: Accuracy disputes from March 2008 | Articles lacking in-text citations from April 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Български
+Deutsch
+Español
+Français
+Русский
+Українська
+
+
+
+
+
+
+
+
+
+ This page was last modified on 9 April 2009, at 11:26 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,653 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Arithmetic coding - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Arithmetic_coding";
+		var wgTitle = "Arithmetic coding";
+		var wgAction = "view";
+		var wgArticleId = "62545";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280216227;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Arithmetic coding
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Arithmetic coding is a method for lossless data compression. Normally, a string of characters such as the words "hello there" is represented using a fixed number of bits per character, as in the ASCII code. Like Huffman coding, arithmetic coding is a form of variable-length entropy encoding that converts a string into another representation that represents frequently used characters using fewer bits and infrequently used characters using more bits, with the goal of using fewer bits in total. As opposed to other entropy encoding techniques that separate the input message into its component symbols and replace each symbol with a code word, arithmetic coding encodes the entire message into a single number, a fraction n where (0.0 ≤ n < 1.0).
+
+
+
+
+Contents
+
+
+1 How arithmetic coding works
+
+1.1 Defining a model
+1.2 A simplified example
+1.3 Encoding and decoding
+1.4 Example
+
+
+2 Precision and renormalization
+3 Teaching aid
+4 Connections between arithmetic coding and other compression methods
+
+4.1 Huffman coding
+4.2 Range encoding
+
+
+5 US patents on arithmetic coding
+
+5.1 Benchmarks and other technical characteristics
+
+
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] How arithmetic coding works
+
+[edit] Defining a model
+Arithmetic coders produce near-optimal output for a given set of symbols and probabilities (the optimal value is −log2P bits for each symbol of probability P, see source coding theorem). Compression algorithms that use arithmetic coding start by determining a model of the data – basically a prediction of what patterns will be found in the symbols of the message. The more accurate this prediction is, the closer to optimality the output will be.
+Example: a simple, static model for describing the output of a particular monitoring instrument over time might be:
+
+60% chance of symbol NEUTRAL
+20% chance of symbol POSITIVE
+10% chance of symbol NEGATIVE
+10% chance of symbol END-OF-DATA. (The presence of this symbol means that the stream will be 'internally terminated', as is fairly common in data compression; the only time this symbol appears in the data stream, the decoder will know that the entire stream has been decoded.)
+
+Models can handle other alphabets than the simple four-symbol set chosen for this example, of course. More sophisticated models are also possible: higher-order modelling changes its estimation of the current probability of a symbol based on the symbols that precede it (the context), so that in a model for English text, for example, the percentage chance of "u" would be much higher when it follows a "Q" or a "q". Models can even be adaptive, so that they continuously change their prediction of the data based on what the stream actually contains. The decoder must have the same model as the encoder.
+
+[edit] A simplified example
+As an example of how a sequence of symbols is encoded, consider the following: we have a sequence of three symbols, A, B, and C, each equally likely to occur. Simple block encoding would use 2 bits per symbol, which is wasteful: one of the bit variations is never used.
+Instead, we represent the sequence as a rational number between 0 and 2 in base 3, where each digit represents a symbol. For example, the sequence "ABBCAB" could become 0.0112013. We then encode this ternary number using a fixed-point binary number of sufficient precision to recover it, such as 0.0010110012 — this is only 9 bits, 25% smaller than the naive block encoding. This is feasible for long sequences because there are efficient, in-place algorithms for converting the base of arbitrarily precise numbers.
+Finally, knowing the original string had length 6, we can simply convert back to base 3, round to 6 digits, and recover the string.
+
+[edit] Encoding and decoding
+In general, each step of the encoding process, except for the very last, is the same; the encoder has basically just three pieces of data to consider:
+
+The next symbol that needs to be encoded
+The current interval (at the very start of the encoding process, the interval is set to [0,1), but that will change)
+The probabilities the model assigns to each of the various symbols that are possible at this stage (as mentioned earlier, higher-order or adaptive models mean that these probabilities are not necessarily the same in each step.)
+
+The encoder divides the current interval into sub-intervals, each representing a fraction of the current interval proportional to the probability of that symbol in the current context. Whichever interval corresponds to the actual symbol that is next to be encoded becomes the interval used in the next step.
+Example: for the four-symbol model above:
+
+the interval for NEUTRAL would be [0, 0.6)
+the interval for POSITIVE would be [0.6, 0.8)
+the interval for NEGATIVE would be [0.8, 0.9)
+the interval for END-OF-DATA would be [0.9, 1).
+
+When all symbols have been encoded, the resulting interval identifies, unambiguously, the sequence of symbols that produced it. Anyone who has the final interval and the model used can reconstruct the symbol sequence that must have entered the encoder to result in that final interval.
+It is not necessary to transmit the final interval, however; it is only necessary to transmit one fraction that lies within that interval. In particular, it is only necessary to transmit enough digits (in whatever base) of the fraction so that all fractions that begin with those digits fall into the final interval.
+
+[edit] Example
+
+
+
+
+A diagram showing decoding of 0.538 (the circular point) in the example model. The region is divided into subregions proportional to symbol frequencies, then the subregion containing the point is successively subdivided in the same way.
+
+
+Suppose we are trying to decode a message encoded with the four-symbol model described above. The message is encoded in the fraction 0.538 (for clarity, we are using decimal, instead of binary; we are also assuming that whoever gave us the encoded message gave us only as many digits as needed to decode the message. We will discuss both issues later.)
+We start, as the encoder did, with the interval [0,1), and using the same model, we divide it into the same four sub-intervals that the encoder must have. Our fraction 0.538 falls into the sub-interval for NEUTRAL, [0, 0.6); this indicates to us that the first symbol the encoder read must have been NEUTRAL, so we can write that down as the first symbol of our message.
+We then divide the interval [0, 0.6) into sub-intervals:
+
+the interval for NEUTRAL would be [0, 0.36) -- 60% of [0, 0.6)
+the interval for POSITIVE would be [0.36, 0.48) -- 20% of [0, 0.6)
+the interval for NEGATIVE would be [0.48, 0.54) -- 10% of [0, 0.6)
+the interval for END-OF-DATA would be [0.54, 0.6). -- 10% of [0, 0.6)
+
+Our fraction of .538 is within the interval [0.48, 0.54); therefore the second symbol of the message must have been NEGATIVE.
+Once more we divide our current interval into sub-intervals:
+
+the interval for NEUTRAL would be [0.48, 0.516)
+the interval for POSITIVE would be [0.516, 0.528)
+the interval for NEGATIVE would be [0.528, 0.534)
+the interval for END-OF-DATA would be [0.534, 0.540).
+
+Our fraction of .538 falls within the interval of the END-OF-DATA symbol; therefore, this must be our next symbol. Since it is also the internal termination symbol, it means our decoding is complete. (If the stream was not internally terminated, we would need to know where the stream stops from some other source -- otherwise, we would continue the decoding process forever, mistakenly reading more symbols from the fraction than were in fact encoded into it.)
+The same message could have been encoded by the equally short fractions .534, .535, .536, .537 or .539. This suggests that our use of decimal instead of binary introduced some inefficiency. This is correct; the information content of a three-digit decimal is approximately 9.966 bits; we could have encoded the same message in the binary fraction .10001010 (equivalent to .5390625 decimal) at a cost of only 8 bits. (Note that the final zero must be specified in the binary fraction, or else the message would be ambiguous without external information such as compressed stream size.)
+This 8 bit output is larger than the information content, or entropy of our message, which is 1.57 * 3 or 4.71 bits. The large difference between the example's 8 (or 7 with external compressed data size information) bits of output and the entropy of 4.71 bits is caused by the short example message not being able to exercise the coder effectively. We claimed symbol probabilities of [.6, .2, .1, .1], but the actual frequencies in this example are [.33, 0, .33 .33]. If the intervals are readjusted for these frequencies, the entropy of the message would be 1.58 bits and you could encode the same NEUTRAL NEGATIVE ENDOFDATA message as intervals [0, 1/3); [1/9, 2/9); [5/27, 6/27); and a binary interval of [1011110, 1110001). This could yield an output message of 111, or just 3 bits. This is also an example of how statistical coding methods like arithmetic encoding can produce an output message that is larger than the input message, especially if the probability model is off.
+
+[edit] Precision and renormalization
+The above explanations of arithmetic coding contain some simplification. In particular, they are written as if the encoder first calculated the fractions representing the endpoints of the interval in full, using infinite precision, and only converted the fraction to its final form at the end of encoding. Rather than try to simulate infinite precision, most arithmetic coders instead operate at a fixed limit of precision that they know the decoder will be able to match, and round the calculated fractions to their nearest equivalents at that precision. An example shows how this would work if the model called for the interval [0,1) to be divided into thirds, and this was approximated with 8 bit precision. Note that now that the precision is known, so are the binary ranges we'll be able to use.
+
+
+Symbol
+Probability (expressed as fraction)
+Interval reduced to eight-bit precision (as fractions)
+Interval reduced to eight-bit precision (in binary)
+Range in binary
+
+
+A
+1/3
+[0, 85/256)
+[0.00000000, 0.01010101)
+00000000 - 01010100
+
+
+B
+1/3
+[85/256, 171/256)
+[0.01010101, 0.10101011)
+01010101 - 10101010
+
+
+C
+1/3
+[171/256, 1)
+[0.10101011, 1.00000000)
+10101011 - 11111111
+
+
+A process called renormalization keeps the finite precision from becoming a limit on the total number of symbols that can be encoded. Whenever the range is reduced to the point where all values in the range share certain beginning digits, those digits are sent to the output. However many digits of precision the computer can handle, it is now handling fewer than that, so the existing digits are shifted left, and at the right, new digits are added to expand the range as widely as possible. Note that this result occurs in two of the three cases from our previous example.
+
+
+Symbol
+Probability
+Range
+Digits that can be sent to output
+Range after renormalization
+
+
+A
+1/3
+00000000 - 01010100
+0
+00000000 - 10101001
+
+
+B
+1/3
+01010101 - 10101010
+None
+01010101 - 10101010
+
+
+C
+1/3
+10101011 - 11111111
+1
+01010110 - 11111111
+
+
+
+[edit] Teaching aid
+An interactive visualization tool for teaching arithmetic coding, dasher.tcl, was also the first prototype of the assistive communication system, Dasher.
+
+[edit] Connections between arithmetic coding and other compression methods
+
+[edit] Huffman coding
+There is great similarity between arithmetic coding and Huffman coding – in fact, it has been shown that Huffman is just a specialized case of arithmetic coding – but because arithmetic coding translates the entire message into one number represented in base b, rather than translating each symbol of the message into a series of digits in base b, it will sometimes approach optimal entropy encoding much more closely than Huffman can.
+In fact, a Huffman code corresponds closely to an arithmetic code where each of the frequencies is rounded to a nearby power of ½ — for this reason Huffman deals relatively poorly with distributions where symbols have frequencies far from a power of ½, such as 0.75 or 0.375. This includes most distributions where there are either a small numbers of symbols (such as just the bits 0 and 1) or where one or two symbols dominate the rest.
+For an alphabet {a, b, c} with equal probabilities of 1/3, Huffman coding may produce the following code:
+
+a → 0: 50%
+b → 10: 25%
+c → 11: 25%
+
+This code has an expected (2 + 2 + 1)/3 ≈ 1.667 bits per symbol for Huffman coding, an inefficiency of 5 percent compared to log23 ≈ 1.585 bits per symbol for arithmetic coding.
+For an alphabet {0, 1} with probabilities 0.625 and 0.375, Huffman encoding treats them as though they had 0.5 probability each, assigning 1 bit to each value, which doesn't achieve any compression over naive block encoding. Arithmetic coding approaches the optimal compression ratio of:
+
+1 - (0.625(−log20.625) + 0.375(−log20.375)) ≈ 4.6%.
+
+When the symbol 0 has a high probability of 0.95, the difference is much greater:
+
+1 - (0.95(−log20.95) + 0.05(−log20.05)) ≈ 71.4%.
+
+One simple way to address this weakness is to concatenate symbols to form a new alphabet in which each symbol represents a sequence of symbols in the original alphabet. In the above example, if we were to group sequences of three symbols before encoding, then we would have new "super-symbols" with the following frequencies:
+
+000: 85.7%
+001, 010, 100: 4.5% each
+011, 101, 110: .24% each
+111: 0.0125%
+
+With this grouping, Huffman coding averages 1.3 bits for every three symbols, or 0.433 bits per symbol, compared with one bit per symbol in the original encoding.
+
+[edit] Range encoding
+Main article: Range encoding
+Range encoding is another way of looking at arithmetic coding. Arithmetic coding and range encoding can be regarded as different interpretations of the same coding methods; arithmetic coders can be regarded as range encoders/decoders, and vice-versa. However, there is a tendency for arithmetic coders to be called range encoders when renormalization is performed a byte at a time, rather than one bit at a time (as is often the case with arithmetic coding), but this distinction is not definitive. When renormalization is applied a byte at a time, rather than with each output bit, there is a very slight reduction in compression, but the range encoder may be faster as a result.
+When implemented in the manner described in G N N Martin's 1979 paper, range encoders are free from patents relating to arithmetic coding, even though they're the same thing in practice.
+
+[edit] US patents on arithmetic coding
+A variety of specific techniques for arithmetic coding are covered by US patents. Some of these patents may be essential for implementing the algorithms for arithmetic coding that are specified in some formal international standards. When this is the case, such patents are generally available for licensing under what are called "reasonable and non-discriminatory" (RAND) licensing terms (at least as a matter of standards-committee policy). In some well-known instances (including some involving IBM patents) such licenses are available for free, and, in other instances, licensing fees are required. The availability of licenses under RAND terms does not necessarily satisfy everyone who might want to use the technology, as what may be "reasonable" fees for a company preparing a proprietary software product may seem much less reasonable for a free software or open source project.
+At least one significant compression software program, bzip2, deliberately discontinued the use of arithmetic coding in favor of Huffman coding due to the patent situation. Also, encoders and decoders of the JPEG file format, which has options for both Huffman encoding and arithmetic coding, typically only support the Huffman encoding option, due to patent concerns; the result is that nearly all JPEGs in use today use Huffman encoding.[1]
+Some US patents relating to arithmetic coding are listed below.
+
+U.S. Patent 4,122,440  — (IBM) Filed March 4, 1977, Granted 24 October 1978 (Now expired)
+U.S. Patent 4,286,256  — (IBM) Granted 25 August 1981 (presumably now expired)
+U.S. Patent 4,467,317  — (IBM) Granted 21 August 1984 (presumably now expired)
+U.S. Patent 4,652,856  — (IBM) Granted 4 February 1986 (presumably now expired)
+U.S. Patent 4,891,643  — (IBM) Filed 15 September 1986, granted 2 January 1990 (presumably now expired)
+U.S. Patent 4,905,297  — (IBM) Filed 18 November 1988, granted 27 February 1990 (presumably now expired)
+U.S. Patent 4,933,883  — (IBM) Filed 3 May 1988, granted 12 June 1990 (presumably now expired)
+U.S. Patent 4,935,882  — (IBM) Filed 20 July 1988, granted 19 June 1990 (presumably now expired)
+U.S. Patent 4,989,000  — Filed 19 June 1989, granted 29 January 1991
+U.S. Patent 5,099,440  — (IBM) Filed 5 January 1990, granted 24 March 1992
+U.S. Patent 5,272,478  — (Ricoh) Filed 17 August 1992, granted 21 December 1993
+
+Note: This list is not exhaustive. See the following link for a list of more patents. [2] The Dirac codec uses arithmetic coding and is not patent pending. [3]
+Patents on arithmetic coding may exist in other jurisdictions, see software patents for a discussion of the patentability of software around the world.
+
+[edit] Benchmarks and other technical characteristics
+Every programmatic implementation of arithmetic encoding has a different compression ratio and performance. While compression ratios vary insignificantly (typically within 1%) the time of code execution may be different by a factor of 10. Choosing the right encoder from a list of publicly available encoders is not a simple task because performance and compression ratio depend also on the type of data, particularly on the size of the alphabet (number of different symbols). One of two particular encoders may have better performance for small alphabets while the other may show better performance for large alphabets. Most encoders have limitations on size of the alphabet and many of them are designed for dual alphabet only (zero and one).
+
+[edit] See also
+
+Data compression
+
+
+[edit] References
+
+Rissanen, Jorma (May 1976). "Generalized Kraft Inequality and Arithmetic Coding" (PDF). IBM Journal of Research and Development 20 (3): 198–203. http://domino.watson.ibm.com/tchjr/journalindex.nsf/4ac37cf0bdc4dd6a85256547004d47e1/53fec2e5af172a3185256bfa0067f7a0?OpenDocument. Retrieved on 2007-09-21. 
+Rissanen, J.J.; Langdon, G.G., Jr. (March 1979). "Arithmetic coding" (PDF). IBM Journal of Research and Development 23 (2): 149–162. http://researchweb.watson.ibm.com/journal/rd/232/ibmrd2302G.pdf. Retrieved on 2007-09-22. 
+Witten, Ian H.; Neal, Radford M.; Cleary, John G. (June 1987). "Arithmetic Coding for Data Compression" (PDF). CACM 30 (6): 520–540. http://www.stanford.edu/class/ee398a/handouts/papers/WittenACM87ArithmCoding.pdf. Retrieved on 2007-09-21. 
+MacKay, David J.C. (September 2003). "Chapter 6: Stream Codes" (PDF/PostScript/DjVu/LaTeX). Information Theory, Inference, and Learning Algorithms. Cambridge University Press. ISBN 0-521-64298-1. http://www.inference.phy.cam.ac.uk/mackay/itila/book.html. Retrieved on 2007-12-30. 
+
+
+[edit] External links
+
+This article incorporates text from the NIST Dictionary of Algorithms and Data Structures, which, as a U.S. government publication, is in the public domain. Source: arithmetic coding.
+
+
+Newsgroup posting with a short worked example of arithmetic encoding (integer-only).
+PlanetMath article on arithmetic coding
+Anatomy of Range Encoder The article explains both range and arithmetic coding. It has also code samples for 3 different arithmetic encoders along with performance comparison.
+Introduction to Arithmetic Coding. 60 pages.
+Eric Bodden, Malte Clasen and Joachim Kneis: Arithmetic Coding revealed. Technical Report 2007-5, Sable Research Group, McGill University.
+
+
+
+
+
+
+
+
+v • d • e
+
+Data compression methods
+
+
+
+
+
+Lossless
+
+
+
+
+
+Theory
+
+
+Entropy · Complexity · Redundancy
+
+
+
+
+
+
+
+Entropy encoding
+
+
+Huffman · Adaptive Huffman · Arithmetic (Shannon-Fano · Range) · Golomb · Exp-Golomb · Universal (Elias · Fibonacci)
+
+
+
+
+
+
+
+Dictionary
+
+
+RLE · DEFLATE · LZ Family (LZ77/78 · LZSS · LZW · LZWL · LZO · LZMA · LZX · LZRW · LZJB · LZT)
+
+
+
+
+
+
+
+Others
+
+
+CTW · BWT · PPM · DMC
+
+
+
+
+
+
+
+
+
+Audio
+
+
+
+
+
+Theory
+
+
+Convolution · Sampling · Nyquist–Shannon theorem
+
+
+
+
+
+
+
+Audio codec parts
+
+
+LPC (LAR · LSP) · WLPC · CELP · ACELP · A-law · μ-law · MDCT · Fourier transform · Psychoacoustic model
+
+
+
+
+
+
+
+Others
+
+
+Dynamic range compression · Speech compression · Sub-band coding
+
+
+
+
+
+
+
+
+
+Image
+
+
+
+
+
+Terms
+
+
+Color space · Pixel · Chroma subsampling · Compression artifact
+
+
+
+
+
+
+
+Methods
+
+
+RLE · DPCM · Fractal · Wavelet · EZW · SPIHT · LP · DCT · KLT
+
+
+
+
+
+
+
+Others
+
+
+Bit rate · Test images · PSNR quality measure · Quantization
+
+
+
+
+
+
+
+
+
+Video
+
+
+
+
+
+Terms
+
+
+Video Characteristics · Frame · Frame types · Video quality
+
+
+
+
+
+
+
+Video codec parts
+
+
+Motion compensation · DCT · Quantization
+
+
+
+
+
+
+
+Others
+
+
+Video codecs · Rate distortion theory (CBR · ABR · VBR)
+
+
+
+
+
+
+
+
+
+
+Timeline of information theory, data compression, and error-correcting codes
+
+
+
+
+
+
+See Compression Formats and Standards for formats and Compression Software Implementations for codecs
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Arithmetic_coding"
+Categories: Lossless compression algorithmsHidden categories: Wikipedia articles incorporating text from the NIST Dictionary of Algorithms and Data Structures 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Français
+한국어
+Italiano
+Nederlands
+日本語
+Polski
+Português
+Русский
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 28 March 2009, at 14:25.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

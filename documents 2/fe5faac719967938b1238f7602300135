@@ -1,0 +1,841 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="LR parser,Articles needing additional references from September 2008,Addison-Wesley,Alfred Aho,Boldface,Bottom-up parsing,Buffer (computer science),C++,Call stack,Canonical LR parser,Compiler" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=LR_parser&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=LR_parser&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>LR parser - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "LR_parser";
+		var wgTitle = "LR parser";
+		var wgAction = "view";
+		var wgArticleId = "18030";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281310231;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-LR_parser skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">LR parser</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table class="metadata plainlinks ambox ambox-content" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Question_book-new.svg" class="image" title="Question book-new.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/9/99/Question_book-new.svg/50px-Question_book-new.svg.png" width="50" height="39" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article <b>needs additional <a href="/wiki/Wikipedia:Citing_sources" title="Wikipedia:Citing sources">citations</a> for <a href="/wiki/Wikipedia:Verifiability" title="Wikipedia:Verifiability">verification</a>.</b> Please help <a href="http://en.wikipedia.org/w/index.php?title=LR_parser&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=LR_parser&amp;action=edit" rel="nofollow">improve this article</a> by adding <a href="/wiki/Wikipedia:Reliable_sources" title="Wikipedia:Reliable sources">reliable references</a> (ideally, using <i><a href="/wiki/Wikipedia:Footnotes" title="Wikipedia:Footnotes">inline citations</a></i>). Unsourced material may be <a href="/wiki/Template:Fact" title="Template:Fact">challenged</a> and <a href="/wiki/Wikipedia:BURDEN" title="Wikipedia:BURDEN" class="mw-redirect">removed</a>. <small><i>(September 2008)</i></small></td>
+</tr>
+</table>
+<p>In <a href="/wiki/Computer_science" title="Computer science">computer science</a>, an <b>LR parser</b> is a <a href="/wiki/Parser" title="Parser" class="mw-redirect">parser</a> for <a href="/wiki/Context-free_grammar" title="Context-free grammar">context-free grammars</a> that reads input from <b>L</b>eft to right and produces a <a href="/wiki/Context-free_grammar#Derivations_and_syntax_trees" title="Context-free grammar"><b>R</b>ightmost derivation</a>. The term <b>LR(<i>k</i>) parser</b> is also used; here the <i>k</i> refers to the number of unconsumed "<a href="/wiki/Lookahead" title="Lookahead">look ahead</a>" input symbols that are used in making parsing decisions. Usually <i>k</i> is 1 and is often omitted. A context-free grammar is called LR(<i>k</i>) if there exists an LR(<i>k</i>) parser for it.</p>
+<p>An LR parser is said to perform <a href="/wiki/Bottom-up_parsing" title="Bottom-up parsing">bottom-up parsing</a> because it attempts to deduce the top level grammar productions by building up from the <b>leaves</b>.</p>
+<p>A <a href="/wiki/Deterministic_context-free_language" title="Deterministic context-free language">deterministic context-free language</a> is a language for which some LR(<i>k</i>) grammar exists. Every LR(<i>k</i>) grammar for <i>k &gt; 1</i> can be mechanically transformed into an LR(<i>1</i>) grammar for the same language, while an LR(<i>0</i>) grammar for the same language may not exist; the LR(<i>0</i>) languages are a proper subset of the deterministic ones.</p>
+<p>Many <a href="/wiki/Programming_language" title="Programming language">programming languages</a> are described by a grammar that is LR(1), or close to being so, and for this reason LR parsers are often used by <a href="/wiki/Compiler" title="Compiler">compilers</a> to perform syntax analysis of <a href="/wiki/Source_code" title="Source code">source code</a>.</p>
+<p>In typical usage an "LR parser" means a particular parser capable of recognizing a particular language specified by a context free grammar. It is common, however, to use the term to mean a driver program that can be supplied with a suitable table to produce a wide number of different particular LR parsers. However, these programs are more accurately called parser generators.</p>
+<p>LR parsing can be generalized to arbitrary context-free language parsing without a performance penalty on LR(k) grammars. However, most programming languages are designed to be expressed with LR(k) grammars, (where k is a small constant, usually 1), since parsing of non-LR(k) grammars is an order of magnitude more expensive (<a href="/wiki/Cubic" title="Cubic">cubic</a> instead of <a href="/wiki/Quadratic" title="Quadratic">quadratic</a> in the input length). One notable exception is <a href="/wiki/C%2B%2B" title="C++">C++</a>.</p>
+<p>Compared to <a href="/wiki/LL_parsing" title="LL parsing" class="mw-redirect">LL parsing</a>, LR parsing can not only handle a larger range of languages, but is also better at error reporting: it detects syntactic errors (that is, when the input does not conform to the grammar) as soon as possible. This is in contrast to an LL(k) (or even worse, an LL(*) parser) which may defer error detection to a different branch of the grammar due to backtracking, often making errors harder to localize across disjunctions with long common prefixes.</p>
+<p>LR parsers are difficult to produce by hand; they are usually constructed by a <a href="/wiki/Parser_generator" title="Parser generator" class="mw-redirect">parser generator</a> or a <a href="/wiki/Compiler-compiler" title="Compiler-compiler">compiler-compiler</a>. Depending on how the parsing table is generated, these parsers can be called <a href="/wiki/Simple_LR_parser" title="Simple LR parser">simple LR parsers</a> (SLR), <a href="/wiki/LALR_parser" title="LALR parser">look-ahead LR parsers</a> (LALR), or <a href="/wiki/Canonical_LR_parser" title="Canonical LR parser">canonical LR parsers</a>. These types of parsers can deal with increasingly large sets of grammars; LALR parsers can deal with more grammars than SLR. Canonical LR parsers work on more grammars than LALR parsers.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Architecture_of_LR_parsers"><span class="tocnumber">1</span> <span class="toctext">Architecture of LR parsers</span></a>
+<ul>
+<li class="toclevel-2"><a href="#General_case"><span class="tocnumber">1.1</span> <span class="toctext">General case</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Parsing_algorithm"><span class="tocnumber">1.1.1</span> <span class="toctext">Parsing algorithm</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Concrete_example"><span class="tocnumber">1.2</span> <span class="toctext">Concrete example</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Action_and_goto_tables"><span class="tocnumber">1.2.1</span> <span class="toctext">Action and goto tables</span></a></li>
+<li class="toclevel-3"><a href="#Parsing_procedure"><span class="tocnumber">1.2.2</span> <span class="toctext">Parsing procedure</span></a></li>
+<li class="toclevel-3"><a href="#Walkthrough"><span class="tocnumber">1.2.3</span> <span class="toctext">Walkthrough</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Constructing_LR.280.29_parsing_tables"><span class="tocnumber">2</span> <span class="toctext">Constructing LR(0) parsing tables</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Items"><span class="tocnumber">2.1</span> <span class="toctext">Items</span></a></li>
+<li class="toclevel-2"><a href="#Item_sets"><span class="tocnumber">2.2</span> <span class="toctext">Item sets</span></a></li>
+<li class="toclevel-2"><a href="#Closure_of_item_sets"><span class="tocnumber">2.3</span> <span class="toctext">Closure of item sets</span></a></li>
+<li class="toclevel-2"><a href="#Augmented_grammar"><span class="tocnumber">2.4</span> <span class="toctext">Augmented grammar</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Table_construction"><span class="tocnumber">3</span> <span class="toctext">Table construction</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Finding_the_reachable_item_sets_and_the_transitions_between_them"><span class="tocnumber">3.1</span> <span class="toctext">Finding the reachable item sets and the transitions between them</span></a></li>
+<li class="toclevel-2"><a href="#Constructing_the_action_and_goto_tables"><span class="tocnumber">3.2</span> <span class="toctext">Constructing the action and goto tables</span></a>
+<ul>
+<li class="toclevel-3"><a href="#A_note_about_LR.280.29_versus_SLR_and_LALR_parsing"><span class="tocnumber">3.2.1</span> <span class="toctext">A note about LR(0) versus SLR and LALR parsing</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Conflicts_in_the_constructed_tables"><span class="tocnumber">3.3</span> <span class="toctext">Conflicts in the constructed tables</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">4</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#Further_reading"><span class="tocnumber">5</span> <span class="toctext">Further reading</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">7</span> <span class="toctext">See also</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Architecture_of_LR_parsers" id="Architecture_of_LR_parsers"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=1" title="Edit section: Architecture of LR parsers">edit</a>]</span> <span class="mw-headline">Architecture of LR parsers</span></h2>
+<div class="thumb tright">
+<div class="thumbinner" style="width:327px;"><a href="/wiki/File:LR_Parser.png" class="image" title="Figure 1. Architecture of a table-based bottom-up parser."><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/2/2b/LR_Parser.png" width="325" height="278" border="0" class="thumbimage" /></a>
+<div class="thumbcaption"><b>Figure 1.</b> Architecture of a table-based <a href="/wiki/Bottom-up_parsing" title="Bottom-up parsing">bottom-up</a> parser.</div>
+</div>
+</div>
+<p>Conceptually, an LR Parser is a recursive program that can be proven correct by direct computation, and can be implemented more efficiently (in <a href="/wiki/Time_complexity#Time_and_space_complexity" title="Time complexity" class="mw-redirect">time</a>) as a <a href="/wiki/Recursive_ascent_parser" title="Recursive ascent parser">recursive ascent parser</a>, a set of mutually-recursive functions for every grammar, much like a <a href="/wiki/Recursive_descent_parser" title="Recursive descent parser">recursive descent parser</a>. Conventionally, however, LR parsers are presented and implemented as table-based stack machines in which the <a href="/wiki/Call_stack" title="Call stack">call stack</a> of the underlying recursive program is explicitly manipulated.</p>
+<p>A <a href="/wiki/Parsing_table" title="Parsing table">table</a>-driven <a href="/wiki/Bottom-up_parsing" title="Bottom-up parsing">bottom-up</a> parser can be schematically presented as in Figure 1. The following describes a <a href="/wiki/Context-free_grammar#Derivations_and_syntax_trees" title="Context-free grammar">rightmost derivation</a> by this parser.</p>
+<p><a name="General_case" id="General_case"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=2" title="Edit section: General case">edit</a>]</span> <span class="mw-headline">General case</span></h3>
+<p>The parser is a state machine. It consists of:</p>
+<ul>
+<li>an input <a href="/wiki/Buffer_(computer_science)" title="Buffer (computer science)" class="mw-redirect">buffer</a></li>
+<li>a <a href="/wiki/Stack_(data_structure)" title="Stack (data structure)">stack</a> on which is stored a list of states it has been in</li>
+<li>a goto table that prescribes to which new state it should move</li>
+<li>an action table that gives a grammar rule to apply given the current state and the current <a href="/wiki/Terminal_symbol" title="Terminal symbol" class="mw-redirect">terminal</a> in the input stream</li>
+</ul>
+<p><a name="Parsing_algorithm" id="Parsing_algorithm"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=3" title="Edit section: Parsing algorithm">edit</a>]</span> <span class="mw-headline">Parsing algorithm</span></h4>
+<p>Since the LR parser reads input from left to right but needs to produce a rightmost derivation, it uses reductions, instead of derivations to process input. That is, the algorithm works by creating a "leftmost reduction" of the input. The end result, when reversed, will be a rightmost derivation.</p>
+<p>The LR parsing algorithm works as follows:</p>
+<ol>
+<li>The stack is initialized with [<b>0</b>]. The current state will always be the state that is at the top of the stack.</li>
+<li>Given the current state and the current terminal on the input stream an action is looked up in the action table. There are four cases:
+<ul>
+<li>a shift s<i>n</i>:
+<ul>
+<li>the current terminal is removed from the input stream</li>
+<li>the state <i>n</i> is pushed onto the stack and becomes the current state</li>
+</ul>
+</li>
+<li>a reduce r<i>m</i>:
+<ul>
+<li>the number <i>m</i> is written to the output stream</li>
+<li>for every symbol in the right-hand side of rule <i>m</i> a state is removed from the stack</li>
+<li>given the state that is then on top of the stack and the left-hand side of rule <i>m</i> a new state is looked up in the goto table and made the new current state by pushing it onto the stack</li>
+</ul>
+</li>
+<li>an accept: the string is accepted</li>
+<li>no action: a syntax error is reported</li>
+</ul>
+</li>
+<li>Step 2 is repeated until either the string is accepted or a syntax error is reported.</li>
+</ol>
+<p><a name="Concrete_example" id="Concrete_example"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=4" title="Edit section: Concrete example">edit</a>]</span> <span class="mw-headline">Concrete example</span></h3>
+<p>To explain its workings we will use the following small grammar whose start symbol is E:</p>
+<dl>
+<dd>(1) E → E * B</dd>
+<dd>(2) E → E + B</dd>
+<dd>(3) E → B</dd>
+<dd>(4) B → 0</dd>
+<dd>(5) B → 1</dd>
+</dl>
+<p>and parse the following input:</p>
+<dl>
+<dd><b>1 + 1</b></dd>
+</dl>
+<p><a name="Action_and_goto_tables" id="Action_and_goto_tables"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=5" title="Edit section: Action and goto tables">edit</a>]</span> <span class="mw-headline">Action and goto tables</span></h4>
+<p>The two LR(0) parsing tables for this grammar look as follows:</p>
+<table cellpadding="3" cellspacing="0" border="1" align="center">
+<tr align="center">
+<td></td>
+<td colspan="5"><i>action</i></td>
+<td></td>
+<td colspan="2"><i>goto</i></td>
+</tr>
+<tr align="center">
+<td><i>state</i></td>
+<td><b>*</b></td>
+<td><b>+</b></td>
+<td><b>0</b></td>
+<td><b>1</b></td>
+<td><b>$</b></td>
+<td>&#160;</td>
+<td><b>E</b></td>
+<td><b>B</b></td>
+</tr>
+<tr align="center">
+<td><b>0</b></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>s1</td>
+<td>s2</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr align="center">
+<td><b>1</b></td>
+<td>r4</td>
+<td>r4</td>
+<td>r4</td>
+<td>r4</td>
+<td>r4</td>
+<td></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr align="center">
+<td><b>2</b></td>
+<td>r5</td>
+<td>r5</td>
+<td>r5</td>
+<td>r5</td>
+<td>r5</td>
+<td></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr align="center">
+<td><b>3</b></td>
+<td>s5</td>
+<td>s6</td>
+<td>&#160;</td>
+<td></td>
+<td>acc</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr align="center">
+<td><b>4</b></td>
+<td>r3</td>
+<td>r3</td>
+<td>r3</td>
+<td>r3</td>
+<td>r3</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr align="center">
+<td><b>5</b></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>s1</td>
+<td>s2</td>
+<td></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>7</td>
+</tr>
+<tr align="center">
+<td><b>6</b></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>s1</td>
+<td>s2</td>
+<td></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>8</td>
+</tr>
+<tr align="center">
+<td><b>7</b></td>
+<td>r1</td>
+<td>r1</td>
+<td>r1</td>
+<td>r1</td>
+<td>r1</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr align="center">
+<td><b>8</b></td>
+<td>r2</td>
+<td>r2</td>
+<td>r2</td>
+<td>r2</td>
+<td>r2</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+</table>
+<p>The <b>action table</b> is indexed by a state of the parser and a terminal (including a special terminal $ that indicates the end of the input stream) and contains three types of actions:</p>
+<ul>
+<li><i>shift</i>, which is written as 's<i>n</i>' and indicates that the next state is <i>n</i></li>
+<li><i>reduce</i>, which is written as 'r<i>m</i>' and indicates that a reduction with grammar rule <i>m</i> should be performed</li>
+<li><i>accept</i>, which is written as 'acc' and indicates that the parser accepts the string in the input stream.</li>
+</ul>
+<p>The <b>goto table</b> is indexed by a state of the parser and a nonterminal and simply indicates what the next state of the parser will be if it has recognized a certain nonterminal.</p>
+<p><a name="Parsing_procedure" id="Parsing_procedure"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=6" title="Edit section: Parsing procedure">edit</a>]</span> <span class="mw-headline">Parsing procedure</span></h4>
+<p>The table below illustrates each step in the process. Here the state refers to the element at the top of the stack (the right-most element), and the next action is determined by referring to the action table above. Also note that a $ is appended to the input string to denote the end of the stream.</p>
+<table border="1" align="center">
+<tr>
+<th>State</th>
+<th>Input Stream</th>
+<th>Output Stream</th>
+<th>Stack</th>
+<th>Next Action</th>
+</tr>
+<tr>
+<td>0</td>
+<td>1+1$</td>
+<td></td>
+<td>[0]</td>
+<td>Shift 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>+1$</td>
+<td></td>
+<td>[0,2]</td>
+<td>Reduce 5</td>
+</tr>
+<tr>
+<td>4</td>
+<td>+1$</td>
+<td>5</td>
+<td>[0,4]</td>
+<td>Reduce 3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>+1$</td>
+<td>5,3</td>
+<td>[0,3]</td>
+<td>Shift 6</td>
+</tr>
+<tr>
+<td>6</td>
+<td>1$</td>
+<td>5,3</td>
+<td>[0,3,6]</td>
+<td>Shift 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>$</td>
+<td>5,3</td>
+<td>[0,3,6,2]</td>
+<td>Reduce 5</td>
+</tr>
+<tr>
+<td>8</td>
+<td>$</td>
+<td>5,3,5</td>
+<td>[0,3,6,8]</td>
+<td>Reduce 2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>$</td>
+<td>5,3,5,2</td>
+<td>[0,3]</td>
+<td>Accept</td>
+</tr>
+</table>
+<p><a name="Walkthrough" id="Walkthrough"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=7" title="Edit section: Walkthrough">edit</a>]</span> <span class="mw-headline">Walkthrough</span></h4>
+<p>The parser starts out with the stack containing just the initial state ('0'):</p>
+<dl>
+<dd>[<b>0</b>]</dd>
+</dl>
+<p>The first symbol from the input string that the parser sees is '1'. In order to find out what the next action is (shift, reduce, accept or error), the action table is indexed with the current state (remember that the "current state" is just whatever is on the top of the stack), which in this case is 0, and the current input symbol, which is '1'. The action table specifies a shift to state 2, and so state 2 is pushed onto the stack (again, remember that all the state information is in the stack, so "shifting to state 2" is the same thing as pushing 2 onto the stack). The resulting stack is</p>
+<dl>
+<dd>[<b>0</b> '1' <b>2</b>]</dd>
+</dl>
+<p>where the top of the stack is 2. For the sake of explanation we also show the symbol (e.g., '1', B) that caused the transition to the next state, although strictly speaking it is not part of the stack.</p>
+<p>In state 2 the action table says that regardless of what terminal we see on the input stream, we should do a reduction with grammar rule 5. If the table is correct, this means that the parser has just recognized the right-hand side of rule 5, which is indeed the case. In this case we write 5 to the output stream, pop one state from the stack (since the right-hand side of the rule has one symbol), and push on the stack the state from the cell in the goto table for state 0 and B, i.e., state 4. The resulting stack is:</p>
+<dl>
+<dd>[<b>0</b> B <b>4</b>]</dd>
+</dl>
+<p>However, in state 4 the action table says we should now do a reduction with rule 3. So we write 3 to the output stream, pop one state from the stack, and find the new state in the goto table for state 0 and E, which is state 3. The resulting stack:</p>
+<dl>
+<dd>[<b>0</b> E <b>3</b>]</dd>
+</dl>
+<p>The next terminal that the parser sees is a '+' and according to the action table it should then go to state 6:</p>
+<dl>
+<dd>[<b>0</b> E <b>3</b> '+' <b>6</b>]</dd>
+</dl>
+<p>Note that the resulting stack can be interpreted as the history of a <a href="/wiki/Finite_state_automaton" title="Finite state automaton" class="mw-redirect">finite state automaton</a> that has just read a nonterminal E followed by a terminal '+'. The transition table of this automaton is defined by the shift actions in the action table and the goto actions in the goto table.</p>
+<p>The next terminal is now '1' and this means that we perform a shift and go to state 2:</p>
+<dl>
+<dd>[<b>0</b> E <b>3</b> '+' <b>6</b> '1' <b>2</b>]</dd>
+</dl>
+<p>Just as the previous '1' this one is reduced to B giving the following stack:</p>
+<dl>
+<dd>[<b>0</b> E <b>3</b> '+' <b>6</b> B <b>8</b>]</dd>
+</dl>
+<p>Again note that the stack corresponds with a list of states of a finite automaton that has read a nonterminal E, followed by a '+' and then a nonterminal B. In state 8 we always perform a reduce with rule 2. Note that the top 3 states on the stack correspond with the 3 symbols in the right-hand side of rule 2.</p>
+<dl>
+<dd>[<b>0</b> E <b>3</b>]</dd>
+</dl>
+<p>Finally, we read a '$' from the input stream which means that according to the action table (the current state is 3) the parser accepts the input string. The rule numbers that will then have been written to the output stream will be [5, 3, 5, 2] which is indeed a <a href="/wiki/Context-free_grammar#Derivations_and_syntax_trees" title="Context-free grammar">rightmost derivation</a> of the string "1 + 1" in reverse.</p>
+<p><a name="Constructing_LR.280.29_parsing_tables" id="Constructing_LR.280.29_parsing_tables"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=8" title="Edit section: Constructing LR(0) parsing tables">edit</a>]</span> <span class="mw-headline">Constructing LR(0) parsing tables</span></h2>
+<p><a name="Items" id="Items"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=9" title="Edit section: Items">edit</a>]</span> <span class="mw-headline">Items</span></h3>
+<p>The construction of these parsing tables is based on the notion of <i>LR(0) items</i> (simply called <i>items</i> here) which are grammar rules with a special dot added somewhere in the right-hand side. For example the rule E → E + B has the following four corresponding items:</p>
+<dl>
+<dd>E → • E + B</dd>
+<dd>E → E • + B</dd>
+<dd>E → E + • B</dd>
+<dd>E → E + B •</dd>
+</dl>
+<p>Rules of the form <i>A</i> → ε have only a single item <i>A</i> → •. These rules will be used to denote that state of the parser. The item E → E • + B, for example, indicates that the parser has recognized a string corresponding with E on the input stream and now expects to read a '+' followed by another string corresponding with B.</p>
+<p><a name="Item_sets" id="Item_sets"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=10" title="Edit section: Item sets">edit</a>]</span> <span class="mw-headline">Item sets</span></h3>
+<p>It is usually not possible to characterize the state of the parser with a single item because it may not know in advance which rule it is going to use for reduction. For example if there is also a rule E → E * B then the items E → E • + B and E → E • * B will both apply after a string corresponding with E has been read. Therefore we will characterize the state of the parser by a set of items, in this case the set { E → E • + B, E → E • * B }.</p>
+<p><a name="Closure_of_item_sets" id="Closure_of_item_sets"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=11" title="Edit section: Closure of item sets">edit</a>]</span> <span class="mw-headline">Closure of item sets</span></h3>
+<p>An item with a dot in front of a nonterminal, such as E → E + • B, indicates that the parser expects to parse the nonterminal B next. To ensure the item set contains all possible rules the parser may be in the midst of parsing, it must include all items describing how B itself will be parsed. This means that if there are rules such as B → 1 and B → 0 then the item set must also include the items B → • 1 and B → • 0. In general this can be formulated as follows:</p>
+<dl>
+<dd>If there is an item of the form <i>A</i> → <i>v</i> • <i>Bw</i> in an item set and in the grammar there is a rule of the form <i>B</i> → <i>w'</i> then the item <i>B</i> → • <i>w'</i> should also be in the item set.</dd>
+</dl>
+<p>Any set of items can be extended such that it satisfies this rule: simply continue to add the appropriate items until all nonterminals preceded by dots are accounted for. The minimal extension is called the <i>closure</i> of an item set and written as <b>clos</b>(<i>I</i>) where <i>I</i> is an item set. It is these closed item sets that we will take as the states of the parser, although only the ones that are actually reachable from the begin state will be included in the tables.</p>
+<p><a name="Augmented_grammar" id="Augmented_grammar"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=12" title="Edit section: Augmented grammar">edit</a>]</span> <span class="mw-headline">Augmented grammar</span></h3>
+<p>Before we start determining the transitions between the different states, the grammar is always augmented with an extra rule</p>
+<dl>
+<dd>(0) S → E</dd>
+</dl>
+<p>where S is a new start symbol and E the old start symbol. The parser will use this rule for reduction exactly when it has accepted the input string.</p>
+<p>For our example we will take the same grammar as before and augment it:</p>
+<dl>
+<dd>(0) S → E</dd>
+<dd>(1) E → E * B</dd>
+<dd>(2) E → E + B</dd>
+<dd>(3) E → B</dd>
+<dd>(4) B → 0</dd>
+<dd>(5) B → 1</dd>
+</dl>
+<p>It is for this augmented grammar that we will determine the item sets and the transitions between them.</p>
+<p><a name="Table_construction" id="Table_construction"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=13" title="Edit section: Table construction">edit</a>]</span> <span class="mw-headline">Table construction</span></h2>
+<p><a name="Finding_the_reachable_item_sets_and_the_transitions_between_them" id="Finding_the_reachable_item_sets_and_the_transitions_between_them"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=14" title="Edit section: Finding the reachable item sets and the transitions between them">edit</a>]</span> <span class="mw-headline">Finding the reachable item sets and the transitions between them</span></h3>
+<p>The first step of constructing the tables consists of determining the transitions between the closed item sets. These transitions will be determined as if we are considering a finite automaton that can read terminals as well as nonterminals. The begin state of this automaton is always the closure of the first item of the added rule: S → • E:</p>
+<dl>
+<dd><b>Item set 0</b></dd>
+<dd>S → • E</dd>
+<dd><b>+</b> E → • E * B</dd>
+<dd><b>+</b> E → • E + B</dd>
+<dd><b>+</b> E → • B</dd>
+<dd><b>+</b> B → • 0</dd>
+<dd><b>+</b> B → • 1</dd>
+</dl>
+<p><br /></p>
+<p>The <a href="/wiki/Boldface" title="Boldface" class="mw-redirect">boldfaced</a> "<b>+</b>" in front of an item indicates the items that were added for the closure (not to be confused with the mathematical '+' operator which is a terminal). The original items without a "<b>+</b>" are called the <i>kernel</i> of the item set.</p>
+<p>Starting at the begin state (S0) we will now determine all the states that can be reached from this state. The possible transitions for an item set can be found by looking at the symbols (terminals and nonterminals) we find right after the dots; in the case of item set 0 these are the terminals '0' and '1' and the nonterminal E and B. To find the item set that a symbol <i>x</i> leads to we follow the following procedure:</p>
+<ol>
+<li>Take the set, <i>S</i>, of all items in the current item set where there is a dot in front of some symbol <i>x</i>.</li>
+<li>For each item in <i>S</i>, move the dot to the right of <i>x</i>.</li>
+<li>Close the resulting set of items.</li>
+</ol>
+<p>For the terminal '0' this results in:</p>
+<dl>
+<dd><b>Item set 1</b></dd>
+<dd>B → 0 •</dd>
+</dl>
+<p>and for the terminal '1' in:</p>
+<dl>
+<dd><b>Item set 2</b></dd>
+<dd>B → 1 •</dd>
+</dl>
+<p>and for the nonterminal E in:</p>
+<dl>
+<dd><b>Item set 3</b></dd>
+<dd>S → E •</dd>
+<dd>E → E • * B</dd>
+<dd>E → E • + B</dd>
+</dl>
+<p>and for the nonterminal B in:</p>
+<dl>
+<dd><b>Item set 4</b></dd>
+<dd>E → B •</dd>
+</dl>
+<p>Note that the closure does not add new items in all cases. We continue this process until no more new item sets are found. For the item sets 1, 2, and 4 there will be no transitions since the dot is not in front of any symbol. For item set 3 we see that the dot is in front of the terminals '*' and '+'. For '*' the transition goes to:</p>
+<dl>
+<dd><b>Item set 5</b></dd>
+<dd>E → E * • B</dd>
+<dd><b>+</b> B → • 0</dd>
+<dd><b>+</b> B → • 1</dd>
+</dl>
+<p>and for '+' the transition goes to:</p>
+<dl>
+<dd><b>Item set 6</b></dd>
+<dd>E → E + • B</dd>
+<dd><b>+</b> B → • 0</dd>
+<dd><b>+</b> B → • 1</dd>
+</dl>
+<p>For item set 5 we have to consider the terminals '0' and '1' and the nonterminal B. For the terminals we see that the resulting closed item sets are equal to the already found item sets 1 and 2, respectively. For the nonterminal B the transition goes to:</p>
+<dl>
+<dd><b>Item set 7</b></dd>
+<dd>E → E * B •</dd>
+</dl>
+<p>For item set 6 we also have to consider the terminal '0' and '1' and the nonterminal B. As before, the resulting item sets for the terminals are equal to the already found item sets 1 and 2. For the nonterminal B the transition goes to:</p>
+<dl>
+<dd><b>Item set 8</b></dd>
+<dd>E → E + B •</dd>
+</dl>
+<p>These final item sets have no symbols beyond their dots so no more new item sets are added and we are finished. The finite automaton, with item sets as its states is shown below</p>
+<p>The transition table for the automaton now looks as follows:</p>
+<table border="1" cellspacing="0" cellpadding="5" align="center">
+<tr>
+<th>Item Set</th>
+<th>*</th>
+<th>+</th>
+<th>0</th>
+<th>1</th>
+<th>E</th>
+<th>B</th>
+</tr>
+<tr>
+<th>0</th>
+<td></td>
+<td></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<th>1</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th>2</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th>3</th>
+<td>5</td>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th>4</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th>5</th>
+<td></td>
+<td></td>
+<td>1</td>
+<td>2</td>
+<td></td>
+<td>7</td>
+</tr>
+<tr>
+<th>6</th>
+<td></td>
+<td></td>
+<td>1</td>
+<td>2</td>
+<td></td>
+<td>8</td>
+</tr>
+<tr>
+<th>7</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th>8</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</table>
+<p><a name="Constructing_the_action_and_goto_tables" id="Constructing_the_action_and_goto_tables"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=15" title="Edit section: Constructing the action and goto tables">edit</a>]</span> <span class="mw-headline">Constructing the action and goto tables</span></h3>
+<p>From this table and the found item sets we construct the action and goto table as follows:</p>
+<ol>
+<li>the columns for nonterminals are copied to the goto table</li>
+<li>the columns for the terminals are copied to the action table as shift actions</li>
+<li>an extra column for '$' (end of input) is added to the action table that contains <i>acc</i> for every item set that contains S → E •.</li>
+<li>if an item set <i>i</i> contains an item of the form <i>A</i> → <i>w</i> • and <i>A</i> → <i>w</i> is rule <i>m</i> with <i>m</i> &gt; 0 then the row for state <i>i</i> in the action table is completely filled with the reduce action r<i>m</i>.</li>
+</ol>
+<p>The reader may verify that this results indeed in the action and goto table that were presented earlier on.</p>
+<p><a name="A_note_about_LR.280.29_versus_SLR_and_LALR_parsing" id="A_note_about_LR.280.29_versus_SLR_and_LALR_parsing"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=16" title="Edit section: A note about LR(0) versus SLR and LALR parsing">edit</a>]</span> <span class="mw-headline">A note about LR(0) versus SLR and LALR parsing</span></h4>
+<p>Note that only step 4 of the above procedure produces reduce actions, and so all reduce actions must occupy an entire table row, causing the reduction to occur regardless of the next symbol in the input stream. This is why these are LR(0) <a href="/wiki/Parsing_table" title="Parsing table">parse tables</a>: they don't do any lookahead (that is, they look ahead zero symbols) before deciding which reduction to perform. A grammar that needs lookahead to disambiguate reductions would require a parse table row containing different reduce actions in different columns, and the above procedure is not capable of creating such rows.</p>
+<p>Refinements to the <b>LR</b>(0) table construction procedure (such as <a href="/wiki/Simple_LR_parser" title="Simple LR parser">SLR</a> and <a href="/wiki/LALR_parser" title="LALR parser">LALR</a>) are capable of constructing reduce actions that do not occupy entire rows. Therefore, they are capable of parsing more grammars than LR(0) parsers.</p>
+<p><a name="Conflicts_in_the_constructed_tables" id="Conflicts_in_the_constructed_tables"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=17" title="Edit section: Conflicts in the constructed tables">edit</a>]</span> <span class="mw-headline">Conflicts in the constructed tables</span></h3>
+<p>The automaton is constructed in such a way that it is guaranteed to be deterministic. However, when reduce actions are added to the action table it can happen that the same cell is filled with a reduce action and a shift action (a <i>shift-reduce conflict</i>) or with two different reduce actions (a <i>reduce-reduce conflict</i>). However, it can be shown that when this happens the grammar is not an LR(0) grammar.</p>
+<p>A small example of a non-LR(0) grammar with a shift-reduce conflict is:</p>
+<dl>
+<dd>(1) E → 1 E</dd>
+<dd>(2) E → 1</dd>
+</dl>
+<p>One of the item sets we then find is:</p>
+<dl>
+<dd><b>Item set 1</b></dd>
+<dd>E → 1 • E</dd>
+<dd>E → 1 •</dd>
+<dd><b>+</b> E → • 1 E</dd>
+<dd><b>+</b> E → • 1</dd>
+</dl>
+<p>There is a shift-reduce conflict in this item set because in the cell in the action table for this item set and the terminal '1' there will be both a shift action to state 1 and a reduce action with rule 2.</p>
+<p>A small example of a non-LR(0) grammar with a reduce-reduce conflict is:</p>
+<dl>
+<dd>(1) E → A 1</dd>
+<dd>(2) E → B 2</dd>
+<dd>(3) A → 1</dd>
+<dd>(4) B → 1</dd>
+</dl>
+<p>In this case we obtain the following item set:</p>
+<dl>
+<dd><b>Item set 1</b></dd>
+<dd>A → 1 •</dd>
+<dd>B → 1 •</dd>
+</dl>
+<p>There is a reduce-reduce conflict in this item set because in the cells in the action table for this item set there will be both a reduce action for rule 3 and one for rule 4.</p>
+<p>Both examples above can be solved by letting the parser use the follow set (see <a href="/wiki/LL_parser" title="LL parser">LL parser</a>) of a nonterminal <i>A</i> to decide if it is going to use one of <i>A</i>s rules for a reduction; it will only use the rule <i>A</i> → <i>w</i> for a reduction if the next symbol on the input stream is in the follow set of <i>A</i>. This solution results in so-called <a href="/wiki/Simple_LR_parser" title="Simple LR parser">Simple LR parsers</a>.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=18" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><i><a href="/wiki/Compilers:_Principles,_Techniques,_and_Tools" title="Compilers: Principles, Techniques, and Tools">Compilers: Principles, Techniques, and Tools</a></i>, <a href="/wiki/Alfred_Aho" title="Alfred Aho">Aho</a>, <a href="/wiki/Ravi_Sethi" title="Ravi Sethi">Sethi</a>, <a href="/wiki/Jeffrey_Ullman" title="Jeffrey Ullman">Ullman</a>, <a href="/wiki/Addison-Wesley" title="Addison-Wesley" class="mw-redirect">Addison-Wesley</a>, 1986. <a href="/wiki/Special:BookSources/0201100886" class="internal">ISBN 0-201-10088-6</a>. An extensive discussion of LR parsing and the principal source for some sections in this article.</li>
+<li><a href="http://www.cs.vu.nl/~dick/PTAPG.html" class="external text" title="http://www.cs.vu.nl/~dick/PTAPG.html" rel="nofollow">Parsing Techniques - A Practical Guide</a> web page of book includes downloadable pdf.</li>
+<li>The Functional Treatment of Parsing (Boston: Kluwer Academic, 1993), R. Leermakers, <a href="/wiki/Special:BookSources/0792393767" class="internal">ISBN 0-7923-9376-7</a></li>
+</ul>
+<p><a name="Further_reading" id="Further_reading"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=19" title="Edit section: Further reading">edit</a>]</span> <span class="mw-headline">Further reading</span></h2>
+<ul>
+<li>Chapman, Nigel P., <a href="http://books.google.com/books?id=nEA9AAAAIAAJ&amp;printsec=frontcover" class="external text" title="http://books.google.com/books?id=nEA9AAAAIAAJ&amp;printsec=frontcover" rel="nofollow"><i>LR Parsing: Theory and Practice</i></a>, Cambridge University Press, 1987. <a href="/wiki/Special:BookSources/052130413X" class="internal">ISBN 052130413X</a></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=20" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://cs.uic.edu/~spopuri/cparser.html" class="external text" title="http://cs.uic.edu/~spopuri/cparser.html" rel="nofollow">Internals of an LALR(1) parser generated by GNU Bison</a> - Implementation issues</li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=LR_parser&amp;action=edit&amp;section=21" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Deterministic_context-free_grammar" title="Deterministic context-free grammar">Deterministic context-free grammar</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 153/1000000
+Post-expand include size: 3200/2048000 bytes
+Template argument size: 1224/2048000 bytes
+Expensive parser function count: 1/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:18030-0!1!0!default!!en!2 and timestamp 20090403084546 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/LR_parser">http://en.wikipedia.org/wiki/LR_parser</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Parsing_algorithms" title="Category:Parsing algorithms">Parsing algorithms</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:Articles_needing_additional_references_from_September_2008" title="Category:Articles needing additional references from September 2008">Articles needing additional references from September 2008</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/LR_parser" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:LR_parser" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=LR_parser&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=LR_parser&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=LR_parser" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/LR_parser" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/LR_parser" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=LR_parser&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=LR_parser&amp;oldid=281310231" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=LR_parser&amp;id=281310231">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/LR-Parser">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Analizador_sint%C3%A1ctico_LR">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Analyse_LR">Français</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Parser_LR">Italiano</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/LR%E6%B3%95">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Parser_LR">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Analisador_sint%C3%A1tico_LR">Português</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/LR_parser">Русский</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/LR_%E5%89%96%E6%9E%90%E5%99%A8">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 2 April 2009, at 16:01 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv144 in 0.060 secs. --></body></html>

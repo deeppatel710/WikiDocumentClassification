@@ -1,0 +1,586 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Border Gateway Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Border_Gateway_Protocol";
+		var wgTitle = "Border Gateway Protocol";
+		var wgAction = "view";
+		var wgArticleId = "38893";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281677091;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Border Gateway Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+The Internet Protocol Suite
+
+
+Application Layer
+
+
+BGP · DHCP · DNS · FTP · GTP · HTTP · IMAP · IRC · Megaco · MGCP · NNTP · NTP · POP · RIP · RPC · RTP · RTSP · SDP · SIP · SMTP · SNMP · SOAP · SSH · Telnet · TLS/SSL · XMPP · (more)
+
+
+Transport Layer
+
+
+TCP · UDP · DCCP · SCTP · RSVP · ECN · (more)
+
+
+Internet Layer
+
+
+IP (IPv4, IPv6) · ICMP · ICMPv6 · IGMP · IPsec · (more)
+
+
+Link Layer
+
+
+ARP · RARP · NDP · OSPF · Tunnels (L2TP) · Media Access Control (Ethernet, MPLS, DSL, ISDN, FDDI) · Device Drivers · (more)
+
+
+
+This box: view • talk • edit
+
+
+
+This article refers to the internet routing protocol. For the Formula One Team, see Brawn GP
+The Border Gateway Protocol (BGP) is the core routing protocol of the Internet. It maintains a table of IP networks or 'prefixes' which designate network reachability among autonomous systems (AS). It is described as a path vector protocol. BGP does not use traditional IGP metrics, but makes routing decisions based on path, network policies and/or rulesets.
+BGP was created to replace the EGP routing protocol to allow fully decentralized routing in order to allow the removal of the NSFNet Internet backbone network. This allowed the Internet to become a truly decentralized system. Since 1994, version four of the protocol has been in use on the Internet. All previous versions are now obsolete. The major enhancement in version 4 was support of Classless Inter-Domain Routing and use of route aggregation to decrease the size of routing tables. Since January 2006, version 4 is codified in RFC 4271, which went through well over 20 drafts based on the earlier RFC 1771 version 4. The RFC 4271 version corrected a number of errors, clarified ambiguities, and also brought the RFC much closer to industry practices.
+Most Internet users do not use BGP directly. However, since most Internet service providers must use BGP to establish routing between one another (especially if they are multihomed), it is one of the most important protocols of the Internet. Compare this with Signalling System 7 (SS7), which is the inter-provider core call setup protocol on the PSTN. Very large private IP networks use BGP internally, however. An example would be the joining of a number of large Open Shortest Path First (OSPF) networks where OSPF by itself would not scale to size. Another reason to use BGP is multihoming a network for better redundancy either to multiple access points of a single ISP (RFC 1998) or to multiple ISPs.
+
+
+
+
+Contents
+
+
+1 Operation
+
+1.1 Optional extensions negotiated at connection setup
+1.2 Finite state machine
+1.3 Basic BGP updates
+
+
+2 BGP router connectivity and learning routes
+
+2.1 Basic update processing
+2.2 Route selection
+
+2.2.1 Per-neighbor decisions
+2.2.2 Decision factors at the Loc-RIB level
+
+
+2.3 Communities
+2.4 Extended communities
+2.5 Uses of multi-exit discriminators
+
+
+3 BGP problems and mitigation
+
+3.1 iBGP scalability
+3.2 Instability
+3.3 Routing table growth
+3.4 Load-balancing problem
+3.5 BGP hijacking and transit-AS problems
+
+
+4 Requirements of a router for use of BGP for Internet and backbone-of-backbones purposes
+5 Open-source implementations of BGP
+6 BGP simulators
+7 See also
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Operation
+BGP neighbors, or peers, are established by manual configuration between routers to create a TCP session on port 179. A BGP speaker will periodically send 19-byte keep-alive messages to maintain the connection (every 60 seconds by default). Among routing protocols, BGP is unique in using TCP as its transport protocol.
+When BGP is running inside an autonomous system (AS), it is referred to as Internal BGP (iBGP Interior Border Gateway Protocol). When it runs between autonomous systems, it is called External BGP (eBGP Exterior Border Gateway Protocol). Routers on the boundary of one AS, exchanging information with another AS, are called border or edge routers. In the Cisco operating system, iBGP routes have an administrative distance of 200, which is less preferred than either external BGP or any interior routing protocol. Other router implementations also prefer eBGP to IGPs, and IGPs to iBGP.
+
+[edit] Optional extensions negotiated at connection setup
+During the OPEN handshake, BGP speakers can negotiate[1] optional capabilities of the session, including multiprotocol extensions and various recovery modes. If the multiprotocol extensions to BGP [2] are negotiated at the time of creation, the BGP speaker can prefix the Network Layer Reachability Information (NLRI) it advertises with an address family prefix. These families include the default IPv4, but also IPv6, IPv4 and IPv6 Virtual Private Networks, and multicast BGP. Increasingly, BGP is used as a generalized signaling protocol to carry information about routes that may not be part of the global Internet, such as VPNs [3].
+
+[edit] Finite state machine
+
+
+
+
+BGP state machine
+
+
+In order to make decisions in its operations with other BGP peers, a BGP peer uses a simple finite state machine (FSM) that consists of six states: Idle, Connect, Active, OpenSent, OpenConfirm, and Established. For each peer-to-peer session, a BGP implementation maintains a state variable that tracks which of these six states the session is in. The BGP protocol defines the messages that each peer should exchange in order to change the session from one state to another. The first mode is the “Idle” mode. In this mode BGP initializes all resources, refuses all inbound BGP connection attempts, and initiates a TCP connection to the peer. The second state is “Connect”. In this state the router waits for the TCP connection to complete, transitioning to the "OpenSent" state if successful. If not, it resets the ConnectRetry timer and transitions to the "Active" state upon expiration. In the "Active" state, the router resets the ConnectRetry timer to zero, and returns to the "Connect" state. After "OpenSent," the router sends an Open message, and waits for one in return. Keepalive messages are exchanged next, and upon successful receipt, the router is placed in the “Established” state. Once established the router can now send/receive Keepalive, Update, and Notification messages to/from its peer.
+
+Idle State:
+
+Initializes resources for the BGP process.
+Tries to establish a TCP connection with its configured BGP peer.
+Listen for a TCP connection from its peer. If an error occurs at any state of the FSM process, the BGP session is terminated immediately, and returned to the Idle State. Some of the reasons why a router does not progress from the Idle state are:
+
+TCP port 179 is not open.
+A random TCP port over 1023 is not open.
+Peer address configured incorrectly on either router.
+AS number configured incorrectly on either router .
+
+
+
+
+Connect State:
+
+Wait for successful TCP negotiation with peer.
+BGP does not spend much time in this state if the TCP session has been successfully established.
+Sends OPEN message to peer.
+If an error occurs, BGP moves to the ACTIVE state. Some reasons for the error are:
+
+TCP port 179 is not open.
+A random TCP port over 1023 is not open.
+Peer address configured incorrectly on either router.
+AS number configured incorrectly on either router.
+
+
+
+
+Active State:
+
+If the router was unable to establish a successful TCP session, then it ends up in the ACTIVE state.
+The router will try to restart another TCP session with the peer and if successful, then it will send an OPEN message to the peer.
+If it is unsuccessful again, the FSM is reset to the IDLE state.
+Repeated failures may result in a router cycling between the IDLE and the ACTIVE states. Some of the reasons for this include:
+
+TCP port 179 is not open.
+A random TCP port over 1023 is not open.
+BGP configuration error.
+Network congestion.
+Flapping network interface.
+
+
+
+
+OpenSent State:
+
+The router listens for an OPEN message from its peer.
+Once the message has been received, the router checks the validity of the OPEN message.
+If there is an error it is because one of the fields in the OPEN message don’t match between the peers, e.g. BGP version mismatch, MD5 password mismatch, the peering router expects a different My AS. The router will then send a NOTIFICATION message to the peer indicating why the error occurred.
+If there is no error, a KEEPALIVE message is sent.
+
+
+OpenConfirm State:
+
+The peer is listening for a KEEPALIVE message from its peer.
+If a message is received, then BGP transitions to the next state.
+If no KEEPALIVE message is received, the router transitions back to the IDLE state.
+
+
+Established State:
+
+In this state, the peers send UPDATE messages to exchange information about each route being advertised to the BGP peer.
+If there is any error in the UPDATE message then a NOTIFICATION message is sent to the peer, and BGP transitions back to the IDLE state
+
+
+
+
+[edit] Basic BGP updates
+Once a BGP session is running, the BGP speakers exchange UPDATE messages about destinations to which the speaker offers connectivity. In the protocol, the basic CIDR route description is called Network Layer Reachability Information (NLRI). NLRI includes the expected destination prefix, prefix length, path of autonomous systems to the destination and next hop in attributes, which can carry a wide range of additional information that affects the acceptance policy of the receiving router. BGP speakers incrementally announce new NLRI to which they offer reachability, but also announce withdrawals of prefixes to which the speaker no longer offers connectivity.
+
+[edit] BGP router connectivity and learning routes
+In the simplest arrangement all routers within a single AS and participating in BGP routing must be configured in a full mesh: each router must be configured as peer to every other router. This causes scaling problems, since the number of required connections grows quadratically with the number of routers involved. To get around this, two solutions are built into BGP: route reflectors (RFC 4456) and confederations (RFC 5065). For the following discussion of basic UPDATE processing, assume a full iBGP mesh.
+
+[edit] Basic update processing
+A given BGP router may accept NLRI in UPDATEs from multiple neighbors and advertise NLRI to the same, or a different set, of neighbors. Conceptually, BGP maintains its own "master" routing table, called the Loc-RIB (Local Routing Information Base), separate from the main routing table of the router. For each neighbor, the BGP process maintains a conceptual Adj-RIB-In (Adjacent Routing Information Base, Incoming) containing the NLRI received from the neighbor, and a conceptual Adj-RIB-Out (Outgoing) for NLRI to be sent to the neighbor.
+"Conceptual", in the preceding paragraph, means that the physical storage and structure of these various tables are decided by the implementer of the BGP code. Their structure is not visible to other BGP routers, although they usually can be interrogated with management commands on the local router. It is quite common, for example, to store both Adj-RIBs and the Loc-RIB in the same data structure, with additional information attached to the RIB entries. The additional information tells the BGP process such things as whether individual entries belong in the Adj-RIBs for specific neighbors, whether the per-neighbor route selection process made received policies eligible for the Loc-RIB, and whether Loc-RIB entries are eligible to be submitted to the local router's routing table management process.
+By "eligible to be submitted", BGP will submit the routes that it considers best to the main routing table process. Depending on the implementation of that process, the BGP route is not necessarily selected. For example, a directly connected prefix, learned from the router's own hardware, is usually most preferred. As long as that directly connected route's interface is active, the BGP route to the destination will not be put into the routing table. Once the interface goes down, and there are no more preferred routes, the Loc-RIB route would be installed in the main routing table. Until recently, it was a common mistake to say "BGP carries policies". BGP actually carried the information with which rules inside BGP-speaking routers could make policy decisions. Some of the information carried that is explicitly intended to be used in policy decisions are communities and multi-exit discriminators (MED).
+
+[edit] Route selection
+The BGP standard specifies a number of decision factors, more than are used by any other common routing process, for selecting NLRI to go into the Loc-RIB. The first decision point for evaluating NLRI is that its next-hop attribute must be reachable (or resolvable). Another way of saying the next-hop must be reachable is that there must be an active route, already in the main routing table of the router, to the prefix in which the next-hop address is located.
+Next, for each neighbor, the BGP process applies various standard and implementation-dependent criteria to decide which routes conceptually should go into the Adj-RIB-In. The neighbor could send several possible routes to a destination, but the first level of preference is at the neighbor level. Only one route to each destination will be installed in the conceptual Adj-RIB-In. This process will also delete, from the Adj-RIB-In, any routes that are withdrawn by the neighbor.
+Whenever a conceptual Adj-RIB-In changes, the main BGP process decides if any of the neighbor's new routes are preferred to routes already in the Loc-RIB. If so, it replaces them. If a given route is withdrawn by a neighbor, and there is no other route to that destination, the route is removed from the Loc-RIB, and no longer sent, by BGP, to the main routing table manager. If the router does not have a route to that destination from any non-BGP source, the withdrawn route will be removed from the main routing table.
+
+[edit] Per-neighbor decisions
+After verifying that the next hop is reachable, if the route comes from an internal (ie iBGP) peer, the first rule to apply according to the standard is to examine the LOCAL_PREF attribute. If there are several iBGP routes from the neighbor, the one with the highest LOCAL_PREF is selected unless there are several routes with the same LOCAL_PREF. In the latter case the route selection process moves to the next tie breaker. While LOCAL_PREF is the first rule in the standard, once reachability of the NEXT_HOP is verified, Cisco and several other vendors first consider a decision factor called WEIGHT which is local to the router (ie not transmitted by BGP). The route with the highest WEIGHT is preferred.
+LOCAL_PREF, WEIGHT, and other criteria can be manipulated by local configuration and software capabilities. Such manipulation is outside the scope of the standard but is commonly used. For example the COMMUNITY attribute (see below) is not directly used by the BGP selection process. The BGP neighbor process however can have a rule to set LOCAL_PREFERENCE or another factor based on a manually programmed rule to set the attribute if the COMMUNITY value matches some pattern matching criterion. If the route was learned from an external peer the per-neighbor BGP process computes a LOCAL_PREFERENCE value from local policy rules and then compares the LOCAL_PREFERENCE of all routes from the neighbor.
+At the per-neighbor level - ignoring implementation-specific policy modifiers - the order of tie breaking rules is:
+
+Prefer the route with the shortest AS_PATH. An AS_PATH is the set of AS numbers that must be traversed to reach the advertised destination. AS1-AS2-AS3 is shorter than AS4-AS5-AS6-AS7.
+Prefer routes with the lowest value of their ORIGIN attribute.
+Prefer routes with the lowest MULTI_EXIT_DISC (multi-exit discriminator or MED) value.
+
+Before the most recent edition of the BGP standard, if an UPDATE had no MULTI_EXIT_DISC value, several implementations created a MED with the least possible value. The current standard however specifies that missing MEDs are to be treated as the highest possible value. Since the current rule may cause different behavior than the vendor interpretations, BGP implementations that used the nonstandard default value have a configuration feature that allows the old or standard rule to be selected.
+
+[edit] Decision factors at the Loc-RIB level
+Once candidate routes are received from neighbors, the Loc-RIB software applies additional tie-breakers to routes to the same destination.
+
+If at least one route was learned from an external neighbor (i.e., the route was learned from eBGP), drop all routes learned from iBGP.
+Prefer the route with the lowest interior cost to the NEXT_HOP, according to the main Routing Table. If two neighbors advertised the same route, but one neighbor is reachable via a low-bitrate link and the other by a high-bitrate link, and the interior routing protocol calculates lowest cost based on highest bitrate, the route through the high-bitrate link would be preferred and other routes dropped.
+
+If there is more than one route still tied at this point, several BGP implementations offer a configurable option to load-share among the routes, accepting all (or all up to some number).
+
+Prefer the route learned from the BGP speaker with the numerically lowest BGP identifier
+Prefer the route learned from the BGP speaker with the lowest peer IP address
+
+
+[edit] Communities
+BGP communities are attribute tags that can be applied to incoming or outgoing prefixes to achieve some common goal (RFC 1997). While it is common to say that BGP allows an administrator to set policies on how prefixes are handled by ISPs, this is generally not possible, strictly speaking. For instance, BGP natively has no concept to allow one AS to tell another AS to restrict advertisement of a prefix to only North American peering customers. Instead, an ISP generally publishes a list of well-known or proprietary communities with a description for each one, which essentially becomes an agreement of how prefixes are to be treated. Examples of common communities include local preference adjustments, geographic or peer type restrictions, DoS avoidance (black holing), and AS prepending options. An ISP might state that any routes received from customers with community XXX:500 will be advertised to all peers (default) while community XXX:501 will restrict advertisement to North America. The customer simply adjusts their configuration to include the correct community(ies) for each route, and the ISP is responsible for controlling who the prefix is advertised to. It should be noted that the end user has no technical ability to enforce correct actions being taken by the ISP, though problems in this area are generally rare and accidental.
+It is a common tactic for end customers to use BGP communities (usually ASN:70,80,90,100) to control the local preference the ISP assigns to advertised routes instead of using MED (the effect is similar). It should also be noted that the community attribute is transitive, but communities applied by the customer very rarely become propagated outside the next-hop AS.
+
+[edit] Extended communities
+The BGP Extended Community Attribute has been added in 2006 in order to extend the range of such attributes and to provide a community attribute structuring by means of a type field. The extended format consists of one or two octets for the type field followed by 7 or 6 octets for the respective community attribute content. The definition of this Extended Community Attribute is documented in RFC 4360. The IANA administers the registry for BGP Extended Communities Types [4]. The Extended Communities Attribute itself is a transitive optional BGP attribute. However, a bit in the type field within the attribute decides, whether the encoded extended community is of transitive or non-transitive nature. The IANA registry therefore provides different number ranges for the attribute types. Due to the extended attribute range, its usage can be manifold. RFC 4360 exemplarly defines the "Two-Octet AS Specific Extended Community", the "IPv4 Address Specific Extended Community", the "Opaque Extended Community", the "Route Target Community" and the "Route Origin Community". A number of BGP QoS drafts [5] also use this Extended Community Attribute structure for inter-domain QoS signalling.
+
+[edit] Uses of multi-exit discriminators
+MEDs, defined in the main BGP standard, were originally intended to show the advertising AS's preference, to another neighbor AS, the advertising AS's preference as to which of several links, to the same AS, are preferred as the place to which the accepting AS should transmit traffic. Another application of MEDs is to advertise the value, typically based on delay, of multiple AS that have presence at an IXP, that they impose to send traffic to some destination.
+
+[edit] BGP problems and mitigation
+
+[edit] iBGP scalability
+An autonomous system with iBGP (internal BGP) must have all of its iBGP peers connect to each other in a full mesh (where everyone speaks to everyone directly). This full-mesh configuration requires that each router maintain a session to every other router. In large networks, this number of sessions may degrade performance of routers, due either to a lack of memory, or too much CPU process requirements.
+Route reflectors and confederations both reduce the number of iBGP peers to each router and thus reduce processing overhead. Route reflectors are a pure performance-enhancing technique, while confederations also can be used to implement more fine-grained policy.
+Route reflectors[6] reduce the number of connections required in an AS. A single router (or two for redundancy) can be made a route reflector: other routers in the AS need only be configured as peers to them.
+Confederations are sets of autonomous systems. In common practice, [7] only one of the confederation AS numbers is seen by the Internet as a whole. Confederations are used in very large networks where a large AS can be configured to encompass smaller more manageable internal ASs.
+Confederations can be used in conjunction with route reflectors. Confederations allow more fine-grained policy while route reflectors are a pure scaling technique, but either or both may be relevant to a particular situation.
+Both confederations and route reflectors can be subject to persistent oscillation, unless specific design rules, affecting both BGP and the interior routing protocol, are followed [8].
+However, these alternatives can introduce problems of their own, including the following:
+
+route oscillation,
+sub-optimal routing,
+increase of BGP convergence time [9]
+
+Additionally, route reflectors and BGP confederation were not designed to ease BGP router's configuration. Nevertheless, these are common tools for experienced BGP network architects. These tools may be combined, as, for example, a hierarchy of route reflectors.
+
+[edit] Instability
+The routing tables managed by a BGP implementation are adjusted continually to reflect actual changes in the network, such as links breaking and being restored or routers going down and coming back up. In the network as a whole it is normal for these changes to happen almost continuously, but for any particular router or link changes are supposed to be relatively infrequent. If a router is misconfigured or mismanaged then it may get into a rapid cycle between down and up states. This pattern of repeated withdrawal and reannouncement, known as route flapping, can cause excessive activity in all the other routers that know about the broken link, as the same route is continuously injected and withdrawn from the routing tables.
+A feature known as route flap damping (RFC 2439) is built into many BGP implementations in an attempt to mitigate the effects of route flapping. Without damping the excessive activity can cause a heavy processing load on routers, which may in turn delay updates on other routes, and so affect overall routing stability. With damping, a route's flapping is exponentially decayed. At first instance when a route becomes unavailable but quickly reappears for whatever reason, then the damping does not take effect, so as to maintain the normal fail-over times of BGP. At the second occurrence, BGP shuns that prefix for a certain length of time; subsequent occurrences are timed out exponentially. After the abnormalities have ceased and a suitable length of time has passed for the offending route, prefixes can be reinstated and its slate wiped clean. Damping can also mitigate denial of service attacks; damping timings are highly customizable.
+However, subsequent research has shown that flap damping can actually lengthen convergence times in some cases, and can cause interruptions in connectivity even when links are not flapping.[10][11] Moreover, as backbone links and router processors have become faster, some network architects have suggested that flap damping may not be as important as it used to be, since changes to the routing table can be absorbed much faster by routers.[citation needed] This has led the RIPE Route Working Group to write that "with the current implementations of BGP flap damping, the application of flap damping in ISP networks is NOT recommended. ... If flap damping is implemented, the ISP operating that network will cause side-effects to their customers and the Internet users of their customers' content and services ... . These side-effects would quite likely be worse than the impact caused by simply not running flap damping at all." [1] Improving stability without the problems of flap damping is the subject of current research.[2]
+
+[edit] Routing table growth
+One of the largest problems faced by BGP, and indeed the Internet infrastructure as a whole, comes from the growth of the Internet routing table. If the global routing table grows to the point where some older, less capable, routers cannot cope with the memory requirements or the CPU load of maintaining the table, these routers will cease to be effective gateways between the parts of the Internet they connect. In addition, and perhaps even more importantly, larger routing tables take longer to stabilize (see above) after a major connectivity change, leaving network service unreliable, or even unavailable, in the interim.
+Until late 2001, the global routing table was growing exponentially, threatening an eventual widespread breakdown of connectivity. In an attempt to prevent this from happening, there was a cooperative effort by ISPs to keep the global routing table as small as possible, by using CIDR and route aggregation. While this slowed the growth of the routing table to a linear process for several years, with the expanded demand for multihoming by end user networks the growth was once again exponential by the middle of 2004. As of January, 2009, the routing table has approximately 300,000 entries [12].
+Route summarisation is often used to improve aggregation of the BGP global routing table, thereby letting the routers of an AS to have a smaller version of the table. Consider AS1 has been allocated the big address space of 172.16.0.0/16, this would be counted as one route in the table, but due customer requirement or traffic engineering purposes, AS1 wants to announce smaller, more specific routes of 172.16.0.0/18, 172.16.64.0/18 and 172.16.128.0/18, the prefix of 172.16.192.0/18 does not have any hosts, and AS1 does not announce a specific route 172.16.192.0/18. That would count as AS1 announcing four routes.
+AS2 will see the 4 routes from AS1 172.16.0.0/16 and (172.16.0.0/18, 172.16.64.0/18 and 172.16.128.0/18) it is up to the routing policy of AS2 to decide whether or not to take a copy of the four routes or as 172.16.0.0/16 overlaps all the other specific routes, to just store the summary, 172.16.0.0/16.
+If AS2 wants to send data to prefix 172.16.192.0/18, it will be sent to the routers of AS1 on route 172.16.0.0/16, at AS1's router, it will either be dropped or a unreachable be sent back, depending on the configuration of AS1's routers.
+If AS1 later decides to drop the route 172.16.0.0/16, leaving 172.16.0.0/18, 172.16.64.0/18 and 172.16.128.0/18, AS1 will drop the amount of routes it announces to three. AS2 will see the three routes, and depending on the routing policy of AS2, it will store a copy of the three routes, or aggregate the prefix's 172.16.0.0/18 and 172.16.64.0/18 to 172.16.0.0/17. There by saving the amount of routes AS2 stores to 172.16.0.0/17 and 172.16.128.0/18, only two.
+If AS2 wants to send data to prefix 172.16.192.0/18, it will be dropped or a unreachable be sent back at the routers of AS2 (not AS1 as before), because 172.16.192.0/18 would not be in the routing table.
+
+[edit] Load-balancing problem
+Another factor causing this growth of the routing table is the need for load balancing of multi-homed networks. It is not a trivial task to balance the inbound traffic to a multi-homed network across its multiple inbound paths, due to limitation of the BGP route selection process. For a multi-homed network, if it announces the same network blocks across all of its BGP peers, the result may be that one or several of its inbound links become congested while the other links remain under-utilized, because external networks all picked that set of congested paths as optimal. Like most other routing protocols, the BGP protocol does not detect congestion.
+To workaround this problem, BGP administrators of that multi-homed network may divide a large continuous IP address block into smaller blocks, and tweak the route announcement to make different blocks look optimal on different paths, so that external networks will choose a different path to reach different blocks of that multi-homed network. Such cases will increase the number of routes as seen on the global BGP table.
+
+[edit] BGP hijacking and transit-AS problems
+
+
+
+
+
+It has been suggested that this article or section be merged into IP hijacking. (Discuss)
+
+
+Like the TCP reset attack, session hijacking involves intrusion into an ongoing BGP session, i.e., the attacker successfully masquerades as one of the peers in a BGP session, and requires the same information needed to accomplish the reset attack. The difference is that a session hijacking attack may be designed to achieve more than simply bringing down a session between BGP peers. For example, the objective may be to change routes used by the peer, in order to facilitate eavesdropping, black holing, or traffic analysis. Session hijacking is hard to do for someone who can't see the TCP sequence number for the TCP session the BGP protocol runs over, and if there are good anti-spoofing filters it is even impossible. And of course using the TCP MD5 password option (RFC 2385) makes all of this nearly impossible even for someone who can sniff the BGP traffic. [15]
+By default eBGP peers will attempt to add all routes received by another peer into the device's routing table and will then attempt to advertise nearly all of these routes to other eBGP peers. This can be a problem as multi-homed organizations can inadvertently advertise prefixes learned from one AS to another, causing the end customer to become the new, best-path to the prefixes in question. For example, a customer with a Cisco router peering with say AT&T and Verizon and using no filtering will automatically attempt to link the two major carriers, which could cause the providers to prefer sending some or all traffic through the customer (on perhaps a T1), instead of using high-speed dedicated links. This problem can further affect others that peer with these two providers and also cause those ASes to prefer the misconfigured link. In reality, this problem hardly ever occurs with large ISPs, as these ISPs tend to restrict what an end customer can advertise. However, it is important to note that any ISP not filtering customer advertisements can allow errant information to be advertised into the global routing table where it can affect even the large Tier-1 providers.
+The concept of BGP hijacking revolves around locating an ISP that is not filtering advertisements (intentionally or otherwise) or locating an ISP whose internal or ISP-to-ISP BGP session is susceptible to a man-in-the-middle attack. Once located, an attacker can potentially advertise any prefix they want, causing some or all traffic to be diverted from the real source towards the attacker. This can be done either to overload the ISP the attacker has infiltrated, or to perform a DoS or impersonation attack on the entity whose prefix is being advertised. It is not uncommon for an attacker to cause serious outages, up-to and including a complete loss of connectivity. In early 2008, at least eight US Universities had their traffic diverted to Indonesia for about 90 minutes one morning in an attack kept mostly quiet by those involved. Also, in February 2008, a large portion of YouTube's address space was redirected to Pakistan when the PTA decided to block access[3] to the site from inside the country, but accidentally blackholed the route in the global BGP table.
+While filtering and MD5/TTL protection is already available for most BGP implementations (thus preventing the source of most attacks), the problem stems from the concept that ISPs rarely ever filter advertisements from other ISPs, as there is no common or efficient way to determine the list of permissible prefixes each AS can originate. The penalty for allowing errant information to be advertised can range from simple filtering by other/larger ISPs to a complete shutdown of the BGP session by the neighboring ISP (causing the two ISPs to cease peering), and repeated problems often end in permanent termination of all peering agreements. It is also noteworthy that even causing a major provider to block or shutdown a smaller, problematic provider, the global BGP table will often reconfigure and reroute the traffic through other available routes until all peers take action, or until the errant ISP fixes the problem at the source.
+One useful offshoot of this concept is called BGP anycasting and is frequently used by root DNS servers to allow multiple servers to use the same IP address, providing redundancy and a layer of protection against DoS attacks without publishing hundreds of server IP addresses. The difference in this situation is that each point advertising a prefix actually has access to the real data (DNS in this case) and responds correctly to end user requests.
+
+[edit] Requirements of a router for use of BGP for Internet and backbone-of-backbones purposes
+Routers, especially small ones intended for Small Office/Home Office (SOHO) use, may not include BGP software. Some SOHO routers simply are not capable of running BGP using BGP routing tables of any size. Other commercial routers may need a specific software executable image that contains BGP, or a license that enables it. Open source packages that run BGP include GateD, GNU Zebra, Quagga, OpenBGPD, and Vyatta. Devices marketed as Layer 3 switches are less likely to support BGP than devices marketed as routers, but high-end Layer 3 Switches usually can run BGP.
+Products marketed as switches may or may not have a size limitation on BGP tables, such as 20,000 routes, far smaller than a full Internet table plus internal routes. These devices, however, may be perfectly reasonable and useful when used for BGP routing of some smaller part of the network, such as a confederation-AS representing one of several smaller enterprises that are linked, by a BGP backbone of backbones, or a small enterprise that announces routes to an ISP but only accepts a default route and perhaps a small number of aggregated routes.
+A BGP router used only for a network with a single point of entry to the internet may have a much smaller routing table size (and hence RAM and CPU requirement) than a multihomed network. Even simple multihoming can have modest routing table size. See RFC 4098 for vendor-independent performance parameters for single BGP router convergence in the control plane.
+It is not a given that a router running BGP needs a large memory. The memory requirement depends on the amount of BGP information exchanged with other BGP speakers, and the way in which the particular router stores BGP information. Do be aware that the router may have to keep more than one copy of a route, so it can manage different policies for route advertising and acceptance to a specific neighboring AS. The term view is often used for these different policy relationships on a running router.
+If one router implementation takes more memory per route than another implementation, this may be a legitimate design choice, trading processing speed against memory. A full BGP table from an external peer will have in excess of 270,000 routes as of December 2008. Large ISPs may add another 50% for internal and customer routes. Again depending on implementation, separate tables may be kept for each view of a different peer AS.
+
+[edit] Open-source implementations of BGP
+
+Vyatta, a commercial open-source router/firewall.
+GNU Zebra, a GPL routing suite supporting BGP4.
+Quagga, a fork of GNU Zebra for Unix-like systems.
+OpenBGPD, a BSD licensed implementation by the OpenBSD team.
+XORP, the eXtensible Open Router Platform, a BSD licensed suite.
+Bird Internet routing daemon, a GPL routing package for Unix-like systems.
+
+
+[edit] BGP simulators
+
+BGPlay, a Java applet that presents a graphical visualization of BGP routes and updates for any real AS on the Internet
+SSFnet, SSFnet network simulator includes a BGP implementation developed by BJ Premore
+C-BGP, a BGP simulator able to perform large-scale simulation trying to model the ASes of the Internet or modelling ASes as large as Tier-1[13].
+BGP++, a patch integrating GNU Zebra software on ns-2 and GTNetS network simulators
+ns-BGP, a BGP extension for ns-2 simulator based on the SSFnet implementation
+NetViews, a Java application that monitors and visualizes BGP activity in real time.
+
+
+[edit] See also
+
+Autonomous system (Internet)
+Internet Assigned Numbers Authority
+Regional Internet Registry
+Routing
+Route filtering
+Routing Assets Database (RADB)
+QPPB
+AS 7007 incident
+Route analytics
+
+
+[edit] References
+
+
+^ Capabilities Advertisement with BGP-4,RFC 2842, R. Chandra & J. Scudder,May 2000
+^ Multiprotocol Extensions for BGP-4,RFC 2858, T. Bates et al.,June 2000
+^ BGP/MPLS VPNs.,RFC 2547, E. Rosen and Y. Rekhter,April 2004
+^ IANA registry for BGP Extended Communities Types,IANA,2008
+^ IETF drafts on BGP signalled QoS,Thomas Knoll,2008
+^ BGP Route Reflection: An Alternative to Full Mesh Internal BGP (iBGP), RFC 4456, T. Bates et al, April 2006
+^ Autonomous System Confederations for BGP, RFC 5065, P. Traina et al, February 2001
+^ Border Gateway Protocol (BGP) Persistent Route Oscillation Condition, RFC 3345, D. McPherson et al, August 2002
+^ Terminology for Benchmarking BGP Device Convergence in the Control Plane, RFC 4098, H. Berkowitz et al, June 2005
+^ Route Flap Damping Exacerbates Internet Routing Convergence
+^ Zhang, Beichuan; Pei Dan, Daniel Massey, Lixia Zhang (June 2005). "Timer Interaction in Route Flap Damping". IEEE 25th International Conference on Distributed Computing Systems. http://www.cs.arizona.edu/~bzhang/paper/05-icdcs-dtimer.pdf. Retrieved on 2006-09-26.  "We show that the current damping design leads to the intended behavior only under persistent route flapping. When the number of flaps is small, the global routing dynamics deviates significantly from the expected behavior with a longer convergence delay." 
+^ BGP Routing Table Analysis Reports
+^ Modeling the routing of an Autonomous System with C-BGP
+
+
+
+[edit] External links
+
+Cyclops A BGP network audit tool (prefix hijack, route leakage) by UCLA
+LinkRank A tool for BGP routing visualization by University of California, Los Angeles
+A look at fuzzing BGP for security testing
+BGP Routing Resources (includes a dedicated section on BGP & ISP Core Security)
+BGP table statistics
+ASNumber Firefox Extension showing the AS number and additional information of the website currently open
+RIPE Routing Information Service collecting over 550 IPv4 and IPv6 BGP feeds at 14 sites around the world
+RIS Looking Glass into the Default Free Routing zone of the Internet
+RISwhois providing IPv4/IPv6 Address to BGP AS Origin Mapping
+RIS BGPlay BGP routing visualization tool by Università degli Studi Roma Tre
+Linux Magazine: Demystifying BGP (Good, Detailed BGP explanation; requires registration)
+Some important BGP RFCs
+
+RFC 4271, A Border Gateway Protocol 4 (BGP-4)
+RFC 4456, BGP Route Reflection - An Alternative to Full Mesh Internal BGP (IBGP)
+RFC 4278, Standards Maturity Variance Regarding the TCP MD5 Signature Option (RFC 2385) and the BGP-4 Specification
+RFC 4277, Experience with the BGP-4 Protocol
+RFC 4276, BGP-4 Implementation Report
+RFC 4275, BGP-4 MIB Implementation Survey
+RFC 4274, BGP-4 Protocol Analysis
+RFC 4273, Definitions of Managed Objects for BGP-4
+RFC 4272, BGP Security Vulnerabilities Analysis
+RFC 3392, Capabilities Advertisement with BGP-4
+RFC 5065, Autonomous System Confederations for BGP
+RFC 2918, Route Refresh Capability for BGP-4
+RFC 1772, Application of the Border Gateway Protocol in the Internet Protocol (BGP-4) using SMIv2
+RFC 4893, BGP Support for Four-octet AS Number Space
+
+
+Obsolete RFCs
+
+RFC 2796, Obsolete - BGP Route Reflection - An Alternative to Full Mesh IBGP
+RFC 3065, Obsolete - Autonomous System Confederations for BGP
+RFC 1965, Obsolete - Autonomous System Confederations for BGP
+RFC 1771, Obsolete - A Border Gateway Protocol 4 (BGP-4)
+RFC 1657, Obsolete - Definitions of Managed Objects for the Fourth Version of the Border Gateway
+RFC 1655, Obsolete - Application of the Border Gateway Protocol in the Internet
+RFC 1654, Obsolete - A Border Gateway Protocol 4 (BGP-4)
+RFC 1105, Obsolete - Border Gateway Protocol (BGP)
+
+
+BGP Interactions at Router Startup Described as a Sequence Diagram (PDF)
+BGP Protocol Service Level Traffic Variations Mu Dynamics
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Border_Gateway_Protocol"
+Categories: Internet standards | Internet protocols | Routing protocols | Internet architectureHidden categories: All articles with unsourced statements | Articles with unsourced statements since April 2008 | All articles to be merged | Articles to be merged since June 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+Hrvatski
+Bahasa Indonesia
+Italiano
+עברית
+Latviešu
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Română
+Русский
+Simple English
+Suomi
+Svenska
+Tiếng Việt
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 April 2009, at 10:46.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

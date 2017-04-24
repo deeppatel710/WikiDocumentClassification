@@ -1,0 +1,355 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Futures and promises - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Futures_and_promises";
+		var wgTitle = "Futures and promises";
+		var wgAction = "view";
+		var wgArticleId = "2203507";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281845219;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Futures and promises
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, futures and promises are closely related constructs used for synchronization in some concurrent programming languages. They both refer to an object that acts as a proxy for a result that is initially not known, usually because the computation of its value has not yet completed.
+The term "future" was introduced in 1977 in a paper by Henry Baker and Carl Hewitt,[1] although a somewhat similar concept was proposed in 1976 by Daniel P. Friedman and David Wise.[2] The Friedman and Wise construct described an object that required "stinging" or forcing the value to be computed before retrieving it -- reflecting a difficulty of efficiently implementing implicit futures on stock hardware. The difficulty is that stock hardware does not deal with futures for primitive data types like integers. E.g., an add instruction does not know how to deal with 3 + future factorial(100000). In the Actor model of computation and programming languages like Smalltalk-72 this problem can be solved by sending future factorial(100000) the message +[3] which asks the future to add 3 to itself and return the result. Note that the message passing approach works regardless of when factorial(100000) finishes computation and that no stinging/forcing is required.
+
+
+
+
+Contents
+
+
+1 Definition
+2 Pipelining
+3 Generalizations
+4 Distinction between futures and promises
+5 Implementations
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Definition
+An expression of the form future <Expression> is defined by how it responds to an Eval message with environment E and customer C as follows:[3] The future expression responds to the Eval message by sending the customer C a newly created actor F (the proxy for the response of evaluationg <Expression>) as a return value concurrently with sending <Expression> an Eval message with environment E and customer F. The default behavior of F is as follows:
+
+
+
+When F receives a request R, then it checks to see if it has already received a response (that can either be a return value or a thrown exception) from evaluating <Expression> proceeding as follows:
+
+
+1) If it already has a response V, then
+
+
+
+If V is a return value, then it is sent the request R.
+If V is an exception, then it is thrown to the customer of the request R.
+
+
+
+
+2) If it does not already have a response, then R is stored in the queue of requests inside the F.
+
+
+
+
+
+
+When F receives the response V from evaluating <Expression>, then V is stored in F and
+
+
+
+
+
+
+If V is a return value, then all of the queued requests are sent V.
+If V is an exception, then it is thrown to the customer of the each queued request.
+
+
+
+
+
+
+
+However, some futures can deal with requests in special ways to provide greater parallelism. For example, the expression 1 + future factorial(n) can create a new future that will behave like the number 1+factorial(n). Of course, this trick does not always work. For example the following conditional expression:
+
+
+
+if m>future factorial(n) then print("bigger") else print("smaller")
+
+
+
+suspends until the future for factorial(n) has responded to the request asking if m is greater than itself.
+
+[edit] Pipelining
+The use of futures can dramatically reduce latency in distributed systems. For instance, futures enable pipelining of messages as in the Actor model, also called promise pipelining[4][5] in E and Joule.
+In a conventional remote procedure call, an expression like
+
+t3 := (x.a()).c(y.b())
+
+which could be expanded to
+
+t1 := x.a(); t2 := y.b(); t3 := t1.c(t2)
+
+Each statement requires a message to be sent and a reply received before the next statement can proceed. Suppose, for example, that x, y, t1, and t2 are all located on the same remote machine. In this case, two complete network round-trips to that machine must take place before the third statement can begin to execute. The third statement will then cause yet another round-trip to the same remote machine.
+Using futures, the above expression could be written
+
+t3 := future (future x.a()).c(future y.b())
+
+which could be expanded to
+
+t1 := future x.a(); t2 := future y.b(); t3 := future t1.c(t2)
+
+(The former expression would be written as "t3 := (x <- a()) <- c(y <- b())" in E.) All three variables are immediately assigned futures for their results, and execution proceeds to subsequent statements. Later attempts to resolve the value of t3 may cause a delay; however, pipelining can reduce the number of round-trips required. If, as in the previous example, x, y, t1, and t2 are all located on the same remote machine, a pipelined implementation can compute t3 with one round-trip instead of three. Because all three messages are destined for objects which are on the same remote machine, only one request need be sent and only one response need be received containing the result.
+
+[edit] Generalizations
+A concurrent logic variable is similar to a promise, but is updated by unification, in the same way as logic variables in logic programming. Thus it can be fulfilled more than once with unifiable values. In the Oz programming language, a concurrent logic variable is called a dataflow variable.
+A concurrent constraint variable is a generalization of concurrent logic variables to support constraint logic programming: the constraint may be narrowed multiple times, indicating smaller sets of possible values. Typically there is a way to specify a thunk that should be run whenever the constraint is narrowed further; this is necessary to support constraint propagation.
+In some languages, for example E, "promise" refers to a read-only view of the value, and a separate object called a resolver is used to fulfill the promise. This allows the ability to set the value to be restricted. In Oz a similar effect can be achieved by using the !! operator to obtain a read-only view of a dataflow variable.
+Use of futures or promises may be implicit (any use of the future/promise automatically obtains its value, as if it were an ordinary reference) or explicit (the user must call a function to obtain the value, such as the get method of java.util.concurrent.Future in Java). Obtaining the value of an explicit future or promise is often called "forcing". Explicit futures/promises may be implemented as a library, whereas implicit futures/promises require language support.
+
+[edit] Distinction between futures and promises
+Futures and delays are well defined in terms of their denotational semantics in the Actor model. These definitions do not require recourse to low level implementation concepts such as threads.
+However, the term promise can be used ambiguously. Sometimes a distinction is made between futures and promises in programming languages defined in terms of threads. For example in Alice ML that support both[6][7]), they are defined as follows:
+
+a future is associated with a specific thread that computes its value. This computation may be started either eagerly when the future is created, or lazily when its value is first needed. A lazy future is similar to a thunk (in the sense of a delayed computation).
+a promise acts as a single-assignment variable, which may be set or fulfilled by any thread. It can be read before it has been fulfilled, in which case a future of the yet undetermined content is returned. Normally a future or promise can only be fulfilled once.
+
+A promise is similar to an I-var (as in the Id programming language). However, unlike promises, I-vars block when read prior to being written. An I-structure is a data structure containing I-vars. A related synchronization construct that can be set multiple times with different values is called an M-var.
+The distinction between "future" and "promise" as defined above is not always made consistently, and some sources may use these terms as synonyms. Eager futures can be straightforwardly implemented in terms of promises, by creating a thread to calculate the value at the same time as creating the promise/resolver. In this case it is desirable to return a read-only view to the client, so that only the newly created thread is able to fulfill this promise.
+To implement implicit lazy futures in terms of promises requires a mechanism to determine when the promise's value is first needed (for example the WaitNeeded construct in Oz). The ability to implement transparent forwarding objects (as supported by E and Joule) is sufficient, since the first message sent to the forwarder indicates that the promise is needed.
+Promises cannot be easily implemented in terms of thread-based futures (that is, without polling), because a future has to be fulfilled by a specific thread. Therefore, in programming languages based on threads, the most expressive approach appears to be to provide a combination of promises, read-only views, and either a 'WaitNeeded' construct or support for transparent forwarding. On the other hand, simple futures and delays suffice for Actor programming languages.
+
+[edit] Implementations
+The future and/or promise constructs were implemented in programming languages such as MultiLisp and Act 1. The use of logic variables for communication in concurrent logic programming languages was quite similar to promises. These started with "Prolog with Freeze" and "IC Prolog", and became a true concurrency primitive with Concurrent Prolog, Flat Concurrent Prolog, Parlog, Vulcan, Janus, Mozart/Oz, Flow Java, and Alice ML. The single-assignment "I-var" from dataflow programming languages, originating in Id and included in Reppy's "Concurrent ML", is much like the concurrent logic variable.
+The pipelining technique (using futures to overcome latency) was first invented[citation needed] for the Actor model and implemented in various Actor programming languages starting with Act 1 [Lieberman 1981]. It was then re-invented by Barbara Liskov and Liuba Shrira in 1988 and in the Project Xanadu (circa 1989).
+Languages supporting futures, promises, concurrent logic variables, dataflow variables, or I-vars include:
+
+Act 1, 2 and 3[8][9]
+Id (I-vars and M-vars only)
+Glasgow Haskell (I-vars and M-vars only)
+Alice ML
+Io[10]
+Oz
+MultiLisp
+Java (explicit futures only)
+Lucid (dataflow only)
+Scheme
+AmbientTalk
+C++0x (planned revision of the C++ standard, explicit futures only)
+R (promises for lazy evaluation - still single threaded)
+
+Languages also supporting promise pipelining include:
+
+Joule
+Argus
+E
+
+
+[edit] See also
+
+Delay (programming)
+Lazy evaluation
+
+
+[edit] References
+
+^ Baker, Henry (August 1977). "The Incremental Garbage Collection of Processes". Proceedings of the Symposium on Artificial Intelligence Programming Languages, SIGPLAN Notices 12. 
+^ Friedman, Daniel (1976). "CONS should not evaluate its arguments". S. Michaelson and R. Milner, editors, Automata, Languages and Programming, pages 257-284. Edinburgh University Press, Edinburgh. Also available as Indiana University Department of Computer Science Technical Report TR44. 
+^ ActorScriptTM: Unifying Local and Nonlocal Concurrency
+^ Promise Pipelining at erights.org
+^ Promise Pipelining on the C2 wiki
+^ Alice Manual - The Future structure
+^ Alice Manual - The Promise structure
+^ Henry Lieberman (June 1981). A Preview of Act 1. MIT AI memo 625. 
+^ Henry Lieberman (June 1981). Thinking About Lots of Things at Once without Getting Confused: Parallelism in Act 1. MIT AI memo 626. 
+^ Steve Dekorte (2005). "Io, The Programming Language". http://iolanguage.com/docs/manual. 
+
+
+[edit] External links
+
+Future Value and Promise Pipelining at the Portland Pattern Repository
+Easy Threading with Futures in Python
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Futures_and_promises"
+Categories: Distributed systems | Inter-process communication | Actor modelHidden categories: All articles with unsourced statements | Articles with unsourced statements since August 2008 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 April 2009, at 05:37 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

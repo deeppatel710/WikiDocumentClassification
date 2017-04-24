@@ -1,0 +1,418 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Session fixation - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Session_fixation";
+		var wgTitle = "Session fixation";
+		var wgAction = "view";
+		var wgArticleId = "3764708";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 286037851;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Session fixation
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer network security, session fixation attacks attempt to exploit the vulnerability of a system which allows one person to fixate (set) another person's session identifier (SID). Most session fixation attacks are web based, and most rely on session identifiers being accepted from URLs (query string) or POST data.
+
+
+
+
+Contents
+
+
+1 Attack scenarios
+
+1.1 A simple attack scenario
+1.2 Attack using server generated SID
+1.3 Attacks using cross-site cooking
+
+
+2 Countermeasures
+
+2.1 Do not accept session identifiers from GET / POST variables
+
+2.1.1 Solution: Store session identifiers in HTTP cookies
+2.1.2 Solution: Utilize SSL / TLS Session identifier
+
+
+2.2 Regenerate SID on each request
+2.3 Accept only server generated SIDs
+2.4 Logout function
+2.5 Time-out old SIDs
+2.6 Destroy session if Referrer is suspicious
+2.7 Verify that additional information is consistent throughout session
+
+2.7.1 User Agent
+
+
+
+
+3 Defense in Depth
+4 See also
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Attack scenarios
+Alice has an account at the bank http://unsafe/. Unfortunately, Alice is not very security savvy.
+Mallory is out to get Alice's money from the bank.
+Alice has a reasonable level of trust in Mallory, and will visit links Mallory sends her.
+
+[edit] A simple attack scenario
+Straightforward scenario:
+
+Mallory has determined that http://unsafe/ accepts any session identifier, accepts session identifiers from query strings and has no security validation. http://unsafe/ is thus not secure.
+Mallory sends Alice an e-mail: "Hey, check this out, there is a cool new account summary feature on our bank, http://unsafe/?SID=I_WILL_KNOW_THE_SID". Mallory is trying to fixate the SID to I_WILL_KNOW_THE_SID.
+Alice is interested and visits http://unsafe/?SID=I_WILL_KNOW_THE_SID. The usual log-on screen pops up, and Alice logs on.
+Mallory visits http://unsafe/?SID=I_WILL_KNOW_THE_SID and now has unlimited access to Alice's account.
+
+
+[edit] Attack using server generated SID
+A misconception is that servers which only accept server generated session identifiers are safe from fixation. This is false.
+Scenario:
+
+Mallory visits http://vulnerable/ and checks which SID is returned. For example, the server may respond: Set-Cookie: SID=0D6441FEA4496C2.
+Mallory is now able to send Alice an e-mail: "Check out this new cool feature on our bank, http://vulnerable/?SID=0D6441FEA4496C2."
+Alice logs on, with fixated session identifier SID=0D6441FEA4496C2.
+
+
+[edit] Attacks using cross-site cooking
+Another session fixation attack, cross-site cooking, exploits browser vulnerabilities. This allows the site http://evil/ to store cookies in Alice's browser in the cookie domain of another server http://good/, which is trusted. This attack can succeed even when there is no vulnerability within http://good/, because http://good/ may assume that browser cookie management is secure.
+Scenario:
+
+Mallory sends Alice an e-mail: "Hey, check out this cool site, http://evil/".
+Alice visits http://evil/, which sets the cookie SID with the value I_WILL_KNOW_THE_SID into the domain of http://good/.
+Alice then receives an e-mail from Mallory, "Hey, check out your bank account at http://good/".
+Once Alice logs on, Mallory can use her account using the fixated session identifier.
+
+Each of these attack scenarios has resulted in Cross-calation, where Mallory has successfully gained access to the functions and data normally reserved for Alice.
+
+[edit] Countermeasures
+
+[edit] Do not accept session identifiers from GET / POST variables
+Session identifiers in URL (query string, GET variables) or POST variables are not recommended as they simplify this attack – it is easy to make links or forms which set GET / POST variables.
+Additionally, session identifiers (SIDs) in query strings enable other risk and attack scenarios;
+
+The SID is leaked to others servers through the Referrer
+The SID is leaked to other people as users cut & paste "interesting links" from the address bar into chat, forums, communities, etc.
+The SID is stored in many places (browser history log, web server log, proxy logs, ...)
+
+
+[edit] Solution: Store session identifiers in HTTP cookies
+The session identifier on most modern systems is stored by default in an HTTP cookie, which has a moderate level of security.
+However, modern systems often accept session identifiers from GET/POST as well. The web server configuration must be modified to protect against this vulnerability.
+For PHP, you need to have access to the configuration file to use this: php.ini:
+
+; Whether to use cookies.
+session.use_cookies = 1
+
+; This option enables administrators to make their users invulnerable to
+; attacks which involve passing session ids in URLs; defaults to 0.
+session.use_only_cookies = 1
+
+
+[edit] Solution: Utilize SSL / TLS Session identifier
+When enabling HTTPS security, some systems allow applications to obtain the SSL / TLS session identifier. Use of the SSL/TLS session identifier is very secure, but many web development languages do not provide robust built-in functionality for this.
+SSL/TLS session identifiers may be suitable only for critical applications, such as those on large financial sites, due to the size of the systems. This issue, however, is rarely debated even in security forums.
+
+[edit] Regenerate SID on each request
+A countermeasure against session fixation is to generate a new session identifier (SID) on each request. If this is done, then even though an attacker may trick a user into accepting a known SID, the SID will be invalid when the attacker attempts to re-use the SID. Implementation of such a system is simple, as demonstrated by the following:
+
+Get previous Session Identifier OLD_SID from HTTP request.
+If OLD_SID is null, empty, or no session with SID=OLD_SID exists, create a new session.
+Generate new session identifier NEW_SID with a secure random number generator.
+Let session be identified by SID=NEW_SID (and no longer by SID=OLD_SID)
+Transmit new SID to client.
+
+Example:
+If Mallory successfully tricks Alice into visiting http://victim/?SID=I_KNOW_THE_SID, this HTTP request is sent to victim:
+
+GET /?SID=I_KNOW_THE_SID HTTP/1.1
+Host: victim
+
+victim accepts SID=I_KNOW_THE_SID, which is bad. However, victim is secure because it performs session regeneration. victim gets the following response:
+
+HTTP/1.1 200 OK
+Set-Cookie: SID=3134998145AB331F
+
+Alice will now use SID=3134998145AB331F which is unknown to Mallory, and SID=I_KNOW_THE_SID is invalid. Mallory is thus unsuccessful in the session fixation attempt.
+Unfortunately session regeneration is not always possible. Problems are known to occur when third-party software such as ActiveX or Java Applets is used, and when browser plugins communicate with the server. Third-party software could cause logouts, or the session could be split into two separate sessions.
+
+[edit] Accept only server generated SIDs
+One way to improve security is not to accept session identifiers that were not generated by the server.
+
+if (!isset($_SESSION['SERVER_GENERATED_SID'])) {
+   session_destroy(); // destroy all data in session
+}
+session_regenerate_id(); // generate a new session identifier
+$_SESSION['SERVER_GENERATED_SID'] = true;
+
+
+[edit] Logout function
+A logout function is useful as it allows users to indicate that a session should not allow further requests. Thus attacks can only be effective while a session is active. Note that the following code performs no Cross-site request forgery checks, potentially allowing an attacker to force users to log out of the web application.
+
+if (isset($_GET['LOGOUT']))
+   session_destroy(); // destroy all data in session
+
+
+[edit] Time-out old SIDs
+This defense is simple to implement and has the advantage of providing a measure of protection against unauthorized users accessing an authorized user's account by using a machine that may have been left unattended.
+Store a session variable containing a time stamp of the last access made by that SID. When that SID is used again, compare the current timestamp (in PHP you can get this by using the time() function call) with the one stored in the session. If the difference is greater than a predefined number, say 5 minutes, destroy the session. Otherwise, update the session variable with the current timestamp.
+
+[edit] Destroy session if Referrer is suspicious
+When visiting a page, most browsers will set the Referrer – the page that contained the link that you followed to get to this page.
+When the user is logged into a site that is not likely to be linked to from outside that site (e.g., banking websites, or webmail), and the site is not the kind of site where users would remain logged in for any great length of time, the Referrer should be from that site. Any other Referrer should be considered suspicious.
+For example, http://vulnerable/ could employ the following security check:
+
+if (strpos($_SERVER['HTTP_REFERER'], 'http://vulnerable/') !== 0) {
+   session_destroy(); // destroy all data in session
+}
+session_regenerate_id(); // generate a new session identifier
+
+
+[edit] Verify that additional information is consistent throughout session
+One way to further improve security is to ensure that the user appears to be the same end user (client). This makes it a bit harder to perform session fixation and other attacks.
+As more and more networks begin to conform to RFC 3704 and other anti-spoofing practices, the IP address becomes more reliable as a "same source" identifier. Therefore, the security of a web site can be improved by verifying that the source IP is consistent throughout a session.
+This could be performed in this manner:
+
+if($_SERVER['REMOTE_ADDR'] != $_SESSION['PREV_REMOTEADDR']) {
+   session_destroy(); // destroy all data in session
+}
+session_regenerate_id(); // generate a new session identifier
+$_SESSION['PREV_REMOTEADDR'] = $_SERVER['REMOTE_ADDR'];
+
+However, there are some points to consider before employing this approach.
+
+Several users may share one IP. It is not uncommon for an entire building to share one IP using NAT.
+One user may have an inconsistent IP. This is true for users behind proxies (such as AOL customers). It is also true for some mobile/roaming users.
+
+For some sites, the added security outweighs the lack of convenience, and for others it does not.
+
+[edit] User Agent
+Browsers identify themselves by "User-Agent" HTTP headers. This header does not normally change during use; it would be extremely suspicious if that were to happen. A web application might make use of User-Agent detection in attempt to prevent malicious users from stealing sessions.
+
+if ($_SERVER['HTTP_USER_AGENT'] !== $_SESSION['PREV_USERAGENT']) {
+   session_destroy(); // destroy all data in session
+}
+session_regenerate_id(); // generate a new session identifier
+$_SESSION['PREV_USERAGENT'] = $_SERVER['HTTP_USER_AGENT'];
+
+
+[edit] Defense in Depth
+Defense in depth is to combine several countermeasures. The idea is simple: if one obstacle is hard to overcome, several obstacles could be very hard to overcome.
+A Defence in Depth strategy could involve:
+
+Enable HTTPS (to protect against other problems)
+Correct configuration (do not accept external SIDs, set time-out, etc.)
+Perform session_regeneration, support log-out, reject illegal referrers, etc.
+
+The following PHP script demonstrates several such countermeasures combined in a Defence in Depth manner:
+
+if (strpos($_SERVER['HTTP_REFERER'], 'https://DiD/') !== 0)
+  session_destroy();
+
+if (isset($_GET['LOGOUT'])) 
+  session_destroy();
+
+if ($_SERVER['REMOTE_ADDR'] !== $_SESSION['PREV_REMOTEADDR']) 
+  session_destroy(); 
+
+if ($_SERVER['HTTP_USER_AGENT'] !== $_SESSION['PREV_USERAGENT'])
+  session_destroy();
+
+session_regenerate_id(); // generate a new session identifier
+
+$_SESSION['PREV_USERAGENT'] = $_SERVER['HTTP_USER_AGENT'];
+$_SESSION['PREV_REMOTEADDR'] = $_SERVER['REMOTE_ADDR'];
+
+
+[edit] See also
+
+Session poisoning
+Cross-calation
+
+
+[edit] External links
+
+Security Corner: Session Fixation
+Session Fixation Vulnerability in Web-based Applications (PDF)
+Session Fixation Video example
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Session_fixation"
+Categories: Web security exploitsHidden categories: Articles with Alice and Bob explanations 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+
+
+
+
+
+
+
+
+
+ This page was last modified on 25 April 2009, at 13:23 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

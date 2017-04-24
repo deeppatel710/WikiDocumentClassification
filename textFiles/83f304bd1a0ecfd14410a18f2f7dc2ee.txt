@@ -1,0 +1,329 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Radiosity - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Radiosity";
+		var wgTitle = "Radiosity";
+		var wgAction = "view";
+		var wgArticleId = "25974";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278246662;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Radiosity
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+This article is about the rendering algorithm.  For the thermodynamic quantity, see Radiosity (heat transfer).
+Radiosity is a global illumination algorithm used in 3D computer graphics rendering. Radiosity is an application of the finite element method to solving the rendering equation for scenes with purely diffuse surfaces. Unlike Monte Carlo algorithms (such as path tracing) which handle all types of light paths, typical radiosity methods only account for paths of the form LD*E, i.e., paths which leave a light source and are reflected diffusely some number of times (possibly zero) before hitting the eye. Radiosity calculations are viewpoint independent which increases the computations involved, but makes them useful for all viewpoints.
+Radiosity methods were first developed in about 1950 in the engineering field of heat transfer. They were later refined specifically for application to the problem of rendering computer graphics in 1984 by researchers at Cornell University[1].
+Notable commercial radiosity engines are Lightscape (now incorporated into the Autodesk 3D Studio Max internal render engine), form•Z RenderZone Plus by AutoDesSys, Inc.), and ElAS (Electric Image Animation System).
+
+
+
+
+Contents
+
+
+1 Visual characteristics
+2 Overview of the radiosity algorithm
+3 Mathematical formulation
+4 Reducing computation time
+5 Advantages
+6 Limitations
+7 Confusion about terminology
+8 References
+9 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Visual characteristics
+
+
+
+
+Difference between standard direct illumination and radiosity
+
+
+The inclusion of radiosity calculations in the rendering process often lends an added element of realism to the finished scene, because of the way it mimics real-world phenomena. Consider a simple room scene.
+The image on the left was rendered with a typical direct illumination renderer. There are three types of lighting in this scene which have been specifically chosen and placed by the artist in an attempt to create realistic lighting: spot lighting with shadows (placed outside the window to create the light shining on the floor), ambient lighting (without which any part of the room not lit directly by a light source would be totally dark), and omnidirectional lighting without shadows (to reduce the flatness of the ambient lighting).
+The image on the right was rendered using a radiosity algorithm. There is only one source of light: an image of the sky placed outside the window. The difference is marked. The room glows with light. Soft shadows are visible on the floor, and subtle lighting effects are noticeable around the room. Furthermore, the red color from the carpet has bled onto the grey walls, giving them a slightly warm appearance. None of these effects were specifically chosen or designed by the artist.
+
+[edit] Overview of the radiosity algorithm
+The surfaces of the scene to be rendered are each divided up into one or more smaller surfaces (patches). A view factor is computed for each pair of patches. View factors (also known as form factors) are coefficients describing how well the patches can see each other. Patches that are far away from each other, or oriented at oblique angles relative to one another, will have smaller view factors. If other patches are in the way, the view factor will be reduced or zero, depending on whether the occlusion is partial or total.
+The view factors are used as coefficients in a linearized form of the rendering equation, which yields a linear system of equations. Solving this system yields the radiosity, or brightness, of each patch, taking into account diffuse interreflections and soft shadows.
+Progressive radiosity solves the system iteratively in such a way that after each iteration we have intermediate radiosity values for the patch. These intermediate values correspond to bounce levels. That is, after one iteration, we know how the scene looks after one light bounce, after two passes, two bounces, and so forth. Progressive radiosity is useful for getting an interactive preview of the scene. Also, the user can stop the iterations once the image looks good enough, rather than wait for the computation to numerically converge.
+
+
+
+
+
+As the algorithm iterates, light can be seen to flow into the scene, as multiple bounces are computed. Individual patches are visible as squares on the walls and floor.
+
+
+
+Another common method for solving the radiosity equation is "shooting radiosity," which iteratively solves the radiosity equation by "shooting" light from the patch with the most error at each step. After the first pass, only those patches which are in direct line of sight of a light-emitting patch will be illuminated. After the second pass, more patches will become illuminated as the light begins to bounce around the scene. The scene continues to grow brighter and eventually reaches a steady state.
+
+[edit] Mathematical formulation
+The basic radiosity method has its basis in the theory of thermal radiation, since radiosity relies on computing the amount of light energy transferred among surfaces. In order to simplify computations, the method assumes that all scattering is perfectly diffuse. Surfaces are typically discretized into quadrilateral or triangular elements over which a piecewise polynomial function is defined.
+After this breakdown, the amount of light energy transfer can be computed by using the known reflectivity of the reflecting patch, combined with the view factor of the two patches. This dimensionless quantity is computed from the geometric orientation of two patches, and can be thought of as the fraction of the total possible emitting area of the first patch which is covered by the second patch.
+More correctly, radiosity is the energy leaving the patch surface per discrete time interval and is the combination of emitted and reflected energy:
+
+
+
+where:
+
+Bi is the radiosity of patch i.
+Ei is emitted energy.
+Ri is the reflectivity of the patch, giving reflected energy by multiplying by the incident energy (the energy which arrives from other patches).
+All j () in the rendered environment are integrated for BjFji dAj, to determine the energy leaving each patch j that arrives at patch i.
+Fij is the constant-valued view factor for the radiation leaving i and hitting patch j.
+
+The reciprocity:
+
+
+
+gives:
+
+
+
+For ease of use the integral is replaced and uniform radiosity is assumed over the patch, creating the simpler:
+
+
+
+This equation can then be applied to each patch. The equation is monochromatic, so color radiosity rendering requires calculation for each of the required colors.
+The view factor Fji can be calculated in a number of ways. Early methods used a hemicube (an imaginary cube centered upon the first surface to which the second surface was projected, devised by Cohen and Greenberg in 1985) to approximate the form factor, which also solved the intervening patch problem. This is quite computationally expensive, because ideally form factors must be derived for every possible pair of patches, leading to a quadratic increase in computation with added geometry. New methods include adaptive integration[2]
+
+[edit] Reducing computation time
+Although in its basic form, radiosity is assumed to have a quadratic increase in computation time with added geometry (surfaces and patches), this need not to be the case. The radiosity problem can be rephrased as a problem of rendering a texture mapped scene. In this case, the computation time increases only linearly with the number of patches (ignoring complex issues like cache use). Using a binary space partitioning tree can massively reduce the amount of time spent determining which patches are completely hidden from others in complex scenes.
+Following the commercial enthusiasm for radiosity-enhanced imagery, but prior to the standardization of rapid radiosity calculation, many architects and graphic artists used a technique referred to loosely as false radiosity. By darkening areas of texture maps corresponding to corners, joints and recesses, and applying them via self-illumination or diffuse mapping, a radiosity-like effect of patch interaction could be created with a standard scanline renderer.
+Since radiosity can now be computed more effectively using texture mapping algorithms, it lends itself to acceleration using standard graphics acceleration hardware, widely available for all types of computers.
+
+[edit] Advantages
+
+
+
+
+A modern render of the iconic Utah teapot. Radiosity was used for all diffuse illumination in this scene.
+
+
+One of the advantages of the Radiosity algorithm is that it is relatively simple to explain and implement. This makes it a useful algorithm for teaching students about global illumination algorithms. A typical direct illumination renderer already contains nearly all of the algorithms (perspective transformations, texture mapping, hidden surface removal) required to implement radiosity. A strong grasp of mathematics is not required to understand or implement this algorithm.
+
+[edit] Limitations
+Typical radiosity methods only account for light paths of the form LD*E, i.e., paths which start at a light source and make multiple diffuse bounces before reaching the eye. Although there are several approaches to integrating other illumination effects such as specular[1] and glossy[2] reflections, radiosity-based methods are generally not used to solve the complete rendering equation.
+Basic radiosity also has trouble resolving sudden changes in visibility (e.g., hard-edged shadows) because coarse, regular discretization into piecewise constant elements corresponds to a low-pass box filter of the spatial domain. Discontinuity meshing[3] uses knowledge of visibility events to generate a more intelligent discretization.
+
+[edit] Confusion about terminology
+Radiosity was perhaps the first rendering algorithm in widespread use which accounted for diffuse indirect lighting. Earlier rendering algorithms, such as Whitted-style ray tracing were capable of computing effects such as reflections, refractions, and shadows, but despite being highly global phenomena, these effects were not commonly referred to as "global illumination." As a consequence, the term "global illumination" became confused with "diffuse interreflection," and "Radiosity" became confused with "global illumination" in popular parlance. However, the three are distinct concepts.
+The radiosity method in the current computer graphics context derives from (and is fundamentally the same as) the radiosity method in heat transfer. In this context Radiosity (heat transfer) is the total radiative flux (both reflected and re-radiated) leaving a surface, also sometimes known as radiant exitance. Calculation of Radiosity rather than surface temperatures is a key aspect of the radiosity method that permits linear matrix methods to be applied to the problem.
+
+[edit] References
+
+^ "Modeling the interaction of light between diffuse surfaces", C. Goral, K. E. Torrance, D. P. Greenberg and B. Battaile, Computer Graphics, Vol. 18, No. 3.
+^ G Walton, Calculation of Obstructed View Factors by Adaptive Integration, NIST Report NISTIR-6925
+
+
+[edit] External links
+
+
+
+
+Computer graphics portal
+
+
+
+
+Radiosity Overview, from HyperGraph of SIGGRAPH (provides full matrix radiosity algorithm and progressive radiosity algorithm)
+Radiosity, by Hugo Elias (also provides a general overview of lighting algorithms, along with programming examples)
+Radiosity, by Allen Martin (a slightly more mathematical explanation of radiosity)
+RADical, by Parag Chaudhuri (an implementation of shooting & sorting variant of progressive radiosity algorithm with OpenGL acceleration, extending from GLUTRAD by Colbeck)
+ROVER, by Tralvex Yeap (Radiosity Abstracts & Bibliography Library)
+Radiosity Renderer and Visualizer (simple implementation of radiosity renderer based on OpenGL)
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Radiosity"
+Categories: 3D computer graphics 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Esperanto
+Français
+Hrvatski
+Italiano
+עברית
+Nederlands
+日本語
+Polski
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 19 March 2009, at 01:43.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

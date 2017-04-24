@@ -1,0 +1,472 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cross-site scripting - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Cross-site_scripting";
+		var wgTitle = "Cross-site scripting";
+		var wgAction = "view";
+		var wgArticleId = "241154";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281618337;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Cross-site scripting
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+Software Testing portal
+
+
+
+Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications which allow code injection by malicious web users into the web pages viewed by other users. Examples of such code include HTML code and client-side scripts. An exploited cross-site scripting vulnerability can be used by attackers to bypass access controls such as the same origin policy. Vulnerabilities of this kind have been exploited to craft powerful phishing attacks and browser exploits. As of 2007, cross-site scripting carried out on websites were roughly 80% of all documented security vulnerabilities.[1] Often during an attack "everything looks fine" to the end-user[2] who may be subject to unauthorized access, theft of sensitive data, and financial loss.[3]
+
+
+
+
+Contents
+
+
+1 Background
+2 Types
+
+2.1 DOM-based
+2.2 Non-Persistent
+2.3 Persistent
+
+
+3 Exploit scenarios
+4 Mitigation
+
+4.1 Early policies
+4.2 Escaping and filtering
+4.3 Input validation
+4.4 Cookie security
+4.5 Eliminating scripts
+
+
+5 Related vulnerabilities
+6 Notes
+7 External References
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Background
+The term "cross-site scripting" originated from the fact that a malicious web site could load another web site into another frame or window, then use Javascript to read/write data on the other web site. Over time the definition changed to mean the injection of HTML/Javascript into a web page, which may be confusing because the name is no longer an accurate description of the current definition.[4]
+In recent years XSS surpassed buffer overflows to become the most common of all publicly reported security vulnerabilities.[5] Likely at least 68% of websites are open to XSS attacks on their users.[6] In general, cross-site scripting holes can be seen as vulnerabilities present in web pages which allow attackers to bypass security mechanisms. By finding clever ways of injecting malicious scripts into web pages, an attacker can gain elevated access privileges to sensitive page content, session cookies, and a variety of other objects. Cross-site scripting was originally referred to as CSS,[2] although this usage has been largely discontinued due to confusion with the same abbreviation for Cascading Style Sheets.
+XSS attacks are written in a client-side scripting language, most often a dialect of ECMAScript (e.g. JavaScript[7], JScript[8]), sometimes including some markup language such as HTML or XHTML as well. XSS sometimes reaches other technologies including Sun Microsystems's Java, Microsoft's ActiveX and VBScript, Adobe's Flash and ActionScript, and RSS and Atom feeds.[7][9][10]
+XSS vulnerabilities have been reported and in some cases exploited since the 1990s. Some of the prominent sites affected were the search engine Google, the email services of Google and Yahoo!, the social networking sites Facebook,[11] MySpace and Orkut.[12][13] The developers of MediaWiki have fixed at least 20 XSS holes in order to protect Wikipedia and other wiki users.[14]
+Browser vendors began in 2008 to stop their users from accessing blacklisted web resources. Opera as of version 9.5 blocks on a page-by-page basis based on Haute Secure, Netcraft, and PhishTank data.[15][16] At the time of Opera's release, both Microsoft's Internet Explorer (IE) and Mozilla Firefox public betas had related features.[15] Firefox blocks are site-by-site and based on Google and StopBadware.org data.[15]
+
+[edit] Types
+Three distinct types of XSS vulnerabilities exist: non-persistent, persistent and DOM-based (which can be either persistent or non-persistent).
+
+[edit] DOM-based
+
+
+Example of DOM-based XSS
+
+
+Before the bug was resolved, Bugzilla error pages were open to DOM-based XSS attack in which arbitrary HTML and scripts could be injected using forced error messages.[17]
+
+
+
+
+
+
+Bugzilla bug in the U.S. National Vulnerability Database
+
+
+
+
+
+
+The DOM-based or Type 0 XSS vulnerability, also referred to as local cross-site scripting, is based on the standard object model for representing HTML or XML called the Document Object Model or DOM for short. With DOM-based cross-site scripting vulnerabilities, the problem exists within a page's client-side script itself. For instance, if a piece of JavaScript accesses a URL request parameter and uses this information to write some HTML to its own page, and this information is not encoded using HTML entities, an XSS hole will likely be present, since this written data will be re-interpreted by browsers as HTML which could include additional client-side script.[18]
+In practice, exploiting such a hole would be very similar to the exploit of non-persistent type vulnerabilities (see below), except in one very important situation. Because of the way older versions of Microsoft Internet Explorer treat client-side script in objects located in the "local zone" (for instance, on the client's local hard drive), an XSS hole of this kind in a local page can result in remote execution vulnerabilities. For example, if an attacker hosts a malicious website, which contains a link to a vulnerable page on a client's local system, a script could be injected and would run with privileges of that user's browser on their system. (Local HTML pages are commonly installed with standard software packages, including Internet Explorer.) This bypasses the entire client-side sandbox, not just the cross-domain restrictions that are normally bypassed with XSS exploits. The Local Machine Zone Lockdown in IE6 on Windows XP Service Pack 2 was implemented to prevent attackers from executing scripts in the local file zone but did not protect Internet Explorer users from similar vulnerabilities.[19]
+
+[edit] Non-Persistent
+
+
+Example of non-persistent XSS
+
+
+Non-persistent XSS vulnerabilities in Google could allow its members to be impersonated when payloads used UTF-7 encoding.[20]
+
+
+
+
+
+
+Google bug in the NVD
+
+
+
+
+
+
+The non-persistent or Type 1 cross-site scripting hole is also referred to as a reflected vulnerability, and is by far the most common type.[21] These holes show up when data provided by a web client is used immediately by server-side scripts to generate a page of results for that user.[7] If unvalidated user-supplied data is included in the resulting page without HTML encoding, this will allow client-side code to be injected into the dynamic page.[21][7] A classic example of this is in site search engines: if one searches for a string which includes some HTML special characters, often the search string will be redisplayed on the result page to indicate what was searched for, or will at least include the search terms in the text box for easier editing. If any occurrence of the search terms is not HTML entity encoded, an XSS hole will result.[3]
+At first blush, this does not appear to be a serious problem since users can only inject code into their own pages. However, with a small amount of social engineering, an attacker could convince a user to follow a malicious URL which injects code into the results page, giving the attacker full access to that page's content. Due to the general requirement of the use of some social engineering in this case (and normally in Type 0 vulnerabilities as well), many programmers have disregarded these holes as not terribly important. This misconception is sometimes applied to XSS holes in general (even though this is only one type of XSS) and there is often disagreement in the security community as to the importance of cross-site scripting vulnerabilities.[22]
+
+[edit] Persistent
+
+
+Example of persistent XSS
+
+
+A persistent cross-zone scripting vulnerability and computer worm allowed execution of arbitrary code and listing of filesystem contents via a QuickTime movie on MySpace.[23]
+
+
+
+
+
+
+Apple QuickTime bug in the NVD
+
+
+
+
+
+
+The persistent or Type 2 XSS vulnerability is also referred to as a stored or second-order vulnerability, and it allows the most powerful kinds of attacks. A type 2 XSS vulnerability exists when data provided to a web application by a user is first stored persistently on the server (in a database, filesystem, or other location), and later displayed to users in a web page without being encoded using HTML entities.[7] A classic example of this is with online message boards, where users are allowed to post HTML formatted messages for other users to read.[7]
+Persistent XSS can be more significant than other types because an attacker's malicious script is rendered more than once.[24] Potentially, such an attack could affect a large number of users with little need for social engineering,[24] and the application could be infected by a cross-site scripting virus or worm.[25]
+The methods of injection can vary a great deal, and an attacker may not need to use the web application itself to exploit such a hole. Any data received by the web application (via email, system logs, etc) that can be controlled by an attacker must be encoded prior to re-display in a dynamic page, else an XSS vulnerability of this type could result.
+
+[edit] Exploit scenarios
+Attackers intending to exploit cross-site scripting vulnerabilities must approach each class of vulnerability differently. For each class, a specific attack vector is described here. The names below are technical terms, taken from the cast of characters commonly used in computer security.
+Simple persistent attack
+
+Mallory posts a message to a social network.
+When Bob reads the message, Mallory's XSS steals Bob's cookie.
+Mallory can hijack Bob's session and impersonate Bob.[26]
+
+DOM-based attack[18]
+
+Mallory sends the URL of a maliciously constructed web page to Alice, using email or another mechanism.
+Alice clicks on the link.
+The malicious web page's JavaScript opens a vulnerable HTML page installed locally on Alice's computer.
+The vulnerable HTML page contains JavaScript which executes in Alice's computer's local zone.
+Mallory's malicious script now may run commands with the privileges Alice holds on her own computer.
+
+Non-Persistent[7]
+
+Alice often visits a particular website, which is hosted by Bob. Bob's website allows Alice to log in with a username/password pair and store sensitive information, such as billing information.
+Mallory observes that Bob's website contains a reflected XSS vulnerability.
+Mallory crafts a URL to exploit the vulnerability, and sends Alice an email, enticing her to click on a link for the URL.
+Alice visits the URL provided by Mallory while logged into Bob's website.
+The malicious script embedded in the URL executes in Alice's browser, as if it came directly from Bob's server. The script can be used to email Alice's session cookie to Mallory. Mallory can then use the session cookie to steal sensitive information available to Alice (authentication credentials, billing info, etc) without Alice's knowledge.
+
+Persistent[7]
+
+Bob hosts a web site which allows users to post messages and other content to the site for later viewing by other members.
+Mallory notices that Bob's website is vulnerable to a type 2 XSS attack.
+Mallory posts a message, controversial in nature, which may encourage many other users of the site to view it.
+Upon merely viewing the posted message, site users' session cookies or other credentials could be taken and sent to Mallory's webserver without their knowledge.
+Later, Mallory logs in as other site users and posts messages on their behalf....
+
+Identity Attack
+
+Bob hosts a site that allows users to post messages which includes a stored list of user names as recommendations.
+Alice is a regular visitor to the recommendation-based site; she uses an alias to protect her identity.
+Mallory knows one or more of Alice's email addresses but not her identity alias.
+Mallory uses social engineering to send a disguised recommendation link or the link to a carefully constructed redirect page which recommends a staged posting to Bob's site.
+Alice clicks on the link. Her session cookies or willing-login trigger the recommendation.
+Mallory reads the recommendation list and discovers Alice's online identity.
+
+Please note, the preceding examples are merely a representation of common methods of exploit and are not meant to encompass all vectors of attack.
+
+[edit] Mitigation
+Avoiding XSS requires action on the part of the user.[27][28] Defense against XSS falls also to content and web application developers, and to browser vendors. Users can usually disable scripting,[27] several best practices exist for content developers,[29] web applications can be tested and reviewed before release,[10] and some browsers today implement a few access-control policies.[30]
+
+[edit] Early policies
+Several high profile security vulnerabilities followed the Netscape introduction in 1995 of the JavaScript language.[31] Netscape began to realize some of the security risks of allowing a Web server to send executable code to a browser (even if only in a browser sandbox). The company introduced the same origin policy in Netscape Navigator version 2.[32] One key problem is the case where users have more than one browser window or tab open at once. In some instances, a script from one page should be allowed to access data from another page or object, but in others, this should be strictly forbidden because a malicious website could attempt to steal sensitive information. The policy forbids browsers to load a script when it crosses the boundary of the current Window object[33] unless the script originated from the same domain and over the same protocol and the same port if port is specified.[32] Essentially, this policy was intended to allow interaction between objects and pages but in theory a malicious Web site would not be able to access sensitive data in another browser window. Unfortunately browser vendors implemented the policy in different ways and the result was unpredictable behavior.[33] The policy also had loopholes, for example, an HTML element embedded in a page or resource at the origin host may link to a script hosted elsewhere and the browser will load that script when it loads the page.[33] Since then, other similar access-control policies have been adopted in other browsers and client-side scripting languages to protect end-users from malicious Web sites but the policies may depend on the user themself to guide access control according to their preferences. For example, digital signatures might identify scripts and their source to the user or user agent before a script can load.[30]
+
+[edit] Escaping and filtering
+One way to eliminate some XSS vulnerabilities is to escape (either locally or at the server) all untrusted data based on where that data is to be placed in the HTML document.[34] This escaping prevents the data from being interpreted and executed.There are several different escaping schemes that must be used, including HTML numeric entity encoding, JavaScript escaping, CSS escaping, and URL (or percent) encoding.[35] Most web applications that do not need to accept rich data can use escaping to completely eliminate the risk of XSS. However, although it is widely recommended, simply performing HTML entity encoding on the five XML significant characters is not sufficient to prevent many forms of XSS. Encoding can be tricky, and the use of a security encoding library is highly recommended.[35]
+Unfortunately, users of many kinds of web applications (commonly forums and webmail) wish to allow users to utilize some of the features HTML provides, such as bold tags for instance. Some web applications such as social networking sites like MySpace and mainstream forum and blog software like WordPress and Movable Type attempt to identify malicious HTML constructs, and neutralize them, either by removing or encoding them.[36] But due to the flexibility and complexity of HTML and related standards, and the continuous addition of new features, it is almost impossible to know for sure if all possible injections are eliminated. Capabilities differ greatly among filtering systems and as of 2007 in Google's case were being written in house.[37] In order to eliminate certain injections, any server-side algorithm must either reject broken HTML, understand how every browser will interpret broken HTML,[38] or (preferably) fix the HTML to be well-formed using techniques akin to those of HTML Tidy.[39]
+
+[edit] Input validation
+Input validation for all potentially malicious data sources is another way to mitigate XSS. This is a common theme in application development (even outside of web development) and is generally very useful.[40] For instance, if a form accepts some field, which is supposed to contain a phone number, a server-side routine could remove all characters other than digits, parentheses, and dashes,[41] such that the result cannot contain a script. Input validation may help to mitigate other injection attacks such as SQL injection as well.[42] While effective for most types of input, there are times when an application, by design, must be able to accept special HTML characters, such as '<' and '>'.[42] In these situations, HTML entity encoding is the only option.[43]
+
+[edit] Cookie security
+Besides content filtering, other methods for XSS mitigation are also commonly used. One example is that of cookie security. Many web applications rely on session cookies for authentication between individual HTTP requests, and because client-side scripts generally have access to these cookies, simple XSS exploits can steal these cookies.[34] To mitigate this particular threat (though not the XSS problem in general), many web applications tie session cookies to the IP address of the user who originally logged in, and only permit that IP to use that cookie.[44] This is effective in most situations (if an attacker is only after the cookie), but obviously breaks down in situations where an attacker is behind the same NATed IP address or web proxy.[44] IE (since version 6) and Firefox (since version 2.0.0.5) have an HttpOnly flag which allows a web server to set a cookie that is unavailable to client-side scripts but while beneficial, the feature does not prevent cookie theft nor can it prevent attacks within the browser.[45]
+
+[edit] Eliminating scripts
+Finally, while Web 2.0 and Ajax designers favor the use of JavaScript,[46] some web applications are written to (sometimes optionally) operate completely without the need for client-side scripts.[47] This allows users, if they choose, to disable scripting in their browsers before using the application. In this way, even potentially malicious client-side scripts could be inserted unescaped on a page, and users would not be susceptible to XSS attacks.
+Many browsers can be configured to disable client-side scripts on a per-domain basis. If scripting is allowed by default, then this approach is of limited value, since it blocks bad sites only after the user knows that they are bad, which is too late. Functionality that blocks all scripting and external inclusions by default and then allows the user to enable it on a per-domain basis is more effective. This has been possible for a long time in IE (since version 4) by setting up its so called "Security Zones",[48] and in Opera (since version 9) using its "Site Specific Preferences".[49] A solution for Firefox and other Gecko-based browsers is the open source NoScript add-on which has anti-XSS protection.[50]
+The most significant problem with blocking all scripts on all websites by default is substantial reduction in functionality and responsiveness (client-side scripting can be much faster than server-side scripting because it does not need to connect to a remote server and the page or frame does not need to be reloaded[51]). Another problem with script blocking is that many users do not understand it, and do not know how to properly secure their browsers.[27] Another drawback is that many sites do not work without client-side scripting, forcing users to disable protection for that site and opening their systems to the threat.[52] The Firefox NoScript extension enables users to allow scripts selectively from a given page while disallowing others on the same page. For example, scripts from example.com could be allowed, while scripts from advertisingagency.com that are attempting to run on the same page could be disallowed. [53]
+
+[edit] Related vulnerabilities
+Several classes of vulnerabilities or attack techniques are related to XSS. Cross-zone scripting exploits "zone" concepts in software and usually executes code with a greater privilege.[54] HTTP header injection can be used to create cross-site scripting conditions in addition to allowing attacks such as HTTP response splitting.[55] Cross-site request forgery (CSRF/XSRF) is almost the opposite of XSS, in that rather than exploiting the user's trust in a site, the attacker exploits the site's trust in the client software, submitting requests that the site believes come from its own authenticated users.[56] SQL injection exploits a vulnerability in the database layer of an application. When user input is incorrectly filtered any SQL statements can be executed by the application.[57][58] Content spoofing is a similar attack where markup language is injected without script with the intention of presenting unintended content as native to the site instead of running malicious code in a victim's browser.
+
+[edit] Notes
+
+
+^ During the second half of 2007, 11,253 site-specific cross-site vulnerabilities were documented by XSSed, compared to 2,134 "traditional" vulnerabilities documented by Symantec, in "Symantec Internet Security Threat Report: Trends for July-December 2007 (Executive Summary)" (PDF). Symantec Corp.. April 2008. 1–3. http://eval.symantec.com/mktginfo/enterprise/white_papers/b-whitepaper_exec_summary_internet_security_threat_report_xiii_04-2008.en-us.pdf. Retrieved on 2008-05-11. 
+^ a b Rafail, Jason (2001). "Cross-Site Scripting Vulnerabilities" (PDF). CERT Coordination Center, Carnegie Mellon University. http://www.cert.org/archive/pdf/cross_site_scripting.pdf. Retrieved on 2008-05-27. 
+^ a b Grossman, Jeremiah and Robert Hansen, Seth Fogie, Petko D. Petkov and Anton Rager (2007). XSS Attacks: Cross Site Scripting Exploits and Defense (Abstract). Elsevier Science & Technology via Google Book Search. ISBN 1597491543. http://books.google.com/books?id=dPhqDe0WHZ8C. Retrieved on 2008-05-28. 
+^ Grossman, Jeremiah (July 30, 2006). "The origins of Cross-Site Scripting (XSS)". http://jeremiahgrossman.blogspot.com/2006/07/origins-of-cross-site-scripting-xss.html. Retrieved on 2008-09-15. 
+^ Christey, Steve and Martin, Robert A. (May 22, 2007). "Vulnerability Type Distributions in CVE (version 1.1)". MITRE Corporation. http://cwe.mitre.org/documents/vuln-trends/index.html. Retrieved on 2008-06-07. 
+^ Berinato, Scott (January 1, 2007). "Software Vulnerability Disclosure: The Chilling Effect". CSO (CXO Media): p. 7. http://www.csoonline.com/article/221113. Retrieved on 2008-06-07. 
+^ a b c d e f g h "Cross-site Scripting". Web Application Security Consortium. 2005. http://www.webappsec.org/projects/threat/classes/cross-site_scripting.shtml. Retrieved on 2008-05-28. 
+^ Canter, Sheryl (April 20, 2004). "Understanding Client-Side Scripting". PC Magazine (Ziff Davis Publishing). http://www.pcmag.com/article2/0,2704,1564972,00.asp. Retrieved on 2008-06-04. 
+^ "Vulnerability Note VU#249337". CERT Coordination Center, Carnegie Mellon University. January 17, 2008. http://www.kb.cert.org/vulnotes/id/249337. Retrieved on 2008-05-28. 
+^ a b Shah, Shreeraj (November 2, 2006). "Detecting Web Application Security Vulnerabilities". O'Reilly Network. http://www.oreillynet.com/pub/a/sysadmin/2006/11/02/webapp_security_scans.html. Retrieved on 2008-05-29. 
+^ Leyden, John (May 23, 2008). "Facebook poked by XSS flaw". The Register. http://www.theregister.co.uk/2008/05/23/facebook_xss_flaw/. Retrieved on 2008-05-28. 
+^ "Full List of Incidents". Web Application Security Consortium. February 17, 2008. http://www.webappsec.org/projects/whid/list.shtml. Retrieved on 2008-05-28. 
+^ "Obama site hacked; Redirected to Hillary Clinton". ZDNet. April 21, ,2008. http://blogs.zdnet.com/security/?p=1042. Retrieved on 2008-05-28. 
+^ "CVE-2008-0460". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2008-0460. , "CVE-2007-4883". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2007-4883. , "CVE-2007-4828". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2007-4828. , "CVE-2007-1055". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2007-1055. , "CVE-2007-1054". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2007-1054. , "CVE-2007-0788". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2007-0788. , "CVE-2007-0177". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2007-0177. , "CVE-2006-2895". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2006-2895. , "CVE-2006-2611". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2006-2611. , "CVE-2006-1498". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2006-1498. , "CVE-2005-4501". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-4501. , "CVE-2005-3167". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-3167. , "CVE-2005-3165". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-3165. , "CVE-2005-2396". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-2396. , "CVE-2005-2215". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-2215. , "CVE-2005-1888". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-1888. , "CVE-2005-1245". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-1245. , "CVE-2005-0534". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2005-0534. , "CVE-2004-2185". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2004-2185.  and "CVE-2004-2152". http://nvd.nist.gov/nvd.cfm?cvename=CVE-2004-2152.  in "National Vulnerability Database (version 2.1)". NIST Computer Security Resource Center (CSRC). http://nvd.nist.gov/. Retrieved on 2008-06-10. 
+^ a b c Krebs, Brian (June 12, 2008). "Opera 9.5 Offers Anti-Malware Protection". The Washington Post (The Washington Post Company). http://blog.washingtonpost.com/securityfix/2008/06/opera_95_offers_antimalware_pr.html. Retrieved on 2008-06-12. 
+^ Netcraft and PhishTank in Opera Software (June 12, 2008). Opera redefines Web browsing yet again. Press release. http://www.opera.com/pressreleases/en/2008/06/12/. Retrieved on 2008-06-12. 
+^ "Bug 272620 – XSS vulnerability in internal error messages". Bugzilla@Mozilla. 2004. http://bugzilla.mozilla.org/show_bug.cgi?id=272620. Retrieved on 2008-05-29. 
+^ a b Klein, Amit (July 4, 2005). "DOM Based Cross Site Scripting or XSS of the Third Kind". Web Application Security Consortium. http://www.webappsec.org/projects/articles/071105.shtml. Retrieved on 2008-05-28. 
+^ For example, "vulnerabilities in technologies relating to the IE domain/zone security model, local file system (Local Machine Zone) trust, the Dynamic HTML (DHTML) document object model..." in "Vulnerability Note VU#356600". US-CERT, Department of Homeland Security. February 17, 2005. http://www.kb.cert.org/vuls/id/356600. Retrieved on 2008-06-07. 
+^ Amit, Yair (December 21, 2005). "Google.com UTF-7 XSS Vulnerabilities". Beyond Security. http://www.securiteam.com/securitynews/6Z00L0AEUE.html. Retrieved on 2008-05-29. 
+^ a b Hope, Paco; Walther, Ben (2008), Web Security Testing Cookbook, O'Reilly Media, Inc., p. 128, ISBN 978-0-596-51483-9 
+^ "A WAKE-UP CALL for websites" in Berinato, Scott (January 1, 2007). "Software Vulnerability Disclosure: The Chilling Effect". CSO (CXO Media): p. 8. http://www.csoonline.com/article/221113. Retrieved on 2008-06-07. 
+^ This worm is named JS/Ofigel-A, JS/Quickspace.A and JS.Qspace, in "JS/Ofigel-A". Sophos. http://www.sophos.com/security/analyses/viruses-and-spyware/jsofigela.html. Retrieved on 2008-06-05.  and "F-Secure Malware Information Pages: JS/Quickspace.A". F-Secure. January 5, 2007. http://www.f-secure.com/v-descs/js_quickspace_a.shtml. Retrieved on 2008-06-05.  and "JS.Qspace". Symantec Corp.. February 13, 2007. http://www.symantec.com/security_response/writeup.jsp?docid=2006-120313-2523-99. Retrieved on 2008-06-05. 
+^ a b Rütten, Christiane and Glemser, Tobias. "Healthy suspicion: Web application security". Heise Media UK. http://www.heise-online.co.uk/security/Web-application-security--/features/84511. Retrieved on 2008-06-07. 
+^ Viruses and worms in Alcorn, Wade (September 27, 2005). "The Cross-site Scripting Virus". BindShell.net. http://www.bindshell.net/papers/xssv. Retrieved on 2008-05-27.  and Grossman, Jeremiah (April 2006). "Cross-Site Scripting Worms and Viruses: The Impending Threat and the Best Defense" (PDF). WhiteHat Security. 20. http://www.whitehatsec.com/downloads/WHXSSThreats.pdf. Retrieved on 2008-06-06. 
+^ Brodkin, Jon (October 4, 2007). "The top 10 reasons Web sites get hacked". Network World (IDG). http://www.networkworld.com/news/2007/100407-web-site-vulnerabilities.html. Retrieved on 2008-06-08. 
+^ a b c Dormann, Will and Rafail, Jason (February 14, 2008). "Securing Your Web Browser". CERT Coordination Center, Carnegie Mellon University. http://www.cert.org/tech_tips/securing_browser/. Retrieved on 2008-05-29. 
+^ "iPhone: Safari Web Settings". Apple Inc.. October 4, 2007. http://support.apple.com/kb/HT1677. Retrieved on 2008-06-08. 
+^ "Understanding Malicious Content Mitigation for Web Developers". CERT Coordination Center, Carnegie Mellon University. undated. http://www.cert.org/tech_tips/malicious_code_mitigation.html. Retrieved on 2008-05-29. 
+^ a b Taylor, John (maintainer). "JavaScript Security in Mozilla". Mozilla. http://www.mozilla.org/projects/security/components/jssec.html. Retrieved on 2008-05-27. 
+^ Champeon, Steve (April 6, 2001). "JavaScript: How Did We Get Here?". O'Reilly Media. http://www.oreillynet.com/pub/a/javascript/2001/04/06/js_history.html. Retrieved on 2008-05-27. 
+^ a b Ruderman, Jesse (maintainer). "The Same Origin Policy". Mozilla. http://www.mozilla.org/projects/security/components/same-origin.html. Retrieved on 2008-05-27. 
+^ a b c Powell, Thomas and Schneider, Fritz. JavaScript: The Complete Reference (2 ed.). McGraw-Hill/Osborne. ISBN 0072253576. http://www.devarticles.com/c/a/JavaScript/JavaScript-Security/. Retrieved on 2008-05-27. 
+^ a b Sharma, Anand (February 3, 2004). "Prevent a cross-site scripting attack". IBM. http://www.ibm.com/developerworks/ibm/library/wa-secxss/. Retrieved on 2008-05-29. 
+^ a b Williams,Jeff (January 19, 2009). "XSS (Cross SIte Scripting) Prevention Cheat Sheet". OWASP. http://www.owasp.org/index.php/XSS_%28Cross_Site_Scripting%29_Prevention_Cheat_Sheet. Retrieved on 2009-02-04. 
+^ MySpace in "Vulnerability Note VU#885665". US-CERT, Department of Homeland Security. December 12, 2006. http://www.kb.cert.org/vuls/id/885665. Retrieved on 2008-06-06.  and WordPress in ""How do I stop people from posting HTML in comments?" in FAQ Working with WordPress". WordPress. http://codex.wordpress.org/FAQ_Working_with_WordPress. Retrieved on 2008-06-06.  and MT in "Vulnerability Summary CVE-2007-0604". National Vulnerability Database, NIST Computer Security Resource Center (CSRC). January 31, 2007. http://nvd.nist.gov/nvd.cfm?cvename=CVE-2007-0604. Retrieved on 2008-06-06. 
+^ Leyden, John (July 18, 2007). "Google's Lemon squeezes out web app bugs". The Register. http://www.theregister.co.uk/2007/07/18/google_lemon/. Retrieved on 2008-06-06. 
+^ For example, "the Webmaster must be very familiar with how each browser renders their code and accounts for any possible form of abuse" and "Browser Peculiarities" in Fogie, Seth, Jeremiah Grossman, Robert Hansen, and Anton Rager (2007) (PDF). Cross Site Scripting Attacks: XSS Exploits and Defense. Syngress, Elsevier Science & Technology. pp. 146, 150. ISBN 1597491543. http://www.syngress.com/book_catalog//SAMPLE_1597491543.pdf. Retrieved on 2008-06-06. 
+^ If a Web application "MUST support user-supplied HTML...Make sure the HTML content you receive is well-formed...." in Grossman, Jeremiah (April 2006). "Cross-Site Scripting Worms and Viruses: The Impending Threat and the Best Defense" (PDF). WhiteHat Security. 20. http://www.whitehatsec.com/downloads/WHXSSThreats.pdf. Retrieved on 2008-06-06. 
+^ Howard, Michael and LeBlanc, David (November 13, 2001). Writing Secure Code (sample chapter). Microsoft Press. ISBN 0-7356-1588-8. http://www.microsoft.com/mspress/books/sampchap/5612a.aspx. Retrieved on 2008-06-06. 
+^ "Client-Side Validation with Enhanced Forms". IBM. 2005. http://publib.boulder.ibm.com/infocenter/pvcwesd/index.jsp?topic=/com.ibm.websphere.mcs.doc_3.2.3/webauthgd/ch05s02.html. Retrieved on 2008-06-06. 
+^ a b Huseby, Sverre H. (March 12, 2004). Innocent Code: A Security Wake-Up Call for Web Programmers. Wiley via Amazon Reader. pp. 67–68. ISBN 0470857447. http://www.amazon.com/Innocent-Code-Security-Wake-Up-Programmers/dp/0470857447/. Retrieved on 2008-06-06. 
+^ Huseby, Sverre H. (March 12, 2004). Innocent Code: A Security Wake-Up Call for Web Programmers. Wiley via Amazon Reader. pp. 113. ISBN 0470857447. http://www.amazon.com/Innocent-Code-Security-Wake-Up-Programmers/dp/0470857447/. Retrieved on 2008-06-06. 
+^ a b "ModSecurity: Features: PDF Universal XSS Protection". Breach Security. http://www.modsecurity.org/projects/modsecurity/apache/feature_universal_pdf_xss.html. Retrieved on 2008-06-06. 
+^ "Ajax and Mashup Security". OpenAjax Alliance. http://www.openajax.org/whitepapers/Ajax%20and%20Mashup%20Security.php. Retrieved on 2008-06-09. 
+^ O'Reilly, Tim (September 30, 2005). "What Is Web 2.0". O'Reilly Media. 4–5. http://www.oreillynet.com/pub/a/oreilly/tim/news/2005/09/30/what-is-web-20.html. Retrieved on 2008-06-04. 
+^ "A page should work, even if in a degraded form, without JavaScript." in Zammetti, Frank (April 16, 2007). Practical JavaScript, DOM Scripting and Ajax Projects via Amazon Reader. Apress. pp. 36. ISBN 1590598164. http://www.amazon.com/gp/reader/1590598164/. Retrieved on 2008-06-04. 
+^ "How to use security zones in Internet Explorer". Microsoft. December 18, 2007. http://support.microsoft.com/kb/174360/en-us. Retrieved on 2008-06-04. 
+^ Håkon Wium Lie (February 7, 2006). "Opera 9 Technology Preview 2". Opera Software. http://labs.opera.com/news/2006/02/07-2/. Retrieved on 2008-06-04. 
+^ "NoScript". Mozilla. May 30, 2008. http://addons.mozilla.org/en-US/firefox/addon/722?id=722. Retrieved on 2008-06-04.  and Mogull, Rich (March 18, 2008). "Should Mac Users Run Antivirus Software?". TidBITS (TidBITS Publishing). http://db.tidbits.com/article/9511. Retrieved on 2008-06-04. 
+^ ""Using client-side events" in DataWindow Programmer's Guide". Sybase. March 2003. http://www.elsevier.com/homepage/saa/trac/progmeth.htm. Retrieved on 2008-06-04. 
+^ 73% of sites relied on JavaScript in late 2006, in "'Most websites' failing disabled". BBC News. December 6, 2006. http://news.bbc.co.uk/2/hi/technology/6210068.stm. Retrieved on 2008-06-04. 
+^ "NoScript Features". http://noscript.net/features. Retrieved on 2009-03-07. 
+^ "Security hole in Internet Explorer allows attackers to execute arbitrary programs". Heise Media UK. May 16, 2008. http://www.heise-online.co.uk/security/Security-hole-in-Internet-Explorer-allows-attackers-to-execute-arbitrary-programs--/news/110752. Retrieved on 2008-06-07. 
+^ "Update available for potential HTTP header injection vulnerabilities in Adobe Flash Player". Adobe Systems. November 14, 2006. http://www.adobe.com/support/security/bulletins/apsb06-18.html. Retrieved on 2008-06-07. 
+^ Auger, Robert (April 17, 2008). "The Cross-Site Request Forgery (CSRF/XSRF) FAQ (version 1.59)". Cgisecurity.com. http://www.cgisecurity.com/articles/csrf-faq.shtml. Retrieved on 2008-06-07. 
+^ "SQL Injection". Web Application Security Consortium. 2005. http://www.webappsec.org/projects/threat/classes/sql_injection.shtml. Retrieved on 2008-06-07. 
+^ "The Cross-Site Scripting FAQ". Cgisecurity.com. 2002. http://www.cgisecurity.com/xss-faq.html. Retrieved on 2008-06-07. 
+
+
+
+[edit] External References
+
+WhiteHat Security － Vulnerabilties White Paper
+XSS animated tutorial
+OWASP: XSS, Testing for XSS, Reviewing Code for XSS
+Simple XSS explanation
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Cross-site_scripting"
+Categories: Web security exploits | Computer security exploits | Injection exploitsHidden categories: Articles with Alice and Bob explanations 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Česky
+Deutsch
+Eesti
+Español
+فارسی
+Français
+Italiano
+עברית
+Latviešu
+Lietuvių
+Nederlands
+日本語
+한국어
+‪Norsk (bokmål)‬
+Polski
+Русский
+Slovenčina
+Suomi
+Svenska
+Tiếng Việt
+Türkçe
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 April 2009, at 02:03.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

@@ -1,0 +1,371 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Simplex algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Simplex_algorithm";
+		var wgTitle = "Simplex algorithm";
+		var wgAction = "view";
+		var wgArticleId = "349458";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282001017;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Simplex algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In mathematical optimization theory, the simplex algorithm, created by the American mathematician George Dantzig in 1947, is a popular algorithm for numerical solution of the linear programming problem. The journal Computing in Science and Engineering listed it as one of the top 10 algorithms of the century.[1]
+An unrelated, but similarly named method is the Nelder-Mead method or downhill simplex method due to Nelder & Mead (1965) and is a numerical method for optimizing many-dimensional unconstrained problems, belonging to the more general class of search algorithms.
+In both cases, the method uses the concept of a simplex, which is a polytope of N + 1 vertices in N dimensions: a line segment in one dimension, a triangle in two dimensions, a tetrahedron in three-dimensional space and so forth.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Implementation
+
+2.1 Matrix form of the simplex algorithm
+2.2 Algorithm
+2.3 Implementation
+2.4 Common implementations of the revised simplex method
+
+
+3 See also
+4 References
+5 Further reading
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+Further information: Linear programming
+
+
+
+
+A system of linear inequalities defines a polytope as a feasible region. The simplex algorithm begins at a starting vertex and moves along the edges of the polytope until it reaches the vertex of the optimum solution.
+
+
+Consider a linear programming problem,
+
+maximize 
+subject to 
+
+In geometric terms, each inequality specifies a half-space in n-dimensional Euclidean space, and their intersection is the set of all feasible values the variables can take. The region is either empty, unbounded, or a convex polytope.
+The set of points where the objective function obtains a given value v is defined by the hyperplane cTx = v. We are looking for the largest v such that the hyperplane still intersects the feasible region. As v increases, the hyperplanes translates in the direction of the vector c. Intuitively, and indeed it can be shown by convexity, the last hyperplane to intersect the feasible region will either just graze a vertex of the polytope, or a whole edge or face. In the latter two cases, it is still the case that the endpoints of the edge or face will achieve the optimum value. Thus, the optimum value will always be achieved on one of the vertices of the polytope.
+The simplex algorithm leverages this insight by rewriting the problem so that one of the vertices of the (possibly unbounded) polytope is easy to find, or it is revealed that the problem is infeasible. Then, the algorithm walks along edges of the polytope to vertices with higher objective function value until a local maximum is reached, or the problem is revealed to be unbounded. By convexity, a local maximum is also a global maximum, so the solution has been found. Usually there are more than one adjacent vertices which improve the objective function, so a pivot rule must be specified to determine which vertex to pick. The selection of this rule has a great impact on the runtime of the algorithm.
+In 1972, Klee and Minty[2] gave an example of a linear programming problem in which the polytope P is a distortion of an n-dimensional cube. They showed that the simplex method as formulated by Dantzig visits all 2n vertices before arriving at the optimal vertex. This shows that the worst-case complexity of the algorithm is exponential time. Since then it has been shown that for almost every deterministic rule there is a family of simplices on which it performs badly. It is an open question if there is a pivot rule with polynomial time, or even sub-exponential worst-case complexity.
+Nevertheless, the simplex method is remarkably efficient in practice. It has been known since the 1970s that it has polynomial-time average-case complexity under various distributions. These results on "random" matrices still didn't quite capture the desired intuition that the method works well on "typical" matrices. In 2001 Spielman and Teng introduced the notion of smoothed complexity to provide a more realistic analysis of the performance of algorithms.[3]
+Other algorithms for solving linear programming problems are described in the linear programming article.
+
+[edit] Implementation
+The simplex algorithm requires the linear programming problem to be in augmented form. The problem can then be written as follows in matrix form:
+
+Maximize Z in:
+
+
+
+where x are the variables from the standard form, xs are the introduced slack variables from the augmentation process, c contains the optimization coefficients, A and b describe the system of constraint equations, and Z is the variable to be maximized.
+Suppose in the standard form of the problem there are n variables and m constraints, not counting the n nonnegativity constraints. Generally, a vertex of the simplex corresponds to making n of the m+n total constraints tight, while adjacent vertices share n-1 tight constraints. There is a little subtlety when such a point in n-space does not fall in feasible region. Ignoring that, in the augmented form, this corresponds to setting m of the m+n variables (n original and m slack) to 0. We call such a setting of the variables a basic solution. The m variables which are purposely set to 0 are called the nonbasic variables. We can then solve for the remaining n constraints, called the basic variables, which will be uniquely determined, as we will be careful not to step out of the feasible region.
+The simplex algorithm begins by finding a basic feasible solution. At each step, one basic and one nonbasic variable are chosen according to the pivot rule, and their roles are switched.
+
+[edit] Matrix form of the simplex algorithm
+At any iteration of the simplex algorithm, the tableau will be of this form:
+
+
+
+where  are the coefficients of basic variables in the c-matrix; and B consists of the columns of  corresponding to the basic variables.
+It is worth noting that B and  are the only variables in this equation (except Z and x of course). Everything else is constant throughout the algorithm.
+
+[edit] Algorithm
+
+Choose a basic feasible solution (BF) as shown above
+
+
+This implies that B is the identity matrix, and  is a zero-vector.
+
+
+While nonoptimal solution:
+
+Determine direction of highest gradient
+
+
+Choose the variable associated with the coefficient in  that has the highest negative magnitude. This nonbasic variable, which we call the entering basic, will be increased to help maximize the problem.
+
+
+Determine maximum step length
+
+
+Use the  subequation to determine which basic variable reaches zero first when the entering basic is increased. This variable, which we call the leaving basic then becomes nonbasic. This operation only involves a single division for each basic variable, since the existing basic-variables occur diagonally in the tableau.
+
+
+Rewrite problem
+
+
+Modify B and  to account for the new basic variables. This will automatically make the tableau diagonal for the existing and new basic variables.
+
+
+Check for improvement
+
+
+Repeat procedure until no further improvement is possible, meaning all the coefficients of  are positive. Procedure is also terminated if all coefficients are zero, and the algorithm has walked in a circle and revisited a previous state.
+
+
+
+
+[edit] Implementation
+The tableau form used above to describe the algorithm lends itself to an immediate implementation in which the tableau is maintained as a rectangular (m+1)-by-(m+n+1) array. It is straightforward to avoid storing the m explicit columns of the identity matrix that will occur within the tableau by virtue of B being a subset of the columns of . This implementation is referred to as the standard simplex method. The storage and computation overhead are such that the standard simplex method is a prohibitively expensive approach to solving large linear programming problems.
+In each simplex iteration, the only data required are the first row of the tableau, the (pivotal) column of the tableau corresponding to the entering variable and the right-hand-side. The latter can be updated using the pivotal column and the first row of the tableau can be updated using the (pivotal) row corresponding to the leaving variable. Both the pivotal column and pivotal row may be computed directly using the solutions of linear systems of equations involving the matrix B and a matrix-vector product using A. These observations motivate the revised simplex method, for which implementations are distinguished by their invertible representation of B.
+In large linear programming problems A is typically a sparse matrix and, when the resulting sparsity of B is exploited when maintaining its invertible representation, the revised simplex method is a vastly more efficient solution procedure than the standard simplex method. Commercial simplex solvers are based on the primal (or dual) revised simplex method.
+
+[edit] Common implementations of the revised simplex method
+
+The Bartels-Golub Method
+The Sparse Bartels-Golub Method
+The Forrest-Tomlin Method
+Reid’s Method
+
+
+[edit] See also
+
+
+
+The Wikibook Operations Research has a page on the topic of
+The Simplex Method
+
+
+
+
+Nelder-Mead method
+Fourier-Motzkin elimination
+Bland's anti-cycling rule
+Karmarkar's algorithm
+
+
+[edit] References
+
+
+^ Computing in Science and Engineering, volume 2, no. 1, 2000
+^ Greenberg, cites: V. Klee and G.J. Minty. "How Good is the Simplex Algorithm?" In O. Shisha, editor, Inequalities, III, pages 159–175. Academic Press, New York, NY, 1972
+^ Spielman, Daniel; Teng, Shang-Hua (2001), "Smoothed analysis of algorithms: why the simplex algorithm usually takes polynomial time", Proceedings of the Thirty-Third Annual ACM Symposium on Theory of Computing, ACM, pp. 296–305, doi:10.1145/380752.380813, arΧiv:cs/0111050, ISBN 978-1-58113-349-3 
+
+
+
+[edit] Further reading
+
+Greenberg, Harvey J., Klee-Minty Polytope Shows Exponential Time Complexity of Simplex Method University of Colorado at Denver (1997) PDF download
+Frederick S. Hillier and Gerald J. Lieberman: Introduction to Operations Research, 8th edition. McGraw-Hill. ISBN 0-07-123828-X
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 29.3: The simplex algorithm, pp.790–804.
+Hamdy A. Taha: Operations Research: An Introduction, 8th ed., Prentice Hall, 2007. ISBN 0-13-188923-0
+Richard B. Darst: Introduction to Linear Programming: Applications and Extensions
+
+
+[edit] External links
+
+An Introduction to Linear Programming and the Simplex Algorithm by Spyros Reveliotis of the Georgia Institute of Technology.
+LP-Explorer A Java-based tool which, for problems in two variables, relates the algebraic and geometric views of the tableau simplex method. Also illustrates the sensitivity of the solution to changes in the right-hand-side.
+A step-by-step simplex algorithm solver Solve your own LP problem. Note: this does not work well. Sample problem: minimize z=x1+x2 subject to 2x1+3x2<=6 and -x1+x2<=1 should give 0 as answer. This applet gives the same answer for both maximize and minimize problem.
+Java-based interactive simplex tool hosted by Argonne National Laboratory.
+Tutorial for The Simplex Method by Stefan Waner, hofstra.edu. Interactive worked example.
+A simple example - step by step by Mazoo's Learning Blog.
+Simplex Method A good tutorial for Simplex Method with examples (also two-phase and M-method).
+PHPSimplex Other good tutorial for Simplex Method with the Two-Phase Simplex and Graphical methods, examples, and a tool to solve Simplex problems online.
+Simplex Method Tool Quick-loading JavaScript-based web page that solves Simplex problems
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Simplex_algorithm"
+Categories: Optimization algorithms | Operations research 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+עברית
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Русский
+Slovenčina
+Српски / Srpski
+Svenska
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 April 2009, at 00:44.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

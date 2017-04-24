@@ -1,0 +1,399 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Xgl - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Xgl";
+		var wgTitle = "Xgl";
+		var wgAction = "view";
+		var wgArticleId = "1577861";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 269240805;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Xgl
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Xgl is an X server architecture designed to take advantage of modern graphics cards via their OpenGL drivers, layered on top of OpenGL via glitz. It supports hardware acceleration of all X, OpenGL and XVideo applications and graphical effects by a compositing window manager such as Compiz or Beryl. The project was started by David Reveman of Novell and first released on January 2, 2006. It was finally removed [1] from the X server in favor of AIGLX on June 12, 2008.
+
+
+
+
+Contents
+
+
+1 History
+2 Backends
+
+2.1 Xglx
+2.2 Xegl
+
+
+3 Rationale
+4 Competitors
+5 Availability
+6 References
+7 See also
+8 External links
+
+8.1 HOWTO, forums, support
+8.2 Screenshots, screencast, demo video
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] History
+Xgl was originally developed on public mailing lists, but for a long time, until January 2, 2006 most [2] development of Xgl was done behind closed doors. On that day the source to Xgl was re-opened to the public [3][4], and included in freedesktop.org, along with major restructuring to allow a wider range of supported display drivers. X server backends used by Xgl include Xglx and Xegl. In February 2006 the server gained wide publicity after a public display where the Novell desktop team demonstrated a desktop using Xgl with several visual effects such as translucent windows and a rotating 3D desktop. [5] [6][7] The effects had first been implemented in a composite manager called glxcompmgr (not to be confused with xcompmgr), now deprecated because several effects could not be adequately implemented without tighter interaction between the window manager and the composite manager. As a solution David Reveman developed Compiz, the first proper OpenGL compositing window manager for the X Window System. Later, in September 2006, the Beryl compositing window manager was released as a fork of the original Compiz. Compiz and Beryl have merged back in April 2007, which resulted in the development of Compiz Fusion.
+
+[edit] Backends
+OpenGL does not specify how to initialize a display and manipulate drawing contexts. Instead these operations are handled by an API specific to the native windowing system. So far there are two different backend approaches to solving this initialization problem. Most likely the majority of each backend will contain the same code and the differences will primarily be in the initialization portions of the servers.
+
+[edit] Xglx
+Xglx was the first backend implemented for this architecture. It requires an already existing X server to run on top of and uses GLX to create an OpenGL window which Xgl then uses, similar to Xnest. This mode is only intended to be used for development in the future, as it is redundant to require an X server to run Xgl on top of.
+At XDevConf 2006 (the 2006 X development conference), NVIDIA made a presentation arguing that this is the wrong direction to take because the layered server abstracts features of the cards away. This makes driver specific capabilities like support for 3D glasses and dual monitor support much more difficult [1] (PDF).
+However, delegating initialization to an existing X server allows the developers to immediately focus on server functionality rather than dedicating substantial time to specifics of interfacing with numerous video hardware. At the moment, Xglx does not officially support multiple monitors, although it has been achieved on Ubuntu Dapper / ATI / NVIDIA (twinview).
+
+[edit] Xegl
+Xegl was said to be the future of Xgl and a long term goal of X server development [2]. It shares much of the drawing code with the Xglx server, but the initialization of the OpenGL drawable and context management is handled by the EGL API developed by Khronos (EGL is a window system-independent equivalent to the GLX and WGL APIs, which respectively enable OpenGL support in X and Microsoft Windows). The current implementation uses Mesa-solo to provide OpenGL rendering directly to the Linux framebuffer or DRI to the graphics hardware. As of July 2007[update] Xegl can only be run using Radeon R200 graphics hardware and development is currently stalled [3]. It is likely that it will remain so until the Xglx server has proven itself and the closed source drivers add support for the EGL API, when it should be a transparent replacement for the nested Xglx server.
+
+[edit] Rationale
+Structuring all rendering on top of OpenGL could potentially simplify video driver development. It removes the artificial separation of 2D and 3D acceleration. This is advantageous as 2D operations are frequently unaccelerated (which is counterintuitive, since 2D is a subset of 3D).
+It also removes all driver-dependent code from the X server itself, and allows for accelerated Composite and Render operations independent of the graphics driver.
+
+[edit] Competitors
+Hardware acceleration of 2D drawing operations has been a common feature of many window systems (including X11) for many years. The novelty of Xgl and similar systems is the use of APIs specifically developed for 3D rendering for accelerating 2D desktop operations. Prior to the adoption of anti-aliased drawing by X11, the use of 3D rendering APIs for 2D desktop rendering was undesirable because such APIs did not make the pixel accurate rendering guarantees that are part of the original X11 protocol definition.
+Hardware-accelerated OpenGL window and desktop rendering, limited to using OpenGL for texture composition, has been in use in Mac OS X, in a technology called Quartz Extreme, since Mac OS X v10.2. Quartz 2D Extreme is an enhancement of this feature and more directly comparable to Xgl. Like Xgl, Quartz 2D Extreme brings OpenGL acceleration to all 2D drawing operations (not just desktop compositing) and ships with Mac OS X v10.4, but is disabled by default pending a formal declaration of production-readiness. Core Animation is the extension of this effort for Leopard (Mac OS X v10.5).
+Several desktop interfaces based on 3D APIs have been developed, more recently OpenCroquet and Sun Microsystems' Project Looking Glass [4]; these take advantage of 3D acceleration for software built within their own framework, but do not appear to accelerate existing 2D desktop applications rendered within their environment (often via mechanisms like VNC).
+Microsoft developed a similar technology based on DirectX, named the DWM, as part of its Windows Vista operating system. This technology was first shown publicly at Microsoft's October 2003 PDC.
+
+[edit] Availability
+As of May 2006[update], the Xgl X Server (and related components including the Compiz compositing manager and associated graphical config tools) ships as a non-default in one major Linux distribution, SUSE 10.1, and is included in Frugalware Linux or SUSE Linux Enterprise Desktop 10. Xgl can be set up fairly easily for Ubuntu 6.06 LTS (Dapper Drake) and 6.10 (Edgy Eft) and for Freespire with binary packages from unofficial repositories. Xgl is also available as an overlayed package in Gentoo Linux, and as a PKGBUILD for Arch Linux.
+The latest Mandriva Linux 2007 includes official packages to run Compiz, using Xgl and AIGLX. Mandriva provides drak3d, a tool to configure a 3D Desktop in two clicks.
+Ubuntu 6.10 "Edgy Eft" and later use AIGLX, not Xgl, by default.
+If AIGLX or NVIDIA's implementation of accelerated indirect rendering can be used, there is no need to use Xgl. Xgl is not needed for any Intel graphics chipset from 810 onwards, NVIDIA GeForce 3 to GeForce 7 (through the official 9629 driver), and ATI cards with AIGLX support (through either the free radeon or the non-free fglrx drivers.
+For ATi graphics cards, when using the non-free driver, 3D acceleration and the “Composite” extension — required for Compiz-Fusion — are not compatible with each other, and thus, Xgl is the only way left, to get Compiz working at all.[8]
+
+[edit] References
+
+
+^ XGL Version Info
+^ ALGIX, Nvidia, XGL and metacity
+^ Latest XGL Code
+^ Novell's XGL Code posted
+^ Novell Public Release XGL Code
+^ SUSE XGL
+^ OpenSUSE XGL resources
+^ "HOWTO: install ati driver - solve fglrx problems". http://forum.ubuntuusers.de/post/789360/. Retrieved on 2009-02-02. 
+
+
+
+[edit] See also
+
+X Window System
+AIGLX
+VirtualGL
+OpenGL
+Compiz
+Beryl
+
+
+[edit] External links
+
+
+
+Wikimedia Commons has media related to: Compiz
+
+
+
+Xgl
+Xegl
+Announcement of Xgl on the xorg mailing list
+Accelerated X flame wars!—Maybe not — an article about the differences between AIGLX and Xgl
+EGL specifications
+Article: The State of Linux Graphics — overview of various approaches to replace the current X server
+
+
+
+[edit] HOWTO, forums, support
+
+openSUSE wiki for Xgl
+Xgl HowTos: Novell, Ubuntu, Debian Etch, Gentoo Linux
+How-to install XGL on Fedora 5/6/7 — Xgl Beryl and Compiz on Fedora
+
+
+[edit] Screenshots, screencast, demo video
+
+Novell Xgl announcement including video and screenshots
+Novell Open Audio podcast Xgl with David Reveman — 7 April 2006, discusses the basics and future of Xgl and Compiz
+Videos of Xgl on SUSE Linux Enterprise Desktop 10
+Slides, screenshots and a video with more effects
+
+the video demonstrating Compiz on Xgl
+
+
+Another Xgl Video
+Mandriva 3D Video
+
+
+
+
+
+
+
+
+v • d • e
+
+X Window System
+
+
+
+
+
+Architecture
+
+Core Protocol · Xlib · X Window selection · X window manager · X session manager · X display manager · X Toolkit · X Window authorization · Intrinsics · X11 color names
+
+
+
+
+
+
+Window managers
+
+Re-parenting · Compositing · Stacking · Tiling
+
+
+
+
+
+
+Extensions
+
+X Image Extension · X keyboard extension · X video extension · Shape extension · Shared memory extension · AIGLX · GLX · XRender · MPX · DPS
+
+
+
+
+
+
+Notable Implementations
+
+Cygwin/X · X11.app · X.Org Server · X-Win32 · XFree86 · XDarwin · Xming · Xsun · Xgl
+
+
+
+
+
+
+Standards
+
+ICCCM · EWMH · XDS · Freedesktop
+
+
+
+
+
+
+Applications
+
+xclock · xedit · xload · xterm · xeyes · Desktop environments
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Xgl"
+Categories: Freedesktop.org | X Window extensions | OpenGLHidden categories: Articles containing potentially dated statements from 2007 | All articles containing potentially dated statements | Articles containing potentially dated statements from 2006 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Català
+Česky
+Deutsch
+Español
+Français
+한국어
+Italiano
+עברית
+Magyar
+日本語
+Polski
+Português
+Русский
+Slovenčina
+Svenska
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 8 February 2009, at 01:32 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

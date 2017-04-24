@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Rabin-Karp string search algorithm,ASCII,Big-O notation,Bloom filter,Boyer-Moore string search algorithm,Boyer-Moore string searching algorithm,Cambridge, Massachusetts,Charles E. Leiserson,Clifford Stein,Data type,Hash collision" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Rabin-Karp string search algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Rabin-Karp_string_search_algorithm";
+		var wgTitle = "Rabin-Karp string search algorithm";
+		var wgAction = "view";
+		var wgArticleId = "684698";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278622749;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Rabin-Karp_string_search_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Rabin-Karp string search algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>The <b>Rabin-Karp algorithm</b> is a <a href="/wiki/String_searching_algorithm" title="String searching algorithm">string searching algorithm</a> created by <a href="/wiki/Michael_O._Rabin" title="Michael O. Rabin">Michael O. Rabin</a> and <a href="/wiki/Richard_M._Karp" title="Richard M. Karp" class="mw-redirect">Richard M. Karp</a> in 1987 that uses <a href="/wiki/Hashing" title="Hashing">hashing</a> to find a substring in a text. It is used for multiple pattern matching rather than single pattern matching. For text of length <i>n</i> and pattern of length <i>m</i>, its average and best case running time is <a href="/wiki/Big-O_notation" title="Big-O notation" class="mw-redirect">O</a>(<i>n</i>), but the worst case performance of O(<i>nm</i>) is a reason why it is not widely used. However, it has the unique advantage of being able to find any one of <i>k</i> strings or less in O(<i>n</i>) time on average, regardless of the magnitude of <i>k</i>.</p>
+<p>A practical application of Rabin-Karp is detecting <a href="/wiki/Plagiarism" title="Plagiarism">plagiarism</a>. Given source material, Rabin-Karp can rapidly search through a paper for instances of sentences from the source material, ignoring details such as case and punctuation. Because of the abundance of the sought strings, single-string searching algorithms are impractical.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Shifting_substrings_search_and_competing_algorithms"><span class="tocnumber">1</span> <span class="toctext">Shifting substrings search and competing algorithms</span></a></li>
+<li class="toclevel-1"><a href="#Use_of_hashing_for_shifting_substring_search"><span class="tocnumber">2</span> <span class="toctext">Use of hashing for shifting substring search</span></a></li>
+<li class="toclevel-1"><a href="#Hash_function_used"><span class="tocnumber">3</span> <span class="toctext">Hash function used</span></a></li>
+<li class="toclevel-1"><a href="#Rabin-Karp_and_multiple_pattern_search"><span class="tocnumber">4</span> <span class="toctext">Rabin-Karp and multiple pattern search</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Shifting_substrings_search_and_competing_algorithms" id="Shifting_substrings_search_and_competing_algorithms"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit&amp;section=1" title="Edit section: Shifting substrings search and competing algorithms">edit</a>]</span> <span class="mw-headline">Shifting substrings search and competing algorithms</span></h2>
+<p>A simple substring search algorithm checks all possible positions:</p>
+<pre>
+ <b>1</b> <b>function</b> NaiveSearch(<i>string</i> s[1..n], <i>string</i> sub[1..m])
+ <b>2</b>     <b>for</b> i <b>from</b> 1 <b>to</b> n-m+1
+ <b>3</b>         <b>for</b> j <b>from</b> 1 <b>to</b> m
+ <b>4</b>             <b>if</b> s[i+j-1] ≠ sub[j]
+ <b>5</b>                 jump to next iteration of outer loop
+ <b>6</b>         <b>return</b> i
+ <b>7</b>     <b>return</b> not found
+</pre>
+<p>This algorithm works well in many practical cases, but can exhibit relatively long running times on certain examples, such as searching for a string of 10,000 "a"s followed by a "b" in a string of 10 million "a"s, in which case it exhibits its worst-case <a href="/wiki/Big-O_notation" title="Big-O notation" class="mw-redirect">Θ</a>(<i>mn</i>) time.</p>
+<p>The <a href="/wiki/Knuth-Morris-Pratt_algorithm" title="Knuth-Morris-Pratt algorithm" class="mw-redirect">Knuth-Morris-Pratt algorithm</a> reduces this to Θ(<i>n</i>) time using precomputation to examine each text character only once; the <a href="/wiki/Boyer-Moore_string_search_algorithm" title="Boyer-Moore string search algorithm" class="mw-redirect">Boyer-Moore algorithm</a> skips forward not by 1 character, but by as many as possible for the search to succeed, effectively decreasing the number of times we iterate through the outer loop, so that the number of characters examined can be as small as <i>n/m</i> in the best case. The Rabin-Karp algorithm focuses instead on speeding up lines 3-6.</p>
+<p><a name="Use_of_hashing_for_shifting_substring_search" id="Use_of_hashing_for_shifting_substring_search"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit&amp;section=2" title="Edit section: Use of hashing for shifting substring search">edit</a>]</span> <span class="mw-headline">Use of hashing for shifting substring search</span></h2>
+<p>Rather than pursuing more sophisticated skipping, the Rabin-Karp algorithm seeks to speed up the testing of equality of the pattern to the substrings in the text by using a <a href="/wiki/Hash_function" title="Hash function">hash function</a>. A hash function is a function which converts every string into a numeric value, called its <i>hash value</i>; for example, we might have hash("hello")=5. Rabin-Karp exploits the fact that if two strings are equal, their hash values are also equal. Thus, it would seem all we have to do is compute the hash value of the substring we're searching for, and then look for a substring with the same hash value.</p>
+<p>However, there are two problems with this. First, because there are so many different strings, to keep the hash values small we have to assign some strings the same number. This means that if the hash values match, the strings might not match; we have to verify that they do, which can take a long time for long substrings. Luckily, a good hash function promises us that on most reasonable inputs, this won't happen too often, which keeps the average search time good.</p>
+<p>The algorithm is as shown:</p>
+<pre>
+ <b>1</b> <b>function</b> RabinKarp(<i>string</i> s[1..n], <i>string</i> sub[1..m])
+ <b>2</b>     hsub := hash(sub[1..m]);  hs := hash(s[1..m])     
+ <b>3</b>     <b>for</b> i <b>from</b> 1 <b>to</b> n-m+1
+ <b>4</b>         <b>if</b> hs = hsub
+ <b>5</b>             <b>if</b> s[i..i+m-1] = sub
+ <b>6</b>                 <b>return</b> i
+ <b>7</b>         hs := hash(s[i+1..i+m])
+ <b>8</b>     <b>return</b> not found
+</pre>
+<p>Lines 2, 5, and 7 each require <a href="/wiki/Big-O_notation" title="Big-O notation" class="mw-redirect">Θ</a>(m) time. However, line 2 is only executed once, and line 5 is only executed if the hash values match, which is unlikely to happen more than a few times. Line 4 is executed <i>n</i> times, but only requires constant time. So the only problem is line 7.</p>
+<p>If we naively recompute the hash value for the substring <code>s[i+1..i+m]</code>, this would require <a href="/wiki/Big-O_notation" title="Big-O notation" class="mw-redirect">Θ</a>(<i>m</i>) time, and since this is done on each loop, the algorithm would require Ω(mn) time, the same as the most naive algorithms. The trick to solving this is to note that the variable <code>hs</code> already contains the hash value of <code>s[i..i+m-1]</code>. If we can use this to compute the next hash value in constant time, then our problem will be solved.</p>
+<p>We do this using what is called a <a href="/wiki/Rolling_hash" title="Rolling hash">rolling hash</a>. A rolling hash is a hash function specially designed to enable this operation. One simple example is adding up the values of each character in the substring. Then, we can use this formula to compute the next hash value in constant time:</p>
+<pre>
+ s[i+1..i+m] = s[i..i+m-1] - s[i] + s[i+m]
+</pre>
+<p>This simple function works, but will result in statement 5 being executed more often than other more sophisticated rolling hash functions such as those discussed in the next section.</p>
+<p>Notice that if we're very unlucky, or have a very bad hash function such as a constant function, line 5 might very well be executed <i>n</i> times, on every iteration of the loop. Because it requires Θ(m) time, the whole algorithm then takes a worst-case Θ(mn) time.</p>
+<p><a name="Hash_function_used" id="Hash_function_used"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit&amp;section=3" title="Edit section: Hash function used">edit</a>]</span> <span class="mw-headline">Hash function used</span></h2>
+<p>The key to Rabin-Karp performance is the efficient computation of <a href="/wiki/Hash_value" title="Hash value" class="mw-redirect">hash values</a> of the successive substrings of the text. One popular and effective rolling hash function treats every substring as a number in some base, the base being usually a large <a href="/wiki/Prime_number" title="Prime number">prime</a>. For example, if the substring is "hi" and the base is 101, the hash value would be 104 × 101<sup>1</sup> + 105 × 101<sup>0</sup> = 10609 (<a href="/wiki/ASCII" title="ASCII">ASCII</a> of 'h' is 104 and of 'i' is 105).</p>
+<p>Technically, this algorithm is only similar to the true number in a non-decimal system representation, since for example we could have the "base" less than one of the "digits". See <a href="/wiki/Hash_function" title="Hash function">hash function</a> for a much more detailed discussion. The essential benefit achieved by such representation is that it is possible to compute the hash value of the next substring from the previous one by doing only a constant number of operations, independent of the substrings' lengths.</p>
+<p>For example, if we have text "abracadabra" and we are searching for a pattern of length 3, we can compute the hash of "bra" from the hash for "abr" (the previous substring) by subtracting the number added for the first 'a' of "abr", i.e. 97 × 101<sup>2</sup> (97 is ASCII for 'a' and 101 is the base we are using), multiplying by the base and adding for the last a of "bra", i.e. 97 × 101<sup>0</sup> = 97. If the substrings in question are long, this algorithm achieves great savings compared with many other hashing schemes.</p>
+<p>Theoretically, there exist other algorithms that could provide convenient recomputation, e.g. multiplying together ASCII values of all characters so that shifting substring would only entail dividing by the first character and multiplying by the last. The limitation, however, is the limited size of the integer <a href="/wiki/Data_type" title="Data type">data type</a> and the necessity of using <a href="/wiki/Modular_arithmetic" title="Modular arithmetic">modular arithmetic</a> to scale down the hash results, for which see <a href="/wiki/Hash_function" title="Hash function">hash function</a> article; meanwhile, those naive hash functions that would not produce large numbers quickly, like just adding ASCII values, are likely to cause many <a href="/wiki/Hash_collision" title="Hash collision" class="mw-redirect">hash collisions</a> and hence slow down the algorithm. Hence the described hash function is typically the preferred one in Rabin-Karp.</p>
+<p><a name="Rabin-Karp_and_multiple_pattern_search" id="Rabin-Karp_and_multiple_pattern_search"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit&amp;section=4" title="Edit section: Rabin-Karp and multiple pattern search">edit</a>]</span> <span class="mw-headline">Rabin-Karp and multiple pattern search</span></h2>
+<p>Rabin-Karp is inferior for single pattern searching to <a href="/wiki/Knuth-Morris-Pratt_algorithm" title="Knuth-Morris-Pratt algorithm" class="mw-redirect">Knuth-Morris-Pratt algorithm</a>, <a href="/wiki/Boyer-Moore_string_searching_algorithm" title="Boyer-Moore string searching algorithm" class="mw-redirect">Boyer-Moore string searching algorithm</a> and other faster single pattern <a href="/wiki/String_searching_algorithm" title="String searching algorithm">string searching algorithms</a> because of its slow worst case behavior. However, Rabin-Karp is an algorithm of choice for multiple pattern search.</p>
+<p>That is, if we want to find any of a large number, say <i>k</i>, fixed length patterns in a text, we can create a simple variant of Rabin-Karp that uses a <a href="/wiki/Bloom_filter" title="Bloom filter">Bloom filter</a> or a <a href="/wiki/Set_data_structure" title="Set data structure" class="mw-redirect">set data structure</a> to check whether the hash of a given string belongs to a set of hash values of patterns we are looking for:</p>
+<pre>
+ <b>function</b> RabinKarpSet(<i>string</i> s[1..n], <i>set</i> of <i>string</i> subs, m) {
+     <i>set</i> hsubs := emptySet
+     <b>for each</b> sub <b>in</b> subs
+         insert hash(sub[1..m]) into hsubs
+     hs := hash(s[1..m])
+     <b>for</b> i <b>from</b> 1 <b>to</b> n-m+1
+         <b>if</b> hs ∈ hsubs
+             <b>if</b> s[i..i+m-1] = a substring with hash hs
+                 <b>return</b> i
+         hs := hash(s[i+1..i+m])
+     <b>return</b> not found
+ }
+</pre>
+<p>Here we assume all the substrings have a fixed length <i>m</i>, but this assumption can be eliminated. We simply compare the current hash value against the hash values of all the substrings simultaneously using a quick lookup in our set data structure, and then verify any match we find against all substrings with that hash value.</p>
+<p>Other algorithms can search for a single pattern in O(<i>n</i>) time, and hence they can be used to search for <i>k</i> patterns in O(<i>n</i> <i>k</i>) time. In contrast, the variant Rabin-Karp above can find all <i>k</i> patterns in O(<i>n</i>+<i>k</i>) time in expectation, because a hash table checks whether a substring hash equals any of the pattern hashes in O(1) time.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit&amp;section=5" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFKarp.2C_Richard_M..5B.5BMichael_O._Rabin.7CRabin.2C_Michael_O..5D.5D1987"><a href="/wiki/Richard_Karp" title="Richard Karp">Karp, Richard M.</a>; <a href="/wiki/Michael_O._Rabin" title="Michael O. Rabin">Rabin, Michael O.</a> (March 1987). <i><a href="http://www.research.ibm.com/journal/rd/312/ibmrd3102P.pdf" class="external text" title="http://www.research.ibm.com/journal/rd/312/ibmrd3102P.pdf" rel="nofollow">Efficient randomized pattern-matching algorithms</a></i>. <b>31</b><span class="printonly">. <a href="http://www.research.ibm.com/journal/rd/312/ibmrd3102P.pdf" class="external free" title="http://www.research.ibm.com/journal/rd/312/ibmrd3102P.pdf" rel="nofollow">http://www.research.ibm.com/journal/rd/312/ibmrd3102P.pdf</a></span><span class="reference-accessdate">. Retrieved on 2008-10-14</span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Efficient+randomized+pattern-matching+algorithms&amp;rft.aulast=Karp%2C+Richard+M.&amp;rft.au=Karp%2C+Richard+M.&amp;rft.au=%5B%5BMichael+O.+Rabin%7CRabin%2C+Michael+O.%5D%5D&amp;rft.date=March+1987&amp;rft.volume=31&amp;rft.issue=2&amp;rft_id=http%3A%2F%2Fwww.research.ibm.com%2Fjournal%2Frd%2F312%2Fibmrd3102P.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Rabin-Karp_string_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="book" id="CITEREFCormen.2C_Thomas_H..5B.5BCharles_E._Leiserson.7CLeiserson.2C_Charles_E..5D.5D.3B_.5B.5BRonald_L._Rivest.7CRivest.2C_Ronald_L..5D.5D.3B_.5B.5BClifford_Stein.7CStein.2C_Clifford.5D.5D2001"><a href="/wiki/Thomas_H._Cormen" title="Thomas H. Cormen">Cormen, Thomas H.</a>; <a href="/wiki/Charles_E._Leiserson" title="Charles E. Leiserson">Leiserson, Charles E.</a>; <a href="/wiki/Ronald_L._Rivest" title="Ronald L. Rivest" class="mw-redirect">Rivest, Ronald L.</a>; <a href="/wiki/Clifford_Stein" title="Clifford Stein">Stein, Clifford</a> (2001-09-01). "The Rabin-Karp algorithm". <i><a href="/wiki/Introduction_to_Algorithms" title="Introduction to Algorithms">Introduction to Algorithms</a></i> (2nd edition ed.). <a href="/wiki/Cambridge,_Massachusetts" title="Cambridge, Massachusetts">Cambridge, Massachusetts</a>: MIT Press. pp.&#160;911–916. <a href="/wiki/Special:BookSources/9780262032933" class="internal">ISBN 978-0262032933</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=bookitem&amp;rft.btitle=The+Rabin-Karp+algorithm&amp;rft.atitle=%5B%5BIntroduction+to+Algorithms%5D%5D&amp;rft.aulast=Cormen%2C+Thomas+H.&amp;rft.au=Cormen%2C+Thomas+H.&amp;rft.au=%5B%5BCharles+E.+Leiserson%7CLeiserson%2C+Charles+E.%5D%5D%3B+%5B%5BRonald+L.+Rivest%7CRivest%2C+Ronald+L.%5D%5D%3B+%5B%5BClifford+Stein%7CStein%2C+Clifford%5D%5D&amp;rft.date=2001-09-01&amp;rft.pages=pp.%26nbsp%3B911%E2%80%93916&amp;rft.edition=2nd+edition&amp;rft.place=%5B%5BCambridge%2C+Massachusetts%5D%5D&amp;rft.pub=MIT+Press&amp;rft.isbn=978-0262032933&amp;rfr_id=info:sid/en.wikipedia.org:Rabin-Karp_string_search_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 1111/1000000
+Post-expand include size: 10449/2048000 bytes
+Template argument size: 3351/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:684698-0!1!0!default!!en!2 and timestamp 20090405142256 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Rabin-Karp_string_search_algorithm">http://en.wikipedia.org/wiki/Rabin-Karp_string_search_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Algorithms_on_strings" title="Category:Algorithms on strings">Algorithms on strings</a></span> | <span dir='ltr'><a href="/wiki/Category:Hashing" title="Category:Hashing">Hashing</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Rabin-Karp_string_search_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Rabin-Karp_string_search_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Rabin-Karp_string_search_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Rabin-Karp_string_search_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Rabin-Karp_string_search_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Rabin-Karp_string_search_algorithm&amp;oldid=278622749" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Rabin-Karp_string_search_algorithm&amp;id=278622749">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Rabin-Karp-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_de_Rabin-Karp">Français</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%83%A9%E3%83%93%E3%83%B3-%E3%82%AB%E3%83%BC%E3%83%97%E6%96%87%E5%AD%97%E5%88%97%E6%A4%9C%E7%B4%A2%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_Karpa-Rabina">Polski</a></li>
+				<li class="interwiki-ro"><a href="http://ro.wikipedia.org/wiki/Algoritmul_Rabin-Karp">Română</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC_%D0%A0%D0%B0%D0%B1%D0%B8%D0%BD%D0%B0_%E2%80%94_%D0%9A%D0%B0%D1%80%D0%BF%D0%B0">Русский</a></li>
+				<li class="interwiki-sv"><a href="http://sv.wikipedia.org/wiki/Rabin-Karps_algoritm">Svenska</a></li>
+				<li class="interwiki-uk"><a href="http://uk.wikipedia.org/wiki/%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC_%D0%A0%D0%B0%D0%B1%D1%96%D0%BD%D0%B0-%D0%9A%D0%B0%D1%80%D0%BF%D0%B0">Українська</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 20 March 2009, at 22:40.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv223 in 0.038 secs. --></body></html>

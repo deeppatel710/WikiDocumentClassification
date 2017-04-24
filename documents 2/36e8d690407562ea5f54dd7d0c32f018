@@ -1,0 +1,744 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="B-tree,Articles with unsourced statements since July 2008,Articles with unsourced statements since September 2007,Data structures,2-3 tree,Amortized analysis,Array,Associative array,B*-tree,B+ tree,B sharp tree" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=B-tree&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=B-tree&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>B-tree - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "B-tree";
+		var wgTitle = "B-tree";
+		var wgAction = "view";
+		var wgArticleId = "4674";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280710087;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-B-tree skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">B-tree</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<div class="dablink">Not to be confused with <a href="/wiki/Binary_tree" title="Binary tree">binary tree</a>.</div>
+<div class="thumb tright">
+<div class="thumbinner" style="width:305px;"><a href="/wiki/File:B-tree.png" class="image" title="A B-tree of order 5."><img alt="" src="http://upload.wikimedia.org/wikipedia/en/5/5f/B-tree.png" width="303" height="88" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:B-tree.png" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+A B-tree of order 5.</div>
+</div>
+</div>
+<p>In <a href="/wiki/Computer_science" title="Computer science">computer science</a>, a <b>B-tree</b> is a <a href="/wiki/Tree_data_structure" title="Tree data structure" class="mw-redirect">tree data structure</a> that keeps data sorted and allows searches, insertions, and deletions in logarithmic <a href="/wiki/Amortized_analysis" title="Amortized analysis">amortized time</a>. Unlike <a href="/wiki/Self-balancing_binary_search_tree" title="Self-balancing binary search tree">self-balancing binary search trees</a>, it is optimized for systems that read and write large blocks of data. It is most commonly used in <a href="/wiki/Database" title="Database">databases</a> and <a href="/wiki/Filesystem" title="Filesystem" class="mw-redirect">filesystems</a>.</p>
+<p>In B-trees, internal (non-leaf) nodes can have a variable number of child nodes within some pre-defined range. When data is inserted or removed from a node, its number of child nodes changes. In order to maintain the pre-defined range, internal nodes may be joined or split. Because a range of child nodes is permitted, B-trees do not need re-balancing as frequently as other <a href="/wiki/Self-balancing_binary_search_tree" title="Self-balancing binary search tree">self-balancing search trees</a>, but may waste some space, since nodes are not entirely full. The lower and upper bounds on the number of child nodes are typically fixed for a particular implementation. For example, in a 2-3 B-tree (often simply referred to as a <b><a href="/wiki/2-3_tree" title="2-3 tree">2-3 tree</a></b>), each internal node may have only 2 or 3 child nodes.</p>
+<p>A B-tree is kept balanced by requiring that all <a href="/wiki/External_node" title="External node" class="mw-redirect">external nodes</a> are at the same depth. This depth will increase slowly as elements are added to the tree, but an increase in the overall depth is infrequent, and results in all leaf nodes being one more node further away from the root.</p>
+<p>B-trees have substantial advantages over alternative implementations when node access times far exceed access times within nodes. This usually occurs when most nodes are in <a href="/wiki/Secondary_storage" title="Secondary storage" class="mw-redirect">secondary storage</a> such as <a href="/wiki/Hard_drive" title="Hard drive" class="mw-redirect">hard drives</a>. By maximizing the number of <a href="/wiki/Child_node" title="Child node" class="mw-redirect">child nodes</a> within each <a href="/wiki/Internal_node" title="Internal node" class="mw-redirect">internal node</a>, the height of the tree decreases, balancing occurs less often, and efficiency increases. Usually this value is set such that each node takes up a full <a href="/wiki/Block_size_(data_storage_and_transmission)" title="Block size (data storage and transmission)" class="mw-redirect">disk block</a> or an analogous size in secondary storage. While 2-3 B-trees might be useful in main memory, and are certainly easier to explain, if the node sizes are tuned to the size of a disk block, the result might be a 257-513 B-tree (where the sizes are related to larger powers of 2).</p>
+<p>A B-tree of order <i>m</i> (the maximum number of children for each node) is a tree which satisfies the following properties:</p>
+<ol>
+<li>Every node has at most <i>m</i> children.</li>
+<li>Every node (except root and leaves) has at least <span style="white-space:nowrap" class="template-frac"><sup><i>m</i></sup><big>⁄</big><sub>2</sub></span> children.</li>
+<li>The root has at least two children if it is not a leaf node.</li>
+<li>All leaves appear in the same level, and carry information.</li>
+<li>A non-leaf node with <i>k</i> children contains <i>k</i>–1 keys</li>
+</ol>
+<p><a href="/wiki/Rudolf_Bayer" title="Rudolf Bayer">Rudolf Bayer</a> and Ed McCreight invented the B-tree while working at <a href="/wiki/Boeing" title="Boeing">Boeing</a><sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup>, but did not explain what, if anything, the <i>B</i> stands for. <a href="/wiki/Douglas_Comer" title="Douglas Comer">Douglas Comer</a> suggests a number of possibilities:</p>
+<dl>
+<dd>"<i>B</i>alanced," "<i>B</i>road," or "<i>B</i>ushy" might apply [since all leaves are at the same level]. Others suggest that the "B" stands for Boeing [since the authors worked at <a href="/wiki/Boeing" title="Boeing">Boeing</a> Scientific Research Labs in 1972]. Because of his contributions, however, it seems appropriate to think of B-trees as "Bayer"-trees.<sup id="cite_ref-1" class="reference"><a href="#cite_note-1" title=""><span>[</span>2<span>]</span></a></sup></dd>
+</dl>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Node_structures"><span class="tocnumber">1</span> <span class="toctext">Node structures</span></a></li>
+<li class="toclevel-1"><a href="#Best_case_and_worst_case_heights"><span class="tocnumber">2</span> <span class="toctext">Best case and worst case heights</span></a></li>
+<li class="toclevel-1"><a href="#Algorithms"><span class="tocnumber">3</span> <span class="toctext">Algorithms</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Search"><span class="tocnumber">3.1</span> <span class="toctext">Search</span></a></li>
+<li class="toclevel-2"><a href="#Insertion"><span class="tocnumber">3.2</span> <span class="toctext">Insertion</span></a></li>
+<li class="toclevel-2"><a href="#Deletion"><span class="tocnumber">3.3</span> <span class="toctext">Deletion</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Deletion_from_a_leaf_node"><span class="tocnumber">3.3.1</span> <span class="toctext">Deletion from a leaf node</span></a></li>
+<li class="toclevel-3"><a href="#Deletion_from_an_internal_node"><span class="tocnumber">3.3.2</span> <span class="toctext">Deletion from an internal node</span></a></li>
+<li class="toclevel-3"><a href="#Rebalancing_after_deletion"><span class="tocnumber">3.3.3</span> <span class="toctext">Rebalancing after deletion</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Initial_construction"><span class="tocnumber">3.4</span> <span class="toctext">Initial construction</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Notes"><span class="tocnumber">4</span> <span class="toctext">Notes</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Multi-way_combining_and_splitting"><span class="tocnumber">4.1</span> <span class="toctext">Multi-way combining and splitting</span></a></li>
+<li class="toclevel-2"><a href="#Relationship_between_U_and_L"><span class="tocnumber">4.2</span> <span class="toctext">Relationship between U and L</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Theoretical_results"><span class="tocnumber">4.2.1</span> <span class="toctext">Theoretical results</span></a></li>
+<li class="toclevel-3"><a href="#Access_concurrency"><span class="tocnumber">4.2.2</span> <span class="toctext">Access concurrency</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">5</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">6</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">7</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Node_structures" id="Node_structures"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=1" title="Edit section: Node structures">edit</a>]</span> <span class="mw-headline">Node structures</span></h2>
+<p>Each internal node's elements act as separation values which divide its <a href="/wiki/Subtree" title="Subtree" class="mw-redirect">subtrees</a>. For example, if an internal node has three child nodes (or subtrees) then it must have two separation values or elements <i>a</i><sub>1</sub> and <i>a</i><sub>2</sub>. All values in the leftmost subtree will be less than <i>a</i><sub>1</sub> , all values in the middle subtree will be between <i>a</i><sub>1</sub> and <i>a</i><sub>2</sub>, and all values in the rightmost subtree will be greater than <i>a</i><sub>2</sub>.</p>
+<p>Internal nodes in a B-tree — nodes which are not leaf nodes — are usually represented as an ordered set of elements and child pointers. Every internal node contains a <b>maximum</b> of <i>U</i> children and — other than the root — a <b>minimum</b> of <i>L</i> children. For all internal nodes other than the root, the number of elements is one less than the number of child pointers; the number of elements is between <i>L-1</i> and <i>U-1</i>. The number <i>U</i> must be either 2<i>L</i> or 2<i>L</i>-1; thus each internal node is at least half full. This relationship between <i>U</i> and <i>L</i> implies that two half-full nodes can be joined to make a legal node, and one full node can be split into two legal nodes (if there is room to push one element up into the parent). These properties make it possible to delete and insert new values into a B-tree and adjust the tree to preserve the B-tree properties.</p>
+<p>Leaf nodes have the same restriction on the number of elements, but have no children, and no child pointers.</p>
+<p>The root node still has the upper limit on the number of children, but has no lower limit. For example, when there are fewer than <i>L-1</i> elements in the entire tree, the root will be the only node in the tree, and it will have no children at all.</p>
+<p>A B-tree of depth <i>n+1</i> can hold about <i>U</i> times as many items as a B-tree of depth <i>n</i>, but the cost of search, insert, and delete operations grows with the depth of the tree. As with any balanced tree, the cost grows much more slowly than the number of elements.</p>
+<p>Some balanced trees store values only at the leaf nodes, and so have different kinds of nodes for leaf nodes and internal nodes. B-trees keep values in every node in the tree, and may use the same structure for all nodes. However, since leaf nodes never have children, a specialized structure for leaf nodes in B-trees will improve performance.</p>
+<p><a name="Best_case_and_worst_case_heights" id="Best_case_and_worst_case_heights"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=2" title="Edit section: Best case and worst case heights">edit</a>]</span> <span class="mw-headline">Best case and worst case heights</span></h2>
+<p>The best case height of a B-Tree is:</p>
+<dl>
+<dd><span class="texhtml">log<sub><i>M</i></sub><i>n</i></span></dd>
+</dl>
+<p>The worst case height of a B-Tree is:</p>
+<dl>
+<dd><img class="tex" alt="\log_{\left(\frac{M}{2}\right)}n" src="http://upload.wikimedia.org/math/e/f/8/ef8e98d1bd85f6993d0714cbb3afbcf4.png" /></dd>
+</dl>
+<p>Where M is the maximum number of children a node can have.</p>
+<p><a name="Algorithms" id="Algorithms"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=3" title="Edit section: Algorithms">edit</a>]</span> <span class="mw-headline">Algorithms</span></h2>
+<p><a name="Search" id="Search"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=4" title="Edit section: Search">edit</a>]</span> <span class="mw-headline">Search</span></h3>
+<p>Search is performed in the typical manner, analogous to that in a <a href="/wiki/Binary_search_tree" title="Binary search tree">binary search tree</a>. Starting at the root, the tree is traversed top to bottom, choosing the child pointer whose separation values are on either side of the value that is being searched.</p>
+<p><a href="/wiki/Binary_search" title="Binary search" class="mw-redirect">Binary search</a> is typically (but not necessarily) used within nodes to find the separation values and child tree of interest.</p>
+<p><a name="Insertion" id="Insertion"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=5" title="Edit section: Insertion">edit</a>]</span> <span class="mw-headline">Insertion</span></h3>
+<div class="thumb tright">
+<div class="thumbinner" style="width:182px;"><a href="/wiki/File:B_tree_insertion_example.png" class="image" title="A B Tree insertion example with each iteration."><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/3/33/B_tree_insertion_example.png" width="180" height="391" border="0" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:B_tree_insertion_example.png" class="internal" title="Enlarge"><img src="/skins-1.5/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div>
+A B Tree insertion example with each iteration.</div>
+</div>
+</div>
+<p>All insertions happen at the leaf nodes.</p>
+<ol>
+<li>By searching the tree, find the leaf node where the new element should be added.</li>
+<li>If the leaf node contains fewer than the maximum legal number of elements, there is room for one more. Insert the new element in the node, keeping the node's elements ordered.</li>
+<li>Otherwise the leaf node is split into two nodes.
+<ol>
+<li>A single median is chosen from among the leaf's elements and the new element.</li>
+<li>Values less than the median are put in the new left node and values greater than the median are put in the new right node, with the median acting as a separation value.</li>
+<li>That separation value is added to the node's parent, which may cause it to be split, and so on.</li>
+</ol>
+</li>
+</ol>
+<p>If the splitting goes all the way up to the root, it creates a new root with a single separator value and two children, which is why the lower bound on the size of internal nodes does not apply to the root. The maximum number of elements per node is <i>U</i>-1. When a node is split, one element moves to the parent, but one element is added. So, it must be possible to divide the maximum number <i>U</i>-1 of elements into two legal nodes. If this number is odd, then <i>U</i>=2<i>L</i> and one of the new nodes contains (<i>U</i>-2)/2 = <i>L</i>-1 elements, and hence is a legal node, and the other contains one more element, and hence it is legal too. If <i>U</i>-1 is even, then <i>U</i>=2<i>L</i>-1, so there are 2<i>L</i>-2 elements in the node. Half of this number is <i>L</i>-1, which is the minimum number of elements allowed per node.</p>
+<p>An improved algorithm supports a single pass down the tree from the root to the node where the insertion will take place, splitting any full nodes encountered on the way. This prevents the need to recall the parent nodes into memory, which may be expensive if the nodes are on secondary storage. However, to use this improved algorithm, we must be able to send one element to the parent and split the remaining <i>U</i>-2 elements into two legal nodes, without adding a new element. This requires <i>U</i> = 2<i>L</i> rather than <i>U</i> = 2<i>L</i>-1, which accounts for why some textbooks impose this requirement in defining B-trees.</p>
+<p><a name="Deletion" id="Deletion"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=6" title="Edit section: Deletion">edit</a>]</span> <span class="mw-headline">Deletion</span></h3>
+<p>There are two popular strategies for deletion from a B-Tree.</p>
+<ul>
+<li>locate and delete the item, then restructure the tree to regain its invariants</li>
+</ul>
+<p>or</p>
+<ul>
+<li>do a single pass down the tree, but before entering (visiting) a node, restructure the tree so that once the key to be deleted is encountered, it can be deleted without triggering the need for any further restructuring</li>
+</ul>
+<p>The algorithm below uses the former strategy.</p>
+<p>There are two special cases to consider when deleting an element:</p>
+<ol>
+<li>the element in an internal node may be a separator for its child nodes</li>
+<li>deleting an element may put it under the minimum number of elements and children.</li>
+</ol>
+<p>Each of these cases will be dealt with in order.</p>
+<p><a name="Deletion_from_a_leaf_node" id="Deletion_from_a_leaf_node"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=7" title="Edit section: Deletion from a leaf node">edit</a>]</span> <span class="mw-headline">Deletion from a leaf node</span></h4>
+<ul>
+<li>Search for the value to delete.</li>
+<li>If the value is in a leaf node, it can simply be deleted from the node, perhaps leaving the node with too few elements; so some additional changes to the tree will be required.</li>
+</ul>
+<p><a name="Deletion_from_an_internal_node" id="Deletion_from_an_internal_node"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=8" title="Edit section: Deletion from an internal node">edit</a>]</span> <span class="mw-headline">Deletion from an internal node</span></h4>
+<p>Each element in an internal node acts as a separation value for two subtrees, and when such an element is deleted, two cases arise. In the first case, both of the two child nodes to the left and right of the deleted element have the minimum number of elements, namely <i>L</i>-1. They can then be joined into a single node with 2<i>L</i>-2 elements, a number which does not exceed <i>U</i>-1 and so is a legal node. Unless it is known that this particular B-tree does not contain duplicate data, we must then also (recursively) delete the element in question from the new node.</p>
+<p>In the second case, one of the two child nodes contains more than the minimum number of elements. Then a new separator for those subtrees must be found. Note that the largest element in the left subtree is the largest element which is still less than the separator. Likewise, the smallest element in the right subtree is the smallest element which is still greater than the separator. Both of those elements are in leaf nodes, and either can be the new separator for the two subtrees.</p>
+<ul>
+<li>If the value is in an internal node, choose a new separator (either the largest element in the left subtree or the smallest element in the right subtree), remove it from the leaf node it is in, and replace the element to be deleted with the new separator.</li>
+<li>This has deleted an element from a leaf node, and so is now equivalent to the previous case.</li>
+</ul>
+<p><a name="Rebalancing_after_deletion" id="Rebalancing_after_deletion"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=9" title="Edit section: Rebalancing after deletion">edit</a>]</span> <span class="mw-headline">Rebalancing after deletion</span></h4>
+<p>If deleting an element from a leaf node has brought it under the minimum size, some elements must be redistributed to bring all nodes up to the minimum. In some cases the rearrangement will move the deficiency to the parent, and the redistribution must be applied iteratively up the tree, perhaps even to the root. Since the minimum element count doesn't apply to the root, making the root be the only deficient node is not a problem. The algorithm to rebalance the tree is as follows:<sup class="noprint Template-Fact"><span title="This claim needs references to reliable sources&#160;since July 2008" style="white-space: nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</span></sup></p>
+<ul>
+<li>If the right sibling has more than the minimum number of elements.
+<ul>
+<li>Add the separator to the end of the deficient node.</li>
+<li>Replace the separator in the parent with the first element of the right sibling.</li>
+<li>Make the first child of the right sibling into the last child of the deficient node</li>
+</ul>
+</li>
+<li>Otherwise, if the left sibling has more than the minimum number of elements.
+<ul>
+<li>Add the separator to the start of the deficient node.</li>
+<li>Replace the separator in the parent with the last element of the left sibling.</li>
+<li>Make the last child of the left sibling into the first child of the deficient node</li>
+</ul>
+</li>
+<li>If both immediate siblings have only the minimum number of elements
+<ul>
+<li>Create a new node with all the elements from the deficient node, all the elements from one of its siblings, and the separator in the parent between the two combined sibling nodes.</li>
+<li>Remove the separator from the parent, and replace the two children it separated with the combined node.</li>
+<li>If that brings the number of elements in the parent under the minimum, repeat these steps with that deficient node, unless it is the root, since the root may be deficient.</li>
+</ul>
+</li>
+</ul>
+<p>The only other case to account for is when the root has no elements and one child. In this case it is sufficient to replace it with its only child.</p>
+<p><a name="Initial_construction" id="Initial_construction"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=10" title="Edit section: Initial construction">edit</a>]</span> <span class="mw-headline">Initial construction</span></h3>
+<p>In applications, it's frequently useful to build a B-tree to represent a large existing collection of data and then update it incrementally using standard B-tree operations. In this case, the most efficient way to construct the initial B-tree is not to insert every element in the initial collection successively, but instead to construct the initial set of leaf nodes directly from the input, then build the internal nodes from these. This approach to B-tree construction is called bulkloading. Initially, every leaf but the last one has one extra element, which will be used to build the internal nodes.<sup class="noprint Template-Fact"><span title="This claim needs references to reliable sources&#160;since July 2008" style="white-space: nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</span></sup></p>
+<p>For example, if the leaf nodes have maximum size 4 and the initial collection is the integers 1 through 24, we would initially construct 5 leaf nodes containing 5 values each (except the last, which contains 4):</p>
+<table>
+<tr>
+<td>
+<table class="wikitable">
+<tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+<td>10</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+<td>15</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>16</td>
+<td>17</td>
+<td>18</td>
+<td>19</td>
+<td>20</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>We build the next level up from the leaves by taking the last element from each leaf node except the last one. Again, each node except the last will contain one extra value. In the example, suppose the internal nodes contain at most 2 values (3 child pointers). Then the next level up of internal nodes would be:</p>
+<table>
+<tr>
+<td>
+<table class="wikitable">
+<tr>
+<td>5</td>
+<td>10</td>
+<td>15</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>20</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table>
+<tr>
+<td>
+<table class="wikitable">
+<tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>16</td>
+<td>17</td>
+<td>18</td>
+<td>19</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>This process is continued until we reach a level with only one node and it is not overfilled. In the example only the root level remains:</p>
+<table>
+<tr>
+<td>
+<table class="wikitable">
+<tr>
+<td>15</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td>
+<table class="wikitable">
+<tr>
+<td>5</td>
+<td>10</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>20</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table>
+<tr>
+<td>
+<table class="wikitable">
+<tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>16</td>
+<td>17</td>
+<td>18</td>
+<td>19</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="wikitable">
+<tr>
+<td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p><a name="Notes" id="Notes"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=11" title="Edit section: Notes">edit</a>]</span> <span class="mw-headline">Notes</span></h2>
+<table class="metadata plainlinks ambox ambox-content" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Ambox_content.png" class="image" title="Ambox content.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/f/f4/Ambox_content.png" width="40" height="40" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This section <b>may contain <a href="/wiki/Wikipedia:No_original_research" title="Wikipedia:No original research">original research</a> or <a href="/wiki/Wikipedia:Verifiability" title="Wikipedia:Verifiability">unverified claims</a></b>. Please <a href="http://en.wikipedia.org/w/index.php?title=B-tree&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=B-tree&amp;action=edit" rel="nofollow">improve the article</a> by adding <a href="/wiki/Wikipedia:References" title="Wikipedia:References" class="mw-redirect">references</a>. See the <a href="/wiki/Talk:B-tree" title="Talk:B-tree">talk page</a> for details. <small><i>(August 2008)</i></small></td>
+</tr>
+</table>
+<p>Each node will always have between <i>L</i> and <i>U</i> children, inclusively, with one exception: the root node may have anywhere from <i>2</i> to <i>U</i> children inclusively. In other words, the root is exempt from the lower bound restriction. This allows the tree to hold small numbers of elements. The root having one child makes no sense, since the subtree attached to that child could simply be attached to the root. Giving the root no children is also unnecessary, since a tree with no elements is typically represented as having no root node.</p>
+<p><a name="Multi-way_combining_and_splitting" id="Multi-way_combining_and_splitting"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=12" title="Edit section: Multi-way combining and splitting">edit</a>]</span> <span class="mw-headline">Multi-way combining and splitting</span></h3>
+<p>It is possible to modify the above algorithm to, when trying to find extra elements for a deficient node, examine other siblings, and if one has more than the minimum number of values rearrange values across a larger number of siblings to make up the deficit in one.</p>
+<p>Similarly, when a node is split, extra elements can be moved to nearby, less populated siblings; or the split can involve a number of siblings, redistributing elements among them rather than splitting a node.</p>
+<p>In practice, the most common use of B-trees involves keeping the nodes on secondary storage, where it is slow to access a node which is not already being used. Using only two-ways splits and combines helps decrease the number of nodes needed for many common situations, but may be useful in others.</p>
+<p><a name="Relationship_between_U_and_L" id="Relationship_between_U_and_L"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=13" title="Edit section: Relationship between U and L">edit</a>]</span> <span class="mw-headline">Relationship between <i>U</i> and <i>L</i></span></h3>
+<p>It is almost universal to split nodes by choosing a single median and creating two new nodes. This constrains the relationship between <i>L</i> and <i>U</i>. Trying to insert an element into a node with <i>U</i> elements — involves redistributing <i>U</i> elements. One of these, the median, will move to the parent, and the remaining elements will be split as equally as possible among the two new nodes.</p>
+<p>For example, in a 2-3 B-tree, adding an element to a node with three child nodes, and thus two separator values, involves three values — the two separators and the new value. The median becomes the new separator in the parent, and each of the other two becomes the sole elements in nodes with one value and two children. Generally, if <i>U</i> is odd, each of the two new nodes has <i>(U+1)/2</i> children. If <i>U</i> is even, one has <i>U/2</i> children and the other <i>U/2+1</i>.</p>
+<p>If full nodes are split into exactly two nodes, <i>L</i> must be small enough to allow for the sizes after a node is split. But it is possible to split full nodes into more than two new nodes. Choosing to split a node into more than two nodes would require a lower value of <i>L</i> for the same value of <i>U</i>.</p>
+<p>As <i>L</i> gets smaller, it allows for more unused space in the nodes. This might decrease the frequency of node splitting, but it is also likely to increase the amount of memory needed to store the same number of values, and the number of nodes that have to be examined for any particular operation.</p>
+<p><a name="Theoretical_results" id="Theoretical_results"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=14" title="Edit section: Theoretical results">edit</a>]</span> <span class="mw-headline">Theoretical results</span></h4>
+<p><a href="/wiki/Robert_Tarjan" title="Robert Tarjan">Robert Tarjan</a> proved that the <a href="/wiki/Amortized_analysis" title="Amortized analysis">amortized</a> number of splits/merges is 2.<sup class="noprint Template-Fact"><span title="This claim needs references to reliable sources&#160;since September 2007" style="white-space: nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</span></sup></p>
+<p><a name="Access_concurrency" id="Access_concurrency"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=15" title="Edit section: Access concurrency">edit</a>]</span> <span class="mw-headline">Access concurrency</span></h4>
+<p>Lehman and Yao <a href="http://portal.acm.org/citation.cfm?id=319663&amp;dl=GUIDE&amp;coll=GUIDE&amp;CFID=61777986&amp;CFTOKEN=74351190" class="external autonumber" title="http://portal.acm.org/citation.cfm?id=319663&amp;dl=GUIDE&amp;coll=GUIDE&amp;CFID=61777986&amp;CFTOKEN=74351190" rel="nofollow">[1]</a> showed that linking the tree blocks at each level together with a next pointer results in a tree structure where read locks on the tree blocks can be avoided as the tree is descended from the root to the leaf for both search and insertion. Write locks are only required as a tree block is modified. Minimizing <a href="/wiki/Lock_(database)" title="Lock (database)">locking</a> to a single node held only during its modification helps to maximize access concurrency by multiple users, an important consideration for <a href="/wiki/Database" title="Database">databases</a> and/or other B-Tree based <a href="/wiki/ISAM" title="ISAM">ISAM</a> storage methods.</p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=16" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<table cellspacing="0" cellpadding="0" class="multicol" style="background:transparent; width:100%;">
+<tr>
+<td width="33%" align="left" valign="top">
+<ul>
+<li><a href="/wiki/B%2B_tree" title="B+ tree">B+ tree</a></li>
+<li><a href="/wiki/B*-tree" title="B*-tree">B*-tree</a></li>
+<li><a href="/wiki/B_sharp_tree" title="B sharp tree">B# tree</a></li>
+<li><a href="/wiki/Binary_tree" title="Binary tree">Binary tree</a></li>
+<li><a href="/wiki/Dancing_tree" title="Dancing tree">Dancing tree</a></li>
+<li><a href="/wiki/Kd-tree" title="Kd-tree">kd-tree</a></li>
+</ul>
+</td>
+<td align="left" valign="top">
+<ul>
+<li><a href="/wiki/R-tree" title="R-tree">R-tree</a></li>
+<li><a href="/wiki/Radix_tree" title="Radix tree">Radix tree</a></li>
+<li><a href="/wiki/Red-black_tree" title="Red-black tree">Red-black tree</a></li>
+<li><a href="/wiki/Skip_list" title="Skip list">Skip list</a></li>
+<li><a href="/wiki/Splay_tree" title="Splay tree">Splay tree</a></li>
+<li><a href="/wiki/UB-tree" title="UB-tree">UB-tree</a></li>
+</ul>
+</td>
+</tr>
+</table>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=17" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<table class="metadata plainlinks ambox ambox-style" style="">
+<tr>
+<td class="mbox-image">
+<div style="width: 52px;"><a href="/wiki/File:Text_document_with_red_question_mark.svg" class="image" title="Text document with red question mark.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Text_document_with_red_question_mark.svg/40px-Text_document_with_red_question_mark.svg.png" width="40" height="40" border="0" /></a></div>
+</td>
+<td class="mbox-text" style="">This article includes a <a href="/wiki/Wikipedia:Citing_sources" title="Wikipedia:Citing sources">list of references</a> or <a href="/wiki/Wikipedia:External_links" title="Wikipedia:External links">external links</a>, but <b>its sources remain unclear because it lacks <a href="/wiki/Wikipedia:Citing_sources#Inline_citations" title="Wikipedia:Citing sources">inline citations</a>.</b> Please <a href="/wiki/Wikipedia:WikiProject_Fact_and_Reference_Check" title="Wikipedia:WikiProject Fact and Reference Check">improve</a> this article by introducing more precise citations <a href="/wiki/Wikipedia:When_to_cite" title="Wikipedia:When to cite">where appropriate</a>. <small><i>(February 2008)</i></small></td>
+</tr>
+</table>
+<p><i>Original papers:</i></p>
+<ul>
+<li><a href="/wiki/Rudolf_Bayer" title="Rudolf Bayer">R. Bayer</a>, <i>Binary B-Trees for Virtual Memory</i>, Proceedings of 1971 ACM-SIGFIDET Workshop on Data Description, Access and Control, San Diego, California, November 11-12, 1971.</li>
+<li><a href="/wiki/Rudolf_Bayer" title="Rudolf Bayer">R. Bayer</a> and E. McCreight, <i>ORGANIZATION AND MAINTENANCE OF LARGE ORDERED INDICES</i>, Mathematical and Information Sciences Report No. 20, Mathematical and Information Sciences Laboratory, BOEING SCIENTIFIC RESEARCH LABORATORIES, July 1970.</li>
+</ul>
+<p><i>Summary:</i></p>
+<ul>
+<li><a href="/wiki/Donald_Knuth" title="Donald Knuth">Donald Knuth</a>. <i>The Art of Computer Programming</i>, Volume 3: <i>Sorting and Searching</i>, Third Edition. Addison-Wesley, 1997. <a href="/wiki/Special:BookSources/0201896850" class="internal">ISBN 0-201-89685-0</a>. Section 6.2.4: Multiway Trees, pp.481–491. Also, pp.476–477 of section 6.2.3 (Balanced Trees) discusses 2-3 trees.</li>
+<li><a href="/wiki/Thomas_H._Cormen" title="Thomas H. Cormen">Thomas H. Cormen</a>, <a href="/wiki/Charles_E._Leiserson" title="Charles E. Leiserson">Charles E. Leiserson</a>, <a href="/wiki/Ronald_L._Rivest" title="Ronald L. Rivest" class="mw-redirect">Ronald L. Rivest</a>, and <a href="/wiki/Clifford_Stein" title="Clifford Stein">Clifford Stein</a>. <i><a href="/wiki/Introduction_to_Algorithms" title="Introduction to Algorithms">Introduction to Algorithms</a></i>, Second Edition. MIT Press and McGraw-Hill, 2001. <a href="/wiki/Special:BookSources/0262032937" class="internal">ISBN 0-262-03293-7</a>. Chapter 18: B-Trees, pp.434–454.</li>
+</ul>
+<p><i>Other</i></p>
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <a href="http://www.minet.uni-jena.de/dbis/lehre/ss2004/dbs2/Bayer_hist.pdf" class="external text" title="http://www.minet.uni-jena.de/dbis/lehre/ss2004/dbs2/Bayer_hist.pdf" rel="nofollow">R. Bayer, E. McCreight. <i>Organization and Maintenance of Large Ordered Indexes</i>, in <i>Acta Informatica</i>, Vol. 1, Fasc. 3, 1972 pp. 173-189</a></li>
+<li id="cite_note-1"><b><a href="#cite_ref-1" title="">^</a></b> Douglas Comer. The Ubiquitous B-Tree. Computing Surveys, 11(2):123. June 1979.</li>
+</ol>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=B-tree&amp;action=edit&amp;section=18" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.scholarpedia.org/article/B-tree_and_UB-tree" class="external text" title="http://www.scholarpedia.org/article/B-tree_and_UB-tree" rel="nofollow">B-tree and UB-tree on Scholarpedia</a> Curator: Dr Rudolf Bayer</li>
+<li><a href="http://people.ksp.sk/~kuko/bak/index.html" class="external text" title="http://people.ksp.sk/~kuko/bak/index.html" rel="nofollow">B-Tree Applet</a> by Kubo Kovac</li>
+<li><a href="http://www.bluerwhite.org/btree" class="external text" title="http://www.bluerwhite.org/btree" rel="nofollow">B-Trees: Balanced Tree Data Structures</a></li>
+<li><a href="http://www.nist.gov/dads/HTML/btree.html" class="external text" title="http://www.nist.gov/dads/HTML/btree.html" rel="nofollow">NIST's Dictionary of Algorithms and Data Structures: B-tree</a></li>
+<li><a href="http://textelectric.net/btree.html" class="external text" title="http://textelectric.net/btree.html" rel="nofollow">C++ source code for a balanced tree (B-tree) (Windows required for test timings)</a></li>
+<li><a href="http://people.csail.mit.edu/jaffer/WB" class="external text" title="http://people.csail.mit.edu/jaffer/WB" rel="nofollow">WB disk-based B-tree C-library/Java-library/C#-library</a></li>
+<li><a href="http://perl.plover.com/BTree/" class="external text" title="http://perl.plover.com/BTree/" rel="nofollow">B-Trees in Perl</a></li>
+</ul>
+<table class="navbox" cellspacing="0" style=";">
+<tr>
+<td style="padding:2px;">
+<table cellspacing="0" class="nowraplinks collapsible autocollapse" style="width:100%;background:transparent;color:inherit;;">
+<tr>
+<th style=";" colspan="2" class="navbox-title">
+<div style="float:left; width:6em;text-align:left;">
+<div class="noprint plainlinksneverexpand navbar" style="background:none; padding:0; font-weight:normal;;;border:none;; font-size:xx-small;"><a href="/wiki/Template:Data_structures" title="Template:Data structures"><span title="View this template" style=";;border:none;">v</span></a>&#160;•&#160;<a href="/wiki/Template_talk:Data_structures" title="Template talk:Data structures"><span title="Discussion about this template" style=";;border:none;">d</span></a>&#160;•&#160;<a href="http://en.wikipedia.org/w/index.php?title=Template:Data_structures&amp;action=edit" class="external text" title="http://en.wikipedia.org/w/index.php?title=Template:Data_structures&amp;action=edit" rel="nofollow"><span title="Edit this template" style=";;border:none;;">e</span></a></div>
+</div>
+<span style="font-size:110%;"><a href="/wiki/Data_structure" title="Data structure">Data structures</a></span></th>
+</tr>
+<tr style="height:2px;">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-group" style=";;"><a href="/wiki/Array" title="Array">Arrays</a></td>
+<td style="text-align:left;border-left:2px solid #fdfdfd;width:100%;padding:0px;;;" class="navbox-list navbox-odd">
+<div style="padding:0em 0.25em"><a href="/wiki/Associative_array" title="Associative array">Associative array</a></div>
+</td>
+</tr>
+<tr style="height:2px">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-group" style=";;"><a href="/wiki/List_(computing)" title="List (computing)">Lists</a></td>
+<td style="text-align:left;border-left:2px solid #fdfdfd;width:100%;padding:0px;;;" class="navbox-list navbox-odd">
+<div style="padding:0em 0.25em"><a href="/wiki/Deque" title="Deque">Deque</a>&#160;• <a href="/wiki/Linked_list" title="Linked list">Linked list</a>&#160;• <a href="/wiki/Queue_(data_structure)" title="Queue (data structure)">Queue</a>&#160;• <a href="/wiki/Stack_(data_structure)" title="Stack (data structure)">Stack</a></div>
+</td>
+</tr>
+<tr style="height:2px">
+<td></td>
+</tr>
+<tr>
+<td class="navbox-group" style=";;"><a href="/wiki/Tree_(data_structure)" title="Tree (data structure)">Trees</a></td>
+<td style="text-align:left;border-left:2px solid #fdfdfd;width:100%;padding:0px;;;" class="navbox-list navbox-odd">
+<div style="padding:0em 0.25em"><strong class="selflink">B-tree</strong>&#160;• <a href="/wiki/Binary_search_tree" title="Binary search tree">Binary search tree</a>&#160;• <a href="/wiki/Heap_(data_structure)" title="Heap (data structure)">Heap</a></div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 924/1000000
+Post-expand include size: 18034/2048000 bytes
+Template argument size: 4252/2048000 bytes
+Expensive parser function count: 3/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:4674-0!1!0!default!!en!2 and timestamp 20090330193520 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/B-tree">http://en.wikipedia.org/wiki/B-tree</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Trees_(structure)" title="Category:Trees (structure)">Trees (structure)</a></span> | <span dir='ltr'><a href="/wiki/Category:1971_introductions" title="Category:1971 introductions">1971 introductions</a></span> | <span dir='ltr'><a href="/wiki/Category:B-tree" title="Category:B-tree">B-tree</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:All_articles_with_unsourced_statements" title="Category:All articles with unsourced statements">All articles with unsourced statements</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_unsourced_statements_since_July_2008" title="Category:Articles with unsourced statements since July 2008">Articles with unsourced statements since July 2008</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_that_may_contain_original_research_since_August_2008" title="Category:Articles that may contain original research since August 2008">Articles that may contain original research since August 2008</a></span> | <span dir='ltr'><a href="/wiki/Category:All_articles_that_may_contain_original_research" title="Category:All articles that may contain original research">All articles that may contain original research</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_unsourced_statements_since_September_2007" title="Category:Articles with unsourced statements since September 2007">Articles with unsourced statements since September 2007</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_lacking_in-text_citations" title="Category:Articles lacking in-text citations">Articles lacking in-text citations</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/B-tree" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:B-tree" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=B-tree&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=B-tree&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=B-tree" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/B-tree" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/B-tree" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=B-tree&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=B-tree&amp;oldid=280710087" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=B-tree&amp;id=280710087">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-cs"><a href="http://cs.wikipedia.org/wiki/B-strom">Česky</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/B-Baum">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/%C3%81rbol-B">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Arbre_B">Français</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/B_%ED%8A%B8%EB%A6%AC">한국어</a></li>
+				<li class="interwiki-hr"><a href="http://hr.wikipedia.org/wiki/B-stablo">Hrvatski</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/B-Albero">Italiano</a></li>
+				<li class="interwiki-lt"><a href="http://lt.wikipedia.org/wiki/B-medis">Lietuvių</a></li>
+				<li class="interwiki-hu"><a href="http://hu.wikipedia.org/wiki/B-fa">Magyar</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/B%E6%9C%A8">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/B-drzewo">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/%C3%81rvore_B">Português</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/B-%D0%B4%D0%B5%D1%80%D0%B5%D0%B2%D0%BE">Русский</a></li>
+				<li class="interwiki-sr"><a href="http://sr.wikipedia.org/wiki/%D0%91-%D1%81%D1%82%D0%B0%D0%B1%D0%BB%D0%BE">Српски / Srpski</a></li>
+				<li class="interwiki-sv"><a href="http://sv.wikipedia.org/wiki/B-tr%C3%A4d">Svenska</a></li>
+				<li class="interwiki-uk"><a href="http://uk.wikipedia.org/wiki/%D0%91-%D0%B4%D0%B5%D1%80%D0%B5%D0%B2%D0%BE">Українська</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 30 March 2009, at 19:35.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv159 in 0.057 secs. --></body></html>

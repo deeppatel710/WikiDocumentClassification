@@ -1,0 +1,580 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lightweight Directory Access Protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Lightweight_Directory_Access_Protocol";
+		var wgTitle = "Lightweight Directory Access Protocol";
+		var wgAction = "view";
+		var wgArticleId = "18508";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281058394;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Lightweight Directory Access Protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+
+
+
+
+This article includes a list of references or external links, but its sources remain unclear because it has insufficient inline citations. Please help to improve this article by introducing more precise citations where appropriate. (December 2008)
+
+
+The Lightweight Directory Access Protocol, or LDAP (IPA: [ˈɛl dæp]), is an application protocol for querying and modifying directory services running over TCP/IP.[1]
+A directory is a set of objects with similar attributes organized in a logical and hierarchical manner. The most common example is the telephone directory, which consists of a series of names (either of persons or organizations) organized alphabetically, with each name having an address and phone number attached.
+An LDAP directory tree often reflects various political, geographic, and/or organizational boundaries, depending on the model chosen. LDAP deployments today tend to use Domain name system (DNS) names for structuring the topmost levels of the hierarchy. Deeper inside the directory might appear entries representing people, organizational units, printers, documents, groups of people or anything else that represents a given tree entry (or multiple entries).
+Its current version is LDAPv3, which is specified in a series of Internet Engineering Task Force (IETF) Standard Track Requests for comments (RFCs) as detailed in RFC 4510.
+
+
+
+
+Contents
+
+
+1 Origin and influences
+2 Protocol overview
+3 Directory structure
+4 Operations
+
+4.1 StartTLS
+4.2 Bind (authenticate)
+4.3 Search and Compare
+4.4 Update Data
+4.5 Extended operations
+4.6 Abandon
+4.7 Unbind
+
+
+5 LDAP URLs
+6 Schema
+7 Variations
+8 Other data models
+9 Usage
+
+9.1 Naming structure
+
+
+10 Terminology
+11 See also
+12 References
+13 External links
+
+13.1 Configuration
+13.2 Tools
+13.3 LDAP forums
+13.4 RFCs
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Origin and influences
+Telecommunication companies introduced the concept of directory services to information technology and computer networking, as their understanding of directory requirements was well-developed after some 70 years of producing and managing telephone directories. The culmination of this input was the comprehensive X.500 specification[2], a suite of protocols produced by the International Telecommunication Union (ITU) in the 1980s.
+X.500 directory services were traditionally accessed via the X.500 Directory Access Protocol (DAP), which required the Open Systems Interconnection (OSI) protocol stack. LDAP was originally intended to be a lightweight alternative protocol for accessing X.500 directory services through the simpler (and now widespread) TCP/IP protocol stack. This model of directory access was borrowed from the DIXIE and Directory Assistance Service protocols.
+Standalone LDAP directory servers soon followed, as did directory servers supporting both DAP and LDAP. The latter has become popular in enterprises, as LDAP removed any need to deploy an OSI network. Today, X.500 directory protocols including DAP can also be used directly over TCP/IP.
+The protocol was originally created by Tim Howes of the University of Michigan, Steve Kille of Isode Limited, and Wengyik Yeong of Performance Systems International, circa 1993. Further development has been done via the Internet Engineering Task Force.
+In the early engineering stages of LDAP, it was known as Lightweight Directory Browsing Protocol, or LDBP. It was renamed as the scope of the protocol was expanded to include not only directory browsing and searching functions, but also directory update functions.
+LDAP has influenced subsequent Internet protocols, including later versions of X.500, XML Enabled Directory (XED), Directory Service Markup Language (DSML), Service Provisioning Markup Language (SPML), and the Service Location Protocol (SLP)
+
+[edit] Protocol overview
+A client starts an LDAP session by connecting to an LDAP server, by default on TCP port 389. The client then sends an operation request to the server, and the server sends responses in turn. With some exceptions, the client need not wait for a response before sending the next request, and the server may send the responses in any order.
+The client may request the following operations:
+
+Start TLS — use the LDAPv3 Transport Layer Security (TLS) extension for a secure connection
+Bind — authenticate and specify LDAP protocol version
+Search — search for and/or retrieve directory entries
+Compare — test if a named entry contains a given attribute value
+Add a new entry
+Delete an entry
+Modify an entry
+Modify Distinguished Name (DN) — move or rename an entry
+Abandon — abort a previous request
+Extended Operation — generic operation used to define other operations
+Unbind — close the connection (not the inverse of Bind)
+
+In addition the server may send "Unsolicited Notifications" that are not responses to any request, e.g. before it times out a connection.
+A common alternate method of securing LDAP communication is using an SSL tunnel. This is denoted in LDAP URLs by using the URL scheme "ldaps". The default port for LDAP over SSL is 636. The use of LDAP over SSL was common in LDAP Version 2 (LDAPv2) but it was never standardized in any formal specification. This usage has been deprecated along with LDAPv2, which was officially retired in 2003.
+LDAP is defined in terms of ASN.1, and protocol messages are encoded in the binary format BER. It uses textual representations for a number of ASN.1 fields/types, however.
+
+[edit] Directory structure
+The protocol accesses LDAP directories, which follow the 1993 edition of the X.500 model:
+
+A directory is a tree of directory entries.
+An entry consists of a set of attributes.
+An attribute has a name (an attribute type or attribute description) and one or more values. The attributes are defined in a schema (see below).
+Each entry has a unique identifier: its Distinguished Name (DN). This consists of its Relative Distinguished Name (RDN) constructed from some attribute(s) in the entry, followed by the parent entry's DN. Think of the DN as a full filename and the RDN as a relative filename in a folder.
+
+Be aware that a DN may change over the lifetime of the entry, for instance, when entries are moved within a tree. To reliably and unambiguously identify entries, a UUID might be provided in the set of the entry's operational attributes.
+An entry can look like this when represented in LDAP Data Interchange Format (LDIF) (LDAP itself is a binary protocol):
+
+ dn: cn=John Doe,dc=example,dc=com
+ cn: John Doe
+ givenName: John
+ sn: Doe
+ telephoneNumber: +1 888 555 6789
+ telephoneNumber: +1 888 555 1232
+ mail: john@example.com
+ manager: cn=Barbara Doe,dc=example,dc=com
+ objectClass: inetOrgPerson
+ objectClass: organizationalPerson
+ objectClass: person
+ objectClass: top
+
+dn is the name of the entry; it's not an attribute nor part of the entry. "cn=John Doe" is the entry's RDN, and "dc=example,dc=com" is the DN of the parent entry, where dc denotes Domain Component. The other lines show the attributes in the entry. Attribute names are typically mnemonic strings, like "cn" for common name, "dc" for domain component, "mail" for e-mail address and "sn" for surname.
+A server holds a subtree starting from a specific entry, e.g. "dc=example,dc=com" and its children. Servers may also hold references to other servers, so an attempt to access "ou=department,dc=example,dc=com" could return a referral or continuation reference to a server which holds that part of the directory tree. The client can then contact the other server. Some servers also support chaining, which means the server contacts the other server and returns the results to the client.
+LDAP rarely defines any ordering: The server may return the values of an attribute, the attributes in an entry, and the entries found by a search operation in any order. This follows from the formal definitions - an entry is defined as a set of attributes, and an attribute is a set of values, and sets need not be ordered.
+
+[edit] Operations
+The client gives each request a positive Message ID, and the server response has the same Message ID. The response includes a numeric result code which indicates success, some error condition or some other special cases. Before the response, the server may send other messages with other result data - for example each entry found by the Search operation is returned in such a message.
+
+Expand discussion of referral responses to various operations, especially modify, for example where all modifies must be directed from replicas to a master directory.
+
+
+[edit] StartTLS
+The StartTLS operation establishes Transport Layer Security (the descendant of SSL) on the connection. That can provide data confidentiality (to protect data from being observed by third parties) and/or data integrity protection (which protects the data from tampering). During TLS negotiation the server sends its X.509 certificate to prove its identity. The client may also send a certificate to prove its identity. After doing so, the client may then use SASL/EXTERNAL to have this identity used in determining the identity used in making LDAP authorization decisions.
+Servers also often support the non-standard "LDAPS" ("Secure LDAP", commonly known as "LDAP over SSL") protocol on a separate port, by default 636. LDAPS differs from LDAP in two ways: 1) upon connect, the client and server establish TLS before any LDAP messages are transferred (without a Start TLS operation) and 2) the LDAPS connection must be closed upon TLS closure.
+LDAPS was primarily used with LDAPv2, because the StartTLS operation had not yet been defined. The use of LDAPS is deprecated, and modern software should only use StartTLS.
+
+[edit] Bind (authenticate)
+The Bind operation authenticates the client to the server. Simple Bind can send the user's DN and password in plaintext, so the connection should be protected using Transport Layer Security (TLS). The server typically checks the password against the userPassword attribute in the named entry. Anonymous Bind (with empty DN and password) resets the connection to anonymous state. SASL (Simple Authentication and Security Layer) Bind provides authentication services through a wide range of mechanisms, e.g. Kerberos or the client certificate sent with TLS.
+Bind also sets the LDAP protocol version. Normally clients should use LDAPv3, which is the default in the protocol but not always in LDAP libraries.
+Bind had to be the first operation in a session in LDAPv2, but is not required in LDAPv3 (the current LDAP version).
+
+[edit] Search and Compare
+The Search operation is used to both search for and read entries. Its parameters are:
+
+baseObject 
+The DN (Distinguished Name) of the entry at which to start the search,
+scope 
+What elements below the baseObject to search. This can be BaseObject (search just the named entry, typically used to read one entry), singleLevel (entries immediately below the base DN), or wholeSubtree (the entire subtree starting at the base DN).
+filter 
+Criteria to use in selecting elements within scope. For example, the filter (&(objectClass=person)(|(givenName=John)(mail=john*))) will select "persons" (elements of objectClass person) who either have the given name "John" or an e-mail address that begins with the string "john".
+derefAliases 
+Whether and how to follow alias entries (entries which refer to other entries),
+attributes 
+Which attributes to return in result entries.
+sizeLimit, timeLimit 
+Maximum number of entries to return, and maximum time to allow search to run.
+typesOnly 
+Return attribute types only, not attribute values.
+
+The server returns the matching entries and potentially continuation references. These may be returned in any order.The final result will include the result code.
+The Compare operation takes a DN, an attribute name and an attribute value, and checks if the named entry contains that attribute with that value.
+
+[edit] Update Data
+Add, Delete, and Modify DN - all require the DN of the entry that is to be changed.
+Modify takes a list of attributes to modify and the modifications to each: Delete the attribute or some values, add new values, or replace the current values with the new ones.
+Add operations also can have additional attributes and values for those attributes.
+Modify DN (move/rename entry) takes the new RDN (Relative Distinguished Name), optionally the new parent's DN, and a flag which says whether to delete the value(s) in the entry which match the old RDN. The server may support renaming of entire directory subtrees.
+An update operation is atomic: Other operations will see either the new entry or the old one. On the other hand, LDAP does not define transactions of multiple operations: If you read an entry and then modify it, another client may have updated the entry in the mean time. Servers may implement extensions [3] which support this, however.
+
+[edit] Extended operations
+The Extended Operation is a generic LDAP operation which can be used to define new operations. Examples include the Cancel, Password Modify and Start TLS operations.
+
+[edit] Abandon
+The Abandon operation requests that the server abort an operation named by a message ID. The server need not honor the request. Unfortunately, neither Abandon nor a successfully abandoned operation send a response. A similar Cancel extended operation has therefore been defined which does send responses, but not all implementations support this.
+
+[edit] Unbind
+The Unbind operation abandons any outstanding operations and closes the connection. It has no response. The name is of historical origin, and is not the opposite of the Bind operation.[4]
+Clients can abort a session by simply closing the connection, but they should use Unbind.[5] Unbind allows the server to gracefully close the connection and free resources that it would otherwise keep for some time until discovering the client had abandoned the connection. It also instructs the server to cancel operations that can be canceled, and to not send responses for operations that cannot be canceled.[6]
+
+[edit] LDAP URLs
+An LDAP URL format exists which clients support in varying degree, and which servers return in referrals and continuation references (see RFC 4516):
+
+ldap://host:port/DN?attributes?scope?filter?extensions
+
+Most of the components, which are described below, are optional.
+
+host is the FQDNS or IP address of the LDAP server to search.
+port is the network port of the LDAP server.
+DN is the distinguished name to use as the search base.
+attributes is a comma-separated list of attributes to retrieve.
+scope specifies the search scope and can be "base" (the default), "one" or "sub".
+filter is a search filter. For example (objectClass=*) as defined in RFC 4515.
+extensions are extensions to the LDAP URL format.
+
+For example, "ldap://ldap.example.com/cn=John%20Doe,dc=example,dc=com" refers to all user attributes in John Doe's entry in ldap.example.com, while "ldap:///dc=example,dc=com??sub?(givenName=John)" searches for the entry in the default server (note the triple slash, omitting the host, and the double question mark, omitting the attributes). As in other URLs, special characters must be percent-encoded.
+There is a similar non-standard ldaps: URL scheme for LDAP over SSL. This should not be confused with LDAP with TLS, which is achieved using the StartTLS operation using the standard ldap: scheme.
+
+[edit] Schema
+The contents of the entries in a subtree are governed by a schema.
+The schema defines the attribute types that directory entries can contain. An attribute definition includes a syntax, and most non-binary values in LDAPv3 use UTF-8 string syntax. For example, a "mail" attribute might contain the value "user@example.com". A "jpegPhoto" attribute would contain photograph(s) in binary JPEG/JFIF format. A "member" attribute contains DNs of other directory entries. Attribute definitions also specify whether the attribute is single-valued or multi-valued, how to search/compare the attribute (e.g. case-sensitive vs. case-insensitive and whether substring matching is supported), etc.
+The schema defines object classes. Each entry must have an objectClass attribute, containing named classes defined in the schema. The schema definition of the classes of an entry defines what kind of object the entry may represent - e.g. a person, organization or domain. The object class definitions also list which attributes are obligatory and which are optional. For example, an entry representing a person might belong to the classes "top" and "person". Membership in the "person" class would require the entry to contain the "sn" and "cn" attributes, and allow the entry also to contain "userPassword", "telephoneNumber", and other attributes. Since entries may belong to multiple classes, each entry has a complex of optional and mandatory attribute sets formed from the union of the object classes it represents. ObjectClasses can be inherited, and a single entry can have multiple objectClasses to define the available and required attributes of the entry itself. A parallel to the schema of an objectClass is a class definition and an instance in Object-oriented programming, representing LDAP objectClass and LDAP entry, respectively.
+The schema also includes various other information controlling directory entries.
+Most schema elements have a name and a globally unique Object identifier (OID).
+Directory servers may publish the directory schema controlling an entry at a base DN given by the entry's subschemaSubentry operational attribute. (An operational attribute describes operation of the directory rather than user information and is only returned from a search when it is explicitly requested.)
+Server administrators can define their own schemas in addition to the standard ones. A schema for representing individual people within organizations is termed a white pages schema.
+
+[edit] Variations
+A lot of the server operation is left to the implementor or administrator to decide. Accordingly, servers may be set up to support a wide variety of scenarios.
+For example, data storage in the server is not specified - the server may use flat files, databases, or just be a gateway to some other server. Access control is not standardized, though there has been work on it and there are commonly used models. Users' passwords may be stored in their entries or elsewhere. The server may refuse to perform operations when it wishes, and impose various limits.
+Most parts of LDAP are extensible. Examples: One can define new operations. Controls may modify requests and responses, e.g. to request sorted search results. New search scopes and Bind methods can be defined. Attributes can have options that may modify their semantics.
+
+[edit] Other data models
+As LDAP has gained momentum, vendors have provided it as an access protocol to other services. The implementation then recasts the data to mimic the LDAP/X.500 model, but how closely this model is followed varies. For example, there is software to access SQL databases through LDAP, even though LDAP does not readily lend itself to this.[7] X.500 servers may support LDAP as well.
+Similarly, data which were previously held in other types of data stores are sometimes moved to LDAP directories. For example, Unix user and group information can be stored in LDAP and accessed via PAM and NSS modules. LDAP is often used by other services for authentication.
+
+[edit] Usage
+
+[edit] Naming structure
+Since an LDAP server can return referrals to other servers for requests the server itself will not/can not serve, a naming structure for LDAP entries is needed so one can find a server holding a given DN. Since such a structure already exists in the Domain name system (DNS), servers' top level names often mimic DNS names, as they do in X.500.
+If an organization has domain name example.org, its top level LDAP entry will typically have the DN dc=example,dc=org (where dc means domain component). If the LDAP server is also named ldap.example.org, the organization's top level LDAP URL becomes ldap://ldap.example.org/dc=example,dc=org.
+Below the top level, the entry names will typically reflect the organization's internal structure or needs rather than DNS names.
+
+[edit] Terminology
+The LDAP terminology one can encounter is rather cumbersome. Some of this is due to misunderstandings, other examples are due to its historical origins, others arise when used with non-X.500 services that use different terminology. For example, "LDAP" is sometimes used to refer to the protocol, other times to the protocol and the data. An "LDAP directory" may be the data or also the access point. An "attribute" may be the attribute type, or the contents of an attribute in a directory, or an attribute description (an attribute type with options). An "anonymous" and an "unauthenticated" Bind are different Bind methods that both produce anonymous authentication state, so both terms are being used for both variants. The "uid" attribute should hold user names rather than numeric user IDs.
+
+[edit] See also
+
+Directory service
+Key server (cryptographic)
+LDAP Data Interchange Format (LDIF)
+LDAP Application Program Interface
+List of LDAP software
+Simple Authentication and Security Layer (SASL)
+Transport Layer Security (TLS)
+X.500
+
+
+[edit] References
+
+
+^ LDAP: Framework, Practices, and Trends
+^ The X.500 series - ITU-T Rec. X.500 to X.521
+^ INTERNET-DRAFT LDAP Transactions draft-zeilenga-ldap-txn-15.txt
+^ http://tools.ietf.org/html/rfc4511#section-4.3
+^ http://tools.ietf.org/html/rfc4511#section-5.3
+^ http://tools.ietf.org/html/rfc4511#section-3.1
+^ http://www.openldap.org/doc/admin24/backends.html#SQL
+
+
+
+ITU-T Rec. X.680, "Abstract Syntax Notation One (ASN.1) - Specification of Basic Notation", 1994
+Basic encoding rules (BER) - ITU-T Rec. X.690, "Specification of ASN.1 encoding rules: Basic, Canonical, and Distinguished Encoding Rules", 1994
+RFC 4346 - The TLS Protocol Version 1.1
+RFC 4422 - Simple Authentication and Security Layer (SASL)
+SASL mechanisms registered at IANA
+
+
+[edit] External links
+
+
+
+
+
+This article's external links may not follow Wikipedia's content policies or guidelines. Please improve this article by removing excessive or inappropriate external links.
+
+
+
+Understanding LDAP A simple, light introductory tutorial for LDAP.
+
+
+LDAP schema design
+
+
+[edit] Configuration
+
+Building Powerful Central Authentication
+
+
+LDAP Authentication (for Linux/Unix and Windows via Samba)
+
+
+Linux LDAP HOWTO
+
+
+A comprehensive Linux LDAP Configuration Guide
+
+
+[edit] Tools
+
+LDAP Libraries for C#.
+http://code.google.com/p/ruby-activeldap/
+
+
+[edit] LDAP forums
+
+LDAP mailinglist at umich.edu
+"#ldap" IRC channel in the freenode IRC network
+IETF LDAPbis mailing list - The IETF LDAP (v3) Revision (LDAPbis) Working Group, now concluded, was chartered with revising the LDAPv3 specifications. The WG produced a number of RFCs, including the revised LDAP Technical Specification detailed in RFC 4510. The WG mailing list remains available for technical discussions regarding the LDAP Technical Specification.
+IETF LDAPext mailing list - The IETF LDAP Extensions (LDAPext) Working Group, now concluded, was charted with producing a set of LDAP extensions. The WG mailing list remains available for technical discussions regarding the LDAP extension specifications.
+LDAPcon International Conference on LDAP
+
+
+[edit] RFCs
+LDAP is currently specified in a series of Request for Comments documents:
+
+RFC 4510 - Lightweight Directory Access Protocol (LDAP) Technical Specification Roadmap (replaced the previous LDAP Technical specification, RFC 3377, in its entirety)
+RFC 4511 - Lightweight Directory Access Protocol (LDAP): The Protocol
+RFC 4512 - Lightweight Directory Access Protocol (LDAP): Directory Information Models
+RFC 4513 - Lightweight Directory Access Protocol (LDAP): Authentication Methods and Security Mechanisms
+RFC 4514 - Lightweight Directory Access Protocol (LDAP): String Representation of Distinguished Names
+RFC 4515 - Lightweight Directory Access Protocol (LDAP): String Representation of Search Filters
+RFC 4516 - Lightweight Directory Access Protocol (LDAP): Uniform Resource Locator
+RFC 4517 - Lightweight Directory Access Protocol (LDAP): Syntaxes and Matching Rules
+RFC 4518 - Lightweight Directory Access Protocol (LDAP): Internationalized String Preparation
+RFC 4519 - Lightweight Directory Access Protocol (LDAP): Schema for User Applications
+
+The following RFCs detail LDAP-specific Best Current Practices:
+
+RFC 4520 (also BCP 64) - Internet Assigned Numbers Authority (IANA) Considerations for the Lightweight Directory Access Protocol (LDAP) (replaced RFC 3383)
+RFC 4521 (also BCP 118) - Considerations for Lightweight Directory Access Protocol (LDAP) Extensions
+
+The following is a partial list of RFCs specifying LDAPv3 extensions:
+
+RFC 2247 - Use of DNS domains in distinguished names
+RFC 2307 - Using LDAP as a Network Information Service
+RFC 2589 - LDAPv3: Dynamic Directory Services Extensions
+RFC 2649 - LDAPv3 Operational Signatures
+RFC 2696 - LDAP Simple Paged Result Control
+RFC 2798 - inetOrgPerson LDAP Object Class
+RFC 2829 - Authentication Methods for LDAP
+RFC 2830 - LDAPv3: Extension for Transport Layer Security
+RFC 2849 - The LDAP Data Interchange Format (LDIF)
+RFC 2891 - Server Side Sorting of Search Results
+RFC 3045 - Storing Vendor Information in the LDAP root DSE
+RFC 3062 - LDAP Password Modify Extended Operation
+RFC 3296 - Named Subordinate References in LDAP Directories
+RFC 3671 - Collective Attributes in LDAP
+RFC 3672 - Subentries in LDAP
+RFC 3673 - LDAPv3: All Operational Attributes
+RFC 3687 - LDAP Component Matching Rules
+RFC 3698 - LDAP: Additional Matching Rules
+RFC 3829 - LDAP Authorization Identity Controls
+RFC 3866 - Language Tags and Ranges in LDAP
+RFC 3909 - LDAP Cancel Operation
+RFC 3928 - LDAP Client Update Protocol
+RFC 4370 - LDAP Proxied Authorization Control
+RFC 4373 - LBURP
+RFC 4403 - LDAP Schema for UDDI
+RFC 4522 - LDAP: Binary Encoding Option
+RFC 4523 - LDAP: X.509 Certificate Schema
+RFC 4524 - LDAP: COSINE Schema (replaces RFC 1274)
+RFC 4525 - LDAP: Modify-Increment Extension
+RFC 4526 - LDAP: Absolute True and False Filters
+RFC 4527 - LDAP: Read Entry Controls
+RFC 4528 - LDAP: Assertion Control
+RFC 4529 - LDAP: Requesting Attributes by Object Class
+RFC 4530 - LDAP: entryUUID
+RFC 4531 - LDAP Turn Operation
+RFC 4532 - LDAP Who am I? Operation
+RFC 4533 - LDAP Content Sync Operation
+RFC 4876 - Configuration Profile Schema for LDAP-Based Agents
+RFC 5020 - LDAP entryDN Operational Attribute
+
+LDAPv2 was specified in the following RFCs:
+
+RFC 1777 - Lightweight Directory Access Protocol (replaced RFC 1487)
+RFC 1778 - The String Representation of Standard Attribute Syntaxes (replaced RFC 1488)
+RFC 1779 - A String Representation of Distinguished Names (replaced RFC 1485)
+
+LDAPv2 was moved to historic status by the following RFC:
+
+RFC 3494 - Lightweight Directory Access Protocol version 2 (LDAPv2) to Historic Status
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol"
+Categories: Application layer protocols | Identity management | Internet protocols | Internet standardsHidden categories: Articles lacking in-text citations | Wikipedia external links cleanup 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Bosanski
+Български
+Català
+Чăвашла
+Česky
+Dansk
+Deutsch
+Español
+Euskara
+Français
+한국어
+Bahasa Indonesia
+Italiano
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Română
+Русский
+Slovenčina
+Suomi
+Svenska
+ไทย
+Tiếng Việt
+Türkçe
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 1 April 2009, at 11:27.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

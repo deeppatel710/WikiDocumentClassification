@@ -1,0 +1,329 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Semaphore (programming) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Semaphore_(programming)";
+		var wgTitle = "Semaphore (programming)";
+		var wgAction = "view";
+		var wgArticleId = "164557";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282401658;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Semaphore (programming)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+For other uses, see Semaphore.
+
+In computer science, a semaphore is a protected variable or abstract data type which constitutes the classic method for restricting access to shared resources such as shared memory in a multiprogramming environment. A counting semaphore is a counter for a set of available resources, rather than a locked/unlocked flag of a single resource. It was invented by Edsger Dijkstra. Semaphores are the classic solution to preventing race conditions in the dining philosophers problem, although they do not prevent resource deadlocks.
+
+
+
+
+Contents
+
+
+1 Introduction
+2 Semaphores today as used by programmers
+3 Example usage
+4 Hardware support
+5 Binary semaphore vs. Mutex
+6 See also
+7 References
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Introduction
+Semaphores can only be accessed using the following operations. Those marked atomic should not be interrupted (that is, if the system decides that the "turn is up" for the program doing this, it shouldn't stop it in the middle of those instructions) for the reasons explained below.
+
+P(Semaphore s) // Acquire Resource
+{
+  wait until s > 0, then s := s-1;
+  /* must be atomic because of race conditions */
+}
+
+V(Semaphore s)  // Release  Resource
+{
+  s := s+1;   /* must be atomic */
+}
+
+Init(Semaphore s, Integer v)
+{
+  s := v;
+}
+
+Notice that incrementing the variable s must not be interrupted, and the P operation must not be interrupted after s is found to be greater than 0. This can be done using a special instruction such as test-and-set (if the architecture's instruction set supports it), or (on uniprocessor systems) ignoring interrupts in order to prevent other processes from becoming active.
+The value of a semaphore is the number of units of the resource which are free. (If there is only one resource, a "binary semaphore" with values 0 or 1 is used.) The P operation busy-waits (uses its turn to do nothing) or maybe sleeps (tells the system not to give it a turn) until a resource is available, whereupon it immediately claims one. V is the inverse; it simply makes a resource available again after the process has finished using it. Init is only used to initialize the semaphore before any requests are made. The P and V operations must be atomic, which means that no process may ever be preempted in the middle of one of those operations to run another operation on the same semaphore.
+The canonical names P and V come from the initials of Dutch words. V stands for verhogen, or "increase". Several explanations have been given for P (including proberen for "to test"[1], passeer for "pass", probeer "try", and pakken "grab"), but in fact Dijkstra wrote that he intended P to stand for the made-up word prolaag,[2] short for probeer te verlagen, or "try-and-decrease" [3][4] (A less ambiguous, and more accurate, English translation would be "try-to-decrease".) This confusion stems from the unfortunate characteristic of the Dutch language that the words for increase and decrease both begin with the letter V, and the words spelled out in full would be impossibly confusing for non–Dutch-speakers.
+In the programming language ALGOL 68, in the Linux kernel,[5] and in some English textbooks, the P and V operations are called, respectively, down and up. In software engineering practice, they are often called wait and signal, or acquire and release (which the standard Java library uses [6]), or pend and post. Some texts call them procure and vacate to match the original Dutch initials.
+To avoid busy-waiting, a semaphore may have an associated queue of processes (usually a first-in, first out). If a process performs a P operation on a semaphore which has the value zero, the process is added to the semaphore's queue. When another process increments the semaphore by performing a V operation, and there are processes on the queue, one of them is removed from the queue and resumes execution. When processes have different priorities, the queue may be ordered by priority, so that the highest priority process is taken from the queue first.
+The counting semaphore concept can be extended with the ability of claiming or returning more than one 'unit' from the semaphore. This is indeed the way the classical UNIX semaphore works. The modified P and V operations work like this:
+
+P(Semaphore s, integer howmany)
+{
+  wait until s >= 0;
+  s := s - howmany; /* must be atomic operation */
+  wait until s >= 0;
+}
+
+V(Semaphore s, integer howmany)
+{
+  s := s+howmany;   /* must be atomic */
+}
+
+To understand why it is better than just calling the simple version of P 'howmany' times consider the following problem. Let's say you have a pool of N resources, say fixed size buffers. You may want to use a counting semaphore initialised to N to keep track of the number of the buffers available. When a process wants to allocate a buffer, it calls P on the semaphore and gets a buffer. If there are no buffers available, a process waits until some other process releases a buffer and invokes V on the semaphore.
+Consider that there are two processes that respectively want to acquire K < N and L < N buffers, such that K + L > N. The naive implementation would have the first process call the simple decrementing variant P on the semaphore K times, and it would have the second process call the simple decrementing variant P on the semaphore L times. However, this approach can lead to a deadlock: Imagine that the operating system allows the first process to run. Then, when the first process has only acquired control of Z buffers (such that Z < K and Z + L > N), the operating system preempts the first process to allow the second process time to run. The second process begins acquiring buffers. However, when the second process acquires (N - Z) buffers, the semaphore becomes 0 and the second process gets suspended in order to wait for some other process to free up more buffers (because L > N - Z). The operating system eventually allows the first process to resume, continuing its quest to acquire the remaining (K - Z) buffers that it needs. Unfortunately, since the semaphore is 0, the first process cannot complete this task, so it too becomes suspended in order to wait for some other process to free up more buffers. Neither the first nor the second process can acquire enough buffers to continue, and therefore neither returns any buffers to the pool. Thus, they are stuck in a deadlock situation.
+With the modified semaphore version, the first process will ask for K buffers (or more precisely, semaphore units), which it will get in an atomic operation, leaving N-K units on the semaphore. Then the second process arrives, decrements the semaphore down to N-K-L and since that is a negative number, will wait. As the first process releases buffers and increments the semaphore, as soon as the semaphore reaches 0 it means that there are L elements available in the pool, the second process can be woken up and can receive all of its buffers.
+It should be noted that the semaphore count is not necessarily equal to the buffers available in the pool. The checking and waiting twice for the s >= 0 condition in P is needed to guarantee that as multiple processes are added to the semaphore's waiting list they do not disturb each other's request: a process does not change the semaphore's count until it is next in the queue. In real implementations it is done without actually activating up the waiting process for the intermediate step.
+
+[edit] Semaphores today as used by programmers
+Semaphores remain in common use in programming languages that do not intrinsically support other forms of synchronization. They are the primitive synchronization mechanism in many operating systems. The trend in programming language development, though, is towards more structured forms of synchronization, such as monitors (though these advanced structures typically employ semaphores behind the scenes). In addition to their inadequacies in dealing with (multi-resource) deadlocks, semaphores do not protect the programmer from the easy mistakes of taking a semaphore that is already held by the same process, and forgetting to release a semaphore that has been taken.
+
+[edit] Example usage
+Since semaphores have a count associated with them, they may be employed when multiple threads need to achieve an objective cooperatively. Consider this example:
+
+A thread named A needs information from two databases before it can proceed. Access to these databases is controlled by two separate threads B, C. These two threads have a message-processing loop; anybody needing to use one of the databases posts a message into the corresponding thread's message queue. Thread A initializes a semaphore S with init(S,-1). A then posts a data request, including a pointer to the semaphore S, to both B and C. Then A calls P(S), which blocks. The other two threads meanwhile take their time obtaining the information; when each thread finishes obtaining the information, it calls V(S) on the passed semaphore. Only after both threads have completed will the semaphore's value be positive and A be able to continue. A semaphore used in this way is called a "counting semaphore."
+
+Apart from a counting semaphore, there is a "blocking semaphore". A blocking semaphore is a semaphore that is initialized to zero. This has the effect that any thread that does a P(S) will block until another thread does a V(S). This kind of construct is very useful when the order of execution among threads needs to be controlled.
+
+[edit] Hardware support
+The use of semaphores normally requires hardware support to guarantee the atomicity of operations that require it. Computer machine languages typically include instructions that are designed specifically with semaphores in mind. These special instructions carry out a read-modify-write cycle to memory that is not only uninterruptible but excludes all other operations to the same location in memory by any other processors or input/output devices. The special instructions guarantee that a semaphore procedure using them can test and alter a semaphore in a single, atomic operation.
+
+[edit] Binary semaphore vs. Mutex
+A mutex is a binary semaphore, usually including extra features like ownership or priority inversion protection. The differences between mutexes and semaphores are operating system dependent. Mutexes are meant to be used for mutual exclusion only and binary semaphores are meant to be used for event notification and mutual exclusion.
+
+[edit] See also
+
+Cigarette smokers problem
+Dining philosophers problem
+Readers-writers problem
+Sleeping barber problem
+Producers-consumers problem
+Reentrant mutex, which can "count" like a counting semaphore.
+
+
+[edit] References
+
+
+^ Silberschatz, Galvin, & Gagne 8th Ed. p.234
+^ http://www.cs.utexas.edu/users/EWD/ewd00xx/EWD74.PDF
+^ http://www.cs.utexas.edu/users/EWD/transcriptions/EWD00xx/EWD51.html MULTIPROGAMMERING EN DE X8 from the E.W. Dijkstra Archive (in Dutch)
+^ http://lkml.org/lkml/2005/12/19/34 Linux Kernel Mailing List: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+^ Kernel hacking howto on linuxgrill.com
+^ java.util.concurrent.Semaphore
+
+
+
+Silberschatz, Abraham; Galvin, Peter Baer; Gagne, Greg (2008), Operating System Concepts (8th ed.), John Wiley & Sons. Inc, ISBN 978-0-470-12872-5 
+The Little Book of Semaphores, by Allen B. Downey, Green Tea Press.
+
+
+[edit] External links
+
+Over Seinpalen (EWD 74), in which Dijkstra introduces the concept (in Dutch)
+semaphore.h programming interface - The Open Group Base Specifications Issue 6, IEEE Std 1003.1
+The Little Book of Semaphores, by Allen B. Downey
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Semaphore_(programming)"
+Categories: Concurrency control 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Česky
+Dansk
+Deutsch
+Eesti
+Ελληνικά
+Español
+فارسی
+Français
+한국어
+Bahasa Indonesia
+Italiano
+עברית
+Lietuvių
+Magyar
+Nederlands
+日本語
+Polski
+Português
+Русский
+Slovenčina
+Српски / Srpski
+Srpskohrvatski / Српскохрватски
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 7 April 2009, at 19:28.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

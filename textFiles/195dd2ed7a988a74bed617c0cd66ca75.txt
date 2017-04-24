@@ -1,0 +1,435 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Read-copy-update - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Read-copy-update";
+		var wgTitle = "Read-copy-update";
+		var wgAction = "view";
+		var wgArticleId = "284371";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 279350832;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Read-copy-update
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Read-copy-update (RCU) is an operating system kernel technology for improving performance on computers with more than one CPU.
+More technically it is a synchronization mechanism which can sometimes be used as an alternative to a readers-writer lock. It allows extremely low overhead, wait-free reads. However, RCU updates can be expensive, as they must leave the old versions of the data structure in place to accommodate pre-existing readers. These old versions are reclaimed after all pre-existing readers finish their accesses. RCU can be put to a number of other tasks, including dynamically changing NMI (Non-Maskable interrupt) handlers and implementing lazy barriers, but it is most frequently used as replacement for reader-writer locking.
+RCU is available in a number of operating systems, including version 2.6 of the Linux kernel. The technique is covered by U.S. software patent 5,442,758, issued August 15, 1995 and assigned to Sequent Computer Systems, as well as by 5,608,893, 5,727,528, 6,219,690, and 6,886,162. The now-expired US Patent 4,809,168 covers a closely related technique. RCU is also the topic of one claim in the SCO v. IBM lawsuit.
+
+
+
+
+Contents
+
+
+1 Overview
+2 Example API
+
+2.1 rcu_read_lock
+2.2 rcu_read_unlock
+2.3 synchronize_rcu / call_rcu
+2.4 rcu_assign_pointer
+2.5 rcu_dereference
+2.6 Relation Among RCU APIs
+
+
+3 What is a Simple Implementation of RCU?
+4 Analogy with Reader-Writer Locking
+5 Why Call it "Read-Copy Update"?
+6 History
+7 See also
+8 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+The basic idea behind RCU is to split updates into "removal" and "reclamation" phases. The removal phase removes references to data items within a data structure (possibly by replacing them with references to new versions of these data items), and can run concurrently with readers. The reason that it is safe to run the removal phase concurrently with readers is the semantics of modern CPUs guarantee that readers will see either the old or the new version of the data structure rather than a partially updated reference. The reclamation phase does the work of reclaiming (e.g., freeing) the data items removed from the data structure during the removal phase. Because reclaiming data items can disrupt any readers concurrently referencing those data items, the reclamation phase must not start until readers no longer hold references to those data items.
+Splitting an update into removal and reclamation phases allows the updater to perform the removal phase immediately, and to defer the reclamation phase until all readers active during the removal phase have completed, either by blocking until they finish or by registering a callback that is invoked after they finish. Only readers that are active during the removal phase need be considered, because any reader starting after the removal phase will be unable to gain a reference to the removed data items, and therefore cannot be disrupted by the reclamation phase.
+So the typical RCU update sequence goes something like the following:
+
+Remove pointers to a data structure, so that subsequent readers cannot gain a reference to it.
+Wait for all previous readers to complete their RCU read-side critical sections.
+At this point, there cannot be any readers who hold references to the data structure, so it now may safely be reclaimed (e.g., freed, perhaps using kfree in the Linux kernel).
+
+Step (2) above is the key idea underlying RCU's deferred destruction. The ability to wait until all readers are done allows RCU readers to use much lighter-weight synchronization — in some cases, absolutely no synchronization at all. In contrast, in more conventional lock-based schemes, readers must use heavy-weight synchronization in order to prevent an updater from deleting the data structure out from under them. This is because lock-based updaters typically update data items in place, and must therefore exclude readers. In contrast, RCU-based updaters typically take advantage of the fact that writes to single aligned pointers are atomic on modern CPUs, allowing atomic insertion, removal, and replacement of data items in a linked structure without disrupting readers. Concurrent RCU readers can then continue accessing the old versions, and can dispense with the atomic operations, memory barriers, and cache misses that are so expensive on modern SMP computer systems, even in absence of lock contention. Note that garbage collectors, where available, may be used to perform step (2).
+In the three-step procedure shown above, the updater is performing both the removal and the reclamation step, but it is often helpful for an entirely different thread to do the reclamation, as is in fact the case in the Linux kernel's directory-entry cache (dcache). Even if the same thread performs both the update step (step (1) above) and the reclamation step (step (3) above), it is often helpful to think of them separately. For example, RCU readers and updaters need not communicate at all, but RCU provides implicit low-overhead communication between readers and reclaimers, namely, in step (2) above.
+
+[edit] Example API
+The implementation of RCU in version 2.6 of the Linux kernel is among the better-known RCU implementations, and will be used as an example RCU API in the remainder of this article. The core Linux kernel RCU API (Application Programming Interface) is quite small:
+
+rcu_read_lock()
+rcu_read_unlock()
+synchronize_rcu() / call_rcu()
+rcu_assign_pointer()
+rcu_dereference()
+
+The Linux kernel contains numerous other RCU-related APIs, and these may be found elsewhere [1].
+
+[edit] rcu_read_lock
+Used by a reader to inform the reclaimer that the reader is entering an RCU read-side critical section. Any RCU-protected data structure accessed during an RCU read-side critical section is guaranteed to remain unreclaimed for the full duration of that critical section. Other schemes, such as reference counts, may be used in conjunction with RCU to maintain longer-term references to data structures.
+
+[edit] rcu_read_unlock
+Used by a reader to inform the reclaimer that the reader is exiting an RCU read-side critical section. Note that RCU read-side critical sections may be nested and/or overlapping.
+
+[edit] synchronize_rcu / call_rcu
+Marks the end of updater code and the beginning of reclaimer code. It does this by blocking until all pre-existing RCU read-side critical sections on all CPUs have completed. Note that synchronize_rcu will not necessarily wait for any subsequent RCU read-side critical sections to complete. For example, consider the following sequence of events:
+
+	         CPU 0                  CPU 1                 CPU 2
+	     ----------------- ------------------------- ---------------
+	 1.  rcu_read_lock()
+	 2.                    enters synchronize_rcu()
+	 3.                                               rcu_read_lock()
+	 4.  rcu_read_unlock()
+	 5.                     exits synchronize_rcu()
+	 6.                                              rcu_read_unlock()
+
+To reiterate, synchronize_rcu waits only for ongoing RCU read-side critical sections to complete, not necessarily for any that begin after synchronize_rcu is invoked.
+Of course, synchronize_rcu does not necessarily return immediately after the last pre-existing RCU read-side critical section completes. For one thing, there might well be scheduling delays. For another thing, many RCU implementations process requests in batches in order to improve efficiencies, which can further delay synchronize_rcu.
+Since synchronize_rcu is the API that must figure out when readers are done, its implementation is key to RCU. For RCU to be useful in all but the most read-intensive situations, synchronize_rcu's overhead must also be quite small.
+The call_rcu API is a callback form of synchronize_rcu, and is described in more detail in a later section. Instead of blocking, it registers a function and argument which are invoked after all ongoing RCU read-side critical sections have completed. This callback variant is particularly useful in situations where it is illegal to block.
+
+[edit] rcu_assign_pointer
+The updater uses this function to assign a new value to an RCU-protected pointer, in order to safely communicate the change in value from the updater to the reader. This function returns the new value, and also executes any memory barrier instructions required for a given CPU architecture. Perhaps more importantly, it serves to document which pointers are protected by RCU.
+
+[edit] rcu_dereference
+The reader uses rcu_dereference to fetch an RCU-protected pointer, which returns a value that may then be safely dereferenced. Note that rcu_dereference does not actually dereference the pointer, instead, it protects the pointer for later dereferencing. It also executes any needed memory-barrier instructions for a given CPU architecture. Currently, only DEC Alpha needs memory barriers within rcu_dereference; on other CPUs, it compiles to nothing, not even a compiler directive.
+Note that the value returned by rcu_dereference is valid only within the enclosing RCU read-side critical section. For example, the following is not legal:
+
+		rcu_read_lock();
+		p = rcu_dereference(head.next);
+		rcu_read_unlock();
+		x = p->address;
+		rcu_read_lock();
+		y = p->data;
+		rcu_read_unlock();
+
+Holding a reference from one RCU read-side critical section to another is just as illegal as holding a reference from one lock-based critical section to another! Similarly, using a reference outside of the critical section in which it was acquired is just as illegal as doing so with normal locking.
+As with rcu_assign_pointer, an important function of rcu_dereference is to document which pointers are protected by RCU.
+
+[edit] Relation Among RCU APIs
+The following diagram shows how each API communicates among the reader, updater, and reclaimer.
+
+
+
+
+
+
+
+The RCU infrastructure observes the time sequence of rcu_read_lock, rcu_read_unlock, synchronize_rcu, and call_rcu invocations in order to determine when (1) synchronize_rcu invocations may return to their callers and (2) call_rcu callbacks may be invoked. Efficient implementations of the RCU infrastructure make heavy use of batching in order to amortize their overhead over many uses of the corresponding APIs.
+
+[edit] What is a Simple Implementation of RCU?
+RCU has extremely simple "toy" implementations that can aid understanding of RCU. This section presents one such "toy" implementation that is related to the "classic" RCU implementation in the Linux kernel. Note that this implementation works only in a non-preemptive environment.
+
+	void rcu_read_lock(void) { }
+
+	void rcu_read_unlock(void) { }
+
+	void synchronize_rcu(void)
+	{
+		int cpu;
+
+		for_each_cpu(cpu)
+			run_on(cpu);
+	}
+
+You can ignore rcu_assign_pointer and rcu_dereference without missing much. But here they are anyway. And whatever you do, don't forget about them when submitting Linux-kernel patches that make use of RCU!
+
+	#define rcu_assign_pointer(p, v)	({ \
+							smp_wmb(); \
+							(p) = (v); \
+						})
+
+	#define rcu_dereference(p)     ({ \
+					typeof(p) _________p1 = p; \
+					smp_read_barrier_depends(); \
+					(_________p1); \
+					})
+
+Note that rcu_read_lock and rcu_read_unlock do absolutely nothing. This is the great strength of classic RCU in a non-preemptive kernel: read-side overhead is precisely zero, at least on non-Alpha CPUs. And there is absolutely no way that rcu_read_lock can participate in a deadlock cycle, cause a realtime process to miss its scheduling deadline, precipitate priority inversion, or result in high lock contention.
+The implementation of synchronize_rcu simply schedules itself on each CPU in turn. This guarantees that all readers of the old version of the data structure have completed, because it is illegal to block while in an RCU read-side critical section. Therefore, if a given CPU executes a context switch (to schedule another process), we know that it must have completed all preceding RCU read-side critical sections. Once all CPUs have executed a context switch, then all preceding RCU read-side critical sections will have completed.
+For example, suppose that we remove a data item from its structure and then invoke synchronize_rcu. Once synchronize_rcu returns, we are guaranteed that there are no RCU read-side critical sections holding a reference to that data item, so we can safely reclaim it.
+
+[edit] Analogy with Reader-Writer Locking
+Although RCU can be used in many different ways, a very common use of RCU is analogous to reader-writer locking. The following side-by-side code display shows how closely related reader-writer locking (on the left) and RCU (on the right) can be.
+
+ 1 struct el {                           1 struct el {
+ 2   struct list_head lp;                2   struct list_head lp;
+ 3   long key;                           3   long key;
+ 4   spinlock_t mutex;                   4   spinlock_t mutex;
+ 5   int data;                           5   int data;
+ 6   /* Other data fields */             6   /* Other data fields */
+ 7 };                                    7 };
+ 8 DEFINE_RWLOCK(listmutex);             8 DEFINE_SPINLOCK(listmutex);
+ 9 LIST_HEAD(head);                      9 LIST_HEAD(head);
+
+ 1 int search(long key, int *result)     1 int search(long key, int *result)
+ 2 {                                     2 {
+ 3   struct el *p;                       3   struct el *p;
+ 4                                       4
+ 5   read_lock(&listmutex);              5   rcu_read_lock();
+ 6   list_for_each_entry(p, &head, lp) { 6   list_for_each_entry_rcu(p, &head, lp) {
+ 7     if (p->key == key) {              7     if (p->key == key) {
+ 8       *result = p->data;              8       *result = p->data;
+ 9       read_unlock(&listmutex);        9       rcu_read_unlock();
+10       return 1;                      10       return 1;
+11     }                                11     }
+12   }                                  12   }
+13   read_unlock(&listmutex);           13   rcu_read_unlock();
+14   return 0;                          14   return 0;
+15 }                                    15 }
+
+ 1 int delete(long key)                  1 int delete(long key)
+ 2 {                                     2 {
+ 3   struct el *p;                       3   struct el *p;
+ 4                                       4
+ 5   write_lock(&listmutex);             5   spin_lock(&listmutex);
+ 6   list_for_each_entry(p, &head, lp) { 6   list_for_each_entry(p, &head, lp) {
+ 7     if (p->key == key) {              7     if (p->key == key) {
+ 8       list_del(&p->lp);               8       list_del_rcu(&p->lp);
+ 9       write_unlock(&listmutex);       9       spin_unlock(&listmutex);
+                                        10       synchronize_rcu();
+10       kfree(p);                      11       kfree(p);
+11       return 1;                      12       return 1;
+12     }                                13     }
+13   }                                  14   }
+14   write_unlock(&listmutex);          15   spin_unlock(&listmutex);
+15   return 0;                          16   return 0;
+16 }                                    17 }
+
+The differences between the two approaches are quite small. Read-side locking moves to rcu_read_lock and rcu_read_unlock, update-side locking moves from a reader-writer lock to a simple spinlock, and a synchronize_rcu precedes the kfree.
+However, there is one potential catch: the read-side and update-side critical sections can now run concurrently. In many cases, this will not be a problem, but it is necessary to check carefully regardless. For example, if multiple independent list updates must be seen as a single atomic update, converting to RCU will require special care.
+Also, the presence of synchronize_rcu means that the RCU version of delete can now block. If this is a problem, there is a callback-based mechanism that never blocks, namely call_rcu, that can be used in place of synchronize_rcu.
+
+[edit] Why Call it "Read-Copy Update"?
+The name comes from the way that RCU is used to update a linked structure in place. A thread wishing to do this uses the following steps:
+
+create a new structure,
+copy the data from the old structure into the new one, and save a pointer to the old structure,
+modify the new, copied, structure
+update the global pointer to refer to the new structure, and then
+sleep until the operating system kernel determines that there are no readers left using the old structure, for example, in the Linux kernel, by using synchronize_rcu().
+
+When the thread which made the copy is awakened by the kernel, it can safely deallocate the old structure.
+So the structure is read concurrently with a thread copying in order to do an update, hence the name "read-copy update". The abbreviation "RCU" was one of many contributions by the Linux community. Other names for similar techniques include passive serialization and MP defer by VM/XA programmers and generations by K42 and Tornado programmers.
+
+[edit] History
+Techniques and mechanisms resembling RCU have been independently invented multiple times:
+
+H. T. Kung and Q. Lehman described use of garbage collectors to implement RCU-like access to a binary search tree in the September 1980 issue of ACM Transactions on Database Systems.
+Udi Manber and Richard Ladner extended Kung's and Lehman's work to non-garbage-collected environments by deferring reclamation until all threads running at removal time have terminated, which works in environments that do not have long-lived threads. This was published as a technical report in 1982 and in the September 1987 issue of ACM Transactions on Database Systems.
+J. Hennessy, D. Osisek, and J. Seigh were granted US Patent 4,809,168 in 1989 (since lapsed). This patent describes an RCU-like mechanism that was apparently used in VM/XA on IBM Mainframes.
+William Pugh described an RCU-like mechanism that relied on explicit flag-setting by readers in a technical report entitled "Concurrent Maintenance of Skip Lists" published in 1990.
+Gregory R. Adams described "chaotic relaxation" in his 1991 book entitled "Concurrent programming, principles, and practices". Chaotic relaxation is a Numerical linear algebra technique that reduces synchronization overhead among CPUs computing results using successive approximations. This technique has some resemblance to RCU in that readers may be referring to different versions of data concurrently.
+J. Slingwine and P. E. McKenney received US Patent 5,442,758 in August 1995, which describes RCU as implemented in DYNIX/ptx and later in the Linux kernel.
+B. Gamsa, O. Krieger, J. Appavoo, and M. Stumm described an RCU-like mechanism used in the University of Toronto Tornado research operating system and the closely related IBM Research K42 research operating systems. See their 1999 OSDI paper.
+D. Sarma added RCU to version 2.5.43 of the Linux kernel in October 2002.
+
+A number of researchers, including Van Jacobson, Aju John, and Richard Rashid have proposed deferring reclamation for a fixed period of time, an approach that might be useful in hard real time software.
+
+[edit] See also
+
+Concurrency control
+Multiversion concurrency control
+Contention
+Deadlock
+Lock (software engineering)
+Lock-free and wait-free algorithms
+Memory barrier
+Mutual exclusion
+Non-blocking synchronization
+Pre-emptive multitasking
+Priority inversion
+Real-time computing
+Starvation
+Synchronization
+
+
+[edit] External links
+
+Paul McKenney and Jonathan Walpole: What is RCU, Fundamentally?, What is RCU? Part 2: Usage, and RCU part 3: the RCU API. Linux Weekly News.
+Paul McKenney's RCU Page
+Hart, McKenney, and Demke Brown (2006). Making Lockless Synchronization Fast: Performance Implications of Memory Reclamation An IPDPS 2006 Best Paper comparing RCU's performance to that of other lockless synchronization mechanisms. Journal version (including Walpole as author).
+Paul E. McKenney (2004). Exploiting Deferred Destruction: An Analysis of Read-Copy-Update Techniques in Operating System Kernels Dissertation.
+U.S. patent 5,442,758  (1995) "Apparatus and method for achieving reduced overhead mutual exclusion and maintaining coherency in a multiprocessor system utilizing execution history and thread monitoring"
+Tom Hart's user-application-level implementation of RCU along with some performance microbenchmark infrastructure by Tom Hart and Paul McKenney.
+Paul McKenney (2003). "Using RCU in the Linux 2.5 Kernel". Linux Journal. 
+Paul McKenney: Sleepable RCU. Linux Weekly News.
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Read-copy-update"
+Categories: Operating system technology | Concurrency control 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 24 March 2009, at 12:46 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

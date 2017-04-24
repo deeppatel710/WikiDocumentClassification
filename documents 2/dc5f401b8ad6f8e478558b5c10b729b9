@@ -1,0 +1,548 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Edge detection,Edge detection,Adaptive thresholding,Affine shape adaptation,Algorithm,Atomic line filter,Blob detection,Canny edge detection,Canny edge detector,Computer vision,Convolution" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Edge_detection&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Edge_detection&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Edge detection - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Edge_detection";
+		var wgTitle = "Edge detection";
+		var wgAction = "view";
+		var wgArticleId = "331680";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 274160578;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Edge_detection skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Edge detection</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<table class="infobox" cellspacing="5" style="width: 22em; text-align: left; font-size: 88%; line-height: 1.5em; width:20em;">
+<tr>
+<td colspan="2" class="" style="text-align:center; font-size: 125%; font-weight: bold;"><a href="/wiki/Feature_detection_(computer_vision)" title="Feature detection (computer vision)">Feature detection</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/File:Corner.png" class="image" title="Corner.png"><img alt="" src="http://upload.wikimedia.org/wikipedia/en/thumb/5/5f/Corner.png/200px-Corner.png" width="200" height="174" border="0" /></a><br />
+<span style="">Output of a typical corner detection algorithm</span></td>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;"><strong class="selflink">Edge detection</strong></th>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Canny_edge_detector" title="Canny edge detector">Canny</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Canny_edge_detector#Conclusion" title="Canny edge detector">Canny-Deriche</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Edge_detection#Differential_edge_detection" title="Edge detection">Differential</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Sobel_operator" title="Sobel operator">Sobel</a></td>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;"><a href="/wiki/Interest_point_detection" title="Interest point detection">Interest point detection</a></th>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;"><a href="/wiki/Corner_detection" title="Corner detection">Corner detection</a></th>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Corner_detection#The_Harris_.26_Stephens_.2F_Plessey_corner_detection_algorithm" title="Corner detection">Harris operator</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Corner_detection#The_Shi_and_Tomasi_corner_detection_algorithm" title="Corner detection">Shi and Tomasi</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Corner_detection#The_level_curve_curvature_approach" title="Corner detection">Level curve curvature</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Corner_detection#The_SUSAN_corner_detector" title="Corner detection">SUSAN</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Corner_detection#The_FAST_feature_detector" title="Corner detection">FAST</a></td>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;"><a href="/wiki/Blob_detection" title="Blob detection">Blob detection</a></th>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Blob_detection#The_Laplacian_of_Gaussian" title="Blob detection">Laplacian of Gaussian (LoG)</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Difference_of_Gaussians" title="Difference of Gaussians">Difference of Gaussians (DoG)</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Blob_detection#The_determinant_of_the_Hessian" title="Blob detection">Determinant of Hessian (DoH)</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Maximally_stable_extremal_regions" title="Maximally stable extremal regions">Maximally stable extremal regions</a></td>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;"><a href="/wiki/Ridge_detection" title="Ridge detection">Ridge detection</a></th>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;">Affine invariant feature detection</th>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Affine_shape_adaptation" title="Affine shape adaptation">Affine shape adaptation</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Harris_affine_region_detector" title="Harris affine region detector">Harris affine</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Hessian_Affine_region_detector" title="Hessian Affine region detector">Hessian affine</a></td>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;">Feature description</th>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Scale-invariant_feature_transform" title="Scale-invariant feature transform">SIFT</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/SURF" title="SURF">SURF</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/GLOH" title="GLOH">GLOH</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/LESH" title="LESH">LESH</a></td>
+</tr>
+<tr>
+<th colspan="2" style="text-align:center;"><a href="/wiki/Scale-space" title="Scale-space" class="mw-redirect">Scale-space</a></th>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Scale-space_axioms" title="Scale-space axioms">Scale-space axioms</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Scale-space_implementation" title="Scale-space implementation" class="mw-redirect">Implementation details</a></td>
+</tr>
+<tr>
+<td colspan="2" class="" style="text-align:center;"><a href="/wiki/Pyramid_(image_processing)" title="Pyramid (image processing)">Pyramids</a></td>
+</tr>
+<tr>
+<td style="text-align:right;" colspan="2">
+<div class="noprint plainlinksneverexpand navbar" style="background:none; padding:0; font-weight:normal;; font-size:xx-small;">This box: <a href="/wiki/Template:FeatureDetectionCompVisNavbox" title="Template:FeatureDetectionCompVisNavbox"><span title="View this template" style="">view</span></a>&#160;•&#160;<a href="/w/index.php?title=Template_talk:FeatureDetectionCompVisNavbox&amp;action=edit&amp;redlink=1" class="new" title="Template talk:FeatureDetectionCompVisNavbox (page does not exist)"><span title="Discussion about this template" style="">talk</span></a></div>
+</td>
+</tr>
+</table>
+<p><b>Edge detection</b> is a terminology in <a href="/wiki/Image_processing" title="Image processing">image processing</a> and <a href="/wiki/Computer_vision" title="Computer vision">computer vision</a>, particularly in the areas of <a href="/wiki/Feature_detection_(computer_vision)" title="Feature detection (computer vision)">feature detection</a> and <a href="/wiki/Feature_extraction" title="Feature extraction">feature extraction</a>, to refer to <a href="/wiki/Algorithm" title="Algorithm">algorithms</a> which aim at identifying points in a <a href="/wiki/Digital_image" title="Digital image">digital image</a> at which the <a href="/wiki/Luminous_intensity" title="Luminous intensity">image brightness</a> changes sharply or more formally has discontinuities.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Motivations"><span class="tocnumber">1</span> <span class="toctext">Motivations</span></a></li>
+<li class="toclevel-1"><a href="#Edge_properties"><span class="tocnumber">2</span> <span class="toctext">Edge properties</span></a></li>
+<li class="toclevel-1"><a href="#A_simple_edge_model"><span class="tocnumber">3</span> <span class="toctext">A simple edge model</span></a></li>
+<li class="toclevel-1"><a href="#Why_edge_detection_is_a_non-trivial_task"><span class="tocnumber">4</span> <span class="toctext">Why edge detection is a non-trivial task</span></a></li>
+<li class="toclevel-1"><a href="#Approaches_to_edge_detection"><span class="tocnumber">5</span> <span class="toctext">Approaches to edge detection</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Canny_edge_detection"><span class="tocnumber">5.1</span> <span class="toctext">Canny edge detection</span></a></li>
+<li class="toclevel-2"><a href="#Other_first-order_methods"><span class="tocnumber">5.2</span> <span class="toctext">Other first-order methods</span></a></li>
+<li class="toclevel-2"><a href="#Thresholding_and_linking"><span class="tocnumber">5.3</span> <span class="toctext">Thresholding and linking</span></a></li>
+<li class="toclevel-2"><a href="#Second-order_approaches_to_edge_detection"><span class="tocnumber">5.4</span> <span class="toctext">Second-order approaches to edge detection</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Differential_edge_detection"><span class="tocnumber">5.4.1</span> <span class="toctext">Differential edge detection</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Phase_Congruency_Based_Edge_Detection"><span class="tocnumber">5.5</span> <span class="toctext">Phase Congruency Based Edge Detection</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">6</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">7</span> <span class="toctext">See also</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Motivations" id="Motivations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=1" title="Edit section: Motivations">edit</a>]</span> <span class="mw-headline">Motivations</span></h2>
+<p>The purpose of detecting sharp changes in image brightness is to capture important events and changes in properties of the world. It can be shown that under rather general assumptions for an image formation model, discontinuities in image brightness are likely to correspond to:</p>
+<ul>
+<li>discontinuities in depth,</li>
+<li>discontinuities in surface orientation,</li>
+<li>changes in material properties and</li>
+<li>variations in scene illumination.</li>
+</ul>
+<p>In the ideal case, the result of applying an edge detector to an image may lead to a set of connected curves that indicate the boundaries of objects, the boundaries of surface markings as well curves that correspond to discontinuities in surface orientation. Thus, applying an edge detector to an image may significantly reduce the amount of data to be processed and may therefore filter out information that may be regarded as less relevant, while preserving the important structural properties of an image. If the edge detection step is successful, the subsequent task of interpreting the information contents in the original image may therefore be substantially simplified. Unfortunately, however, it is not always possible to obtain such ideal edges from real life images of moderate complexity. Edges extracted from non-trivial images are often hampered by <i>fragmentation</i>, meaning that the edge curves are not connected, missing edge segments as well as <i>false edges</i> not corresponding to interesting phenomena in the image -- thus complicating the subsequent task of interpreting the image data.</p>
+<p><a name="Edge_properties" id="Edge_properties"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=2" title="Edit section: Edge properties">edit</a>]</span> <span class="mw-headline">Edge properties</span></h2>
+<p>The edges extracted from a two-dimensional image of a three-dimensional scene can be classified as either viewpoint dependent or viewpoint independent. A <i>viewpoint independent edge</i> typically reflects inherent properties of the three-dimensional objects, such as surface markings and surface shape. A <i>viewpoint dependent edge</i> may change as the viewpoint changes, and typically reflects the geometry of the scene, such as objects occluding one another.</p>
+<p>A typical edge might for instance be the border between a block of red color and a block of yellow. In contrast a <b><a href="/wiki/Line_(mathematics)" title="Line (mathematics)" class="mw-redirect">line</a></b> (as can be extracted by a <a href="/wiki/Ridge_detection" title="Ridge detection">ridge detector</a>) can be a small number of pixels of a different color on an otherwise unchanging background. For a line, there may therefore usually be one edge on each side of the line.</p>
+<p>Edges play quite an important role in many applications of image processing, in particular for <a href="/wiki/Machine_vision" title="Machine vision">machine vision</a> systems that analyze scenes of man-made objects under controlled illumination conditions. During recent years, however, substantial (and successful) research has also been made on computer vision methods that do not explicitly rely on edge detection as a pre-processing step.</p>
+<p><a name="A_simple_edge_model" id="A_simple_edge_model"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=3" title="Edit section: A simple edge model">edit</a>]</span> <span class="mw-headline">A simple edge model</span></h2>
+<p>Although certain literature has considered the detection of ideal step edges, the edges obtained from natural images are usually not at all ideal step edges. Instead they are normally affected by one or several of the following effects:</p>
+<ul>
+<li>focal blur caused by a finite <a href="/wiki/Depth-of-field" title="Depth-of-field" class="mw-redirect">depth-of-field</a> and finite <a href="/wiki/Point_spread_function" title="Point spread function">point spread function</a>.</li>
+<li><a href="/wiki/Penumbra" title="Penumbra" class="mw-redirect">penumbral blur</a> caused by shadows created by light sources of non-zero radius.</li>
+<li><a href="/wiki/Shading" title="Shading">shading</a> at a smooth object edge.</li>
+<li>local <a href="/wiki/Specularity" title="Specularity">specularities</a> or <a href="/wiki/Diffuse_interreflection" title="Diffuse interreflection" class="mw-redirect">interreflections</a> in the vicinity of object edges.</li>
+</ul>
+<p>Although the following model does not capture the full variability of real-life edges, the <a href="/wiki/Error_function" title="Error function">error function</a> <img class="tex" alt="\operatorname{erf}" src="http://upload.wikimedia.org/math/d/d/9/dd9713b3177c1e189a379242bc5dc828.png" /> has been used by a number of researchers as the simplest extension of the ideal step edge model for modeling the effects of edge blur in practical applications (Zhang and Bergholm 1997, Lindeberg 1998). Thus, a one-dimensional image <span class="texhtml"><i>f</i></span> which has exactly one edge placed at <span class="texhtml"><i>x</i> = 0</span> may be modeled as:</p>
+<p><img class="tex" alt="f(x) = \frac{I_r - I_l}{2} \left( \operatorname{erf}\left(\frac{x}{\sqrt{2}\sigma}\right) + 1\right) + I_l." src="http://upload.wikimedia.org/math/6/f/c/6fc4bbe78e5f62ecb291e5399099f07d.png" /></p>
+<p>At the left side of the edge, the intensity is <img class="tex" alt="I_l = \lim_{x \rightarrow -\infty} f(x)" src="http://upload.wikimedia.org/math/5/3/1/5311f771ef5866a05b3379e5c157820e.png" />, and right of the edge it is <img class="tex" alt="I_r = \lim_{x \rightarrow \infty} f(x)" src="http://upload.wikimedia.org/math/6/a/f/6afe42962259848c638796d9124f2697.png" />. The scale parameter <span class="texhtml">σ</span> is called the blur scale of the edge.</p>
+<p><a name="Why_edge_detection_is_a_non-trivial_task" id="Why_edge_detection_is_a_non-trivial_task"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=4" title="Edit section: Why edge detection is a non-trivial task">edit</a>]</span> <span class="mw-headline">Why edge detection is a non-trivial task</span></h2>
+<p>To illustrate why edge detection is not a trivial task, let us consider the problem of detecting edges in the following one-dimensional signal. Here, we may intuitively say that there should be an edge between the 4th and 5th pixels.</p>
+<center>
+<table style="border:0px">
+<tr>
+<td style="border:1px solid #000; padding:5px 10px 5px 10px">5</td>
+<td style="border:1px solid #000; padding:5px 10px 5px 10px">7</td>
+<td style="border:1px solid #000; padding:5px 10px 5px 10px">6</td>
+<td style="border:1px solid #000; padding:5px 10px 5px 10px">4</td>
+<td style="border:1px solid #000; padding:5px">152</td>
+<td style="border:1px solid #000; padding:5px">148</td>
+<td style="border:1px solid #000; padding:5px">149</td>
+</tr>
+<tr style="height:30px">
+<td style="background:#050505"></td>
+<td style="background:#070707"></td>
+<td style="background:#060606"></td>
+<td style="background:#040404"></td>
+<td style="background:#989898"></td>
+<td style="background:#949494"></td>
+<td style="background:#959595"></td>
+</tr>
+</table>
+</center>
+<p>If the intensity difference were smaller between the 4th and the 5th pixels and if the intensity differences between the adjacent neighbouring pixels were higher, it would, however, not be as easy to say that there should be an edge in the corresponding region or, indeed, if there even could be multiple edges. Hence, to firmly state a specific threshold on how large the intensity change between two neighbouring pixels must be for us to say that there should be an edge between these pixels is not always a simple problem. Indeed, this is one of the reasons why edge detection may be a non-trivial problem unless the objects in the scene are particularly simple and the illumination conditions can be well controlled.</p>
+<p><a name="Approaches_to_edge_detection" id="Approaches_to_edge_detection"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=5" title="Edit section: Approaches to edge detection">edit</a>]</span> <span class="mw-headline">Approaches to edge detection</span></h2>
+<p>There are many methods for edge detection, but most of them can be grouped into two categories, search-based and zero-crossing based. The search-based methods detect edges by first computing a measure of edge strength, usually a first-order derivative expression such as the gradient magnitude, and then searching for local directional maxima of the gradient magnitude using a computed estimate of the local orientation of the edge, usually the gradient direction. The zero-crossing based methods search for zero crossings in a second-order derivative expression computed from the image in order to find edges, usually the zero-crossings of the Laplacian or the zero-crossings of a non-linear differential expression, as will be described in the section on <a href="/wiki/Edge_detection#Differential_edge_detection" title="Edge detection">differential edge detection</a> following below. As a pre-processing step to edge detection, a smoothing stage, typically Gaussian smoothing, is almost always applied (see also <a href="/wiki/Noise_reduction" title="Noise reduction">noise reduction</a>).</p>
+<p>The edge detection methods that have been published mainly differ in the types of smoothing filters that are applied and the way the measures of edge strength are computed. As many edge detection methods rely on the computation of image gradients, they also differ in the types of filters used for computing gradient estimates in the x- and y-directions.</p>
+<p><a name="Canny_edge_detection" id="Canny_edge_detection"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=6" title="Edit section: Canny edge detection">edit</a>]</span> <span class="mw-headline"><a href="/wiki/Canny_edge_detection" title="Canny edge detection" class="mw-redirect">Canny edge detection</a></span></h3>
+<p><a href="/wiki/Canny_edge_detector" title="Canny edge detector">Canny</a> (1986) considered the mathematical problem of deriving an optimal smoothing filter given the criteria of detection, localization and minimizing multiple responses to a single edge. He showed that the optimal filter given these assumptions is a sum of four exponential terms. He also showed that this filter can be well approximated by first-order derivatives of Gaussians. Canny also introduced the notion of non-maximum suppression, which means that given the presmoothing filters, edge points are defined as points where the gradient magnitude assumes a local maximum in the gradient direction.</p>
+<p>Although his work was done in the early days of computer vision, the Canny edge detector (including its variations) is still a state-of-the-art edge detector. Unless the preconditions are particularly suitable, it is hard to find an edge detector that performs significantly better than the Canny edge detector.</p>
+<p>The Canny-Deriche detector (Deriche 1987) was derived from similar mathematical criteria as the Canny edge detector, although starting from a discrete viewpoint and then leading to a set of recursive filters for image smoothing instead of exponential filters or Gaussian filters.</p>
+<p>The <a href="/wiki/Edge_detection#Differential_edge_detector" title="Edge detection">differential edge detector</a> described below can be seen as a reformulation of Canny's method from the viewpoint of differential invariants computed from a <a href="/wiki/Scale-space" title="Scale-space" class="mw-redirect">scale-space</a> representation.</p>
+<p><a name="Other_first-order_methods" id="Other_first-order_methods"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=7" title="Edit section: Other first-order methods">edit</a>]</span> <span class="mw-headline">Other first-order methods</span></h3>
+<p>For estimating image gradients from the input image or a smoothed version of it, different gradient operators can be applied. The simplest approach is to use central differences:</p>
+<dl>
+<dd><img class="tex" alt="L_x(x, y)=-1/2\cdot L(x-1, y) + 0 \cdot L(x, y) + 1/2 \cdot L(x+1, y).\," src="http://upload.wikimedia.org/math/9/1/7/9176ab3282f4d40a756487bb01a2a257.png" /></dd>
+<dd><img class="tex" alt="L_y(x, y)=-1/2\cdot L(x, y-1) + 0 \cdot L(x, y) + 1/2 \cdot L(x, y+1).\," src="http://upload.wikimedia.org/math/4/d/b/4db51ce2729e867d2bbc1fe90a181dc3.png" /></dd>
+</dl>
+<p>corresponding to the application of the following filter masks to the image data:</p>
+<dl>
+<dd><img class="tex" alt="
+L_x = \begin{bmatrix} 
+-1/2 &amp; 0 &amp; 1/2 
+\end{bmatrix} * L
+\quad \mbox{and} \quad 
+L_y = \begin{bmatrix} 
++1/2 \\
+0 \\
+-1/2
+\end{bmatrix} * L
+" src="http://upload.wikimedia.org/math/9/1/c/91c9ab5d50f10d0afe9d43d3e4b9f552.png" /></dd>
+</dl>
+<p>The well-known and earlier <a href="/wiki/Sobel_operator" title="Sobel operator">Sobel operator</a> is based on the following filters:</p>
+<dl>
+<dd><img class="tex" alt="
+L_x = \begin{bmatrix} 
+-1 &amp; 0 &amp; +1 \\
+-2 &amp; 0 &amp; +2 \\
+-1 &amp; 0 &amp; +1 
+\end{bmatrix} * L
+\quad \mbox{and} \quad 
+L_y = \begin{bmatrix} 
++1 &amp; +2 &amp; +1  \\
+0 &amp; 0 &amp; 0 \\
+-1 &amp; -2 &amp; -1 
+\end{bmatrix} * L
+" src="http://upload.wikimedia.org/math/e/e/6/ee656c339a00bf8ee4e4d1e74fb09903.png" /></dd>
+</dl>
+<p>Given such estimates of first- order derivatives, the gradient magnitude is then computed as:</p>
+<dl>
+<dd><img class="tex" alt="|\nabla L| = \sqrt{ L_x^2 + L_y^2}" src="http://upload.wikimedia.org/math/5/c/2/5c26a0947a31324f0ca4bcc91c4185bf.png" /></dd>
+</dl>
+<p>while the gradient orientation can be estimated as</p>
+<dl>
+<dd><img class="tex" alt="\theta = \operatorname{atan2}(L_y, L_x)" src="http://upload.wikimedia.org/math/2/4/f/24f0e90fadbdd3884ec4270ad9ef5fe9.png" /></dd>
+</dl>
+<p>Other first-order difference operators for estimating image gradient have been proposed in the <a href="/wiki/Prewitt" title="Prewitt">Prewitt</a> operator and <a href="/wiki/Roberts_Cross" title="Roberts Cross">Roberts cross</a>.</p>
+<p><a name="Thresholding_and_linking" id="Thresholding_and_linking"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=8" title="Edit section: Thresholding and linking">edit</a>]</span> <span class="mw-headline">Thresholding and linking</span></h3>
+<p>Once we have computed a measure of edge strength (typically the gradient magnitude), the next stage is to apply a threshold, to decide whether edges are present or not at an image point. The lower the threshold, the more edges will be detected, and the result will be increasingly susceptible to <a href="/wiki/Image_noise" title="Image noise">noise</a>, and also to picking out irrelevant features from the image. Conversely a high threshold may miss subtle edges, or result in fragmented edges.</p>
+<p>If the edge thresholding is applied to just the gradient magnitude image, the resulting edges will in general be thick and some type of edge thinning post-processing is necessary. For edges detected with non-maximum suppression however, the edge curves are thin by definition and the edge pixels can be linked into edge polygon by an edge linking (edge tracking) procedure. On a discrete grid, the non-maximum suppression stage can be implemented by estimating the gradient direction using first-order derivatives, then rounding off the gradient direction to multiples of 45 degrees, and finally comparing the values of the gradient magnitude in the estimated gradient direction.</p>
+<p>A commonly used approach to handle the problem of appropriate thresholds for thresholding is by using <a href="/wiki/Adaptive_thresholding" title="Adaptive thresholding" class="mw-redirect">thresholding</a> with <a href="/wiki/Hysteresis" title="Hysteresis">hysteresis</a>. This method uses multiple thresholds to find edges. We begin by using the upper threshold to find the start of an edge. Once we have a start point, we then trace the path of the edge through the image pixel by pixel, marking an edge whenever we are above the lower threshold. We stop marking our edge only when the value falls below our lower threshold. This approach makes the assumption that edges are likely to be in continuous curves, and allows us to follow a faint section of an edge we have previously seen, without meaning that every noisy pixel in the image is marked down as an edge. Still, however, we have the problem of choosing appropriate thresholding parameters, and suitable thresholding values may vary over the image.</p>
+<p><a name="Second-order_approaches_to_edge_detection" id="Second-order_approaches_to_edge_detection"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=9" title="Edit section: Second-order approaches to edge detection">edit</a>]</span> <span class="mw-headline">Second-order approaches to edge detection</span></h3>
+<p>Some edge-detection operators are instead based upon second-order derivatives of the intensity. This essentially captures the <a href="/wiki/Rate_of_change" title="Rate of change">rate of change</a> in the intensity gradient. Thus, in the ideal continuous case, detection of zero-crossings in the second derivative captures local maxima in the gradient.</p>
+<p>The early <a href="/wiki/Marr-Hildreth_algorithm" title="Marr-Hildreth algorithm">Marr-Hildreth</a> operator is based on the detection of zero-crossings of the Laplacian operator applied to a Gaussian-smoothed image. It can be shown, however, that this operator will also return false edges corresponding to local minima of the gradient magnitude. Moreover, this operator will give poor localization at curved edges. Hence, this operator is today mainly of historical interest.</p>
+<p><a name="Differential_edge_detection" id="Differential_edge_detection"></a></p>
+<h4><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=10" title="Edit section: Differential edge detection">edit</a>]</span> <span class="mw-headline">Differential edge detection</span></h4>
+<p>A more refined second-order edge detection approach, which also automatically gives edges with sub-pixel accuracy, is by using the following <i>differential approach</i> of detecting zero-crossings of the second-order directional derivative in the gradient direction: Following a differential geometric way of expressing the requirement of non-maximum suppression (Lindeberg 1994, 1998), let us introduce at every image point a local coordinate system <span class="texhtml">(<i>u</i>,<i>v</i>)</span>, with the <span class="texhtml"><i>v</i></span>-direction parallel to the gradient direction. Assuming that the image has been presmoothed by Gaussian smoothing and a <a href="/wiki/Scale-space" title="Scale-space" class="mw-redirect">scale-space</a> representation <span class="texhtml"><i>L</i>(<i>x</i>,<i>y</i>;<i>t</i>)</span> at scale <span class="texhtml"><i>t</i></span> has been computed, we can require that the gradient magnitude of the scale-space representation, which is equal to the first-order directional derivative in the <span class="texhtml"><i>v</i></span>-direction <span class="texhtml"><i>L</i><sub><i>v</i></sub></span>, should have its first order directional derivative in the <span class="texhtml"><i>v</i></span>-direction equal to zero</p>
+<dl>
+<dd><img class="tex" alt="\partial_v(L_v) = 0" src="http://upload.wikimedia.org/math/5/7/d/57dd6f4d7c1a51e82faebb2c1ecf612e.png" /></dd>
+</dl>
+<p>while the second-order directional derivative in the <span class="texhtml"><i>v</i></span>-direction of <span class="texhtml"><i>L</i><sub><i>v</i></sub></span> should be negative, i.e.,</p>
+<dl>
+<dd><img class="tex" alt="\partial_{vv}(L_v) \leq 0" src="http://upload.wikimedia.org/math/6/5/5/655eaac736aabcddb4885c21a8c1edf8.png" />.</dd>
+</dl>
+<p>Written out as an explicit expression in terms of local partial derivatives <span class="texhtml"><i>L</i><sub><i>x</i></sub></span>, <span class="texhtml"><i>L</i><sub><i>y</i></sub></span> ... <span class="texhtml"><i>L</i><sub><i>y</i><i>y</i><i>y</i></sub></span>, this edge definition can be expressed as the zero-crossing curves of the differential invariant</p>
+<dl>
+<dd><img class="tex" alt="L_v^2 L_{vv} = L_x^2 \, L_{xx} + 2 \, L_x \,  L_y \, L_{xy} + L_y^2 \, L_{yy} = 0," src="http://upload.wikimedia.org/math/b/2/4/b24de56d9c81145839bdddf26870dcba.png" /></dd>
+</dl>
+<p>that satisfy a sign-condition on the following differential invariant</p>
+<dl>
+<dd><img class="tex" alt="L_v^3 L_{vvv} = L_x^3 \, L_{xxx} + 3 \, L_x^2 \, L_y \, L_{xxy} + 3 \, L_x \, L_y^2 \, L_{xyy} + L_y^3 \, L_{yyy} \leq 0" src="http://upload.wikimedia.org/math/8/9/e/89edda03b5dd447320bfc1a6c2642d84.png" /></dd>
+</dl>
+<p>where <span class="texhtml"><i>L</i><sub><i>x</i></sub></span>, <span class="texhtml"><i>L</i><sub><i>y</i></sub></span> ... <span class="texhtml"><i>L</i><sub><i>y</i><i>y</i><i>y</i></sub></span> denote partial derivatives computed from a <a href="/wiki/Scale-space" title="Scale-space" class="mw-redirect">scale-space</a> representation <span class="texhtml"><i>L</i></span> obtained by smoothing the original image with a Gaussian kernel. In this way, the edges will be automatically obtained as continuous curves with subpixel accuracy. Hysteresis thresholding can also be applied to these differential and subpixel edge segments.</p>
+<p>In practice, first-order derivative approximations can be computed by central differences as described above, while second-order derivatives can be computed from the scale-space representation <span class="texhtml"><i>L</i></span> according to:</p>
+<dl>
+<dd><img class="tex" alt="L_{xx}(x, y) = L(x-1, y) - 2 L(x, y) + L(x+1, y).\," src="http://upload.wikimedia.org/math/1/f/9/1f9634ae6a6278f447b9adcc08f80e39.png" /></dd>
+<dd><img class="tex" alt="L_{xy}(x, y) = (L(x-1, y-1) - L(x-1, y+1) - L(x+1, y-1) + L(x+1, y+1))/4, \," src="http://upload.wikimedia.org/math/9/5/0/950a03502cff3afa38b6f82a199be714.png" /></dd>
+<dd><img class="tex" alt="L_{yy}(x, y) = L(x, y-1) - 2 L(x, y) + L(x, y+1).\," src="http://upload.wikimedia.org/math/1/a/2/1a21ffba6428f12178a46f7fa894b907.png" /></dd>
+</dl>
+<p>corresponding to the following filter masks:</p>
+<dl>
+<dd><img class="tex" alt="
+L_{xx} = \begin{bmatrix} 
+1 &amp; -2 &amp; 1 
+\end{bmatrix} * L
+\quad \mbox{and} \quad 
+L_{xy} = \begin{bmatrix} 
+-1/4 &amp; 0 &amp; 1/4 \\ 
+0 &amp; 0 &amp; 0\\ 
+1/4 &amp; 0 &amp; -1/4 
+\end{bmatrix} * L
+\quad \mbox{and} \quad 
+L_{yy} = \begin{bmatrix} 
+1 \\
+-2 \\
+1
+\end{bmatrix} * L
+" src="http://upload.wikimedia.org/math/7/9/8/79895865480bbc3e1ed6772ec1ccb99c.png" /></dd>
+</dl>
+<p>Higher-order derivatives for the third-order sign condition can be obtained in an analogous fashion.</p>
+<p><a name="Phase_Congruency_Based_Edge_Detection" id="Phase_Congruency_Based_Edge_Detection"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=11" title="Edit section: Phase Congruency Based Edge Detection">edit</a>]</span> <span class="mw-headline">Phase Congruency Based Edge Detection</span></h3>
+<p>A recent development in edge detection techniques takes a frequency domain approach to finding edge locations. <a href="/wiki/Phase_congruency" title="Phase congruency">Phase congruency</a> (also known as phase coherence) methods attempt to find locations in an image where all sinusoids in the frequency domain are in phase. These locations will generally correspond to the location of a perceived edge, regardless of whether the edge is represented by a large change in intensity in the spatial domain. A key benefit of this technique is that it responds strongly to <a href="/wiki/Mach_bands" title="Mach bands">Mach bands</a>, and avoids false positives typically found around roof edges.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=12" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li>Canny, J., A Computational Approach To Edge Detection, IEEE Trans. Pattern Analysis and Machine Intelligence, 8:679-714, 1986.</li>
+<li>R. Deriche, <i>Using Canny's criteria to derive an optimal edge detector recursively implemented</i>, Int. J. Computer Vision, Vol. 1, pp. 167-187, April 1987.</li>
+<li><a href="http://www.nada.kth.se/cvap/abstracts/cvap191.html" class="external text" title="http://www.nada.kth.se/cvap/abstracts/cvap191.html" rel="nofollow">Lindeberg, T., "Edge detection and ridge detection with automatic scale selection", International Journal of Computer Vision, 30, 2, pp 117--154, 1998.</a></li>
+<li><a href="http://www.nada.kth.se/~tony/book.html" class="external text" title="http://www.nada.kth.se/~tony/book.html" rel="nofollow">Lindeberg, Tony, Scale-Space Theory in Computer Vision, Kluwer Academic Publishers, 1994</a>, <a href="/wiki/Special:BookSources/0792394186" class="internal">ISBN 0-7923-9418-6</a>]</li>
+<li><a href="/wiki/Mahinda_Pathegama" title="Mahinda Pathegama">Mahinda Pathegama</a> &amp; Ö Göl, ‘Edge-based image segmentation’, Proceedings of the International Conference on Computational Intelligence, 2004, <a href="/wiki/Special:BookSources/9759845806" class="internal">ISBN 975-98458-0-6</a></li>
+<li><a href="http://portal.acm.org/citation.cfm?id=264981&amp;dl=GUIDE&amp;coll=ACM" class="external text" title="http://portal.acm.org/citation.cfm?id=264981&amp;dl=GUIDE&amp;coll=ACM" rel="nofollow">W. Zhang and F. Bergholm: Multi-Scale Blur Estimation and Edge Type Classification for Scene Analysis, International Journal of Computer Vision, Volume 24, Issue 3, pages 219 - 250, 1997</a></li>
+<li><a href="http://citeseer.ist.psu.edu/ziou97edge.html" class="external text" title="http://citeseer.ist.psu.edu/ziou97edge.html" rel="nofollow">Ziou, D. and Tabbone, S.: Edge Detection Techniques An Overview, International Journal of Pattern Recognition and Image Analysis, 8(4):537--559, 1998</a> (Contains an extensive set of references.)</li>
+</ul>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Edge_detection&amp;action=edit&amp;section=13" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Atomic_line_filter" title="Atomic line filter">Atomic line filter</a> for line detection</li>
+<li><a href="/wiki/Canny_edge_detector" title="Canny edge detector">Canny edge detector</a></li>
+<li><a href="/wiki/Hough_transform" title="Hough transform">Hough transform</a> for detecting straight lines, circles or ellipses from edge points</li>
+<li><a href="/wiki/Feature_detection_(computer_vision)" title="Feature detection (computer vision)">Feature detection (computer vision)</a> for other low-level feature detectors</li>
+<li><a href="/wiki/Image_noise_reduction" title="Image noise reduction" class="mw-redirect">Image noise reduction</a></li>
+<li><a href="/wiki/Prewitt" title="Prewitt">Prewitt</a></li>
+<li><a href="/wiki/Ridge_detection" title="Ridge detection">Ridge detection</a> for relations between edge detectors and ridge detectors</li>
+<li><a href="/wiki/Roberts_Cross" title="Roberts Cross">Roberts Cross</a></li>
+<li><a href="/wiki/Scale-space" title="Scale-space" class="mw-redirect">Scale-space</a> for theory of Gaussian image smoothing and multi-scale feature detection</li>
+<li><a href="/wiki/Sobel_operator" title="Sobel operator">Sobel operator</a></li>
+<li><a href="/wiki/Convolution#Applications" title="Convolution">Convolution#Applications</a></li>
+<li><a href="http://eom.springer.de/E/e120040.htm" class="external text" title="http://eom.springer.de/E/e120040.htm" rel="nofollow">Entry on edge detection in Encyclopedia of Mathematics.</a></li>
+<li><a href="http://mrw.interscience.wiley.com/emrw/9780470050118/ecse/article/ecse603/current/abstract" class="external text" title="http://mrw.interscience.wiley.com/emrw/9780470050118/ecse/article/ecse603/current/abstract" rel="nofollow">Entry on edge detection in Encyclopedia of Computer Science and Engineering</a></li>
+</ul>
+<hr />
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 1077/1000000
+Post-expand include size: 18228/2048000 bytes
+Template argument size: 3088/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:331680-0!1!0!default!!en!2 and timestamp 20090330063136 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Edge_detection">http://en.wikipedia.org/wiki/Edge_detection</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Image_processing" title="Category:Image processing">Image processing</a></span> | <span dir='ltr'><a href="/wiki/Category:Computer_vision" title="Category:Computer vision">Computer vision</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Edge_detection" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Edge_detection" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Edge_detection&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Edge_detection&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Edge_detection" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Edge_detection" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Edge_detection" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Edge_detection&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Edge_detection&amp;oldid=274160578" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Edge_detection&amp;id=274160578">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-cs"><a href="http://cs.wikipedia.org/wiki/Detekce_hran">Česky</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Kantendetektion">Deutsch</a></li>
+				<li class="interwiki-fa"><a href="http://fa.wikipedia.org/wiki/%D8%A2%D8%B4%DA%A9%D8%A7%D8%B1%D8%B3%D8%A7%D8%B2%DB%8C_%D9%84%D8%A8%D9%87">فارسی</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/D%C3%A9tection_de_contours">Français</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Riconoscimento_dei_contorni">Italiano</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%82%A8%E3%83%83%E3%82%B8%E6%A4%9C%E5%87%BA">日本語</a></li>
+				<li class="interwiki-ru"><a href="http://ru.wikipedia.org/wiki/%D0%92%D1%8B%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%86">Русский</a></li>
+				<li class="interwiki-sd"><a href="http://sd.wikipedia.org/wiki/%DA%AA%D9%86%D8%A7%D8%B1%D8%A7_%DA%AA%D8%A7%DA%8D">سنڌي</a></li>
+				<li class="interwiki-fi"><a href="http://fi.wikipedia.org/wiki/Reunantunnistus">Suomi</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/%E8%BE%B9%E7%BC%98%E6%A3%80%E6%B5%8B">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 1 March 2009, at 15:39.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv197 in 0.045 secs. --></body></html>

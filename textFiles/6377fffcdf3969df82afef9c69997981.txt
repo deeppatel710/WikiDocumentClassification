@@ -1,0 +1,553 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Shapefile - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Shapefile";
+		var wgTitle = "Shapefile";
+		var wgAction = "view";
+		var wgArticleId = "2770513";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 278869159;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Shapefile
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+Shapefile
+
+
+A vector map, with points, polylines and polygons.
+
+
+Filename extension
+.shp, .shx, .dbf
+
+
+Developed by
+ESRI
+
+
+Type of format
+GIS
+
+
+Standard(s)
+Shapefile Technical Description
+
+
+The ESRI Shapefile or simply a shapefile is a popular geospatial vector data format for geographic information systems software. It is developed and regulated by ESRI as a (mostly) open specification for data interoperability among ESRI and other software products.[1] A "shapefile" commonly refers to a collection of files with ".shp", ".shx", ".dbf", and other extensions on a common prefix name (e.g., "lakes.*"). The actual shapefile relates specifically to files with the ".shp" extension, however this file alone is incomplete for distribution, as the other supporting files are required.
+Shapefiles spatially describe geometries: points, polylines, and polygons. These, for example, could represent water wells, rivers, and lakes, respectively. Each item may also have attributes that describe the items, such as the name or temperature.
+
+
+
+
+Contents
+
+
+1 Overview
+
+1.1 Shapefile shape format (.shp)
+1.2 Shapefile shape index format (.shx)
+1.3 Shapefile attribute format (.dbf)
+1.4 Shapefile projection format (.prj)
+1.5 Shapefile spatial index format (.sbn)
+
+
+2 Limitations
+
+2.1 Topology and shapefiles
+2.2 Spatial representation
+2.3 Data storage
+2.4 Mixing shape types
+
+
+3 References
+4 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Overview
+A shapefile is a digital vector storage format for storing geometric location and associated attribute information. This format lacks the capacity to store topological information. The shapefile format was introduced with ArcView GIS version 2 in the beginning of the 1990s. It is now possible to read and write shapefiles using a variety of free and non-free programs.
+Shapefiles are simple because they store primitive geometrical data types of points, lines, and polygons. These primitives are of limited use without any attributes to specify what they represent. Therefore, a table of records will store properties/attributes for each primitive shape in the shapefile. Shapes (points/lines/polygons) together with data attributes can create infinitely many representations about geographical data. Representation provides the ability for powerful and accurate computations.
+While the term "shapefile" is quite common, a "shapefile" is actually a set of several files. Three individual files are normally mandatory to store the core data that comprises a shapefile. There are a further eight optional files which store primarily index data to improve performance. Each individual file should conform to the MS DOS 8.3 filenameing convention (8 character filename prefix, fullstop, 3 character filename suffix such as shapefil.shp) in order to be compatible with past applications that handle shapefiles. For this same reason, all files should be located in the same folder.
+Mandatory files :
+
+.shp — shape format; the feature geometry itself
+.shx — shape index format; a positional index of the feature geometry to allow seeking forwards and backwards quickly
+.dbf — attribute format; columnar attributes for each shape, in dBase III format
+
+Optional files :
+
+.prj — projection format; the coordinate system and projection information, a plain text file describing the projection using well-known text format
+.sbn and .sbx — a spatial index of the features
+.fbn and .fbx — a spatial index of the features for shapefiles that are read-only
+.ain and .aih — an attribute index of the active fields in a table or a theme's attribute table
+.ixs — a geocoding index for read-write shapefiles
+.mxs — a geocoding index for read-write shapefiles (ODB format)
+.atx — an attribute index for the .dbf file in the form of shapefile.columnname.atx (ArcGIS 8 and later)
+.shp.xml — metadata in XML format
+.cpg — used to specify the code page (only for .dbf) for identifying the character encoding to be used
+
+In each of the .shp, .shx, and .dbf files, the shapes in each file correspond to each other in sequence. That is, the first record in the .shp file corresponds to the first record in the .shx and .dbf files, and so on. The .shp and .shx files have various fields with different endianness, so as an implementor of the file formats you must be very careful to respect the endianness of each field and treat it properly.
+Shapefiles deal with coordinates in terms of X and Y, although they are often storing longitude and latitude, respectively. While working with the X and Y terms, be sure to respect the order of the terms (longitude is stored in X, latitude in Y).
+
+[edit] Shapefile shape format (.shp)
+The main file (.shp) contains the primary geographic reference data in the shapefile. The file consists of a single fixed length header followed by one or more variable length records. Each of the variable length records includes a record header component and a record contents component. A detailed description of the file format is given in the ESRI Shapefile Technical Description.[1] This format should not be confused with the AutoCAD shape font source format, which shares the .shp extension.
+The main file header is fixed at 100 bytes in length and contains 17 fields; nine 4-byte (32-bit signed integer or int32) integer fields followed by eight 8-byte (double) signed floating point fields:
+
+
+Bytes
+Type
+Endianness
+Usage
+
+
+0–3
+int32
+big
+File code (always hex value 0x0000270a)
+
+
+4–23
+int32
+big
+Unused; five uint32
+
+
+24–27
+int32
+big
+File length (in 16-bit words, including the header)
+
+
+28–31
+int32
+little
+Version
+
+
+32–35
+int32
+little
+Shape type (see reference below)
+
+
+36–67
+double
+little
+Minimum bounding rectangle (MBR) of all shapes contained within the shapefile; four doubles in the following order: min X, min Y, max X, max Y
+
+
+68–83
+double
+little
+Range of Z; two doubles in the following order: min Z, max Z
+
+
+84–99
+double
+little
+Range of M; two doubles in the following order: min M, max M
+
+
+The file then contains any number of variable-length records. Each record is prefixed with a record-header of 8 bytes:
+
+
+Bytes
+Type
+Endianness
+Usage
+
+
+0–3
+int32
+big
+Record number
+
+
+4–7
+int32
+big
+Record length (in 16-bit words)
+
+
+Following the record header is the actual record:
+
+
+Bytes
+Type
+Endianness
+Usage
+
+
+0–3
+int32
+little
+Shape type (see reference below)
+
+
+4–
+-
+-
+Shape content
+
+
+The variable length record contents depend on the shape type. The following are the possible shape types:
+
+
+Value
+Shape type
+Fields
+
+
+0
+Null shape
+None
+
+
+1
+Point
+X, Y
+
+
+3
+Polyline
+MBR, Number of parts, Number of points, Parts, Points
+
+
+5
+Polygon
+MBR, Number of parts, Number of points, Parts, Points
+
+
+8
+MultiPoint
+MBR, Number of points, Points
+
+
+11
+PointZ
+X, Y, Z, M
+
+
+13
+PolylineZ
+Mandatory: MBR, Number of parts, Number of points, Parts, Points, Z range, Z array
+Optional: M range, M array
+
+
+
+15
+PolygonZ
+Mandatory: MBR, Number of parts, Number of points, Parts, Points, Z range, Z array
+Optional: M range, M array
+
+
+
+18
+MultiPointZ
+Mandatory: MBR, Number of points, Points, Z range, Z array
+Optional: M range, M array
+
+
+
+21
+PointM
+X, Y, M
+
+
+23
+PolylineM
+Mandatory: MBR, Number of parts, Number of points, Parts, Points
+Optional: M range, M array
+
+
+
+25
+PolygonM
+Mandatory: MBR, Number of parts, Number of points, Parts, Points
+Optional: M range, M array
+
+
+
+28
+MultiPointM
+Mandatory: MBR, Number of points, Points
+Optional Fields: M range, M array
+
+
+
+31
+MultiPatch
+Mandatory: MBR, Number of parts, Number of points, Parts, Part types, Points, Z range, Z array
+Optional: M range, M array
+
+
+
+In common use, shapefiles containing Point, Polyline, and Polygon are extremely popular. The "Z" types are three-dimensional. The "M" types contain a user-defined measurement which coincides with the point being referenced. Three-dimensional shapefiles are rather uncommon, and the measurement functionality has been largely superseded by more robust databases used in conjunction with the shapefile data.
+
+[edit] Shapefile shape index format (.shx)
+The shapefile index contains the same 100-byte header as the .shp file, followed by any number of 8-byte fixed-length records which consist of the following two fields:
+
+
+Bytes
+Type
+Endianness
+Usage
+
+
+0–3
+int32
+big
+Record offset (in 16-bit words)
+
+
+4–7
+int32
+big
+Record length (in 16-bit words)
+
+
+Using this index, it is possible to seek backwards in the shapefile by seeking backwards first in the shape index (which is possible because it uses fixed-length records), reading the record offset, and using that to seek to the correct position in the .shp file. It is also possible to seek forward's an arbitrary number of records by using the same method.
+
+[edit] Shapefile attribute format (.dbf)
+Attributes for each shape are stored in the xBase (dBase) format, which has an open specification.
+
+[edit] Shapefile projection format (.prj)
+The projection information contained in the .prj file is critical in order to understand the data contained in the .shp file correctly. Although it is technically optional, it is most often provided, as it is not necessarily possible to guess the projection of any given points. The file is stored in well-known text (WKT) format.
+Some typical information contained in the .prj file is:
+
+Geographic coordinate system
+Datum (geodesy)
+Spheroid
+Prime meridian
+Map projection
+Units used
+Parameters necessary to use the map projection, for example:
+
+Latitude of origin
+Scale factor
+Central meridian
+False northing
+False easting
+Standard parallels
+
+
+
+
+[edit] Shapefile spatial index format (.sbn)
+This is a binary spatial index file, which is used only by ESRI software. The format is not documented, and is not implemented by other vendors. The .sbn file is not strictly necessary, since the .shp file contains all of the information necessary to successfully parse the spatial data.
+
+[edit] Limitations
+
+[edit] Topology and shapefiles
+Shapefiles do not have the ability to store topological information. ArcInfo coverages and Personal/File/Enterprise Geodatabases do have the ability to store feature topology.
+
+[edit] Spatial representation
+The edges of a polyline or polygon are defined using points. The spacing of the points implicitly determines the scale for which the data are useful. Exceeding that scale results in jagged representation of features. Additional points would be required to achieve smooth shapes at greater scales. For features better represented by smooth curves, the polygon representation requires much more data storage than, for example, splines, which can capture smoothly varying shapes efficiently. None of the shapefile types supports splines.
+
+[edit] Data storage
+Unlike most databases, the database format is based on older xBASE standard, incapable of storing null values in its fields. This limitation can make the storage of data in the attributes less flexible. In ArcGIS products, values that should be null are instead replaced with a 0 (without warning), which can make the data misleading. This problem is addressed in ArcGIS products by using ESRI's Personal Geodatabase offerings, one of which is based on Microsoft Access.
+
+[edit] Mixing shape types
+Because the shape type precedes each record, a shape file is physically capable of storing a mixture of different shape types. However, the specification states, "All the non-Null shapes in a shapefile are required to be of the same shape type." Therefore this ability to mix shape types must be limited to interspersing null shapes with the single shape type declared in the file's header. A shape file must not contain both Polyline and Polygon data, for example, and the descriptions for a well (point), a river (polyline) and a lake (polygon) would be stored in three separate files.
+
+[edit] References
+
+^ a b Environmental Systems Research Institute, Inc. (July, 1998). ESRI Shapefile technical description. http://www.esri.com/library/whitepapers/pdfs/shapefile.pdf. Retrieved on 2007-07-04. 
+
+
+[edit] External links
+
+Shapefile file extensions – ESRI Webhelp docs for ArcGIS 9.3 (2008)
+ESRI Shapefile Technical Description – ESRI White Paper, July 1998
+ESRI – Understanding Topology and Shapefiles
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Shapefile"
+Categories: GIS file formats | Open formats 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+العربية
+Български
+Dansk
+Deutsch
+Español
+Français
+Italiano
+ქართული
+Nederlands
+日本語
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 22 March 2009, at 03:06 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

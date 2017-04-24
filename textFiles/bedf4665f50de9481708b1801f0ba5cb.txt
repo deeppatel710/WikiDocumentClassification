@@ -1,0 +1,393 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SwingWorker - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "SwingWorker";
+		var wgTitle = "SwingWorker";
+		var wgAction = "view";
+		var wgArticleId = "1561916";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 255754986;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-java {line-height: normal;}
+.source-java li, .source-java pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for java
+ * CSS class: source-java, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-java .de1, .source-java .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-java  {}
+.source-java .head {}
+.source-java .foot {}
+.source-java .imp {font-weight: bold; color: red;}
+.source-java .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-java li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-java li.li2 {font-weight: bold;}
+.source-java .kw1 {color: #b1b100;}
+.source-java .kw2 {color: #000000; font-weight: bold;}
+.source-java .kw3 {color: #aaaadd; font-weight: bold;}
+.source-java .kw4 {color: #993333;}
+.source-java .co1 {color: #808080; font-style: italic;}
+.source-java .co2 {color: #a1a100;}
+.source-java .coMULTI {color: #808080; font-style: italic;}
+.source-java .es0 {color: #000099; font-weight: bold;}
+.source-java .br0 {color: #66cc66;}
+.source-java .st0 {color: #ff0000;}
+.source-java .nu0 {color: #cc66cc;}
+.source-java .me1 {color: #006600;}
+.source-java .me2 {color: #006600;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); SwingWorker
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+SwingWorker is a popular utility class developed by Sun Microsystems for the Swing library of the Java programming language. SwingWorker enables proper use of the event dispatching thread. As of Java 6, SwingWorker is included in the JRE.
+Several incompatible, unofficial, versions of SwingWorker were produced from 1998 to 2006, and care must be taken to avoid the abundant documentation on these versions predating Java 6.
+
+
+
+
+Contents
+
+
+1 Usage in Java 6.0
+
+1.1 The event dispatching thread problem
+1.2 SwingWorker solution
+
+1.2.1 Creating the worker
+1.2.2 Worker execution
+1.2.3 Retrieving the result
+1.2.4 Complete Worker example
+
+
+
+
+2 Usage before Java 6.0
+
+2.1 Backport of the Java 6 SwingWorker
+
+
+3 See also
+4 External links
+
+4.1 Outdated tutorials
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Usage in Java 6.0
+
+[edit] The event dispatching thread problem
+SwingWorker is useful when a time-consuming task has to be performed following a user-interaction event (for example, parsing a huge XML File, on pressing a JButton). The most straightforward way to do it is :
+
+
+  private Document doc;
+  ...
+  JButton button = new JButton("Open XML");
+  button.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+        doc = loadXML();
+     }
+  });
+
+This will work, but unfortunately, the loadXML() method will be called in the same thread as the main Swing thread (the Event dispatching thread), so if the method needs time to perform, the GUI will freeze during this time.
+
+[edit] SwingWorker solution
+This problem is not specific to Java, but common to many GUI models. SwingWorker proposes a way to solve it by performing the time-consuming task on another background thread, keeping the GUI responsive during this time.
+
+[edit] Creating the worker
+The following code defines the SwingWorker, which encapsulate the loadXML() method call :
+
+
+ SwingWorker worker = new SwingWorker<Document, Void>() {
+    public Document doInBackground() {
+        Document intDoc = loadXML();
+        return intDoc;
+    }
+ };
+
+
+[edit] Worker execution
+Execution is started by using the SwingWorker.execute() method.
+
+[edit] Retrieving the result
+The result can be retrieved by using the SwingWorker.get() method.
+As calling get() on the Event Dispatch Thread blocks all events, including repaints, from being processed until the task completes, one must avoid calling it before the lengthy operation has finished. There are two ways to retrieve the result after the task completion :
+
+override the SwingWorker.done() method. This method is called on the main event dispatching thread.
+
+
+
+ private Document doc;
+ ...
+ SwingWorker worker = new SwingWorker<Document, Void>() {
+    public Document doInBackground() {
+        Document intDoc = loadXML();
+        return intDoc;
+    }
+    public void done() {
+       doc = get();
+    }
+ };
+
+
+register a listener by using the worker SwingWorker.addPropertyChangeListener(PropertyChangeListener) method. The listener will be notified of changes in the worker state.
+
+
+[edit] Complete Worker example
+
+
+  private Document doc;
+  ...
+  JButton button = new JButton("Open XML");
+  button.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+       SwingWorker<Document, Void> worker = 
+          new SwingWorker<Document, Void>() {
+ 
+          public Document doInBackground() {
+            Document intDoc = loadXML();
+            return intDoc;
+          }
+          public void done() {
+            doc = get();
+          }
+       };
+       worker.execute();
+     }
+  });
+
+
+[edit] Usage before Java 6.0
+SwingWorker has only been part of JSE since Java 6.0. Sun has released versions to be used with earlier JDKs however. The most recent of these versions dates from 2003 and is often referred to as SwingWorker version 3. You can download it here. Unfortunately, the JDK 6.0 SwingWorker and the Version 3 SwingWorker use different method names and are not compatible. The backport version (see below) is now recommended for pre-Java 6 usage.
+An example for instantiating SwingWorker 3 is shown below:
+
+
+	SwingWorker worker = new SwingWorker() {
+	    public Object construct() {
+	    	... //add the code for the background thread
+	    }
+	    public void finished() {
+		... //code that you add here will run in the UI thread
+	    }
+ 
+	};
+	worker.start();  //Start the background thread
+
+The start() method executes the code added in the construct() method in a separate thread. To be alerted when the background thread finishes, one only needs to override the finished() method. The construct() method can return a result which can later be retrieved using SwingWorker's get() method.
+
+[edit] Backport of the Java 6 SwingWorker
+A backport of the Java 6 SwingWorker to Java 5 has been available at https://swingworker.dev.java.net/ since March 2007. Apart from the package name ( org.jdesktop.swingworker ), it is compatible with the Java 6 SwingWorker.
+
+[edit] See also
+
+Swing (Java)
+Event dispatching thread
+BackgroundWorker, the equivalent .NET Framework class
+
+
+[edit] External links
+
+SwingWorker Javadoc from Java 6.
+Using SwingWorker - A Step by Step tutorial, from JavaSwing.net
+Worker Threads and SwingWorker from Sun's Java 6 Concurrency in Swing tutorial.
+Improve Application Performance With SwingWorker in Java SE 6 by John O'Conner, January 2007.
+https://swingworker.dev.java.net/ the official page of the developer team.
+Using a Swing Worker Thread New Ways to Perform Background Tasks, from Sun.
+
+
+[edit] Outdated tutorials
+
+Customize SwingWorker to improve Swing GUIs article on JavaWorld [Note: this refers to an earlier, somewhat incompatible, non-library version of SwingWorker from 2003. Needs to be replaced with better reference.]
+Tutorial on SwingWorker Thread usage from SwingWiki.org [Note: Outdated as above.]
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/SwingWorker"
+Categories: Java platform 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+日本語
+
+
+
+
+
+
+
+
+
+ This page was last modified on 4 December 2008, at 01:25 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

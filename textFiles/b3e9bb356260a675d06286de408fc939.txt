@@ -1,0 +1,444 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Extract, transform, load - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Extract,_transform,_load";
+		var wgTitle = "Extract, transform, load";
+		var wgAction = "view";
+		var wgArticleId = "239516";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280192779;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Extract, transform, load
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+For other uses, see ETL.
+Extract, transform, and load (ETL) in database usage and especially in data warehousing involves:
+
+Extracting data from outside sources
+Transforming it to fit operational needs (which can include quality levels)
+Loading it into the end target (database or data warehouse)
+
+The advantages of efficient and consistent databases make ETL very important as the way data actually gets loaded.
+This article discusses ETL in the context of a data warehouse, whereas the term ETL can in fact refer to a process that loads any database.
+ETL can also function to integrate contemporary data with legacy systems.
+Usually ETL implementations store an audit trail on positive and negative process runs. In almost all designs, this audit trail does not give the level of granularity which would allow a DBA to reproduce the ETL's result in the absence of the raw data.
+
+
+
+
+Contents
+
+
+1 Extract
+2 Transform
+3 Load
+4 Real-life ETL cycle
+5 Challenges
+6 Performance
+7 Parallel processing
+8 Rerunnability, recoverability
+9 Good practices
+10 Tools
+11 Open-source ETL frameworks
+12 Freeware ETL frameworks
+13 Proprietary ETL frameworks
+14 See also
+15 References
+16 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Extract
+The first part of an ETL process involves extracting the data from the source systems. Most data warehousing projects consolidate data from different source systems. Each separate system may also use a different data organization / format. Common data source formats are relational databases and flat files, but may include non-relational database structures such as Information Management System (IMS) or other data structures such as Virtual Storage Access Method (VSAM) or Indexed Sequential Access Method (ISAM), or even fetching from outside sources such as web spidering or screen-scraping. Extraction converts the data into a format for transformation processing.
+An intrinsic part of the extraction involves the parsing of extracted data, resulting in a check if the data meets an expected pattern or structure. If not, the data may be rejected entirely.
+
+[edit] Transform
+The transform stage applies to a series of rules or functions to the extracted data from the source to derive the data for loading into the end target. Some data sources will require very little or even no manipulation of data. In other cases, one or more of the following transformations types to meet the business and technical needs of the end target may be required:
+
+Selecting only certain columns to load (or selecting null columns not to load)
+Translating coded values (e.g., if the source system stores 1 for male and 2 for female, but the warehouse stores M for male and F for female), this calls for automated data cleansing; no manual cleansing occurs during ETL
+Encoding free-form values (e.g., mapping "Male" to "1" and "Mr" to M)
+Deriving a new calculated value (e.g., sale_amount = qty * unit_price)
+Filtering
+Sorting
+Joining data from multiple sources (e.g., lookup, merge)
+Aggregation (for example, rollup - summarizing multiple rows of data - total sales for each store, and for each region, etc.)
+Generating surrogate-key values
+Transposing or pivoting (turning multiple columns into multiple rows or vice versa)
+Splitting a column into multiple columns (e.g., putting a comma-separated list specified as a string in one column as individual values in different columns)
+Applying any form of simple or complex data validation. If validation fails, it may result in a full, partial or no rejection of the data, and thus none, some or all the data is handed over to the next step, depending on the rule design and exception handling. Many of the above transformations may result in exceptions, for example, when a code translation parses an unknown code in the extracted data.
+
+
+[edit] Load
+The load phase loads the data into the end target, usually the data warehouse (DW). Depending on the requirements of the organization, this process varies widely. Some data warehouses may overwrite existing information with cumulative, updated data every week, while other DW (or even other parts of the same DW) may add new data in a historized form, for example, hourly. The timing and scope to replace or append are strategic design choices dependent on the time available and the business needs. More complex systems can maintain a history and audit trail of all changes to the data loaded in the DW.
+As the load phase interacts with a database, the constraints defined in the database schema — as well as in triggers activated upon data load — apply (for example, uniqueness, referential integrity, mandatory fields), which also contribute to the overall data quality performance of the ETL process.
+
+[edit] Real-life ETL cycle
+The typical real-life ETL cycle consists of the following execution steps:
+
+Cycle initiation
+Build reference data
+Extract (from sources)
+Validate
+Transform (clean, apply business rules, check for data integrity, create aggregates)
+Stage (load into staging tables, if used)
+Audit reports (for example, on compliance with business rules. Also, in case of failure, helps to diagnose/repair)
+Publish (to target tables)
+Archive
+Clean up
+
+
+[edit] Challenges
+ETL processes can involve considerable complexity, and significant operational problems can occur with improperly designed ETL systems.
+The range of data values or data quality in an operational system may exceed the expectations of designers at the time validation and transformation rules are specified. Data profiling of a source during data analysis is recommended to identify the data conditions that will need to be managed by transform rules specifications. This will lead to an amendment of validation rules explicitly and implicitly implemented in the ETL process.
+Data warehouses typically grow asynchronously, fed by a variety of sources which all serve a different purpose, resulting in, for example, different reference data. ETL is a key process to bring heterogeneous and asynchronous source extracts to a homogeneous environment.
+Design analysts should establish the scalability of an ETL system across the lifetime of its usage. This includes understanding the volumes of data that will have to be processed within service level agreements. The time available to extract from source systems may change, which may mean the same amount of data may have to be processed in less time. Some ETL systems have to scale to process terabytes of data to update data warehouses with tens of terabytes of data. Increasing volumes of data may require designs that can scale from daily batch to multiple-day microbatch to integration with message queues or real-time change-data capture for continuous transformation and update.
+
+[edit] Performance
+ETL vendors benchmark their record-systems at multiple TB (terabytes) per hour (or ~1 GB per second) using powerful servers with multiple CPUs, multiple hard drives, multiple gigabit-network connections, and lots of memory.
+In real life, the slowest part of an ETL process usually occurs in the database load phase. Databases may perform slowly because they have to take care of concurrency, integrity maintenance, and indexes. Thus, for better performance, it may make sense to do most of the ETL processing outside of the database, and to use bulk load operations whenever possible. Still, even using bulk operations, database access is usually the bottleneck in the ETL process. Here are some common methods used to increase performance:
+
+Partition tables (and indices). Try to keep partitions similar in size (watch for null values which can skew the partitioning).
+Do all validation in the ETL layer before the load. Disable integrity checking (disable constraint ...) in the target database tables during the load.
+Disable triggers (disable trigger ...) in the target database tables during the load. Simulate their effect as a separate step.
+Generate IDs in the ETL layer (not in the database).
+Drop the indexes (on a table or partition) before the load - and recreate them after the load (SQL: drop index ...; create index ...).
+Use parallel bulk load when possible — works well when the table is partitioned or there are no indexes. Note: attempt to do parallel loads into the same table (partition) usually causes locks — if not on the data rows, then on indexes.
+If a requirement exists to do insertions, updates, or deletions, find out which rows should be processed in which way in the ETL layer, and then process these three operations in the database separately. You often can do bulk load for inserts, but updates and deletes commonly go through an API (using SQL).
+
+Whether to do certain operations in the database or outside may involve a trade-off. For example, removing duplicates using distinct may be slow in the database; thus, it makes sense to do it outside. On the other side, if using distinct will significantly (x100) decrease the number of rows to be extracted, then it makes sense to remove duplications as early as possible in the database before unloading data.
+A common source of problems in ETL is a big number of dependencies among ETL jobs. For example, job "B" cannot start while job "A" is not finished. You can usually achieve better performance by visualizing all processes on a graph, and trying to reduce the graph making maximum use of parallelism, and making "chains" of consecutive processing as short as possible. Again, partitioning of big tables and of their indexes can really help.
+Another common issue occurs when the data is spread between several databases, and processing is done in those databases sequentially. Sometimes database replication may be involved as a method of copying data between databases - and this can significantly slow down the whole process. The common solution is to reduce the processing graph to only three layers:
+
+Sources
+Central ETL layer
+Targets
+
+This allows processing to take maximum advantage of parallel processing. For example, if you need to load data into two databases, you can run the loads in parallel (instead of loading into 1st - and then replicating into the 2nd).
+Of course, sometimes processing must take place sequentially. For example, you usually need to get dimensional (reference) data before you can get and validate the rows for main "fact" tables.
+
+[edit] Parallel processing
+A recent[update] development in ETL software is the implementation of parallel processing. This has enabled a number of methods to improve overall performance of ETL processes when dealing with large volumes of data.
+ETL applications implement three main types of parallelism:
+
+Data: By splitting a single sequential file into smaller data files to provide parallel access.
+Pipeline: Allowing the simultaneous running of several components on the same data stream. For example: looking up a value on record 1 at the same time as adding two fields on record 2.
+Component: The simultaneous running of multiple processes on different data streams in the same job, for example, sorting one input file while removing duplicates on another file.
+
+All three types of parallelism usually operate combined in a single job.
+An additional difficulty comes with making sure that the data being uploaded is relatively consistent. Because multiple source databases may have different update cycles (some may be updated every few minutes, while others may take days or weeks), an ETL system may be required to hold back certain data until all sources are synchronized. Likewise, where a warehouse may have to be reconciled to the contents in a source system or with the general ledger, establishing synchronization and reconciliation points becomes necessary.
+
+[edit] Rerunnability, recoverability
+Data warehousing procedures usually subdivide a big ETL process into smaller pieces running sequentially or in parallel. To keep track of data flows, it makes sense to tag each data row with "row_id", and tag each piece of the process with "run_id". In case of a failure, having these IDs will help to roll back and rerun the failed piece.
+Best practice also calls for "checkpoints", which are states when certain phases of the process are completed. Once at a checkpoint, it is a good idea to write everything to disk, clean out some temporary files, log the state, and so on.
+
+[edit] Good practices
+Four-layered approach for ETL architecture design
+
+Functional layer: Core functional ETL processing (extract, transform, and load).
+Operational management layer: Job-stream definition and management, parameters, scheduling, monitoring, communication and alerting.
+Audit, balance and control (ABC) layer: Job-execution statistics, balancing and controls, rejects- and error-handling, codes management.
+Utility layer: Common components supporting all other layers.
+
+Use file-based ETL processing where possible
+
+Storage costs relatively little
+Intermediate files serve multiple purposes
+Used for testing and debugging
+Used for restart and recover processing
+Used to calculate control statistics
+Helps to reduce dependencies - enables modular programming.
+Allows flexibility for job-execution and -scheduling
+Better performance if coded properly, and can take advantage of parallel processing capabilities when the need arises.
+
+Use data-driven methods and minimize custom ETL coding
+
+Parameter-driven jobs, functions, and job-control
+Code definitions and mapping in database
+Consideration for data-driven tables to support more complex code-mappings and business-rule application.
+
+Qualities of a good ETL architecture design
+
+Performance
+Scalable
+Migratable
+Recoverable (run_id, ...)
+Operable (completion-codes for phases, re-running from checkpoints, etc.)
+Auditable (in two dimensions: business requirements and technical troubleshooting)
+
+
+[edit] Tools
+Programmers can set up ETL processes using almost any programming language, but building such processes from scratch can become complex. Increasingly, companies are buying ETL tools to help in the creation of ETL processes.[citation needed]
+By using an established ETL framework, one may increase one's chances of ending up with better connectivity and scalability. A good ETL tool must be able to communicate with the many different relational databases and read the various file formats used throughout an organization. ETL tools have started to migrate into Enterprise Application Integration, or even Enterprise Service Bus, systems that now cover much more than just the extraction, transformation, and loading of data. Many ETL vendors now have data profiling, data quality, and metadata capabilities.
+
+[edit] Open-source ETL frameworks
+
+Clover.ETL
+Enhydra Octopus (launches from a web browser via Java Web Start)
+Mortgage Connectivity Hub
+Pentaho Data Integration (now[update] included in OpenOffice Base)
+Talend Open Studio
+Scriptella
+Apatar
+Jitterbit 2.0
+
+
+[edit] Freeware ETL frameworks
+
+Benetl (for files, works with postgreSQL)
+(See Jasper ETL Java/Perl)
+
+
+[edit] Proprietary ETL frameworks
+
+Altova MapForce
+Djuggler Enterprise
+Embarcadero Technologies DT/Studio
+ETL Solutions Transformation Manager
+Group 1 Software DataFlow
+IBM Information Server
+IBM DB2 Warehouse Edition
+IBM Cognos Data Manager
+IKAN - ETL4ALL
+IKAN - MetaSuite
+Informatica PowerCenter
+Information Builders - Data Migrator
+SQL Server Integration Services
+Oracle Data Integrator
+Oracle Warehouse Builder
+Pervasive Business Integrator
+Safe Software
+SAP Business Objects - Data Integrator
+SAS Data Integration Studio
+WhereScape RED
+
+
+[edit] See also
+
+Ab Initio
+Apache Cocoon
+Business Intelligence
+Data cleansing
+Data Integration
+Data mart
+Data migration
+Data mediation
+Datastage
+expressor
+Enterprise Application Integration
+ETL Solutions Limited
+Informatica
+Online analytical processing
+MOND Technologies
+Pervasive Software
+Spatial ETL
+Business Intelligence 2.0 (BI 2.0)
+Teradata Decision Experts (TDE)
+Data Warehouse
+
+
+[edit] References
+
+Kimball, Ralph; Joe Caserta (2004). The Data Warehouse ETL Toolkit. Wiley. ISBN 0-7645-6757-8. 
+Kimball, Ralph; Margy Ross (2002). The Data Warehouse Toolkit: The Complete Guide to Dimensional Modeling (2nd edition ed.). Wiley. pp. 358–362. ISBN 0-471-20024-7. 
+Kimball, Ralph; et al. (1998). The Data Warehouse Lifecycle Toolkit. Wiley. ISBN 0-471-25547-5. 
+
+
+[edit] External links
+
+"An overview of commercial and free ETL tools on the market". http://www.kjube.be/tnenopxe/index.php?section=28. 
+"Extract and Load data from/to Oracle". http://it.toolbox.com/wiki/index.php/Extract_and_load_data_from_Oracle. 
+"Old ETL tools versus new ETL tools". http://it.toolbox.com/blogs/infosphere/old-etl-tools-versus-new-etl-tools-27151. 
+"Gartner Magic Quadrant for ETL tools 2002". http://www.gartner.com/reprints/informatica/106602.html. 
+"Gartner Magic Quadrant for Data Integration tools 2006". http://it.toolbox.com/blogs/infosphere/oracle-plunges-and-no-one-soars-in-the-2006-gartner-data-integration-tools-magic-quadrant-13233. 
+"Gartner Magic Quadrant for Data Integration tools 2008". http://it.toolbox.com/blogs/infosphere/ibm-has-the-strongest-vision-gartner-magic-quadrant-for-data-integration-tools-2008-27359. 
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Extract,_transform,_load"
+Categories: ETL tools | Data warehousingHidden categories: Articles containing potentially dated statements from 2009 | All articles containing potentially dated statements | All articles with unsourced statements | Articles with unsourced statements since January 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Italiano
+日本語
+Nederlands
+Polski
+Português
+Русский
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 28 March 2009, at 11:09.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

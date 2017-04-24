@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="CYK algorithm,Asymptotic,Big O notation,Bottom-up parsing,Chomsky normal form,Context-free grammar,Decision problem,Dynamic programming,Earley parser,John Cocke,Packrat parser" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=CYK_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=CYK_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>CYK algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "CYK_algorithm";
+		var wgTitle = "CYK algorithm";
+		var wgAction = "view";
+		var wgArticleId = "53929";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280169019;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-CYK_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">CYK algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>The <b>Cocke-Younger-Kasami (CYK) algorithm</b> (alternatively called CKY) determines whether a <a href="/wiki/String_(computer_science)" title="String (computer science)">string</a> can be generated by a given <a href="/wiki/Context-free_grammar" title="Context-free grammar">context-free grammar</a> and, if so, how it can be generated. This is known as <a href="/wiki/Parsing" title="Parsing">parsing</a> the string. The algorithm employs <a href="/wiki/Bottom-up_parsing" title="Bottom-up parsing">bottom-up parsing</a> and <a href="/wiki/Dynamic_programming" title="Dynamic programming">dynamic programming</a>.</p>
+<p>The standard version of CYK operates on context-free grammars given in <a href="/wiki/Chomsky_normal_form" title="Chomsky normal form">Chomsky normal form</a> (CNF). Any context-free grammar may be written thus. <sup id="cite_ref-0" class="reference"><a href="#cite_note-0" title=""><span>[</span>1<span>]</span></a></sup></p>
+<p>The importance of the CYK algorithm stems from the fact that it constructively proves that the <a href="/w/index.php?title=Membership_problem&amp;action=edit&amp;redlink=1" class="new" title="Membership problem (page does not exist)">membership problem</a> for context-free languages is <a href="/wiki/Decision_problem" title="Decision problem">decidable</a> (see also: <a href="/wiki/Theory_of_computation" title="Theory of computation">theory of computation</a>) and the fact that it does so quite efficiently. The worst case <a href="/wiki/Asymptotic" title="Asymptotic" class="mw-redirect">asymptotic</a> time complexity of CYK is <a href="/wiki/Big_O_notation" title="Big O notation">Θ</a>(n<sup>3</sup>), where <i>n</i> is the length of the parsed string. This makes it one of the most efficient (in those terms) algorithms for recognizing general context-free languages. Specialized and faster algorithms exist for certain subsets of the context-free languages.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Standard_form"><span class="tocnumber">1</span> <span class="toctext">Standard form</span></a>
+<ul>
+<li class="toclevel-2"><a href="#As_pseudocode"><span class="tocnumber">1.1</span> <span class="toctext">As pseudocode</span></a></li>
+<li class="toclevel-2"><a href="#As_prose"><span class="tocnumber">1.2</span> <span class="toctext">As prose</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Extensions"><span class="tocnumber">2</span> <span class="toctext">Extensions</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Generating_a_parse_tree"><span class="tocnumber">2.1</span> <span class="toctext">Generating a parse tree</span></a></li>
+<li class="toclevel-2"><a href="#Parsing_non-CNF_context-free_grammars"><span class="tocnumber">2.2</span> <span class="toctext">Parsing non-CNF context-free grammars</span></a></li>
+<li class="toclevel-2"><a href="#Parsing_weighted_context-free_grammars"><span class="tocnumber">2.3</span> <span class="toctext">Parsing weighted context-free grammars</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#See_also"><span class="tocnumber">3</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">4</span> <span class="toctext">References</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Standard_form" id="Standard_form"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=1" title="Edit section: Standard form">edit</a>]</span> <span class="mw-headline">Standard form</span></h2>
+<p>The algorithm as given in <a href="/wiki/Pseudocode" title="Pseudocode">pseudocode</a> is as follows:</p>
+<p><a name="As_pseudocode" id="As_pseudocode"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=2" title="Edit section: As pseudocode">edit</a>]</span> <span class="mw-headline">As pseudocode</span></h3>
+<pre>
+<b>Let</b> the input string consist of <i>n</i> letters, <i>a</i><sub>1</sub> ... <i>a</i><sub><i>n</i></sub>.
+<b>Let</b> the grammar contain <i>r</i> terminal and nonterminal symbols <i>R</i><sub>1</sub> ... <i>R</i><sub><i>r</i></sub>. 
+This grammar contains the subset R<sub>s</sub> which is the set of start symbols.
+<b>Let</b> P[n,n,r] be an array of booleans. Initialize all elements of P to false.
+<b>For each</b> i = 1 to n
+  <b>For each</b> unit production R<sub>j</sub> -&gt; a<sub>i</sub>, <b>set</b> P[i,1,j] = true.
+<b>For each</b> i = 2 to n <i>-- Length of span</i>
+  <b>For each</b> j = 1 to n-i+1 <i>-- Start of span</i>
+    <b>For each</b> k = 1 to i-1 <i>-- Partition of span</i>
+      <b>For each</b> production R<sub>A</sub> -&gt; R<sub>B</sub> R<sub>C</sub>
+        <b>If</b> P[j,k,B] and P[j+k,i-k,C] <b>then</b> set P[j,i,A] = true
+<b>If</b> any of P[1,n,x] is true (x is iterated over the set s, where s are all the indices for R<sub>s</sub>)
+  <b>Then</b> string is member of language
+  <b>Else</b> string is not member of language
+</pre>
+<p><a name="As_prose" id="As_prose"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=3" title="Edit section: As prose">edit</a>]</span> <span class="mw-headline">As prose</span></h3>
+<p>In informal terms, this algorithm considers every possible subsequence of the sequence of words and sets P[i,j,k] to be true if the subsequence of words starting from i of length j can be generated from R<sub>k</sub>. Once it has considered subsequences of length 1, it goes on to subsequences of length 2, and so on. For subsequences of length 2 and greater, it considers every possible partition of the subsequence into two parts, and checks to see if there is some production P → Q R such that Q matches the first part and R matches the second part. If so, it records P as matching the whole subsequence. Once this process is completed, the sentence is recognized by the grammar if the subsequence containing the entire sentence is matched by the start symbol.</p>
+<table class="wikitable">
+<caption>CYK table</caption>
+<tr>
+<td><b>S</b></td>
+</tr>
+<tr>
+<td></td>
+<td>VP</td>
+</tr>
+<tr>
+<td></td>
+<td>&#160;</td>
+<td></td>
+</tr>
+<tr>
+<td><b>S</b></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>VP</td>
+<td></td>
+<td></td>
+<td>PP</td>
+</tr>
+<tr>
+<td><b>S</b></td>
+<td></td>
+<td>NP</td>
+<td></td>
+<td></td>
+<td>NP</td>
+</tr>
+<tr>
+<td>NP</td>
+<td>V, VP</td>
+<td>Det.</td>
+<td>N</td>
+<td>P</td>
+<td>Det</td>
+<td>N</td>
+</tr>
+<tr style="border-top:3px solid grey;">
+<td>she</td>
+<td>eats</td>
+<td>a</td>
+<td>fish</td>
+<td>with</td>
+<td>a</td>
+<td>fork</td>
+</tr>
+</table>
+<p><a name="Extensions" id="Extensions"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=4" title="Edit section: Extensions">edit</a>]</span> <span class="mw-headline">Extensions</span></h2>
+<p><a name="Generating_a_parse_tree" id="Generating_a_parse_tree"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=5" title="Edit section: Generating a parse tree">edit</a>]</span> <span class="mw-headline">Generating a parse tree</span></h3>
+<p>It is simple to extend the above algorithm to not only determine if a sentence is in a language, but to also construct a <a href="/wiki/Parse_tree" title="Parse tree">parse tree</a>, by storing parse tree nodes as elements of the array, instead of booleans. Since the grammars being recognized can be ambiguous, it is necessary to store a list of nodes (unless one wishes to only pick one possible parse tree); the end result is then a forest of possible parse trees. An alternative formulation employs a second table B[n,n,r] of so-called <i>backpointers</i>.</p>
+<p><a name="Parsing_non-CNF_context-free_grammars" id="Parsing_non-CNF_context-free_grammars"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=6" title="Edit section: Parsing non-CNF context-free grammars">edit</a>]</span> <span class="mw-headline">Parsing non-CNF context-free grammars</span></h3>
+<p>It is also possible to extend the CYK algorithm to handle some context-free grammars which are not written in CNF; this may be done to improve performance, although at the cost of making the algorithm harder to understand.</p>
+<p><a name="Parsing_weighted_context-free_grammars" id="Parsing_weighted_context-free_grammars"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=7" title="Edit section: Parsing weighted context-free grammars">edit</a>]</span> <span class="mw-headline">Parsing weighted context-free grammars</span></h3>
+<p>It is also possible to extend the CYK algorithm to parse strings using <a href="/wiki/Weighted_context-free_grammar" title="Weighted context-free grammar">weighted</a> and <a href="/wiki/Stochastic_context-free_grammar" title="Stochastic context-free grammar">stochastic context-free grammars</a>. Weights (probabilities) are then stored in the table P instead of booleans, so P[i,j,A] will contain the minimum weight (maximum probability) that the substring from i to j can be derived from A. Further extensions of the algorithm allow all parses of a string to be enumerated from lowest to highest weight (highest to lowest probability).</p>
+<p><a name="See_also" id="See_also"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=8" title="Edit section: See also">edit</a>]</span> <span class="mw-headline">See also</span></h2>
+<ul>
+<li><a href="/wiki/Earley_parser" title="Earley parser">Earley parser</a></li>
+<li><a href="/wiki/Packrat_parser" title="Packrat parser" class="mw-redirect">Packrat parser</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=CYK_algorithm&amp;action=edit&amp;section=9" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ol class="references">
+<li id="cite_note-0"><b><a href="#cite_ref-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFSipser1997">Sipser, Michael (1997), <i>Introduction to the Theory of Computation</i> (1st ed.), IPS, p.&#160;99, <a href="/wiki/Special:BookSources/053494728X" class="internal">ISBN 0-534-94728-X</a></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Introduction+to+the+Theory+of+Computation&amp;rft.aulast=Sipser&amp;rft.aufirst=Michael&amp;rft.au=Sipser%2C+Michael&amp;rft.date=1997&amp;rft.pages=p.%26nbsp%3B99&amp;rft.edition=1st&amp;rft.pub=IPS&amp;rft.isbn=0-534-94728-X&amp;rfr_id=info:sid/en.wikipedia.org:CYK_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+<ul>
+<li><a href="/wiki/John_Cocke" title="John Cocke">John Cocke</a> and Jacob T. Schwartz (1970). Programming languages and their compilers: Preliminary notes. Technical report, Courant Institute of Mathematical Sciences, New York University.</li>
+<li><a href="/wiki/Tadao_Kasami" title="Tadao Kasami">T. Kasami</a> (1965). An efficient recognition and syntax-analysis algorithm for context-free languages. Scientific report AFCRL-65-758, Air Force Cambridge Research Lab, Bedford, MA.</li>
+<li>Daniel H. Younger (1967). Recognition and parsing of context-free languages in time <i>n</i><sup>3</sup>. <i>Information and Control</i> 10(2): 189–208.</li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 536/1000000
+Post-expand include size: 2762/2048000 bytes
+Template argument size: 497/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:53929-0!1!0!default!!en!2 and timestamp 20090328071929 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/CYK_algorithm">http://en.wikipedia.org/wiki/CYK_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Parsing_algorithms" title="Category:Parsing algorithms">Parsing algorithms</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/CYK_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:CYK_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=CYK_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=CYK_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=CYK_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/CYK_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/CYK_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=CYK_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=CYK_algorithm&amp;oldid=280169019" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=CYK_algorithm&amp;id=280169019">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-af"><a href="http://af.wikipedia.org/wiki/CYK-algoritme">Afrikaans</a></li>
+				<li class="interwiki-cs"><a href="http://cs.wikipedia.org/wiki/Algoritmus_Cocke-Younger-Kasami">Česky</a></li>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Cocke-Younger-Kasami-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-es"><a href="http://es.wikipedia.org/wiki/Algoritmo_CYK">Español</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Algorithme_de_Cocke-Younger-Kasami">Français</a></li>
+				<li class="interwiki-gl"><a href="http://gl.wikipedia.org/wiki/Algoritmo_CYK">Galego</a></li>
+				<li class="interwiki-ko"><a href="http://ko.wikipedia.org/wiki/CYK_%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98">한국어</a></li>
+				<li class="interwiki-nl"><a href="http://nl.wikipedia.org/wiki/CYK-algoritme">Nederlands</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/CYK%E6%B3%95">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_CYK">Polski</a></li>
+				<li class="interwiki-pt"><a href="http://pt.wikipedia.org/wiki/Algoritmo_CYK">Português</a></li>
+				<li class="interwiki-sr"><a href="http://sr.wikipedia.org/wiki/%D0%9A%D1%83%D0%BA-%D0%88%D0%B0%D0%BD%D0%B3%D0%B5%D1%80-%D0%9A%D0%B0%D1%81%D0%B0%D0%BC%D0%B8_%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%B0%D0%BC">Српски / Srpski</a></li>
+				<li class="interwiki-fi"><a href="http://fi.wikipedia.org/wiki/CYK-algoritmi">Suomi</a></li>
+				<li class="interwiki-vi"><a href="http://vi.wikipedia.org/wiki/Thu%E1%BA%ADt_to%C3%A1n_CYK">Tiếng Việt</a></li>
+				<li class="interwiki-zh"><a href="http://zh.wikipedia.org/wiki/CYK%E7%AE%97%E6%B3%95">中文</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 28 March 2009, at 07:19.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv214 in 0.053 secs. --></body></html>

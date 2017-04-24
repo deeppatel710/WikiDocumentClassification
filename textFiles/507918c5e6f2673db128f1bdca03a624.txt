@@ -1,0 +1,510 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Winsock - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Winsock";
+		var wgTitle = "Winsock";
+		var wgAction = "view";
+		var wgArticleId = "211226";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 281960571;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Winsock
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Not to be confused with Windsock.
+
+
+
+
+Windows Sockets API version 2.0 logo
+
+
+In computing, the Windows Sockets API, which was later shortened to Winsock, is a technical specification that defines how Windows network software should access network services, especially TCP/IP. It defines a standard interface between a Windows TCP/IP client application (such as an FTP client or a Gopher client) and the underlying TCP/IP protocol stack. The nomenclature is based on the Berkeley sockets API model used in Berkeley UNIX for communications between programs. Initially, all the participating developers resisted the shortening of the name to Winsock for a long time, since there was much confusion among users between the API and the DLL library file (winsock.dll) which only exposed the common WSA interfaces to applications above it. Users would commonly believe that only making sure the DLL file was present on a system would provide full TCP/IP protocol support.
+
+
+
+
+Contents
+
+
+1 Background
+2 Technology
+3 Specifications
+4 Implementations
+
+4.1 Microsoft implementations
+4.2 Other implementations
+
+
+5 See also
+6 References
+7 External links
+
+7.1 Microsoft
+7.2 Other
+
+
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Background
+Early Microsoft operating systems, both MS-DOS and Microsoft Windows, offered limited networking capability, chiefly based on NetBIOS/NetBEUI.
+In particular, Microsoft completely ignored the TCP/IP protocol stack at that time. A number of university groups and commercial vendors, including the PC/IP group at MIT, FTP Software, Sun Microsystems, Ungermann-Bass, and Excelan, introduced TCP/IP products for MS-DOS, often as part of a hardware/software bundle.
+When Microsoft Windows 2.0 was released, these vendors were joined by others such as Distinct and NetManage in offering TCP/IP for Windows. The drawback faced by all of these vendors was that each of them used their own API (Application Programming Interface). Without a single standard programming model, it was difficult to persuade independent software developers to create networking applications which would work with any vendor’s underlying TCP/IP implementation. Add to this the fact that end users were wary of getting locked in to a single vendor and it became clear that some standardization was needed.
+The Windows Sockets API was proposed by Martin Hall of JSB Software (later Stardust Technologies) as a BoF (Birds of a Feather) discussion on the CompuServe BBS network in October 1991. The first edition of the specification was authored by Martin Hall, Mark Towfiq of Microdyne (later Sun Microsystems), Geoff Arnold of Sun Microsystems, and Henry Sanders and J Allard of Microsoft, with assistance from many others. There was some discussion about how best to address the copyright, intellectual property, and potential anti-trust issues, and consideration was given to working through the IETF or establishing a non-profit foundation. In the end, it was decided that the specification would simply be copyrighted by the five authors as (unaffiliated) individuals.
+
+[edit] Technology
+The Windows Sockets API specification defines two interfaces: the API used by application developers, and the SPI, which provides a means for network software developers to add new protocol modules to the system. Each interface represents a contract. The API guarantees that a conforming application will function correctly with a conformant protocol implementation from any network software vendor. The SPI contract guarantees that a conforming protocol module may be added to Windows and will thereby be usable by an API-conformant application. Although these contracts were important when Windows Sockets was first released, as network environments required multi-protocol support (see above) they are now of only academic interest. Included in the Windows Sockets API version 2.0 are functions to use IPX/SPX, but no commercial application is known to exist which utilises this transport, since the protocol was all but obsolete already at the time WSA 2.0 shipped. Microsoft has shipped a high-quality TCP/IP stack with all recent versions of Windows, and there are no significant independent alternatives. Nor has there been significant interest in implementing protocols other than TCP/IP.
+Windows Sockets is based on BSD sockets, but provides additional functionality to allow the API to comply with the standard Windows programming model. The Windows Sockets API covered almost all the features of the BSD sockets API, but there were some unavoidable obstacles which mostly arose out of fundamental differences between Windows and Unix (though to be fair Windows Sockets differed less from BSD sockets than the latter did from STREAMS). All function calls in the API begin with the moniker WSA, e.g. WSAGetHostByName() for making a hostname lookup. It should also be noted that Windows Sockets expanded on BSD Sockets functionality, by offering "non-blocking" or asynchronous Sockets (accessed by adding WSAAsync before the desired function; e.g., WSAAsyncGetHostByName())
+However it was a design goal of Windows Sockets that it should be relatively easy for developers to port socket-based applications from Unix to Windows. It was not considered sufficient to create an API which was only useful for newly-written Windows programs. For this reason, Windows Sockets included a number of elements which were designed to facilitate porting. For example, Unix applications were able to use the same errno variable to record both networking errors and errors detected within standard C library functions. Since this was not possible in Windows, Windows Sockets introduced a dedicated function, WSAGetLastError(), to retrieve error information. Such mechanisms were helpful, but application porting remained extremely complex. Many "traditional" TCP/IP applications had been implemented by using system features specific to Unix, such as pseudo terminals and the fork system call, and reproducing such functionality in Windows was problematic. Within a relatively short time, porting gave way to the development of dedicated Windows applications.
+
+[edit] Specifications
+
+
+Windows Sockets 1.1 logo
+
+
+
+Version 1.0 (June 1992) defined the basic operation of Winsock. It was kept very close to the existing interface of Berkeley sockets to simplify porting of existing applications. A few Windows-specific extensions were added, mainly for asynchronous operations with message-based notifications.
+
+
+Although the document didn't limit support to TCP/IP, TCP and UDP were the only protocols explicitly mentioned. Most vendors only delivered TCP/IP support, although Winsock from DEC included DECNet support as well.
+
+
+Version 1.1 (January 1993) made many minor corrections and clarifications of the specification. The most significant change was the inclusion of the gethostname() function.
+
+
+Winsock 2 was a backwards-compatible extension of Winsock 1.1. It added support for protocol-independent name resolution, asynchronous operations with event-based notifications and completion routines, layered protocol implementations, multicasting, and quality of service. It also formalized support for multiple protocols, including IPX/SPX and DECnet. The new specification allowed sockets to be optionally shared between processes, incoming connection requests to be conditionally accepted, and certain operations to be performed on socket groups rather than individual sockets. Although the new specification differed substantially from Winsock 1, it provided source- and binary-level compatibility with the Winsock 1.1 API. One of the lesser known additions was the Service Provider Interface (SPI) API and Layered Service Providers.
+Versions 2.0.x (May 1994 onwards) had internal draft status, and were not announced as public standards.
+Version 2.1.0 (January 1996) was the first public release of the Winsock 2 specification.
+Version 2.2.0 (May 1996) included many minor corrections, clarifications, and usage recommendations. It was also the first version to remove support for 16-bit Windows applications.
+Version 2.2.1 (May 1997) and Version 2.2.2 (August 1997) introduced minor functionality enhancements. Mechanisms were added for querying and receiving notification of changes in network and system configuration.
+
+
+The IPv6 Technical Preview for Windows 2000 (December 2000) saw the first implementation of RFC 2553 (March 1999, later obsoleted by RFC 3493), a protocol-independent API for name resolution, which would become part of Winsock in Windows XP.
+
+
+[edit] Implementations
+
+[edit] Microsoft implementations
+
+Microsoft did not supply an implementation of Winsock 1.0.
+
+
+Version 1.1 of Winsock was supplied in an add-on package (called Wolverine) for Windows for Workgroups (code named Snowball). It was an integral component of Windows 95 and Windows NT 3.x.
+
+
+Version 2 of Winsock was supplied in an add-on package for Windows 95. It was an integral component of Windows 98, Windows NT 4.0, and all subsequent Windows releases. (Microsoft did not supply implementations of Winsock 2 for Windows 3.x or Windows NT 3.x.)
+
+
+Recent versions of Winsock 2.x have been delivered with new Windows releases or as part of service packs.
+
+
+Winsock 2 is extensible by a mechanism known as a Layered Service Provider (LSP). Winsock LSPs are available for a wide range of useful purposes, including internet parental controls, web content filtering, QoS etc. The layering order of all providers is kept in the Winsock Catalog. In previous versions of Windows, removing a buggy LSP could result in corruption of the Winsock catalog in the registry, potentially resulting in a loss of all network connectivity. Winsock in Windows XP Service Pack 2, Windows Server 2003 Service Pack 1 and all later Windows operating systems has the ability to self-heal after a user uninstalls such an LSP.
+
+
+[edit] Other implementations
+
+Among the other vendors offering Winsock-compliant TCP/IP stacks were (alphabetically) 3Com, Beame & Whiteside, DEC, Distinct, FTP Software, Frontier, IBM, Microdyne, NetManage, Novell, Sun Microsystems and Trumpet Software International
+
+
+Trumpet Winsock was one of the few Winsock 1.0 implementations that could be installed under Windows 3.0, which had no built-in support for Winsock. Trumpet was also the most popular shareware implementation of Winsock for Windows 3.x. Trumpet Winsock 5.0 is available for Windows 95/98 and Windows NT and includes a Winsock 1.1 compliant IPv6 stack for these operating systems. [1]
+
+
+[edit] See also
+
+Layered Service Provider (Winsock LSP)
+Berkeley sockets
+
+
+[edit] References
+
+
+^ Trumpet Winsock v5.0
+
+
+
+[edit] External links
+
+Windows Sockets - Open Source Implementation of a client & server windows sockets in C#
+Sockets FAQ - Windows Sockets FAQ
+Winsock programming tutorials - Winsock programming tutorials
+Client / Server Programming with TCP/IP Sockets - WinSock C++ Programming
+Komodia's open source Windows based C++ TCP/IP socket library
+
+
+[edit] Microsoft
+
+MSDN - Winsock2 Reference
+MSDN - Winsock2 Home
+Porting Berkley Socket programs to Winsock
+Windows Network Development blog — Microsoft developer blog covering Winsock, WSK, WinINet, Http.sys, WinHttp, QoS and System.Net, with a focus on features being introduced in Windows Vista
+Brief History of Microsoft on the Web
+
+
+[edit] Other
+
+WinSock error codes list with descriptions
+WinSock Development Information
+Winsock Programmer's FAQ
+
+
+
+
+
+
+
+
+v • d • e
+
+Microsoft APIs and frameworks
+
+
+
+
+
+Graphics
+
+Desktop Window Manager · Direct2D · Direct3D (extensions)  · GDI / GDI+ · WPF · Windows Color System · Windows Image Acquisition · Windows Imaging Component
+
+
+
+
+
+
+Audio
+
+DirectMusic · DirectSound · DirectX plugin · XACT · Speech API
+
+
+
+
+
+
+Multimedia
+
+DirectX · (Media Objects · Video Acceleration) · DirectInput · DirectPlay · DirectShow · Image Mastering API · Managed DirectX · Media Foundation · XNA · Windows Media
+
+
+
+
+
+
+Web
+
+MSHTML · RSS Platform · JScript · VBScript · BHO · XDR · SideBar Gadgets
+
+
+
+
+
+
+Data access
+
+Data Access Components · Extensible Storage Engine · ADO.NET · ADO.NET Entity Framework · Sync Framework · Jet Engine · MSXML · OLE DB
+
+
+
+
+
+
+Networking
+
+Winsock (LSP) · Winsock Kernel · Filtering Platform · Network Driver Interface Specification · Windows Rally · BITS · P2P API · MSMQ · MS MPI
+
+
+
+
+
+
+Communication
+
+Messaging API · Telephony API
+
+
+
+
+
+
+
+Administration and
+management
+
+
+Win32 console · Windows Script Host · WMI (extensions) · PowerShell · Task Scheduler · Offline Files · Shadow Copy · Windows Installer · Error Reporting · Event Log · Common Log File System
+
+
+
+
+
+
+Component model
+
+COM · COM+ · ActiveX · Distributed Component Object Model · .NET Framework
+
+
+
+
+
+
+Libraries
+
+Microsoft Foundation Classes (MFC) · Active Template Library (ATL) · Windows Template Library (WTL)
+
+
+
+
+
+
+Device drivers
+
+Windows Driver Model  · Windows Driver Foundation (KMDF · UMDF) · WDDM · NDIS · UAA · Broadcast Driver Architecture  · VxD
+
+
+
+
+
+
+Security
+
+Crypto API (CAPICOM) · Windows CardSpace · Data protection API · Security Support Provider Interface (SSPI)
+
+
+
+
+
+
+.NET
+
+ASP.NET · ADO.NET · Remoting · Silverlight · TPL · WCF · WCS · WPF · WF
+
+
+
+
+
+
+Software factories
+
+EFx Factory · Enterprise Library · Composite UI · CCF · CSF
+
+
+
+
+
+
+IPC
+
+MSRPC · Dynamic Data Exchange (DDE)
+
+
+
+
+
+
+Accessibility
+
+Active Accessibility · UI Automation
+
+
+
+
+
+
+
+Text and multilingual
+support
+
+
+Text Services Framework · Text Object Model · Input method editor · Language Interface Pack · Multilingual User Interface · Uniscribe
+
+
+
+
+
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Winsock"
+Categories: Windows communication and services | Microsoft application programming interfaces 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Deutsch
+Español
+Français
+Bahasa Indonesia
+Italiano
+Nederlands
+日本語
+Polski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 5 April 2009, at 20:41 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

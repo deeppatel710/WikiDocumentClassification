@@ -1,0 +1,370 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bottom-up parsing - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Bottom-up_parsing";
+		var wgTitle = "Bottom-up parsing";
+		var wgAction = "view";
+		var wgArticleId = "679521";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280389935;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Bottom-up parsing
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+Bottom-up parsing (also known as shift-reduce parsing) is a strategy for analyzing unknown data relationships that attempts to identify the most fundamental units first, and then to infer higher-order structures from them. It attempts to build trees upward toward the start symbol. It occurs in the analysis of both natural languages and computer languages.
+
+
+
+
+Contents
+
+
+1 Linguistics
+2 Computer Science
+3 An example using a parse tree
+4 Type of bottom-up parsers
+5 Shift-reduce parsers
+
+5.1 Action table
+5.2 Shift and reduce
+5.3 An example of shift-reduce parsing
+
+
+6 See also
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Linguistics
+In linguistics, an example of bottom-up parsing would be analyzing a sentence by identifying words first, and then using properties of the words to infer grammatical relations and phrase structures to build a parse tree of the complete sentence. This means that rather than beginning with the starting symbol and generating an input string, we shall examine the string and attempt to work our way back to the starting symbol. We can gain some power by starting at the bottom and working our way up.
+
+[edit] Computer Science
+In programming language compilers, bottom-up parsing is a parsing method that works by identifying terminal symbols first, and combines them successively to produce nonterminals. The productions of the parser can be used to build a parse tree of a program written in human-readable source code that can be compiled to assembly language or pseudocode.
+Different computer languages require different parsing techniques, although it is not uncommon to use a parsing technique that is more powerful than that actually required.
+It is common for bottom-up parsers to take the form of general parsing engines, that can either parse or generate a parser for a specific programming language given a specification of its grammar. Perhaps the most well known generalized parser generators are YACC and GNU bison.
+
+[edit] An example using a parse tree
+A trivial example illustrates the difference. Here is a trivial grammar:
+S → Ax
+A → a
+A → b
+For the input sentence ax, the leftmost derivation is
+S → Ax → ax
+which also happens to be the rightmost derivation as there is only one nonterminal ever to replace in a sentential form.
+An LL(1) parser starts with S and asks "which production should I attempt?" Naturally, it predicts the only alternative of S. From there it tries to match A by calling method A (in a recursive-descent parser). Lookahead a predicts production
+A → a
+The parser matches a, returns to S and matches x. Done. The derivation tree is:
+
+  S
+ / \
+A   x
+|
+a
+
+A bottom up parser is trying to go backwards, performing the following reverse derivation sequence:
+ax → Ax → S
+Intuitively, a top-down parser tries to expand nonterminals into right-hand-sides and a bottom-up parser tries to replace (reduce) right-hand-sides with nonterminals.
+The first action of the bottom-up parser would be to replace a with A yielding Ax. Then it would replace Ax with S. Once it arrives at a sentential form with exactly S, it has reached the goal and stops, indicating success.
+Just as with top-down parsing, a brute-force approach will work. Try every replacement until you run out of right-hand-sides to replace or you reach a sentential form consisting of exactly S. While not obvious here, not every replacement is valid and this approach may try all the invalid ones before attempting the correct reduction. Backtracking is extremely inefficient, but as you would expect lookahead proves useful in reducing the number of "wrong turns."
+
+[edit] Type of bottom-up parsers
+The common classes of bottom-up parsing are:
+
+LR parser
+
+LR(0) - No lookahead symbol
+SLR(1) - Simple with one lookahead symbol
+LALR(1) - Lookahead bottom up, not as powerful as full LR(1) but simpler to implement. YACC deals with this kind of grammar.
+LR(1) - Most general grammar, but most complex to implement.
+LR(n) - (where n is a positive integer) indicates an LR parser with n lookahead symbols; while grammars can be designed that require more than 1 lookahead, practical grammars try to avoid this because increasing n can theoretically require exponentially more code and data space (in practice, this may not be as bad).
+
+
+Precedence parsers
+
+Simple precedence parser
+Operator-precedence parser
+Extended precedence parser
+
+
+
+
+[edit] Shift-reduce parsers
+The most common bottom-up parsers are the shift-reduce parsers. These parsers examine the input tokens and either shift (push) them onto a stack or reduce elements at the top of the stack, replacing a right-hand side by a left-hand side.
+
+[edit] Action table
+Often an action (or parse) table is constructed which helps the parser determine what to do next. The following is a description of what can be held in an action table.
+Actions
+
+Shift - push token onto stack
+Reduce - remove handle from stack and push on corresponding nonterminal
+Accept - recognize sentence when stack contains only the distinguished symbol and input is empty
+Error - happens when none of the above is possible; means original input was not a sentence!
+
+
+[edit] Shift and reduce
+A shift-reduce parser uses a stack to hold the grammar symbols while awaiting reduction. During the operation of the parser, symbols from the input are shifted onto the stack. If a prefix of the symbols on top of the stack matches the RHS of a grammar rule which is the correct rule to use within the current context, then the parser reduces the RHS of the rule to its LHS, replacing the RHS symbols on top of the stack with the nonterminal occurring on the LHS of the rule. This shift-reduce process continues until the parser terminates, reporting either success or failure. It terminates with success when the input is legal and is accepted by the parser. It terminates with failure if an error is detected in the input.
+The parser is a stack automaton which is in one of several discrete states. In reality, the parse stack contains states, rather than grammar symbols. However, since each state corresponds to a unique grammar symbol, the state stack can be mapped onto the grammar symbol stack mentioned earlier.
+
+[edit] An example of shift-reduce parsing
+
+Start with the sentence to be parsed as the initial sentential form
+Until the sentential form is the start symbol do:
+
+Scan through the input until we recognise something that corresponds to the RHS of one of the production rules (this is called a handle)
+Apply a production rule in reverse; i.e., replace the RHS of the rule which appears in the sentential form with the LHS of the rule (an action known as a reduction)
+
+
+
+In step 2.1 above we are "shifting" the input symbols to one side as we move through them; hence a parser which operates by repeatedly applying steps 2.1 and 2.2 above is known as a shift-reduce parser.
+A shift-reduce parser is most commonly implemented using a stack, where we proceed as follows:
+
+start with an empty stack
+a "shift" action corresponds to pushing the current input symbol onto the stack
+a "reduce" action occurs when we have a handle on top of the stack. To perform the reduction, we pop the handle off the stack and replace it with the terminal on the LHS of the corresponding rule.
+
+Figure 1.
+
+ Take the language:
+ Sentence   --> NounPhrase VerbPhrase
+ NounPhrase --> Art Noun
+ VerbPhrase --> Verb | Adverb Verb
+ Art        --> the | a | ...
+ Verb       --> jumps | sings | ...
+ Noun       --> dog | cat | ...
+
+ And the input:
+ the dog jumps
+
+ Then the bottom up parsing is:
+Stack                  Input Sequence
+()                     (the dog jumps)
+(the)                  (dog jumps)      SHIFT word onto stack
+(Art)                  (dog jumps)      REDUCE using grammar rule
+(Art dog)              (jumps)          SHIFT..
+(Art Noun)             (jumps)          REDUCE..
+(NounPhrase)           (jumps)          REDUCE
+(NounPhrase jumps)     ()               SHIFT
+(NounPhrase Verb)      ()               REDUCE
+(NounPhrase VerbPhrase)()               REDUCE
+(Sentence)             ()               SUCCESS
+
+Given the language:
+<Expression> --> <Term> | <Term> + <Expression>
+<Term>       --> <Factor> | <Factor> * <Term>
+<Factor>     --> [ <Expression> ] | 0...9
+
+()                       (2 * [ 1 + 3 ])  SHIFT
+(2)                      (* [ 1 + 3 ])    REDUCE
+(<Factor>)               (* [ 1 + 3])     SHIFT
+(<Factor> *)             ([ 1 + 3])       SHIFT
+(<Factor> * [)           (1 + 3])         SHIFT
+(<Factor> * [ 1)         (+ 3])           REDUCE (twice)
+(<Factor> * [ <Term>)     (+ 3 ])         SHIFT (twice)
+(<Factor> * [ <Term> + 3) ( ])            REDUCE (thrice)
+(<Factor> * [ <Term> + <Expression>) ( ]) REDUCE
+(<Factor> * [ <Expression>) ( ])          SHIFT
+(<Factor> * [ <Expression> ]) ()          REDUCE
+(<Factor> * <Factor>)     ()              REDUCE
+(<Factor> * <Term>)       ()              REDUCE
+(<Term>)                  ()              REDUCE
+(<Expression>)            ()              SUCCESS
+
+
+[edit] See also
+
+Parsing
+Top-down parsing
+
+
+[edit] External links
+
+An example of shift-reduce parsing (which is a type of bottom up parsing), with a small grammar, state diagram, and C language code to implement the parser
+Course notes on shift reduce parsing
+A good non-technical tutorial in the context of natural (human) languages
+A discussion of shift-reduce conflicts in bottom up parsers. A knowledgeable but technical article.
+Yet another bottom-up parsing illustration
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Bottom-up_parsing"
+Categories: Parsing algorithms 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Bân-lâm-gú
+Deutsch
+日本語
+Polski
+Română
+Српски / Srpski
+
+
+
+
+
+
+
+
+
+ This page was last modified on 29 March 2009, at 10:11.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

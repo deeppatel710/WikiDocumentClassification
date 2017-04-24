@@ -1,0 +1,475 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Fold (higher-order function) - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Fold_(higher-order_function)";
+		var wgTitle = "Fold (higher-order function)";
+		var wgAction = "view";
+		var wgArticleId = "6364389";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 282182271;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Fold (higher-order function)
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In functional programming, fold, also known variously as reduce, accumulate, compress or inject, is a family of higher-order functions that process a data structure in some order and build up a return value. Typically, a fold deals with two things: a combining function, and a data structure, typically a list of elements. The fold then proceeds to combine elements of the data structure using the function in some systematic way.
+Folds are in a sense dual to unfolds, which take a starting value and apply a function to it repeatedly to generate a data structure, whereas a fold applies a function repeatedly to a data structure and generates a starting value (anamorphism as opposed to catamorphism).
+
+
+
+
+Contents
+
+
+1 Folds on lists
+
+1.1 List folds as structural transformations
+1.2 Implementation
+1.3 Evaluation order considerations
+1.4 Examples
+
+
+2 Universality
+3 See also
+4 Notes
+5 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Folds on lists
+The folding of the list [1,2,3,4,5] with the addition operator would result in 15, the sum of the elements of the list [1,2,3,4,5]. To a rough approximation, one can think of this fold as replacing the commas in the list with the + operation, giving 1+2+3+4+5.
+In the example above, + is an associative operation, so it is irrelevant how the addition is parenthesized. In the general case of non-associative binary functions the order in which the elements are combined matters. On lists, there are two obvious ways to carry this out: either by recursively combining the first element with the results of combining the rest (called a right fold) or by recursively combining the results of combining all but the last element with the last one (called a left fold). With a right fold, the sum would be parenthesized as 1 + (2 + (3 + (4 + 5))), whereas with a left fold it would be parenthesized as (((1 + 2) + 3) + 4) + 5.
+In practice, it is convenient and natural to have an initial value which in the case of a right fold is used when one reaches the end of the list, and in the case of a left fold is what is initially combined with the first element of the list. In the example above, the value 0 (the additive identity) would be chosen as an initial value, giving 1 + (2 + (3 + (4 + (5 + 0)))) for the right fold, and ((((0 + 1) + 2) + 3) + 4) + 5 for the left fold.
+
+[edit] List folds as structural transformations
+Folds can be viewed as a mechanism for replacing the structural components of a data structure with functions and values in a regular way. In many languages, lists are built up from two primitives: any list is either the empty list, commonly called nil, or it is a list constructed by appending an element to the start of some other list, which we call a cons. The empty list and the cons operation are written as [] and (:) (colon) in Haskell. One can view a right fold as substituting the nil at the end of the list with a specific value, and each cons with a specific other function. Hence, one gets a diagram which looks something like this:
+
+
+
+In the case of a left fold, the structural transformation being performed is somewhat less natural, but is still quite regular:
+
+
+
+These pictures illustrate the names left and right fold visually. They also highlight the fact that foldr (:) [] is the identity function on lists, as replacing cons with cons and nil with nil will not change the result. The left fold diagram suggests an easy way to reverse a list, foldl (flip (:)) []. Note that the parameters to cons must be flipped, because the element to add is now the right hand parameter of the combining function. Another easy result to see from this vantage-point is to write the higher-order map function in terms of foldr, by composing the function to act on the elements with cons, as:
+
+map f = foldr ((:) . f) []
+
+where the period (.) is an operator denoting function composition.
+This way of looking at things provides a simple route to designing fold-like functions on other algebraic data structures, like various sorts of trees. One writes a function which recursively replaces the constructors of the datatype with provided functions, and any constant values of the type with provided values. Such a function is generally referred to as a catamorphism.
+
+[edit] Implementation
+Using Haskell as an example, foldr and foldl can be formulated in a few equations.
+
+foldr f z []     = z
+foldr f z (x:xs) = f x (foldr f z xs)
+
+If the list is empty, the result is the initial value z. If not, apply f to the first element and the result of folding the rest
+
+foldl f z []     = z
+foldl f z (x:xs) = foldl f (f z x) xs
+
+If the list is empty, the result is the initial value and if not, we recurse immediately, making the new initial value the result of combining the old initial value with the first element.
+
+
+Fold in various languages
+
+Language
+Left fold
+Right fold
+Left fold 1[1]
+Right fold 1[1]
+Notes
+
+
+Haskell
+foldl func initval list
+foldr func initval list
+foldl1 func list
+foldr1 func list
+
+
+
+OCaml
+List.fold_left func initval list
+Array.fold_left func initval array
+List.fold_right func list initval
+Array.fold_right func array initval
+
+
+
+
+
+Standard ML
+foldl func initval list
+Array.foldl func initval array
+foldr func initval list
+Array.foldr func initval array
+
+
+The supplied function takes its arguments in a tuple. For foldl, the supplied function takes arguments in the reverse of the traditional order.
+
+
+Python 2.x
+reduce(func, list, initval)
+
+reduce(func, list)
+
+
+
+
+Python 3.x
+functools.reduce(func, list, initval)
+
+functools.reduce(func, list)
+
+
+
+
+Ruby
+enum.inject(initval) { block }
+enum.reduce(initval) { block }
+
+enum.inject { block }
+enum.reduce { block }
+
+In Ruby 1.8.7+, can also pass a symbol representing a function instead of block.
+enum is an Enumeration
+
+
+C++
+std::accumulate(begin, end, initval, func)
+
+
+
+in header <numeric>
+begin & end are iterators
+
+
+Perl
+reduce block initval, list
+
+reduce block list
+
+in List::Util module
+
+
+C# 3.0
+ienum.Aggregate(initval, func)
+
+ienum.Aggregate(func)
+
+Aggregate is an extension method
+ienum is an IEnumerable
+Similarly in all .NET languages
+
+
+JavaScript 1.8
+array.reduce(func, initval)
+array.reduceRight(func, initval)
+array.reduce(func)
+array.reduceRight(func)
+
+
+
+Common Lisp
+(reduce func list :initial-value initval)
+(reduce func list :from-end t :initial-value initval)
+(reduce func list)
+(reduce func list :from-end t)
+func is a symbol
+
+
+Scheme R6RS
+(fold-left func initval list)
+(fold-right func initval list)
+
+
+
+
+
+Smalltalk
+collection inject: value into: [ :value :each | ... ]
+
+
+
+
+
+
+Erlang
+lists:foldl(Fun, Accumulator, List)
+lists:foldr(Fun, Accumulator, List)
+
+
+
+
+
+PHP
+array_reduce(array, func, initval)
+
+array_reduce(array, func)
+
+initval can only be integer. When initval is not supplied, NULL is used, so this is not a true foldl1.
+
+
+Scala
+list.foldLeft(initval)(func)
+list.foldRight(initval)(func)
+list.reduceLeft(func)
+list.reduceRight(func)
+
+
+
+Mathematica
+Fold[func, initval, list]
+
+
+
+
+
+
+Maple
+foldl(func, initval, sequence)
+foldr(func, initval, sequence)
+
+
+
+
+
+
+[edit] Evaluation order considerations
+In the presence of lazy, or normal-order evaluation, foldr will immediately return the application of f to the recursive case of folding over the rest of the list. Thus, if f is able to produce some part of its result without reference to the recursive case, and the rest of the result is never demanded, then the recursion will stop. This allows right folds to operate on infinite lists. By contrast, foldl will immediately call itself with new parameters until it reaches the end of the list. This tail recursion can be efficiently compiled as a loop, but can't deal with infinite lists at all — it will recurse forever in an infinite loop.
+Reversing a list is also tail-recursive. (It can be implemented using rev = foldl (\ys x -> x : ys) [].) On finite lists, that means that left-fold and reverse can be composed to perform a right fold in a tail-recursive way (with a modification to the function f so it reverses the order of its arguments).
+Another technical point to be aware of in the case of left folds using lazy evaluation is that the new initial parameter is not being evaluated before the recursive call is made. This can lead to stack overflows when one reaches the end of the list and tries to evaluate the resulting potentially gigantic expression. For this reason, such languages often provide a stricter variant of left folding which forces the evaluation of the initial parameter before making the recursive call, in Haskell, this is the foldl' (note the apostrophe, pronounced 'prime') function in the Data.List library. Combined with the speed of tail recursion, such folds are very efficient when lazy evaluation of the final result is impossible or undesirable.
+One often wants to choose the identity element of the operation f as the initial value z. When no initial value seems appropriate, for example, when one wants to fold the function which computes the maximum of its two parameters over a list in order to get the maximum element of the list, there are variants of foldr and foldl which use the last and first element of the list respectively as the initial value. In Haskell and several other languages, these are called foldr1 and foldl1, the 1 making reference to the automatic provision of an initial element, and the fact that the lists they are applied to must have at least one element.
+
+[edit] Examples
+Using a Haskell interpreter, we can show the structural transformation which foldr and foldl perform by constructing a string as follows:
+
+Prelude> foldr (\x y -> concat ["(f ",x," ",y,")"]) "z" (map show [1..5])
+"(f 1 (f 2 (f 3 (f 4 (f 5 z)))))"
+Prelude> foldl (\x y -> concat ["(f ",x," ",y,")"]) "z" (map show [1..5])
+"(f (f (f (f (f z 1) 2) 3) 4) 5)"
+
+
+[edit] Universality
+Fold is a universal function. For any g having a definition
+
+g [] = v
+g (x:xs) = f x (g xs)
+
+then g can be expressed as[2]
+
+g = foldr f v
+
+We can also implement a fixed point combinator using fold, [3] proving that iterations can be reduced to folds:
+
+fix f = foldr (\_ -> f) undefined (repeat undefined)
+
+
+[edit] See also
+
+Catamorphism, a generalization of fold
+Homomorphism
+Map (higher-order function)
+
+
+[edit] Notes
+
+
+^ a b The "left fold 1" and "right fold 1" variants do not take an initial value. The first operation, if any, is performed on the first two elements. Thus these functions cannot be used on an empty list. The type of the combining function is restricted to be a -> a -> a, i.e. it takes two arguments of the same type and returns that type also. This is useful in many applications, for example "joining" strings with a separator.
+^ [|Hutton, Graham]. "A tutorial on the universality and expressiveness of fold". Journal of Functional Programming (9 (4)): 355-372. http://www.cs.nott.ac.uk/~gmh/fold.pdf. Retrieved on March 26, 2009. 
+^ Pope, Bernie. "Getting a Fix from the Right Fold". The Monad.Reader (Issue 6): 5-16. http://www.haskell.org/sitewiki/images/1/14/TMR-Issue6.pdf. Retrieved on March 26, 2009. 
+
+
+
+[edit] External links
+
+"Higher order functions — map, fold and filter"
+"Unit 6: The Higher-order fold Functions"
+"Fold"
+"Constructing List Homomorphism from Left and Right Folds"
+"The magic foldr"
+"Foldl in action"
+"Foldr in action"
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Fold_(higher-order_function)"
+Categories: Higher-order functions | Programming language comparisons | Articles with example Haskell code | Articles with example Scheme code 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Nederlands
+Polski
+Română
+Русский
+
+
+
+
+
+
+
+
+
+ This page was last modified on 6 April 2009, at 20:10 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

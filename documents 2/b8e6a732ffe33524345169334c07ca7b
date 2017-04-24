@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="RANSAC,Computer vision,Confidence interval,Correspondence problem,Datum,Digital object identifier,Fundamental matrix (computer vision),Iterative method,Matlab,Outlier,Outliers" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=RANSAC&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=RANSAC&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>RANSAC - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "RANSAC";
+		var wgTitle = "RANSAC";
+		var wgAction = "view";
+		var wgArticleId = "1089270";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280382106;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-RANSAC skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">RANSAC</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p><b>RANSAC</b> is an abbreviation for "RANdom SAmple Consensus". It is an <a href="/wiki/Iterative_method" title="Iterative method">iterative method</a> to estimate parameters of a mathematical model from a set of observed data which contains <a href="/wiki/Outliers" title="Outliers" class="mw-redirect">outliers</a>. It is a non-deterministic algorithm in the sense that it produces a reasonable result only with a certain probability, with this probability increasing as more iterations are allowed. The algorithm was first published by Fischler and Bolles in 1981.</p>
+<p>A basic assumption is that the data consists of "inliers", i.e., data whose distribution can be explained by some set of model parameters, and "outliers" which are data that do not fit the model. In addition to this, the data can be subject to noise. The outliers can come, e.g., from extreme values of the noise or from erroneous measurements or incorrect hypotheses about the interpretation of data. RANSAC also assumes that, given a (usually small) set of inliers, there exists a procedure which can estimate the parameters of a model that optimally explains or fits this data.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Example"><span class="tocnumber">1</span> <span class="toctext">Example</span></a></li>
+<li class="toclevel-1"><a href="#Overview"><span class="tocnumber">2</span> <span class="toctext">Overview</span></a></li>
+<li class="toclevel-1"><a href="#The_algorithm"><span class="tocnumber">3</span> <span class="toctext">The algorithm</span></a></li>
+<li class="toclevel-1"><a href="#The_parameters"><span class="tocnumber">4</span> <span class="toctext">The parameters</span></a></li>
+<li class="toclevel-1"><a href="#Advantages_and_disadvantages"><span class="tocnumber">5</span> <span class="toctext">Advantages and disadvantages</span></a></li>
+<li class="toclevel-1"><a href="#Applications"><span class="tocnumber">6</span> <span class="toctext">Applications</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">7</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">8</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Example" id="Example"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=1" title="Edit section: Example">edit</a>]</span> <span class="mw-headline">Example</span></h2>
+<p>A simple example is fitting of a 2D line to set of observations. Assuming that this set contains both inliers, i.e., points which approximately can be fitted to a line, and outliers, points which cannot be fitted to this line, a simple least squares method for line fitting will in general produce a line with a bad fit to the inliers. The reason is that it is optimally fitted to all points, including the outliers. RANSAC, on the other hand, can produce a model which is only computed from the inliers, provided that the probability of choosing only inliers in the selection of data is sufficiently high. There is no guarantee for this situation, however, and there are a number of algorithm parameters which must be carefully chosen to keep the level of probability reasonably high.</p>
+<table class="gallery" cellspacing="0" cellpadding="0">
+<tr>
+<td>
+<div class="gallerybox" style="width: 321px;">
+<div class="thumb" style="padding: 29px 0; width: 316px;">
+<div style="margin-left: auto; margin-right: auto; width: 286px;"><a href="/wiki/File:Line_with_outliers.svg" class="image" title="Line with outliers.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Line_with_outliers.svg/255px-Line_with_outliers.svg.png" width="255" height="255" border="0" /></a></div>
+</div>
+<div class="gallerytext">
+<p>A data set with many outliers for which a line has to be fitted.</p>
+</div>
+</div>
+</td>
+<td>
+<div class="gallerybox" style="width: 321px;">
+<div class="thumb" style="padding: 29px 0; width: 316px;">
+<div style="margin-left: auto; margin-right: auto; width: 286px;"><a href="/wiki/File:Fitted_line.svg" class="image" title="Fitted line.svg"><img alt="" src="http://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Fitted_line.svg/255px-Fitted_line.svg.png" width="255" height="255" border="0" /></a></div>
+</div>
+<div class="gallerytext">
+<p>Fitted line with RANSAC, outliers have no influence on the result.</p>
+</div>
+</div>
+</td>
+</tr>
+</table>
+<p><a name="Overview" id="Overview"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=2" title="Edit section: Overview">edit</a>]</span> <span class="mw-headline">Overview</span></h2>
+<p>The input to the RANSAC algorithm is a set of observed data values, a parameterized model which can explain or be fitted to the observations, and some <a href="/wiki/Confidence_interval" title="Confidence interval">confidence</a> parameters.</p>
+<p>RANSAC achieves its goal by iteratively selecting a random subset of the original data. These data are <i>hypothetical inliers</i> and this hypothesis is then tested as follows:</p>
+<ol>
+<li>A model is fitted to the hypothetical inliers, i.e. all free parameters of the model are reconstructed from the data set.</li>
+<li>All other data are then tested against the fitted model and, if a point fits well to the estimated model, also considered as a hypothetical inlier.</li>
+<li>The estimated model is reasonably good if sufficiently many points have been classified as hypothetical inliers.</li>
+<li>The model is reestimated from all hypothetical inliers, because it has only been estimated from the initial set of hypothetical inliers.</li>
+<li>Finally, the model is evaluated by estimating the error of the inliers relative to the model.</li>
+</ol>
+<p>This procedure is repeated a fixed number of times, each time producing either a model which is rejected because too few points are classified as inliers or a refined model together with a corresponding error measure. In the latter case, we keep the refined model if its error is lower than the last saved model.</p>
+<p><a name="The_algorithm" id="The_algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=3" title="Edit section: The algorithm">edit</a>]</span> <span class="mw-headline">The algorithm</span></h2>
+<p>The generic RANSAC algorithm, in <a href="/wiki/Pseudocode" title="Pseudocode">pseudocode</a>, works as follows:</p>
+<pre>
+<b>input</b>:
+    data - a set of observations
+    model - a model that can be fitted to data 
+    n - the minimum number of data required to fit the model
+    k - the maximum number of iterations allowed in the algorithm
+    t - a threshold value for determining when a <a href="/wiki/Datum" title="Datum">datum</a> fits a model
+    d - the number of close data values required to assert that a model fits well to data
+<b>output</b>:
+    best_model - model parameters which best fit the data (or nil if no good model is found)
+    best_consensus_set - data point from which this model has been estimated
+    best_error - the error of this model relative to the data 
+
+iterations := 0
+best_model := nil
+best_consensus_set := nil
+best_error := infinity
+<b>while</b> iterations &lt; k 
+    maybe_inliers := n randomly selected values from data
+    maybe_model := model parameters fitted to maybe_inliers
+    consensus_set := maybe_inliers
+
+    <b>for</b> every point in data <b>not in</b> maybe_inliers 
+        <b>if</b> point fits maybe_model with an error smaller than t
+            add point to consensus_set
+    
+    <b>if</b> the number of elements in consensus_set is &gt; d 
+        <i>(this implies that we may have found a good model,</i>
+        <i>now test how good it is)</i>
+        better_model := model parameters fitted to all points in consensus_set
+        this_error := a measure of how well better_model fits these points
+        <b>if</b> this_error &lt; best_error
+            <i>(we have found a model which is better than any of the previous ones,</i>
+            <i>keep it until a better one is found)</i>
+            best_model := better_model
+            best_consensus_set := consensus_set
+            best_error := this_error
+     
+    increment iterations
+
+<b>return</b> best_model, best_consensus_set, best_error
+</pre>
+<p>Possible variants of the RANSAC algorithm includes</p>
+<ul>
+<li>Break the main loop if a sufficiently good model has been found, that is, one with sufficiently small error. May save some computation time at the expense of an additional parameter.</li>
+<li>Compute <code>this_error</code> directly from <code>maybe_model</code> without re-estimating a model from the consensus set. May save some time at the expense of comparing errors related to models which are estimated from a small number of points and therefore more sensitive to noise.</li>
+</ul>
+<p><a name="The_parameters" id="The_parameters"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=4" title="Edit section: The parameters">edit</a>]</span> <span class="mw-headline">The parameters</span></h2>
+<p>The values of parameters <i>t</i> and <i>d</i> have to be determined from specific requirements related to the application and the data set, possibly based on experimental evaluation. The parameter <i>k</i> (the number of iterations), however, can be determined from a theoretical result. Let <i>p</i> be the probability that the RANSAC algorithm in some iteration selects only inliers from the input data set when it chooses the <i>n</i> points from which the model parameters are estimated. When this happens, the resulting model is likely to be useful so <i>p</i> gives the probability that the algorithm produces a useful result. Let <i>w</i> be the probability of choosing an inlier each time a single point is selected, that is,</p>
+<p><i>w</i> = number of inliers in data / number of points in data</p>
+<p>A common case is that <span class="texhtml"><i>w</i></span> is not well known beforehand, but some rough value can be given. Assuming that the <i>n</i> points needed for estimating a model are selected independently, <span class="texhtml"><i>w</i><sup><i>n</i></sup></span> is the probability that all <i>n</i> points are inliers and <span class="texhtml">1 − <i>w</i><sup><i>n</i></sup></span> is the probability that at least one of the <i>n</i> points is an outlier, a case which implies that a bad model will be estimated from this point set. That probability to the power of <i>k</i> is the probability that the algorithm never selects a set of <i>n</i> points which all are inliers and this must be the same as <span class="texhtml">1 − <i>p</i></span>. Consequently,</p>
+<dl>
+<dd><span class="texhtml">1 − <i>p</i> = (1 − <i>w</i><sup><i>n</i></sup>)<sup><i>k</i></sup></span></dd>
+</dl>
+<p>which, after taking the logarithm of both sides, leads to</p>
+<dl>
+<dd><img class="tex" alt="
+k = \frac{\log(1 - p)}{\log(1 - w^n)}
+" src="http://upload.wikimedia.org/math/f/d/c/fdc1b96cc374c945e4d13330d1ace751.png" /></dd>
+</dl>
+<p>It should be noted that this result assumes that the <i>n</i> data points are selected independently, that is, a point which has been selected once is replaced and can be selected again in the same iteration. This is often not a reasonable approach and the derived value for <i>k</i> should be taken as an upper limit in the case that the points are selected without replacement. For example, in the case of finding a line which fits the data set illustrated in the above figure, the RANSAC algorithm typically chooses 2 points in each iteration and computes <code>maybe_model</code> as the line between the points and it is then critical that the two points are distinct.</p>
+<p>To gain additional confidence, the <a href="/wiki/Standard_deviation" title="Standard deviation">standard deviation</a> or multiples thereof can be added to <span class="texhtml"><i>k</i></span>. The standard deviation of <span class="texhtml"><i>k</i></span> is defined as</p>
+<dl>
+<dd><img class="tex" alt="SD(k) = \frac{\sqrt{1 - w^n}}{w^n}" src="http://upload.wikimedia.org/math/f/0/6/f06fa333b4410318af30ab570bbd807d.png" /></dd>
+</dl>
+<p><a name="Advantages_and_disadvantages" id="Advantages_and_disadvantages"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=5" title="Edit section: Advantages and disadvantages">edit</a>]</span> <span class="mw-headline">Advantages and disadvantages</span></h2>
+<p>An advantage of RANSAC is its ability to do <a href="/wiki/Robust_statistics" title="Robust statistics">robust estimation</a> of the model parameters, i.e., it can estimate the parameters with a high degree of accuracy even when significant amount of <a href="/wiki/Outlier" title="Outlier">outliers</a> are present in the data set. A disadvantage of RANSAC is that there is no upper bound on the time it takes to compute these parameters. When an upper time bound is used (a maximum number of iterations) the solution obtained may not be the optimal one. Another disadvantage of RANSAC is that it requires the setting of problem-specific thresholds.</p>
+<p>RANSAC can only estimate one model for a particular data set. As for any one-model approach when two (or more) models exist, RANSAC may fail to find either one.</p>
+<p><a name="Applications" id="Applications"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=6" title="Edit section: Applications">edit</a>]</span> <span class="mw-headline">Applications</span></h2>
+<p>The RANSAC algorithm is often used in <a href="/wiki/Computer_vision" title="Computer vision">computer vision</a>, e.g., to simultaneously solve the <a href="/wiki/Correspondence_problem" title="Correspondence problem">correspondence problem</a> and estimate the <a href="/wiki/Fundamental_matrix_(computer_vision)" title="Fundamental matrix (computer vision)">fundamental matrix</a> related to a pair of stereo cameras.</p>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=7" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFMartin_A._Fischler_and_Robert_C._Bolles1981">Martin A. Fischler and Robert C. Bolles (June 1981). "Random Sample Consensus: A Paradigm for Model Fitting with Applications to Image Analysis and Automated Cartography". <i>Comm. of the ACM</i> <b>24</b>: 381–395. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F358669.358692" class="external text" title="http://dx.doi.org/10.1145%2F358669.358692" rel="nofollow">10.1145/358669.358692</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Random+Sample+Consensus%3A+A+Paradigm+for+Model+Fitting+with+Applications+to+Image+Analysis+and+Automated+Cartography&amp;rft.jtitle=Comm.+of+the+ACM&amp;rft.aulast=Martin+A.+Fischler+and+Robert+C.+Bolles&amp;rft.au=Martin+A.+Fischler+and+Robert+C.+Bolles&amp;rft.date=June+1981&amp;rft.volume=24&amp;rft.pages=381%E2%80%93395&amp;rft_id=info:doi/10.1145%2F358669.358692&amp;rfr_id=info:sid/en.wikipedia.org:RANSAC"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="book" id="CITEREFDavid_A._Forsyth_and_Jean_Ponce2003">David A. Forsyth and Jean Ponce (2003). <i>Computer Vision, a modern approach</i>. Prentice Hall. ISBN <a href="/wiki/Special:BookSources/0130851981" class="internal">ISBN 0-13-085198-1</a>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Computer+Vision%2C+a+modern+approach&amp;rft.aulast=David+A.+Forsyth+and+Jean+Ponce&amp;rft.au=David+A.+Forsyth+and+Jean+Ponce&amp;rft.date=2003&amp;rft.pub=Prentice+Hall&amp;rft.isbn=ISBN+0-13-085198-1&amp;rfr_id=info:sid/en.wikipedia.org:RANSAC"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="book" id="CITEREFRichard_Hartley_and_Andrew_Zisserman2003">Richard Hartley and Andrew Zisserman (2003). <i>Multiple View Geometry in Computer Vision</i> (2nd edition ed.). Cambridge University Press.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=book&amp;rft.btitle=Multiple+View+Geometry+in+Computer+Vision&amp;rft.aulast=Richard+Hartley+and+Andrew+Zisserman&amp;rft.au=Richard+Hartley+and+Andrew+Zisserman&amp;rft.date=2003&amp;rft.edition=2nd+edition&amp;rft.pub=Cambridge+University+Press&amp;rfr_id=info:sid/en.wikipedia.org:RANSAC"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="" id="CITEREFP.H.S._Torr.2C_and_D.W._Murray1997">P.H.S. Torr, and D.W. Murray (1997). "The Development and Comparison of Robust Methods for Estimating the Fundamental Matrix". <i>International Journal of Computer Vision</i> <b>24</b>: 271–300. <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1023%2FA%3A1007927408552" class="external text" title="http://dx.doi.org/10.1023%2FA%3A1007927408552" rel="nofollow">10.1023/A:1007927408552</a></span>.</cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=The+Development+and+Comparison+of+Robust+Methods+for+Estimating+the+Fundamental+Matrix&amp;rft.jtitle=International+Journal+of+Computer+Vision&amp;rft.aulast=P.H.S.+Torr%2C+and+D.W.+Murray&amp;rft.au=P.H.S.+Torr%2C+and+D.W.+Murray&amp;rft.date=1997&amp;rft.volume=24&amp;rft.pages=271%E2%80%93300&amp;rft_id=info:doi/10.1023%2FA%3A1007927408552&amp;rfr_id=info:sid/en.wikipedia.org:RANSAC"><span style="display: none;">&#160;</span></span></li>
+</ul>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=RANSAC&amp;action=edit&amp;section=8" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.mathworks.com/matlabcentral/fileexchange/loadFile.do?objectId=18555&amp;objectType=file" class="external text" title="http://www.mathworks.com/matlabcentral/fileexchange/loadFile.do?objectId=18555&amp;objectType=file" rel="nofollow">RANSAC Toolbox for Matlab</a>. A research (and didactic) oriented toolbox to explore the RANSAC algorithm in <a href="/wiki/Matlab" title="Matlab" class="mw-redirect">Matlab</a>. It is highly configurable and contains the routines to solve a few relevant estimation problems.</li>
+<li><a href="http://vision.ece.ucsb.edu/~zuliani/Research/RANSAC/docs/RANSAC4Dummies.pdf" class="external text" title="http://vision.ece.ucsb.edu/~zuliani/Research/RANSAC/docs/RANSAC4Dummies.pdf" rel="nofollow">RANSAC for Dummies</a> A simple tutorial with many examples that uses the RANSAC Toolbox for Matlab.</li>
+<li><a href="http://cmp.felk.cvut.cz/ransac-cvpr2006/" class="external text" title="http://cmp.felk.cvut.cz/ransac-cvpr2006/" rel="nofollow">25 Years of RANSAC Workshop</a></li>
+</ul>
+<p><span id="interwiki-de-fa"></span></p>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 1926/1000000
+Post-expand include size: 12672/2048000 bytes
+Template argument size: 4512/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:1089270-0!1!0!default!!en!2 and timestamp 20090419214241 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/RANSAC">http://en.wikipedia.org/wiki/RANSAC</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Geometry_in_computer_vision" title="Category:Geometry in computer vision">Geometry in computer vision</a></span> | <span dir='ltr'><a href="/wiki/Category:Statistical_algorithms" title="Category:Statistical algorithms">Statistical algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Robust_statistics" title="Category:Robust statistics">Robust statistics</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_example_pseudocode" title="Category:Articles with example pseudocode">Articles with example pseudocode</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/RANSAC" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:RANSAC" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=RANSAC&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=RANSAC&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=RANSAC" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/RANSAC" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/RANSAC" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=RANSAC&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=RANSAC&amp;oldid=280382106" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=RANSAC&amp;id=280382106">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/RANSAC-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/RANSAC">Français</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 29 March 2009, at 08:56 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv140 in 0.050 secs. --></body></html>

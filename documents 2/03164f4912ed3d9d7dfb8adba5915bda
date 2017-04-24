@@ -1,0 +1,551 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Goertzel algorithm,Articles with unsourced statements since February 2007,2007,Bandwidth (signal processing),Cooley-Tukey FFT algorithm,DTMF,Digital signal processing,Discrete Fourier transform,Fast Fourier transform,Finite Impulse Response,Frequency" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Goertzel_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Goertzel_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Goertzel algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Goertzel_algorithm";
+		var wgTitle = "Goertzel algorithm";
+		var wgAction = "view";
+		var wgArticleId = "2133529";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 277628071;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+<style type="text/css">/*<![CDATA[*/
+.source-c {line-height: normal;}
+.source-c li, .source-c pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for c
+ * CSS class: source-c, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-c .de1, .source-c .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-c  {}
+.source-c .head {}
+.source-c .foot {}
+.source-c .imp {font-weight: bold; color: red;}
+.source-c .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-c li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-c li.li2 {font-weight: bold;}
+.source-c .kw1 {color: #b1b100;}
+.source-c .kw2 {color: #000000; font-weight: bold;}
+.source-c .kw3 {color: #000066;}
+.source-c .kw4 {color: #993333;}
+.source-c .co1 {color: #808080; font-style: italic;}
+.source-c .co2 {color: #339933;}
+.source-c .coMULTI {color: #808080; font-style: italic;}
+.source-c .es0 {color: #000099; font-weight: bold;}
+.source-c .br0 {color: #66cc66;}
+.source-c .st0 {color: #ff0000;}
+.source-c .nu0 {color: #cc66cc;}
+.source-c .me1 {color: #202020;}
+.source-c .me2 {color: #202020;}
+
+/*]]>*/
+</style>
+<style type="text/css">/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+</style>		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Goertzel_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Goertzel algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>The <b>Goertzel algorithm</b> is a <a href="/wiki/Digital_signal_processing" title="Digital signal processing">digital signal processing</a> (DSP) technique for identifying <a href="/wiki/Frequency" title="Frequency">frequency</a> components of a signal, published by <a href="/w/index.php?title=Gerald_Goertzel&amp;action=edit&amp;redlink=1" class="new" title="Gerald Goertzel (page does not exist)">Dr. Gerald Goertzel</a> in 1958. While the general <a href="/wiki/Fast_Fourier_transform" title="Fast Fourier transform">Fast Fourier transform</a> (FFT) algorithm computes evenly across the <a href="/wiki/Bandwidth_(signal_processing)" title="Bandwidth (signal processing)">bandwidth</a> of the incoming signal, the Goertzel algorithm looks at specific, predetermined frequency.</p>
+<p>A practical application of this algorithm is recognition of the tones produced by the buttons pushed on a telephone keypad. This application is illustrated below by the 'C' programming language implementation of the algorithm, demonstrating the production of a <a href="/wiki/DTMF" title="DTMF" class="mw-redirect">DTMF</a> tone detector.</p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#Explanation_of_algorithm"><span class="tocnumber">1</span> <span class="toctext">Explanation of algorithm</span></a></li>
+<li class="toclevel-1"><a href="#Computational_complexity"><span class="tocnumber">2</span> <span class="toctext">Computational complexity</span></a></li>
+<li class="toclevel-1"><a href="#Practical_considerations"><span class="tocnumber">3</span> <span class="toctext">Practical considerations</span></a></li>
+<li class="toclevel-1"><a href="#Sample_code_for_a_DTMF_detector"><span class="tocnumber">4</span> <span class="toctext">Sample code for a DTMF detector</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="Explanation_of_algorithm" id="Explanation_of_algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Goertzel_algorithm&amp;action=edit&amp;section=1" title="Edit section: Explanation of algorithm">edit</a>]</span> <span class="mw-headline">Explanation of algorithm</span></h2>
+<p>The Goertzel algorithm computes a sequence, <span class="texhtml"><i>s</i>(<i>n</i>)</span>, given an input sequence, <span class="texhtml"><i>x</i>(<i>n</i>)</span>:</p>
+<dl>
+<dd><span class="texhtml"><i>s</i>(<i>n</i>) = <i>x</i>(<i>n</i>) + 2cos(2πω)<i>s</i>(<i>n</i> − 1) − <i>s</i>(<i>n</i> − 2)</span></dd>
+</dl>
+<p>where <span class="texhtml"><i>s</i>( − 2) = <i>s</i>( − 1) = 0</span> and <span class="texhtml">ω</span> is some frequency of interest, in cycles per sample, which should be less than 1/2. This effectively implements a second-order <a href="/wiki/IIR" title="IIR" class="mw-redirect">IIR</a> filter with poles at <span class="texhtml"><i>e</i> <sup>+ 2π<i>i</i>ω</sup></span> and <span class="texhtml"><i>e</i> <sup>− 2π<i>i</i>ω</sup></span>, and requires only one multiplication (assuming <span class="texhtml">2<i>c</i><i>o</i><i>s</i>(2πω)</span> is pre-computed), one addition and one subtraction per input sample. For real inputs, these operations are real.</p>
+<p>The <a href="/wiki/Z_transform" title="Z transform" class="mw-redirect">Z transform</a> of this process is</p>
+<dl>
+<dd><img class="tex" alt="\frac{S(z)}{X(z)} = \frac{1}{1 - 2 \cos(2 \pi \omega) z^{-1} + z^{-2}} = \frac{1}{(1 - e^{+2 \pi i \omega} z^{-1})(1 - e^{-2 \pi i \omega} z^{-1})}" src="http://upload.wikimedia.org/math/a/1/b/a1bfcfe03fcddf8165015bd38779b283.png" /></dd>
+</dl>
+<p>Applying an additional, <a href="/wiki/Finite_Impulse_Response" title="Finite Impulse Response" class="mw-redirect">FIR</a>, transform of the form</p>
+<dl>
+<dd><img class="tex" alt="\frac{Y(z)}{S(z)} = 1 - e^{-2 \pi i \omega}z^{-1}" src="http://upload.wikimedia.org/math/e/b/3/eb342e8a4788fafc333529cfee96a107.png" /></dd>
+</dl>
+<p>will give an overall transform of</p>
+<dl>
+<dd><img class="tex" alt="\frac{S(z)}{X(z)} \frac{Y(z)}{S(z)} = \frac{Y(z)}{X(z)} = \frac{(1 - e^{-2 \pi i \omega}z^{-1})}{(1 - e^{+2 \pi i \omega} z^{-1})(1 - e^{-2 \pi i \omega} z^{-1})} = \frac{1}{1 - e^{+2 \pi i \omega} z^{-1}}" src="http://upload.wikimedia.org/math/5/9/9/5996fa2ae11914367a5708b9bfb0771a.png" /></dd>
+</dl>
+<p>The time-domain equivalent of this overall transform is</p>
+<dl>
+<dd><img class="tex" alt="y(n) = x(n) + e^{+2 \pi i \omega} y(n-1) = \sum_{k=-\infty}^{n}x(k) e^{+2 \pi i \omega (n-k)} = e^{+2 \pi i \omega n} \sum_{k=-\infty}^{n}x(k) e^{-2 \pi i \omega k}" src="http://upload.wikimedia.org/math/f/b/e/fbeed809c594926780725c973318f524.png" /></dd>
+</dl>
+<p>which becomes, assuming <span class="texhtml"><i>x</i>(<i>k</i>) = 0</span> for all <span class="texhtml"><i>k</i> &lt; 0</span></p>
+<dl>
+<dd><img class="tex" alt="y(n) = e^{+2 \pi i \omega n} \sum_{k=0}^{n}x(k) e^{-2 \pi i \omega k}" src="http://upload.wikimedia.org/math/f/0/f/f0fb23c189ea9211b0f00ddb85f26b4c.png" /></dd>
+</dl>
+<p>or, the equation for the <span class="texhtml">(<i>n</i> + 1)</span>-sample <a href="/wiki/Discrete_Fourier_transform" title="Discrete Fourier transform">DFT</a> of <span class="texhtml"><i>x</i></span>, evaluated for <span class="texhtml">ω</span> and multiplied by the scale factor <span class="texhtml"><i>e</i> <sup>+ 2π<i>i</i>ω<i>n</i></sup></span>.</p>
+<p>Note that applying the additional transform Y(z)/S(z) only requires the last two samples of the <span class="texhtml"><i>s</i></span> sequence. Consequently, upon processing <span class="texhtml"><i>N</i></span> samples <span class="texhtml"><i>x</i>(0)...<i>x</i>(<i>N</i> − 1)</span>, the last two samples from the <span class="texhtml"><i>s</i></span> sequence can be used to compute the value of a <a href="/wiki/Discrete_Fourier_transform" title="Discrete Fourier transform">DFT</a> bin which corresponds to the chosen frequency <span class="texhtml">ω</span> as</p>
+<dl>
+<dd><span class="texhtml"><i>X</i>(ω) = <i>y</i>(<i>N</i> − 1)<i>e</i> <sup>− 2π<i>i</i>ω(<i>N</i> − 1)</sup> = (<i>s</i>(<i>N</i> − 1) − <i>e</i> <sup>− 2π<i>i</i>ω</sup><i>s</i>(<i>N</i> − 2))<i>e</i> <sup>− 2π<i>i</i>ω(<i>N</i> − 1)</sup></span></dd>
+</dl>
+<p>For the special case often found when computing <a href="/wiki/Discrete_Fourier_transform" title="Discrete Fourier transform">DFT</a> bins, where <span class="texhtml">ω<i>N</i> = <i>k</i></span> for some integer, <span class="texhtml"><i>k</i></span>, this simplifies to</p>
+<dl>
+<dd><span class="texhtml"><i>X</i>(ω) = (<i>s</i>(<i>N</i> − 1) − <i>e</i> <sup>− 2π<i>i</i>ω</sup><i>s</i>(<i>N</i> − 2))<i>e</i> <sup>+ 2π<i>i</i>ω</sup> = <i>e</i> <sup>+ 2π<i>i</i>ω</sup><i>s</i>(<i>N</i> − 1) − <i>s</i>(<i>N</i> − 2)</span></dd>
+</dl>
+<p>In either case, the corresponding power can be computed using the same cosine term required to compute <span class="texhtml"><i>s</i></span> as</p>
+<dl>
+<dd><span class="texhtml"><i>X</i>(ω)<i>X</i>'(ω) = <i>s</i>(<i>N</i> − 2)<sup>2</sup> + <i>s</i>(<i>N</i> − 1)<sup>2</sup> − 2<i>c</i><i>o</i><i>s</i>(2πω)<i>s</i>(<i>N</i> − 2)<i>s</i>(<i>N</i> − 1)</span></dd>
+</dl>
+<p>When implemented in a general-purpose processor, values for <span class="texhtml"><i>s</i>(<i>n</i> − 1)</span> and <span class="texhtml"><i>s</i>(<i>n</i> − 2)</span> can be retained in variables and new values of <span class="texhtml"><i>s</i></span> can be shifted through as they are computed, assuming that only the final two values of the <span class="texhtml"><i>s</i></span> sequence are required. The code may then be as follows:</p>
+<pre>
+s_prev = 0
+s_prev2 = 0
+coeff = 2*cos(2*PI*normalized_frequency);
+for each sample, x[n],
+  s = x[n] + coeff*s_prev - s_prev2;
+  s_prev2 = s_prev;
+  s_prev = s;
+end
+power = s_prev2*s_prev2 + s_prev*s_prev - coeff*s_prev2*s_prev;
+</pre>
+<p><a name="Computational_complexity" id="Computational_complexity"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Goertzel_algorithm&amp;action=edit&amp;section=2" title="Edit section: Computational complexity">edit</a>]</span> <span class="mw-headline">Computational complexity</span></h2>
+<p>In order to compute a single <a href="/wiki/Discrete_Fourier_transform" title="Discrete Fourier transform">DFT</a> bin for a complex sequence of length <i>N</i>, this algorithm requires 2<i>N</i> multiplies and 4<i>N</i> add/subtract operations within the loop, as well as 4 multiplies and 4 add/subtract operations to compute <span class="texhtml"><i>X</i>(ω)</span>, for a total of 2<i>N</i>+4 multiplies and 4<i>N</i>+4 add/subtract operations (for real sequences, the required operations are half that amount). In contrast, the <a href="/wiki/Fast_Fourier_transform" title="Fast Fourier transform">Fast Fourier transform</a> (FFT) requires 2log<sub>2</sub><i>N</i> multiplies and 3log<sub>2</sub><i>N</i> add/subtract operations per <a href="/wiki/Discrete_Fourier_transform" title="Discrete Fourier transform">DFT</a> bin, but must compute all <i>N</i> bins simultaneously (similar optimizations are available to halve the number of operations in an FFT when the input sequence is real).</p>
+<p>When the number of desired <a href="/wiki/Discrete_Fourier_transform" title="Discrete Fourier transform">DFT</a> bins, <i>M</i>, is small (e.g., when detecting <a href="/wiki/DTMF" title="DTMF" class="mw-redirect">DTMF</a> tones), it is computationally advantageous to implement the Goertzel algorithm, rather than the FFT. Approximately, this occurs when</p>
+<dl>
+<dd><img class="tex" alt="M &lt; \frac{5}{6} \log_2 N" src="http://upload.wikimedia.org/math/e/b/3/eb33a3d6f136a79d799cfd47e2edc68e.png" /></dd>
+</dl>
+<p>or if, for some reason, <i>N</i> is not an integral power of 2 while you stick to a simple FFT algorithm like the 2-radix <a href="/wiki/Cooley-Tukey_FFT_algorithm" title="Cooley-Tukey FFT algorithm">Cooley-Tukey FFT algorithm</a>, and zero-padding the samples out to an integral power of 2 would violate</p>
+<dl>
+<dd><img class="tex" alt="M &lt; \frac{5 N_{\mbox{padded}}}{6 N} \log_2(N_{\mbox{padded}})" src="http://upload.wikimedia.org/math/1/1/a/11ac6a8324adc65cc6d4e420c898c669.png" /></dd>
+</dl>
+<p>Moreover, the Goertzel algorithm can be computed as samples come in, and the FFT algorithm may require a large table of <i>N</i> pre-computed sines and cosines in order to be efficient.</p>
+<p>If multiplications are not considered as difficult as additions, or vice versa, the 5/6 ratio can shift between anything from 3/4 (additions dominate) to 1/1 (multiplications dominate).</p>
+<p><a name="Practical_considerations" id="Practical_considerations"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Goertzel_algorithm&amp;action=edit&amp;section=3" title="Edit section: Practical considerations">edit</a>]</span> <span class="mw-headline">Practical considerations</span></h2>
+<p>The term <a href="/wiki/DTMF" title="DTMF" class="mw-redirect">DTMF</a> or Dual-Tone Multi Frequency is the official name of the tones generated from a telephone keypad. (AT&amp;T used the trademark "Touch-Tone" for its DTMF dialing service.<sup id="cite_ref-touch-tone_tm_0-0" class="reference"><a href="#cite_note-touch-tone_tm-0" title=""><span>[</span>1<span>]</span></a></sup>) The original keypads were mechanical switches triggering RC controlled oscillators.<sup class="noprint Template-Fact"><span title="This claim needs references to reliable sources&#160;since February 2007" style="white-space: nowrap;">[<i><a href="/wiki/Wikipedia:Citation_needed" title="Wikipedia:Citation needed">citation needed</a></i>]</span></sup> The digit detectors were also tuned circuits. The interest in decoding DTMF is high because of the large numbers of phones generating these types of tones.</p>
+<p>At present, DTMF detectors are most often implemented as numerical algorithms on either general purpose computers or on fast digital signal processors. The algorithm shown below is an example of such a detector.</p>
+<p>However, this algorithm needs an additional post-processing step to completely implement a functional DTMF tone detector. DTMF tone bursts can be as short as 50 milli-seconds or as long as several seconds. The tone burst can have noise or dropouts within it which must be ignored. The Goertzel algorithm produces multiple outputs; a post-processing step needs to smooth these outputs into one output per tone burst.</p>
+<p>One additional problem is that the algorithm will sometimes produce spurious outputs because of a window period that is not completely filled with samples. Imagine a DTMF tone burst and then imagine the window superimposed over this tone burst. Obviously, the detector is running at a fixed rate and the tone burst is not guaranteed to arrive aligned with the timing of the detector. So some window intervals on the leading and trailing edges of the tone burst will not be entirely filled with valid tone samples. Worse, RC-based tone generators will often have voltage sag/surge related anomalies at the leading and trailing edges of the tone burst. These also can contribute to spurious outputs.</p>
+<p>It is highly likely that this detector will report false or incorrect results at the leading and trailing edges of the tone burst due to a lack of sufficient valid samples within the window. In addition, the tone detector must be able to tolerate tone dropouts within the tone burst and these can produce additional false reports due to the same windowing effects.</p>
+<p>The post-processing system can be implemented as a statistical aggregator which will examine a series of outputs of the algorithm below. There should be a counter for each possible output. These all start out at zero. The detector starts producing outputs and depending on the output, the appropriate counter is incremented. Finally, the detector stops generating outputs for long enough that the tone burst can be considered to be over. The counter with the highest value wins and should be considered to be the DTMF digit signaled by the tone burst.</p>
+<p>While it is true that there are eight possible frequencies in a DTMF tone, the algorithm as originally entered on this page was computing a few more frequencies so as to help reject false tones (talkoff). Notice the peak tone counter loop. This checks to see that only two tones are active. If more than this are found then the tone is rejected.</p>
+<p><a name="Sample_code_for_a_DTMF_detector" id="Sample_code_for_a_DTMF_detector"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Goertzel_algorithm&amp;action=edit&amp;section=4" title="Edit section: Sample code for a DTMF detector">edit</a>]</span> <span class="mw-headline">Sample code for a DTMF detector</span></h2>
+<div dir="ltr" style="text-align: left;">
+<pre class="source-c">
+<span class="co2">#define SAMPLING_RATE       8000</span>
+<span class="co2">#define MAX_BINS            8</span>
+<span class="co2">#define GOERTZEL_N          92</span>
+ 
+<span class="kw4">int</span>         sample_count;
+<span class="kw4">double</span>      q1<span class="br0">[</span> MAX_BINS <span class="br0">]</span>;
+<span class="kw4">double</span>      q2<span class="br0">[</span> MAX_BINS <span class="br0">]</span>;
+<span class="kw4">double</span>      r<span class="br0">[</span> MAX_BINS <span class="br0">]</span>;
+ 
+<span class="coMULTI">/*
+ * coef = 2.0 * cos( (2.0 * PI * k) / (float)GOERTZEL_N)) ;
+ * Where k = (int) (0.5 + ((float)GOERTZEL_N * target_freq) / SAMPLING_RATE));
+ *
+ * More simply: coef = 2.0 * cos( (2.0 * PI * target_freq) / SAMPLING_RATE );
+ */</span>
+<span class="kw4">double</span>      freqs<span class="br0">[</span> MAX_BINS<span class="br0">]</span> = 
+<span class="br0">{</span>
+  <span class="nu0">697</span>,
+  <span class="nu0">770</span>,
+  <span class="nu0">852</span>,
+  <span class="nu0">941</span>,
+  <span class="nu0">1209</span>,
+  <span class="nu0">1336</span>,
+  <span class="nu0">1477</span>,
+  <span class="nu0">1633</span>
+<span class="br0">}</span>;
+ 
+<span class="kw4">double</span>      coefs<span class="br0">[</span> MAX_BINS <span class="br0">]</span> ;
+ 
+ 
+<span class="coMULTI">/*----------------------------------------------------------------------------
+ *  calc_coeffs
+ *----------------------------------------------------------------------------
+ * This is where we calculate the correct co-efficients.
+ */</span>
+<span class="kw4">void</span> calc_coeffs<span class="br0">(</span><span class="br0">)</span>
+<span class="br0">{</span>
+  <span class="kw4">int</span> n;
+ 
+  <span class="kw1">for</span><span class="br0">(</span>n = <span class="nu0">0</span>; n &lt; MAX_BINS; n++<span class="br0">)</span>
+  <span class="br0">{</span>
+    coefs<span class="br0">[</span>n<span class="br0">]</span> = <span class="nu0">2.0</span> * cos<span class="br0">(</span><span class="nu0">2.0</span> * <span class="nu0">3.141592654</span> * freqs<span class="br0">[</span>n<span class="br0">]</span> / SAMPLING_RATE<span class="br0">)</span>;
+  <span class="br0">}</span>
+<span class="br0">}</span>
+ 
+ 
+<span class="coMULTI">/*----------------------------------------------------------------------------
+ *  post_testing
+ *----------------------------------------------------------------------------
+ * This is where we look at the bins and decide if we have a valid signal.
+ */</span>
+<span class="kw4">void</span> post_testing<span class="br0">(</span><span class="br0">)</span>
+<span class="br0">{</span>
+  <span class="kw4">int</span>         row, col, see_digit;
+  <span class="kw4">int</span>         peak_count, max_index;
+  <span class="kw4">double</span>      maxval, t;
+  <span class="kw4">int</span>         i;
+  <span class="kw4">char</span> *  row_col_ascii_codes<span class="br0">[</span><span class="nu0">4</span><span class="br0">]</span><span class="br0">[</span><span class="nu0">4</span><span class="br0">]</span> = <span class="br0">{</span>
+    <span class="br0">{</span><span class="st0">"1"</span>, <span class="st0">"2"</span>, <span class="st0">"3"</span>, <span class="st0">"A"</span><span class="br0">}</span>,
+    <span class="br0">{</span><span class="st0">"4"</span>, <span class="st0">"5"</span>, <span class="st0">"6"</span>, <span class="st0">"B"</span><span class="br0">}</span>,
+    <span class="br0">{</span><span class="st0">"7"</span>, <span class="st0">"8"</span>, <span class="st0">"9"</span>, <span class="st0">"C"</span><span class="br0">}</span>,
+    <span class="br0">{</span><span class="st0">"*"</span>, <span class="st0">"0"</span>, <span class="st0">"#"</span>, <span class="st0">"D"</span><span class="br0">}</span><span class="br0">}</span>;
+ 
+ 
+  <span class="coMULTI">/* Find the largest in the row group. */</span>
+  row = <span class="nu0">0</span>;
+  maxval = <span class="nu0">0.0</span>;
+  <span class="kw1">for</span> <span class="br0">(</span> i=<span class="nu0">0</span>; i&lt;<span class="nu0">4</span>; i++ <span class="br0">)</span>
+  <span class="br0">{</span>
+    <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>i<span class="br0">]</span> &gt; maxval <span class="br0">)</span>
+    <span class="br0">{</span>
+      maxval = r<span class="br0">[</span>i<span class="br0">]</span>;
+      row = i;
+    <span class="br0">}</span>
+  <span class="br0">}</span>
+ 
+  <span class="coMULTI">/* Find the largest in the column group. */</span>
+  col = <span class="nu0">4</span>;
+  maxval = <span class="nu0">0.0</span>;
+  <span class="kw1">for</span> <span class="br0">(</span> i=<span class="nu0">4</span>; i&lt;<span class="nu0">8</span>; i++ <span class="br0">)</span>
+  <span class="br0">{</span>
+    <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>i<span class="br0">]</span> &gt; maxval <span class="br0">)</span>
+    <span class="br0">{</span>
+      maxval = r<span class="br0">[</span>i<span class="br0">]</span>;
+      col = i;
+    <span class="br0">}</span>
+  <span class="br0">}</span>
+ 
+ 
+  <span class="coMULTI">/* Check for minimum energy */</span>
+ 
+  <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>row<span class="br0">]</span> &lt; <span class="nu0">4</span>.0e5 <span class="br0">)</span>   <span class="coMULTI">/* 2.0e5 ... 1.0e8 no change */</span>
+  <span class="br0">{</span>
+    <span class="coMULTI">/* energy not high enough */</span>
+  <span class="br0">}</span>
+  <span class="kw1">else</span> <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>col<span class="br0">]</span> &lt; <span class="nu0">4</span>.0e5 <span class="br0">)</span>
+  <span class="br0">{</span>
+    <span class="coMULTI">/* energy not high enough */</span>
+  <span class="br0">}</span>
+  <span class="kw1">else</span>
+  <span class="br0">{</span>
+    see_digit = <span class="kw2">TRUE</span>;
+ 
+    <span class="coMULTI">/* Twist check
+     * CEPT =&gt; twist &lt; 6dB
+     * AT&amp;T =&gt; forward twist &lt; 4dB and reverse twist &lt; 8dB
+     *  -ndB &lt; 10 log10( v1 / v2 ), where v1 &lt; v2
+     *  -4dB &lt; 10 log10( v1 / v2 )
+     *  -0.4  &lt; log10( v1 / v2 )
+     *  0.398 &lt; v1 / v2
+     *  0.398 * v2 &lt; v1
+     */</span>
+    <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>col<span class="br0">]</span> &gt; r<span class="br0">[</span>row<span class="br0">]</span> <span class="br0">)</span>
+    <span class="br0">{</span>
+      <span class="coMULTI">/* Normal twist */</span>
+      max_index = col;
+      <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>row<span class="br0">]</span> &lt; <span class="br0">(</span>r<span class="br0">[</span>col<span class="br0">]</span> * <span class="nu0">0.398</span><span class="br0">)</span> <span class="br0">)</span>    <span class="coMULTI">/* twist &gt; 4dB, error */</span>
+        see_digit = <span class="kw2">FALSE</span>;
+    <span class="br0">}</span>
+    <span class="kw1">else</span> <span class="coMULTI">/* if ( r[row] &gt; r[col] ) */</span>
+    <span class="br0">{</span>
+      <span class="coMULTI">/* Reverse twist */</span>
+      max_index = row;
+      <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>col<span class="br0">]</span> &lt; <span class="br0">(</span>r<span class="br0">[</span>row<span class="br0">]</span> * <span class="nu0">0.158</span><span class="br0">)</span> <span class="br0">)</span>    <span class="coMULTI">/* twist &gt; 8db, error */</span>
+        see_digit = <span class="kw2">FALSE</span>;
+    <span class="br0">}</span>
+ 
+    <span class="coMULTI">/* Signal to noise test
+     * AT&amp;T states that the noise must be 16dB down from the signal.
+     * Here we count the number of signals above the threshold and
+     * there ought to be only two.
+     */</span>
+    <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>max_index<span class="br0">]</span> &gt; <span class="nu0">1</span>.0e9 <span class="br0">)</span>
+      t = r<span class="br0">[</span>max_index<span class="br0">]</span> * <span class="nu0">0.158</span>;
+    <span class="kw1">else</span>
+      t = r<span class="br0">[</span>max_index<span class="br0">]</span> * <span class="nu0">0.010</span>;
+ 
+    peak_count = <span class="nu0">0</span>;
+    <span class="kw1">for</span> <span class="br0">(</span> i=<span class="nu0">0</span>; i&lt;<span class="nu0">8</span>; i++ <span class="br0">)</span>
+    <span class="br0">{</span>
+      <span class="kw1">if</span> <span class="br0">(</span> r<span class="br0">[</span>i<span class="br0">]</span> &gt; t <span class="br0">)</span>
+        peak_count++;
+    <span class="br0">}</span>
+    <span class="kw1">if</span> <span class="br0">(</span> peak_count &gt; <span class="nu0">2</span> <span class="br0">)</span>
+      see_digit = <span class="kw2">FALSE</span>;
+ 
+    <span class="kw1">if</span> <span class="br0">(</span> see_digit <span class="br0">)</span>
+    <span class="br0">{</span>
+      <span class="kw3">printf</span><span class="br0">(</span> <span class="st0">"%s"</span>, row_col_ascii_codes<span class="br0">[</span>row<span class="br0">]</span><span class="br0">[</span>col<span class="nu0">-4</span><span class="br0">]</span> <span class="br0">)</span>;
+      fflush<span class="br0">(</span>stdout<span class="br0">)</span>;
+    <span class="br0">}</span>
+  <span class="br0">}</span>
+<span class="br0">}</span>
+ 
+ 
+<span class="coMULTI">/*----------------------------------------------------------------------------
+ *  goertzel
+ *----------------------------------------------------------------------------
+ */</span>
+<span class="kw4">void</span> goertzel<span class="br0">(</span> <span class="kw4">int</span> sample <span class="br0">)</span>
+<span class="br0">{</span>
+  <span class="kw4">double</span>      q0;
+  ui32        i;
+ 
+  sample_count++;
+  <span class="coMULTI">/*q1[0] = q2[0] = 0;*/</span>
+  <span class="kw1">for</span> <span class="br0">(</span> i=<span class="nu0">0</span>; i&lt;MAX_BINS; i++ <span class="br0">)</span>
+  <span class="br0">{</span>
+    q0 = coefs<span class="br0">[</span>i<span class="br0">]</span> * q1<span class="br0">[</span>i<span class="br0">]</span> - q2<span class="br0">[</span>i<span class="br0">]</span> + sample;
+    q2<span class="br0">[</span>i<span class="br0">]</span> = q1<span class="br0">[</span>i<span class="br0">]</span>;
+    q1<span class="br0">[</span>i<span class="br0">]</span> = q0;
+  <span class="br0">}</span>
+ 
+  <span class="kw1">if</span> <span class="br0">(</span>sample_count == GOERTZEL_N<span class="br0">)</span>
+  <span class="br0">{</span>
+    <span class="kw1">for</span> <span class="br0">(</span> i=<span class="nu0">0</span>; i&lt;MAX_BINS; i++ <span class="br0">)</span>
+    <span class="br0">{</span>
+      r<span class="br0">[</span>i<span class="br0">]</span> = <span class="br0">(</span>q1<span class="br0">[</span>i<span class="br0">]</span> * q1<span class="br0">[</span>i<span class="br0">]</span><span class="br0">)</span> + <span class="br0">(</span>q2<span class="br0">[</span>i<span class="br0">]</span> * q2<span class="br0">[</span>i<span class="br0">]</span><span class="br0">)</span> - <span class="br0">(</span>coefs<span class="br0">[</span>i<span class="br0">]</span> * q1<span class="br0">[</span>i<span class="br0">]</span> * q2<span class="br0">[</span>i<span class="br0">]</span><span class="br0">)</span>;
+      q1<span class="br0">[</span>i<span class="br0">]</span> = <span class="nu0">0.0</span>;
+      q2<span class="br0">[</span>i<span class="br0">]</span> = <span class="nu0">0.0</span>;
+    <span class="br0">}</span>
+    post_testing<span class="br0">(</span><span class="br0">)</span>;
+    sample_count = <span class="nu0">0</span>;
+  <span class="br0">}</span>
+<span class="br0">}</span>
+</pre></div>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Goertzel_algorithm&amp;action=edit&amp;section=5" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<div class="references-small">
+<ol class="references">
+<li id="cite_note-touch-tone_tm-0"><b><a href="#cite_ref-touch-tone_tm_0-0" title="">^</a></b> <a href="http://tarr.uspto.gov/servlet/tarr?regser=serial&amp;entry=72109459" class="external text" title="http://tarr.uspto.gov/servlet/tarr?regser=serial&amp;entry=72109459" rel="nofollow">USPTO trademark entry for Touch-Tone</a>, retrieved on <span class="mw-formatted-date" title="2007-03-29"><span class="mw-formatted-date" title="03-29"><a href="/wiki/March_29" title="March 29">March 29</a></span>, <a href="/wiki/2007" title="2007">2007</a></span>.</li>
+</ol>
+</div>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Goertzel_algorithm&amp;action=edit&amp;section=6" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://ptolemy.eecs.berkeley.edu/papers/96/dtmf_ict/www/node3.html" class="external free" title="http://ptolemy.eecs.berkeley.edu/papers/96/dtmf_ict/www/node3.html" rel="nofollow">http://ptolemy.eecs.berkeley.edu/papers/96/dtmf_ict/www/node3.html</a></li>
+<li><a href="http://www.embedded.com/story/OEG20020819S0057" class="external free" title="http://www.embedded.com/story/OEG20020819S0057" rel="nofollow">http://www.embedded.com/story/OEG20020819S0057</a></li>
+<li><a href="http://www.embedded.com/showArticle.jhtml?articleID=17301593" class="external free" title="http://www.embedded.com/showArticle.jhtml?articleID=17301593" rel="nofollow">http://www.embedded.com/showArticle.jhtml?articleID=17301593</a></li>
+<li><a href="http://www.numerix-dsp.com/goertzel.html" class="external free" title="http://www.numerix-dsp.com/goertzel.html" rel="nofollow">http://www.numerix-dsp.com/goertzel.html</a></li>
+<li><a href="http://www.mathworks.com/access/helpdesk/help/toolbox/signal/goertzel.html" class="external free" title="http://www.mathworks.com/access/helpdesk/help/toolbox/signal/goertzel.html" rel="nofollow">http://www.mathworks.com/access/helpdesk/help/toolbox/signal/goertzel.html</a></li>
+<li><a href="http://www.dattalo.com/technical/theory/dtmf.html" class="external text" title="http://www.dattalo.com/technical/theory/dtmf.html" rel="nofollow">DTMF decoding with a 1-bit A/D converter</a></li>
+<li><a href="http://www.ti.com/sc/docs/psheets/abstract/apps/spra066.htm" class="external text" title="http://www.ti.com/sc/docs/psheets/abstract/apps/spra066.htm" rel="nofollow">Modified Goertzel Algorithm in DTMF Detection Using the TMS320C80 DSP</a></li>
+<li><a href="http://focus.ti.com/lit/an/spra096a/spra096a.pdf" class="external text" title="http://focus.ti.com/lit/an/spra096a/spra096a.pdf" rel="nofollow">DTMF Tone Generation and Detection: An Implementation Using the TMS320C54x</a></li>
+<li><a href="http://focus.ti.com/lit/an/spra168/spra168.pdf" class="external text" title="http://focus.ti.com/lit/an/spra168/spra168.pdf" rel="nofollow">Mock, P., Add DTMF Generation and Decoding to DSP-μP Designs, EDN, March 21, 1985, also DSP Applications with the TMS320 Family, Vol. 1, Texas Instruments, 1989.</a></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 223/1000000
+Post-expand include size: 1291/2048000 bytes
+Template argument size: 394/2048000 bytes
+Expensive parser function count: 1/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:2133529-0!1!0!default!!en!2 and timestamp 20090416103236 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Goertzel_algorithm">http://en.wikipedia.org/wiki/Goertzel_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:FFT_algorithms" title="Category:FFT algorithms">FFT algorithms</a></span> | <span dir='ltr'><a href="/wiki/Category:Digital_signal_processing" title="Category:Digital signal processing">Digital signal processing</a></span></div><div id="mw-hidden-catlinks" class="mw-hidden-cats-hidden">Hidden categories:&#32;<span dir='ltr'><a href="/wiki/Category:All_articles_with_unsourced_statements" title="Category:All articles with unsourced statements">All articles with unsourced statements</a></span> | <span dir='ltr'><a href="/wiki/Category:Articles_with_unsourced_statements_since_February_2007" title="Category:Articles with unsourced statements since February 2007">Articles with unsourced statements since February 2007</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Goertzel_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Goertzel_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Goertzel_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Goertzel_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Goertzel_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Goertzel_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Goertzel_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Goertzel_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Goertzel_algorithm&amp;oldid=277628071" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Goertzel_algorithm&amp;id=277628071">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-de"><a href="http://de.wikipedia.org/wiki/Goertzel-Algorithmus">Deutsch</a></li>
+				<li class="interwiki-it"><a href="http://it.wikipedia.org/wiki/Algoritmo_di_Goertzel">Italiano</a></li>
+				<li class="interwiki-he"><a href="http://he.wikipedia.org/wiki/%D7%92%D7%A8%D7%A6%D7%9C">עברית</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_Goertzla">Polski</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 16 March 2009, at 12:23 (UTC).</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv49 in 0.071 secs. --></body></html>

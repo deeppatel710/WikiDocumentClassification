@@ -1,0 +1,506 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dijkstra's algorithm - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Dijkstra\'s_algorithm";
+		var wgTitle = "Dijkstra\'s algorithm";
+		var wgAction = "view";
+		var wgArticleId = "45809";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280278785;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+/*<![CDATA[*/
+.source-python {line-height: normal;}
+.source-python li, .source-python pre {
+	line-height: normal; border: 0px none white;
+}
+/**
+ * GeSHi Dynamically Generated Stylesheet
+ * --------------------------------------
+ * Dynamically generated stylesheet for python
+ * CSS class: source-python, CSS id: 
+ * GeSHi (C) 2004 - 2007 Nigel McNie (http://qbnz.com/highlighter)
+ */
+.source-python .de1, .source-python .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.source-python  {}
+.source-python .head {}
+.source-python .foot {}
+.source-python .imp {font-weight: bold; color: red;}
+.source-python .ln-xtra {color: #cc0; background-color: #ffc;}
+.source-python li {font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;}
+.source-python li.li2 {font-weight: bold;}
+.source-python .kw1 {color: #ff7700;font-weight:bold;}
+.source-python .kw2 {color: #008000;}
+.source-python .kw3 {color: #dc143c;}
+.source-python .kw4 {color: #0000cd;}
+.source-python .co1 {color: #808080; font-style: italic;}
+.source-python .coMULTI {color: #808080; font-style: italic;}
+.source-python .es0 {color: #000099; font-weight: bold;}
+.source-python .br0 {color: #66cc66;}
+.source-python .st0 {color: #483d8b;}
+.source-python .nu0 {color: #ff4500;}
+.source-python .me1 {color: black;}
+
+/*]]>*/
+
+/*<![CDATA[*/
+@import "/w/index.php?title=MediaWiki:Geshi.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=2678400";
+/*]]>*/
+ <!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Dijkstra's algorithm
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+
+Dijkstra's algorithm
+
+
+Dijkstra's algorithm runtime
+
+
+Class
+Search algorithm
+
+
+Data structure
+Graph
+
+
+Worst case performance
+O( | E | + | V | log | V | )
+
+
+
+This box: view • talk
+
+
+
+
+
+Graph search algorithms
+
+
+Search
+
+A*
+B*
+Bellman-Ford algorithm
+Best-first search
+Bidirectional search
+Breadth-first search
+D*
+Depth-first search
+Depth-limited search
+Dijkstra's algorithm
+Floyd–Warshall algorithm
+Hill climbing
+Iterative deepening depth-first search
+Johnson's algorithm
+Uniform-cost search
+
+
+
+
+Dijkstra's algorithm, conceived by Dutch computer scientist Edsger Dijkstra in 1959, [1] is a graph search algorithm that solves the single-source shortest path problem for a graph with nonnegative edge path costs, producing a shortest path tree. This algorithm is often used in routing.
+For a given source vertex (node) in the graph, the algorithm finds the path with lowest cost (i.e. the shortest path) between that vertex and every other vertex. It can also be used for finding costs of shortest paths from a single vertex to a single destination vertex by stopping the algorithm once the shortest path to the destination vertex has been determined. For example, if the vertices of the graph represent cities and edge path costs represent driving distances between pairs of cities connected by a direct road, Dijkstra's algorithm can be used to find the shortest route between one city and all other cities. As a result, the shortest path first is widely used in network routing protocols, most notably IS-IS and OSPF (Open Shortest Path First).
+
+
+
+
+Contents
+
+
+1 Algorithm
+2 Description of the algorithm
+3 Pseudocode
+4 Running time
+5 Python implementation
+6 Related problems and algorithms
+7 See also
+8 Notes
+9 References
+10 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Algorithm
+Let's call the node we are starting with an initial node. Let a distance of a node X be the distance from the initial node to it. Dijkstra's algorithm will assign some initial distance values and will try to improve them step-by-step.
+
+Assign to every node a distance value. Set it to zero for our initial node and to infinity for all other nodes.
+Mark all nodes as unvisited. Set initial node as current.
+For current node, consider all its unvisited neighbours and calculate their distance (from the initial node). For example, if current node (A) has distance of 6, and an edge connecting it with another node (B) is 2, the distance to B through A will be 6+2=8. If this distance is less than the previously recorded distance (infinity in the beginning, zero for the initial node), overwrite the distance.
+When we are done considering all neighbours of the current node, mark it as visited. A visited node will not be checked ever again; its distance recorded now is final and minimal.
+Set the unvisited node with the smallest distance (from the initial node) as the next "current node" and continue from step 3
+
+
+[edit] Description of the algorithm
+Suppose you create a knotted web of strings, with each knot corresponding to a node, and the strings corresponding to the edges of the web: the length of each string is proportional to the weight of each edge. Now you compress the web into a small pile without making any knots or tangles in it. You then grab your starting knot and pull straight up. As new knots start to come up with the original, you can measure the straight up-down distance to these knots: this must be the shortest distance from the starting node to the destination node. The acts of "pulling up" and "measuring" must be abstracted for the computer, but the general idea of the algorithm is the same: you have two sets, one of knots that are on the table, and another of knots that are in the air. Every step of the algorithm, you take the closest knot from the table and pull it into the air, and mark it with its length. If any knots are left on the table when you're done, you mark them with the distance infinity.
+Or, using a street map, suppose you're marking over the streets (tracing the street with a marker) in a certain order, until you have a route marked in from the starting point to the destination. The order is conceptually simple: from all the street intersections of the already marked routes, find the closest unmarked intersection - closest to the starting point (the "greedy" part). It's the whole marked route to the intersection, plus the street to the new, unmarked intersection. Mark that street to that intersection, draw an arrow with the direction, then repeat. Never mark to any intersection twice. When you get to the destination, follow the arrows backwards. There will be only one path back against the arrows, the shortest one.
+
+[edit] Pseudocode
+In the following algorithm, the code u := node in Q with smallest dist[], searches for the vertex u in the vertex set Q that has the least dist[u] value. That vertex is removed from the set Q and returned to the user. dist_between(u, v) calculates the length between the two neighbor-nodes u and v. alt on line 11 is the length of the path from the root node to the neighbor node v if it were to go through u. If this path is shorter than the current shortest path recorded for v, that current path is replaced with this alt path. The previous array is populated with a pointer to the "next-hop" node on the source graph to get the shortest route to the source.
+
+ 1  function Dijkstra(Graph, source):
+ 2      for each vertex v in Graph:           // Initializations
+ 3          dist[v] := infinity               // Unknown distance function from source to v
+ 4          previous[v] := undefined          // Previous node in optimal path from source
+ 5      dist[source] := 0                     // Distance from source to source
+ 6      Q := the set of all nodes in Graph    // All nodes in the graph are unoptimized - thus are in Q
+ 7      while Q is not empty:                 // The main loop
+ 8          u := vertex in Q with smallest dist[]
+ 9          remove u from Q
+10          for each neighbor v of u:         // where v has not yet been removed from Q.
+11              alt := dist[u] + dist_between(u, v)       // dist[u] is never infinity since we initialized dist[source] := 0 
+12              if alt < dist[v]              // Relax (u,v,a)
+13                  dist[v] := alt
+14                  previous[v] := u
+15      return previous[]
+
+If we are only interested in a shortest path between vertices source and target, we can terminate the search at line 10 if u = target. Now we can read the shortest path from source to target by iteration:
+
+1  S := empty sequence
+2  u := target
+3  while defined previous[u]
+4      insert u at the beginning of S
+5      u := previous[u]
+
+Now sequence S is the list of vertices constituting one of the shortest paths from target to source, or the empty sequence if no path exists.
+A more general problem would be to find all the shortest paths between source and target (there might be several different ones of the same length). Then instead of storing only a single node in each entry of previous[] we would store all nodes satisfying the relaxation condition. For example, if both r and source connect to target and both of them lie on different shortest paths through target (because the edge cost is the same in both cases), then we would add both r and source to previous[target]. When the algorithm completes, previous[] data structure will actually describe a graph that is a subset of the original graph with some edges removed. Its key property will be that if the algorithm was run with some starting node, then every path from that node to any other node in the new graph will be the shortest path between those nodes in the original graph, and all paths of that length from the original graph will be present in the new graph. Then to actually find all these short paths between two given nodes we would use a path finding algorithm on the new graph, such as depth-first search.
+
+[edit] Running time
+An upper bound of the running time of Dijkstra's algorithm on a graph with edges E and vertices V can be expressed as a function of |E| and |V| using the Big-O notation.
+For any implementation of set Q the running time is O(|E|*decrease_key_in_Q + |V|*extract_minimum_in_Q), where decrease_key_in_Q and extract_minimum_in_Q are times needed to perform that operation in set Q.
+The simplest implementation of the Dijkstra's algorithm stores vertices of set Q in an ordinary linked list or array, and operation Extract-Min(Q) is simply a linear search through all vertices in Q. In this case, the running time is O(|V|2+|E|)=O(|V|2).
+For sparse graphs, that is, graphs with fewer than |V|2 edges, Dijkstra's algorithm can be implemented more efficiently by storing the graph in the form of adjacency lists and using a binary heap, pairing heap, or Fibonacci heap as a priority queue to implement the Extract-Min function efficiently. With a binary heap, the algorithm requires O((|E|+|V|) log |V|) time (which is dominated by O(|E| log |V|) assuming every vertex is connected, that is, |E| ≥ |V| - 1), and the Fibonacci heap improves this to O( | E | + | V | log | V | ).
+
+[edit] Python implementation
+
+
+import heapq
+from collections import defaultdict
+ 
+class Edge(object):
+    def __init__(self, start, end, weight):
+        self.start, self.end, self.weight = start, end, weight
+ 
+    # For heapq.
+    def __cmp__(self, other): return cmp(self.weight, other.weight)
+ 
+class Graph(object):
+    def __init__(self):
+        # The adjacency list.
+        self.adj = defaultdict(list)
+ 
+    def add_e(self, start, end, weight = 0):
+        self.adj[start].append(Edge(start, end, weight))
+        self.adj[end].append(Edge(end, start, weight))
+ 
+    def s_path(self, src):
+        """
+        Returns the distance to every vertex from the source and the
+        array representing, at index i, the node visited before
+        visiting node i. This is in the form (dist, previous).
+        """
+        dist, visited, previous, queue = {src: 0}, {}, {}, []
+        heapq.heappush(queue, (dist[src],src))
+        while len(queue) > 0:
+            distance, current = heapq.heappop(queue)
+            if current in visited:
+                continue
+            visited[current] = True
+ 
+            for edge in self.adj[current]:
+                relaxed = dist[current] + edge.weight
+                end = edge.end
+                if end not in dist or relaxed < dist[end]:
+                    previous[end], dist[end] = current, relaxed
+                    heapq.heappush(queue, (dist[end],end))
+        return dist, previous
+
+For the example graph in the Applet by Carla Laffra of Pace University we do:
+
+
+g = Graph()
+g.add_e(1,2,4)
+g.add_e(1,4,1)
+g.add_e(2,1,74)
+g.add_e(2,3,2)
+g.add_e(2,5,12)
+g.add_e(3,2,12)
+g.add_e(3,10,12)
+g.add_e(3,6,74)
+g.add_e(4,7,22)
+g.add_e(4,5,32)
+g.add_e(5,8,33)
+g.add_e(5,4,66)
+g.add_e(5,6,76)
+g.add_e(6,10,21)
+g.add_e(6,9,11)
+g.add_e(7,3,12)
+g.add_e(7,8,10)
+g.add_e(8,7,2)
+g.add_e(8,9,72)
+g.add_e(9,10,7)
+g.add_e(9,6,31)
+g.add_e(9,8,18)
+g.add_e(10,6,8)
+ 
+# Find a shortest path from vertex 'a' (1) to 'j' (10).
+dist, prev = g.s_path(1)
+# Trace the path back using the prev array.
+path, current, end = [], 10, 10
+while current in prev:
+    path.insert(0, prev[current])
+    current = prev[current]
+ 
+print path
+print dist[end]
+
+Output:
+
+[1, 2, 3] (namely a, b, c)
+18
+
+
+[edit] Related problems and algorithms
+The functionality of Dijkstra's original algorithm can be extended with a variety of modifications. For example, sometimes it is desirable to present solutions which are less than mathematically optimal. To obtain a ranked list of less-than-optimal solutions, the optimal solution is first calculated. A single edge appearing in the optimal solution is removed from the graph, and the optimum solution to this new graph is calculated. Each edge of the original solution is suppressed in turn and a new shortest-path calculated. The secondary solutions are then ranked and presented after the first optimal solution.
+Dijkstra's algorithm is usually the working principle behind link-state routing protocols, OSPF and IS-IS being the most common ones.
+Unlike Dijkstra's algorithm, the Bellman-Ford algorithm can be used on graphs with negative edge weights, as long as the graph contains no negative cycle reachable from the source vertex s. (The presence of such cycles means there is no shortest path, since the total weight becomes lower each time the cycle is traversed.)
+The A* algorithm is a generalization of Dijkstra's algorithm that cuts down on the size of the subgraph that must be explored, if additional information is available that provides a lower-bound on the "distance" to the target.
+The process that underlies Dijkstra's algorithm is similar to the greedy process used in Prim's algorithm. Prim's purpose is to find a minimum spanning tree for a graph.
+For the solution of nonconvex cost trees (typical for real-world costs exhibiting economies of scale) one solution allowing application of this algorithm is to successively divide the problem into convex subtrees (using bounding linear costs) and to pursue subsequent divisions using branch and bound methods. Such methods have been superseded by more efficient direct methods[citation needed].
+
+[edit] See also
+
+Breadth-first search
+D* search algorithm
+Depth-first search
+Floyd's algorithm
+IS-IS
+Link-state routing protocol
+OSPF
+Prim's algorithm
+Flood_fill
+
+
+[edit] Notes
+
+^ E. W. Dijkstra: A note on two problems in connexion with graphs. In Numerische Mathematik, 1 (1959), S. 269–271.
+
+
+[edit] References
+
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 24.3: Dijkstra's algorithm, pp.595–601.
+F. Benjamin Zhan, and Charle E. Noon. 1998. Shortest Path Algorithms: An Evaluation Using Real Road Networks. Transportation Science 32(1): 65-73.
+
+
+[edit] External links
+
+Applet by Carla Laffra of Pace University
+Animation of Dijkstra's algorithm
+Shortest Path Problem: Dijkstra's Algorithm
+Dijkstra's Algorithm Applet
+QuickGraph, graph data structures and algorithms for .Net
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
+Categories: Graph algorithms | Search algorithms | Routing algorithms | Combinatorial optimization | Articles with example pseudocodeHidden categories: All articles with unsourced statements | Articles with unsourced statements since January 2009 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Български
+Česky
+Deutsch
+Español
+فارسی
+Français
+한국어
+Bahasa Indonesia
+Italiano
+עברית
+Lietuvių
+Magyar
+Nederlands
+日本語
+‪Norsk (bokmål)‬
+Polski
+Português
+Română
+Русский
+Slovenčina
+Slovenščina
+Српски / Srpski
+Suomi
+Svenska
+Tiếng Việt
+Українська
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 28 March 2009, at 20:31.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

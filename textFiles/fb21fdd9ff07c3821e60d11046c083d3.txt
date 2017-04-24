@@ -1,0 +1,294 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Two-phase commit protocol - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Two-phase_commit_protocol";
+		var wgTitle = "Two-phase commit protocol";
+		var wgAction = "view";
+		var wgArticleId = "787850";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 283480667;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Two-phase commit protocol
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer networking and databases, the two-phase commit protocol (2PC) is a distributed algorithm that lets all nodes in a distributed system agree to commit a transaction. The protocol results in either all nodes committing the transaction or aborting, even in the case of network failures or node failures. However, the protocol will not handle more than one random site failure at a time [1]. The two phases of the algorithm are the commit-request phase, in which the coordinator attempts to prepare all the cohorts, and the commit phase, in which the coordinator completes the transactions.
+Note that the two-phase commit protocol shouldn't be confused with two-phase locking, a concurrency control locking protocol.
+
+
+
+
+Contents
+
+
+1 Assumptions
+2 Basic algorithm
+
+2.1 Commit-request phase
+2.2 Commit phase
+
+2.2.1 Success
+2.2.2 Failure
+
+
+
+
+3 Disadvantages
+4 Distributed two-phase commit protocol
+
+4.1 Common architecture
+4.2 Tree two-phase commit protocol
+
+
+5 References
+6 See also
+7 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Assumptions
+The protocol works in the following manner: one node is designated the coordinator, which is the master site, and the rest of the nodes in the network are designated the cohorts. The protocol assumes that there is stable storage at each node with a write-ahead log, that no node crashes forever, that the data in the write-ahead log is never lost or corrupted in a crash, and that any two nodes can communicate with each other. The last assumption is not too restrictive, as network communication can typically be rerouted. The first two assumptions are much stronger; if a node is totally destroyed then data can be lost.
+The protocol is initiated by the coordinator after the last step of the transaction has been reached. The cohorts then respond with an agreement message or an abort message depending on whether the transaction has been processed successfully at the cohort.
+
+[edit] Basic algorithm
+
+[edit] Commit-request phase
+
+The coordinator sends a query to commit message to all cohorts and waits until it has received a reply from all cohorts.
+The cohorts execute the transaction up to the point where they will be asked to commit. They each write an entry to their undo log and an entry to their redo log.
+Each cohort replies with an agreement message (cohort votes Yes to commit), if the transaction succeeded, or an abort message (cohort votes No, not to commit), if the transaction failed.
+
+
+[edit] Commit phase
+
+[edit] Success
+If the coordinator received an agreement message from all cohorts during the commit-request phase:
+
+The coordinator sends a commit message to all the cohorts.
+Each cohort completes the operation, and releases all the locks and resources held during the transaction.
+Each cohort sends an acknowledgment to the coordinator.
+The coordinator completes the transaction when acknowledgments have been received.
+
+
+[edit] Failure
+If any cohort sent an abort message during the commit-request phase:
+
+The coordinator sends a rollback message to all the cohorts.
+Each cohort undoes the transaction using the undo log, and releases the resources and locks held during the transaction.
+Each cohort sends an acknowledgement to the coordinator.
+The coordinator undoes the transaction when all acknowledgements have been received.
+
+
+[edit] Disadvantages
+The greatest disadvantage of the two-phase commit protocol is the fact that it is a blocking protocol. A node will block while it is waiting for a message. This means that other processes competing for resource locks held by the blocked processes will have to wait for the locks to be released. A single node will continue to wait even if all other sites have failed. If the coordinator fails permanently, some cohorts will never resolve their transactions. This has the effect that resources are tied up forever. The algorithm can block indefinitely in the following way: if a cohort has sent an agreement message to the coordinator, it will block until a commit or rollback is received. If the coordinator is permanently down, the cohort will block indefinitely, unless it can obtain the global commit/abort decision from some other cohort. When the coordinator has sent "Query-to-commit" to the cohorts, it will block until all cohorts have sent their local decision. Yet, if a cohort is permanently down, the coordinator will not block indefinitely: Since the coordinator is the one to decide whether the decision is 'commit' or 'abort' permanent blocking can be avoided by introducing a timeout: If the coordinator has not received all awaited messages when the timeout is over it will decide for 'abort'. This conservative behaviour of the protocol is another disadvantage: It is biased to the abort case rather than the complete case.
+A lot of database research has been done on ways to get most of the benefits of the two-phase commit protocol without the costs.
+
+[edit] Distributed two-phase commit protocol
+
+[edit] Common architecture
+In many cases the 2PC protocol is utilized in distributed environments. The protocol is easily distributed in a network by implementing multiple dedicated 2PC components similar to each other, typically named Transaction Managers (TMs; also referred to as 2PC agents), that carry out the protocol's execution for each transaction. The databases involved with a distributed transaction, the participants, both the coordinator and cohorts, register to close TMs (typically residing on respective same network nodes as the participants) for terminating that transaction using 2PC. Each distributed transaction has an ad hoc set of TMs, the TMs to which the transaction participants register. A leader, the coordinator TM exists for each transaction to coordinate 2PC for it, typically the TM of the coordinator database. However, the coordinator role can be transferred to another TM for performance or reliability reasons. Rather than exchanging 2PC messages among themselves, the participants exchange the messages with their respective TMs. The relevant TMs communicate among themselves to execute the 2PC protocol schema above, "representing" the respective participants, for terminating that transaction. With this architecture the protocol is fully distributed (does not need any central processing component or data structure), and scales up with number of network nodes (network size) effectively.
+This common architecture is also effective for the distribution of other atomic commitment protocols besides 2PC.
+
+[edit] Tree two-phase commit protocol
+A common variant of 2PC in a distributed system, which better utilizes the underlying communication infrastructure, is the Tree 2PC protocol. In this variant the coordinator is the root ("top") of a communication tree (inverted tree), while the cohorts are the other nodes. Messages from the coordinator are propagated "down" the tree, while messages to the coordinator are "collected" by a cohort from all the cohorts below it, before it sends the appropriate message "up" the tree (except an abort message, which is propagated "up" immediately upon receiving it, or if this cohort decided to abort).
+The Dynamic two-phase commit (Dynamic two-phase commitment, D2PC) protocol is a variant of Tree 2PC with no predetermined coordinator. Agreement messages start to propagate from all the leaves, each leaf when completed its tasks on behalf of the transaction (becoming ready), and the coordinator is determined dynamically by racing agreement messages, at the place where they collide. They collide either on a transaction tree node, or on an edge. In the latter case one of the two edge's nodes is elected as a coordinator (any node). D2PC is time optimal (among all the instances of a specific transaction tree, and any specific Tree 2PC protocol implementation; all instances have the same tree; each instance has a different node as coordinator): it commits the coordinator and each cohort in minimum possible time, allowing earlier release of locked resources.
+
+[edit] References
+
+^ Skeen, D. (May 1983). "A Formal Model of Crash Recovery in a Distributed System". IEEE Transactions on Software Engineering 9 (3): 219–228. doi:10.1109/TSE.1983.236608. 
+
+
+[edit] See also
+
+Atomic commit
+Commit (data management)
+Three-phase commit protocol
+XA
+
+
+[edit] External links
+
+http://ei.cs.vt.edu/~cs5204/sp99/distributedDBMS/duckett/tpcp.html
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Two-phase_commit_protocol"
+Categories: Data management | Transaction processing 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Dansk
+Deutsch
+Español
+日本語
+Tiếng Việt
+
+
+
+
+
+
+
+
+
+ This page was last modified on 13 April 2009, at 02:12 (UTC).
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

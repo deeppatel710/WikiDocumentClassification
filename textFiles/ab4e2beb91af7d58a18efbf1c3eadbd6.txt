@@ -1,0 +1,342 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Fibonacci heap - Wikipedia, the free encyclopedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Fibonacci_heap";
+		var wgTitle = "Fibonacci heap";
+		var wgAction = "view";
+		var wgArticleId = "254142";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 280727121;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/
+<!-- wikibits js -->
+
+
+
+/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/ 
+<!-- site js -->
+
+
+
+
+
+
+if (wgNotice != '') document.writeln(wgNotice); Fibonacci heap
+
+From Wikipedia, the free encyclopedia
+
+Jump to: navigation, search 
+In computer science, a Fibonacci heap is a heap data structure consisting of a forest of trees. It has a better amortized running time than a binomial heap. Fibonacci heaps were developed by Michael L. Fredman and Robert E. Tarjan in 1984 and first published in a scientific journal in 1987. The name of Fibonacci heap comes from Fibonacci numbers which are used in the running time analysis.
+Operations insert, find minimum, decrease key, and merge (union) work in constant amortized time. Operations delete and delete minimum work in O(log n) amortized time. This means that starting from an empty data structure, any sequence of a operations from the first group and b operations from the second group would take O(a + b log n) time. In a binomial heap such a sequence of operations would take O((a + b)log (n)) time. A Fibonacci heap is thus better than a binomial heap when b is asymptotically smaller than a.
+The use of Fibonacci heaps in priority queues improves the asymptotic running time of important algorithms. Important examples of this are Dijkstra's algorithm for computing shortest paths in a graph and Prim's algorithm for computing a minimum spanning tree of a graph.
+
+
+
+
+Contents
+
+
+1 Structure of a Fibonacci heap
+2 Implementation of operations
+3 Worst case
+4 Summary of running times
+5 References
+6 External links
+
+
+
+
+
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+
+
+[edit] Structure of a Fibonacci heap
+
+
+
+
+Figure 1. Example of a Fibonacci heap. It has three trees of degrees 0, 1 and 3. Three vertices are marked (shown in blue). Therefore the potential of the heap is 9.
+
+
+A Fibonacci heap is a collection of trees satisfying the minimum-heap property, that is, the key of a child is always greater than or equal to the key of the parent. This implies that the minimum key is always at the root of one of the trees. Compared with binomial heaps, the structure of a Fibonacci heap is more flexible. The trees do not have a prescribed shape and in the extreme case the heap can have every element in a separate tree or a single tree of depth n. This flexibility allows some operations to be executed in a "lazy" manner, postponing the work for later operations. For example merging heaps is done simply by concatenating the two lists of trees, and operation decrease key sometimes cuts a node from its parent and forms a new tree.
+However at some point some order needs to be introduced to the heap to achieve the desired running time. In particular, degrees of nodes (here degree means the number of children) are kept quite low: every node has degree at most O(log n) and the size of a subtree rooted in a node of degree k is at least Fk + 2, where Fk is kth Fibonacci number. This is achieved by the rule that we can cut at most one child of each non-root node. When a second child is cut, the node itself needs to be cut from its parent and becomes the root of a new tree. The number of trees is decreased in the operation delete minimum, where trees are linked together.
+As a result of a relaxed structure, some operations can take a long time while others are done very quickly. In the amortized running time analysis we pretend that very fast operations take a little bit longer than they actually do. This additional time is then later subtracted from the actual running time of slow operations. The amount of time saved for later use is measured at any given moment by a potential function. The potential of a Fibonacci heap is given by
+
+Potential = t + 2m
+
+where t is the number of trees in the Fibonacci heap, and m is the number of marked nodes. A node is marked if at least one of its children was cut since this node was made a child of another node (all roots are unmarked).
+Thus, the root of each tree in a heap has one unit of time stored. This unit of time can be used later to link this tree with another tree at amortized time 0. Also, each marked node has two units of time stored. One can be used to cut the node from its parent. If this happens, the node becomes a root and the second unit of time will remain stored in it as in any other root.
+
+[edit] Implementation of operations
+To allow fast deletion and concatenation, the roots of all trees are linked using a circular, doubly linked list. The children of each node are also linked using such a list. For each node, we maintain its number of children and whether the node is marked. Moreover we maintain a pointer to the root containing the minimum key.
+Operation find minimum is now trivial because we keep the pointer to the node containing it. It does not change the potential of the heap, therefore both actual and amortized cost is constant. As mentioned above, merge is implemented simply by concatenating the lists of tree roots of the two heaps. This can be done in constant time and the potential does not change, leading again to constant amortized time. Operation insert works by creating a new heap with one element and doing merge. This takes constant time, and the potential increases by one, because the number of trees increases. The amortized cost is thus still constant.
+
+
+
+
+Fibonacci heap from Figure 1 after first phase of extract minimum. Node with key 1 (the minimum) was deleted and its children were added as separate trees.
+
+
+Operation extract minimum (same as delete minimum) operates in three phases. First we take the root containing the minimum element and remove it. Its children will become roots of new trees. If the number of children was d, it takes time O(d) to process all new roots and the potential increases by d-1. Therefore the amortized running time of this phase is O(d) = O(log n).
+
+
+
+
+Fibonacci heap from Figure 1 after extract minimum is completed. First, nodes 3 and 6 are linked together. Then the result is linked with tree rooted at node 2. Finally, the new minimum is found.
+
+
+However to complete the extract minimum operation, we need to update the pointer to the root with minimum key. Unfortunately there may be up to n roots we need to check. In the second phase we therefore decrease the number of roots by successively linking together roots of the same degree. When two roots u and v have the same degree, we make one of them a child of the other so that the one with smaller key remains the root. Its degree will increase by one. This is repeated until every root has a different degree. To find trees of the same degree efficiently we use an array of length O(log n) in which we keep a pointer to one root of each degree. When a second root is found of the same degree, the two are linked and the array is updated. The actual running time is O(log n + m) where m is the number of roots at the beginning of the second phase. At the end we will have at most O(log n) roots (because each has a different degree). Therefore the potential decreases by at least m-O(log n) and the amortized running time is O(log n).
+In the third phase we check each of the remaining roots and find the minimum. This takes O(log n) time and the potential does not change. The overall amortized running time of extract minimum is therefore O(log n).
+
+
+
+
+Fibonacci heap from Figure 1 after decreasing key of node 9 to 0. This node as well as its two marked ancestors are cut from the tree rooted at 1 and placed as new roots.
+
+
+Operation decrease key will take the node, decrease the key and if the heap property becomes violated (the new key is smaller than the key of the parent), the node is cut from its parent. If the parent is not a root, it is marked. If it has been marked already, it is cut as well and its parent is marked. We continue upwards until we either reach the root or unmarked vertex. In the process we create some number, say k, new trees. Each of these new trees except possibly the first one was marked originally but as a root it will become unmarked. One node can become marked. Therefore the potential decreases by at least k − 2. The actual time to perform the cutting was O(k), therefore the amortized running time is constant.
+Finally, operation delete can be implemented simply by decreasing the key of the element to be deleted to minus infinity, thus turning it into the minimum of the whole heap. Then we call extract minimum to remove it. The amortized running time of this operation is O(log n).
+
+[edit] Worst case
+Although the total running time of a sequence of operations starting with an empty structure is bounded by the bounds given above, some (very few) operations in the sequence can take very long to complete (in particular decrease key, delete and delete minimum have linear running time in the worst case). For this reason Fibonacci heaps and other amortized data structures may not be appropriate for real-time systems.
+
+[edit] Summary of running times
+
+
+
+Linked List
+Binary Tree
+(Min-)Heap
+Fibonacci Heap
+Brodal Queue [1]
+
+
+insert
+O(1)
+O(log n)
+O(log n)
+O(1)
+O(1)
+
+
+accessmin
+O(n)
+O(1)
+O(1)
+O(1)
+O(1)
+
+
+deletemin
+O(n)
+O(log n)
+O(log n)
+O(log n)*
+O(log n)
+
+
+decreasekey
+O(1)
+O(log n)
+O(log n)
+O(1)*
+O(1)
+
+
+delete
+O(n)
+O(n)
+O(log n)
+O(log n)*
+O(log n)
+
+
+merge
+O(1)
+O(m log(n+m))
+O(m log(n+m))
+O(1)
+O(1)
+
+
+(*)Amortized time
+
+[edit] References
+
+Fredman M. L. & Tarjan R. E. (1987). Fibonacci heaps and their uses in improved network optimization algorithms. Journal of the ACM 34(3), 596-615.
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Chapter 20: Fibonacci Heaps, pp.476–497.
+Brodal, G. S. 1996. Worst-case efficient priority queues. In Proceedings of the Seventh Annual ACM-SIAM Symposium on Discrete Algorithms (Atlanta, Georgia, United States, January 28 - 30, 1996). Symposium on Discrete Algorithms. Society for Industrial and Applied Mathematics, Philadelphia, PA, 52-58.
+
+
+[edit] External links
+
+Java applet simulation of a Fibonacci heap
+C implemention of Fibonacci heap
+Pseudocode of the Fibonacci heap algorithm
+
+
+
+
+Retrieved from "http://en.wikipedia.org/wiki/Fibonacci_heap"
+Categories: Heaps (structure) | Fibonacci numbers 
+
+
+
+
+
+
+Views
+
+
+Article
+Discussion
+Edit this page
+History 
+
+
+
+Personal tools
+
+
+Log in / create account
+
+
+
+
+
+
+ if (window.isMSIE55) fixalpha(); 
+
+Navigation
+
+
+Main page
+Contents
+Featured content
+Current events
+Random article
+
+
+
+
+Search
+
+
+
+
+ 
+				
+
+
+
+
+Interaction
+
+
+About Wikipedia
+Community portal
+Recent changes
+Contact Wikipedia
+Donate to Wikipedia
+Help
+
+
+
+
+Toolbox
+
+
+What links here
+Related changes
+Upload file
+Special pages
+Printable version Permanent linkCite this page 
+
+
+
+Languages
+
+
+Česky
+Deutsch
+Español
+Français
+日本語
+Русский
+Svenska
+中文
+
+
+
+
+
+
+
+
+
+ This page was last modified on 30 March 2009, at 21:00.
+All text is available under the terms of the GNU Free Documentation License. (See Copyrights for details.)  Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a U.S. registered 501(c)(3) tax-deductible nonprofit charity.
+Privacy policy
+About Wikipedia
+Disclaimers
+
+
+
+if (window.runOnloadHook) runOnloadHook();

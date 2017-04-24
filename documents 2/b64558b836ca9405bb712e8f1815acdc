@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta name="generator" content="MediaWiki 1.15alpha" />
+		<meta name="keywords" content="Kahan summation algorithm,APL (programming language),Algorithm,Arbitrary-precision arithmetic,Compiler,Decimal precision,Digital object identifier,Expression (programming),Floating point number,Fortran,Numerical analysis" />
+		<link rel="alternate" type="application/x-wiki" title="Edit this page" href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit" />
+		<link rel="edit" title="Edit this page" href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit" />
+		<link rel="apple-touch-icon" href="http://en.wikipedia.org/apple-touch-icon.png" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html" />
+		<link rel="alternate" type="application/rss+xml" title="Wikipedia RSS Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=rss" />
+		<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom Feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom" />
+		<title>Kahan summation algorithm - Wikipedia, the free encyclopedia</title>
+		<link rel="stylesheet" href="/skins-1.5/common/shared.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/common/commonPrint.css?207xx" type="text/css" media="print" />
+		<link rel="stylesheet" href="/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/skins-1.5/chick/main.css?207xx" type="text/css" media="handheld" />
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/skins-1.5/monobook/IE60Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/skins-1.5/monobook/IE70Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="print" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Handheld.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" media="handheld" />
+		<link rel="stylesheet" href="/w/index.php?title=MediaWiki:Monobook.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=2678400&amp;action=raw&amp;maxage=2678400" type="text/css" />
+		<link rel="stylesheet" href="/w/index.php?title=-&amp;action=raw&amp;maxage=2678400&amp;gen=css" type="text/css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins-1.5/common/IEFixes.js?207xx"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type= "text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/skins-1.5";
+		var wgArticlePath = "/wiki/$1";
+		var wgScriptPath = "/w";
+		var wgScript = "/w/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://en.wikipedia.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Kahan_summation_algorithm";
+		var wgTitle = "Kahan summation algorithm";
+		var wgAction = "view";
+		var wgArticleId = "373216";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 271198071;
+		var wgVersion = "1.15alpha";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgMWSuggestTemplate = "http://en.wikipedia.org/w/api.php?action=opensearch\x26search={searchTerms}\x26namespace={namespaces}\x26suggest";
+		var wgDBname = "enwiki";
+		var wgSearchNamespaces = [0];
+		var wgMWSuggestMessages = ["with suggestions", "no suggestions"];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="/skins-1.5/common/wikibits.js?207xx"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="/skins-1.5/common/ajax.js?207xx"></script>
+		<script type="text/javascript" src="/skins-1.5/common/mwsuggest.js?207xx"></script>
+<script type="text/javascript">/*<![CDATA[*/
+var wgNotice='';var wgNoticeLocal='';
+/*]]>*/</script>		<script type="text/javascript" src="http://upload.wikimedia.org/centralnotice/wikipedia/en/centralnotice.js?207xx"></script>
+		<script type="text/javascript" src="/w/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=monobook"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Kahan_summation_algorithm skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+		<div id="siteNotice"><script type='text/javascript'>if (wgNotice != '') document.writeln(wgNotice);</script></div>		<h1 id="firstHeading" class="firstHeading">Kahan summation algorithm</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Wikipedia, the free encyclopedia</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>In <a href="/wiki/Numerical_analysis" title="Numerical analysis">numerical analysis</a>, the <b>Kahan summation algorithm</b> (also known as <b>compensated summation</b>) significantly reduces the <a href="/wiki/Numerical_error" title="Numerical error">numerical error</a> in the total obtained by adding a <a href="/wiki/Sequence" title="Sequence">sequence</a> of finite <a href="/wiki/Decimal_precision" title="Decimal precision" class="mw-redirect">precision</a> <a href="/wiki/Floating_point_number" title="Floating point number" class="mw-redirect">floating point numbers</a>, compared to the obvious approach. This <a href="/wiki/Algorithm" title="Algorithm">algorithm</a> is attributed to <a href="/wiki/William_Kahan" title="William Kahan">William Kahan</a>.<sup id="cite_ref-kahan65_0-0" class="reference"><a href="#cite_note-kahan65-0" title=""><span>[</span>1<span>]</span></a></sup></p>
+<table id="toc" class="toc" summary="Contents">
+<tr>
+<td>
+<div id="toctitle">
+<h2>Contents</h2>
+</div>
+<ul>
+<li class="toclevel-1"><a href="#The_algorithm"><span class="tocnumber">1</span> <span class="toctext">The algorithm</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Example_Working"><span class="tocnumber">1.1</span> <span class="toctext">Example Working</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Alternatives"><span class="tocnumber">2</span> <span class="toctext">Alternatives</span></a></li>
+<li class="toclevel-1"><a href="#Optimising_compilers"><span class="tocnumber">3</span> <span class="toctext">Optimising compilers</span></a></li>
+<li class="toclevel-1"><a href="#Computer_language_features"><span class="tocnumber">4</span> <span class="toctext">Computer language features</span></a></li>
+<li class="toclevel-1"><a href="#When_all_else_fails"><span class="tocnumber">5</span> <span class="toctext">When all else fails</span></a></li>
+<li class="toclevel-1"><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+<li class="toclevel-1"><a href="#References"><span class="tocnumber">7</span> <span class="toctext">References</span></a></li>
+</ul>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+ if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } 
+//]]>
+</script>
+<p><a name="The_algorithm" id="The_algorithm"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=1" title="Edit section: The algorithm">edit</a>]</span> <span class="mw-headline">The algorithm</span></h2>
+<p>In <a href="/wiki/Pseudocode" title="Pseudocode">pseudocode</a>, the algorithm is:</p>
+<pre>
+<b>function</b> kahanSum(input, n)
+ <b>var</b> sum = input[1]
+ <b>var</b> c = 0.0          //A running compensation for lost low-order bits.
+ <b>for</b> i = 2 <b>to</b> n
+  y = input[i] - c    //So far, so good: <i>c</i> is zero.
+  t = sum + y         //Alas, <i>sum</i> is big, <i>y</i> small, so low-order digits of <i>y</i> are lost.
+  c = (t - sum) - y   //<i>(t - sum)</i> recovers the high-order part of <i>y</i>; subtracting <i>y</i> recovers -(low part of <i>y</i>)
+  sum = t             //Algebraically, <i>c</i> should always be zero. Beware eagerly optimising compilers!
+ <b>next</b> i               //Next time around, the lost low part will be added to <i>y</i> in a fresh attempt.
+<b>return</b> sum
+</pre>
+<p><a name="Example_Working" id="Example_Working"></a></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=2" title="Edit section: Example Working">edit</a>]</span> <span class="mw-headline">Example Working</span></h3>
+<p>Suppose <i>sum</i> has attained the value 100000 and the next two values of <i>input(i)</i> are 3.14159 and 2.71820; all are six-digit decimal floating point numbers. With a plain summation, each incoming value would be aligned with <i>sum</i> and many low order digits lost (by truncation or rounding) so that both values would be 3. However, with compensated summation, not so. Suppose that <i>c</i> has the value zero.</p>
+<pre>
+  y = 3.14159 - 0                 <i>y = input[i] - c</i>
+  t = 100000 + 3.14159
+    = 100003                      Many digits have been lost!
+  c = (100003 - 100000) - 3.14159 This <b>must</b> be evaluated as written! 
+    = 3.00000 - 3.14159           The assimilated part of <i>y</i> recovered, vs. the original full <i>y</i>.
+    = -0.141590                   The trailing zero because this is six-digit arithmetic.
+sum = 100003                      Thus, few digits from <i>input(i</i>) met those of <i>sum</i>.
+</pre>
+<p>The sum is so large that only the high-order digits of the input numbers are being accumulated. But on the next step, <i>c</i> is not zero...</p>
+<pre>
+  y = 2.71828 - -0.141590         The shortfall from the previous stage has another chance.
+    = 2.85987                     It is of a size similar to <i>y</i>: most digits meet.
+  t = 100003 + 2.85987            But few meet the digits of <i>sum</i>.
+    = 100006                      Rounding is good, but even with truncation,
+  c = (100006 - 100003) - 2.85987 This extracts whatever went in.
+    = 3.00000 - 2.85987           In this case, too much.
+    = .140130                     But no matter, the excess will be subtracted off next time.
+sum = 100006                      (instead of 100005.85987)
+</pre>
+<p>Suppose that instead of 2.71828 the next value was 2.3, and <i>c</i> is -0.141590 as before.</p>
+<pre>
+  y = 2.30000 - -0.141590
+    = 2.44159
+  t = 100003 + 2.44159            This time not rounding up.
+    = 100005
+  c = (100005 - 100003) - 2.44159
+    = 2.00000 - 2.44159
+    = -.441590
+sum = 100005                      (instead of 100005.44159)
+</pre>
+<p>So the summation is performed with two accumulators: <i>sum</i> holds the sum, and <i>c</i> accumulates the parts not assimilated into <i>sum</i>, to nudge the low-order part of <i>sum</i> the next time around. Thus the summation proceeds with "guard digits" in <i>c</i> which is better than not having any but is not as good as performing the calculations with double the precision of the input. However, if <i>input</i> is already in double precision, few systems supply <a href="/wiki/Quadruple_precision" title="Quadruple precision">quadruple precision</a>, and if they did, what if <i>input</i> were quadruple precision...</p>
+<p><a name="Alternatives" id="Alternatives"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=3" title="Edit section: Alternatives">edit</a>]</span> <span class="mw-headline">Alternatives</span></h2>
+<p>Another approach is to perform the summation on differences from a working mean (in the hope that the value of <i>sum</i> never becomes much larger than individual differences), except that some of the values might be quite different from the working mean and thus suffer significant truncation. Alternatively, sort the values and pair positive and negative values so that the accumulated sum remains as close to zero as possible, at great cost in computational effort. Even less practical might be to perform the summation using some sort of <a href="/wiki/Arbitrary-precision_arithmetic" title="Arbitrary-precision arithmetic">multi-precision arithmetic</a> - perhaps as a part of checking the behaviour of another method.</p>
+<p>Remember that if data are available to limited precision, say six digits, then although 100000 + 2.71828 + 0.00000123456 = 100002.71828123456, the six-digit precision sum of 100003 is a more valid representation of their sum in that it does not present a spurious implication of seventeen-digit precision.</p>
+<p><a name="Optimising_compilers" id="Optimising_compilers"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=4" title="Edit section: Optimising compilers">edit</a>]</span> <span class="mw-headline">Optimising compilers</span></h2>
+<p>One of the optimizations performed by some <a href="/wiki/Compiler" title="Compiler">compilers</a> is to attempt to spot and remove <a href="/wiki/Redundant_code" title="Redundant code">redundant code</a>. A sophisticated optimizer might perform symbolic <a href="/wiki/Expression_(programming)" title="Expression (programming)">expression</a> simplification and given the code</p>
+<pre>
+ t:=sum + y;
+ c:=(t - sum) - y;
+</pre>
+<p>deduce that</p>
+<pre>
+ c = 0
+</pre>
+<p>which is constant and need not be computed within the loop; further, since it is initialised to zero, the statement</p>
+<pre>
+ y:=input[i] - c;
+</pre>
+<p>can be contracted so that the loop becomes</p>
+<pre>
+ y:=input[i];
+ t:=sum + y;
+ sum:=t;
+</pre>
+<p>and finally, the variables <i>y</i> and <i>t</i> are just waystations, so the loop content is reduced to</p>
+<pre>
+ sum:=sum + input[i];
+</pre>
+<p>Which has entirely removed the desired features. Some optimising compilers might carry their analyses so far as to deduce that a summation of <i>input</i> is intended, and then generate code employing maximum precision. It is far more likely that their workings will result in code that ruins the algorithm.</p>
+<p>The algorithm's execution can also be affected by non-mathematical optimisations. For instance, it is quite common for the floating-point computations to be carried out in machine <a href="/wiki/Register" title="Register">registers</a> that have a precision higher than that of the variables held in main storage, as in the IBM-PC and clones where some of the floating-point registers hold 80-bit floating-point numbers while in main storage they might be held only as 32-bit, or 64-bit as well as 80-bit. The sequence</p>
+<pre>
+ y:=input[i] - c;
+ t:=sum + y;
+ c:=(t - sum) - y;
+</pre>
+<p>might be compiled without any of the unwanted mathematical transformations, but, notice that after the code for the first statement is executed, the register holding the result that was stored in <i>y</i> still has (or could still have: the registers might be organised as a stack with overflow to memory) that result and as the next statement refers to <i>y</i>, perhaps the code for it could be arranged so that the value of <i>y</i> need not be fetched from memory; similarly for <i>t</i> in the third statement. If the stored values are held to the same precision as the registers, then there will be no problem: the registers and main storage are thus equivalent except for the speed of access. But if not, the working of the algorithm will be ruined. Optimisation options helpful for some parts of the program will not necessarily be good for all parts of a program.</p>
+<p><a name="Computer_language_features" id="Computer_language_features"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=5" title="Edit section: Computer language features">edit</a>]</span> <span class="mw-headline">Computer language features</span></h2>
+<p>Some computer languages offer summation features:</p>
+<pre>
+ +/input       <a href="/wiki/APL_(programming_language)" title="APL (programming language)">APL</a> (read this as "Plus, over <i>input</i>")
+ SUM(input)    <a href="/wiki/Fortran" title="Fortran">Fortran</a>, a semi-function SUM supplied as a compiler intrinsic.
+</pre>
+<p>And it might be that the implementation will indeed use the best method. Alas, the Fortran manual to hand offers no details of its internal workings, merely that the result will be in the same precision as <i>input</i>. Inspection of the code generated by the Compaq Visual Fortran v6.6 compiler for a simple usage reveals the equivalent of</p>
+<pre>
+ Load sum
+ Add  input(i)
+ Store sum
+</pre>
+<p>There is no attempt to hold the value of <i>sum</i> in a register, therefore, even if the addition were performed with a precision greater than that of <i>sum</i>, that will be lost when the result is stored into <i>sum</i> and later retrieved. So there is nothing beyond a straight summation.</p>
+<p>In some programming languages (C,C++,D), there exist a "volatile" keyword which ensures that all registers are written/read again to/from memory, so one can use this to disable optimisations for particular section of code.</p>
+<p><a name="When_all_else_fails" id="When_all_else_fails"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=6" title="Edit section: When all else fails">edit</a>]</span> <span class="mw-headline">When all else fails</span></h2>
+<p>Via careful testing and scrutiny of the code generated, it may be found that no rearrangement of the algorithm nor selection of compiler options delivers good results. In this situation the final word may be obtained through the manual preparation of embedded assembler-like statements to ensure the generation of exactly the machine code desired, if this facility is offered by the compiler, or of course the invocation of a utility routine written separately in machine code.</p>
+<p><a name="External_links" id="External_links"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=7" title="Edit section: External links">edit</a>]</span> <span class="mw-headline">External links</span></h2>
+<ul>
+<li><a href="http://www.ddj.com/cpp/184403224" class="external text" title="http://www.ddj.com/cpp/184403224" rel="nofollow">Floating-point Summation, Dr. Dobb's Journal September, 1996</a></li>
+</ul>
+<p><a name="References" id="References"></a></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit&amp;section=8" title="Edit section: References">edit</a>]</span> <span class="mw-headline">References</span></h2>
+<ol class="references">
+<li id="cite_note-kahan65-0"><b><a href="#cite_ref-kahan65_0-0" title="">^</a></b> <cite style="font-style:normal" class="" id="CITEREFKahan1965">Kahan, William (January 1965), "Further remarks on reducing truncation errors", <i>Communications of the ACM</i> <b>8</b> (1): 40, <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F363707.363723" class="external text" title="http://dx.doi.org/10.1145%2F363707.363723" rel="nofollow">10.1145/363707.363723</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Further+remarks+on+reducing+truncation+errors&amp;rft.jtitle=Communications+of+the+ACM&amp;rft.aulast=Kahan&amp;rft.aufirst=William&amp;rft.au=Kahan%2C+William&amp;rft.date=January+1965&amp;rft.volume=8&amp;rft.issue=1&amp;rft.pages=40&amp;rft_id=info:doi/10.1145%2F363707.363723&amp;rfr_id=info:sid/en.wikipedia.org:Kahan_summation_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ol>
+<ul>
+<li><cite style="font-style:normal" class="" id="CITEREFHigham1993">Higham, Nicholas J. (1993), "The accuracy of floating point summation", <i>SIAM Journal of Scientific Computing</i> <b>14</b> (4): 783-799, <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1137%2F0914050" class="external text" title="http://dx.doi.org/10.1137%2F0914050" rel="nofollow">10.1137/0914050</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=The+accuracy+of+floating+point+summation&amp;rft.jtitle=SIAM+Journal+of+Scientific+Computing&amp;rft.aulast=Higham&amp;rft.aufirst=Nicholas+J.&amp;rft.au=Higham%2C+Nicholas+J.&amp;rft.date=1993&amp;rft.volume=14&amp;rft.issue=4&amp;rft.pages=783-799&amp;rft_id=info:doi/10.1137%2F0914050&amp;rfr_id=info:sid/en.wikipedia.org:Kahan_summation_algorithm"><span style="display: none;">&#160;</span></span></li>
+<li><cite style="font-style:normal" class="" id="CITEREFGoldberg1991">Goldberg, David (March 1991), "<a href="http://www.validlab.com/goldberg/paper.pdf" class="external text" title="http://www.validlab.com/goldberg/paper.pdf" rel="nofollow">What every computer scientist should know about floating-point arithmetic</a>" (PDF), <i>ACM Computing Surveys</i> <b>23</b> (1): 5-48, <a href="/wiki/Digital_object_identifier" title="Digital object identifier">doi</a>:<span class="neverexpand"><a href="http://dx.doi.org/10.1145%2F103162.103163" class="external text" title="http://dx.doi.org/10.1145%2F103162.103163" rel="nofollow">10.1145/103162.103163</a></span><span class="printonly">, <a href="http://www.validlab.com/goldberg/paper.pdf" class="external free" title="http://www.validlab.com/goldberg/paper.pdf" rel="nofollow">http://www.validlab.com/goldberg/paper.pdf</a></span></cite><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=What+every+computer+scientist+should+know+about+floating-point+arithmetic&amp;rft.jtitle=ACM+Computing+Surveys&amp;rft.aulast=Goldberg&amp;rft.aufirst=David&amp;rft.au=Goldberg%2C+David&amp;rft.date=March+1991&amp;rft.volume=23&amp;rft.issue=1&amp;rft.pages=5-48&amp;rft_id=info:doi/10.1145%2F103162.103163&amp;rft_id=http%3A%2F%2Fwww.validlab.com%2Fgoldberg%2Fpaper.pdf&amp;rfr_id=info:sid/en.wikipedia.org:Kahan_summation_algorithm"><span style="display: none;">&#160;</span></span></li>
+</ul>
+
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 1597/1000000
+Post-expand include size: 13819/2048000 bytes
+Template argument size: 3144/2048000 bytes
+Expensive parser function count: 0/500
+-->
+
+<!-- Saved in parser cache with key enwiki:pcache:idhash:373216-0!1!0!default!!en!2 and timestamp 20090329020103 -->
+<div class="printfooter">
+Retrieved from "<a href="http://en.wikipedia.org/wiki/Kahan_summation_algorithm">http://en.wikipedia.org/wiki/Kahan_summation_algorithm</a>"</div>
+			<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks"><a href="/wiki/Special:Categories" title="Special:Categories">Categories</a>:&#32;<span dir='ltr'><a href="/wiki/Category:Computer_arithmetic" title="Category:Computer arithmetic">Computer arithmetic</a></span> | <span dir='ltr'><a href="/wiki/Category:Numerical_analysis" title="Category:Numerical analysis">Numerical analysis</a></span></div></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="/wiki/Kahan_summation_algorithm" title="View the content page [c]" accesskey="c">Article</a></li>
+				 <li id="ca-talk"><a href="/wiki/Talk:Kahan_summation_algorithm" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-edit"><a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=edit" title="You can edit this page. &#10;Please use the preview button before saving. [e]" accesskey="e">Edit this page</a></li>
+				 <li id="ca-history"><a href="/w/index.php?title=Kahan_summation_algorithm&amp;action=history" title="Past versions of this page [h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="/w/index.php?title=Special:UserLogin&amp;returnto=Kahan_summation_algorithm" title="You are encouraged to log in; however, it is not mandatory. [o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png);" href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class='generated-sidebar portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage-description"><a href="/wiki/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+				<li id="n-contents"><a href="/wiki/Portal:Contents" title="Guides to browsing Wikipedia">Contents</a></li>
+				<li id="n-featuredcontent"><a href="/wiki/Portal:Featured_content" title="Featured content — the best of Wikipedia">Featured content</a></li>
+				<li id="n-currentevents"><a href="/wiki/Portal:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random article [x]" accesskey="x">Random article</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/w/index.php" id="searchform"><div>
+				<input type='hidden' name="title" value="Special:Search"/>
+				<input id="searchInput" name="search" type="text" title="Search Wikipedia [f]" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" title="Go to a page with this exact name if one exists" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search Wikipedia for this text" />
+			</div></form>
+		</div>
+	</div>
+	<div class='generated-sidebar portlet' id='p-interaction'>
+		<h5>Interaction</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-aboutsite"><a href="/wiki/Wikipedia:About" title="Find out about Wikipedia">About Wikipedia</a></li>
+				<li id="n-portal"><a href="/wiki/Wikipedia:Community_portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="The list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+				<li id="n-contact"><a href="/wiki/Wikipedia:Contact_us" title="How to contact Wikipedia">Contact Wikipedia</a></li>
+				<li id="n-sitesupport"><a href="http://wikimediafoundation.org/wiki/Donate" title="Support us">Donate to Wikipedia</a></li>
+				<li id="n-help"><a href="/wiki/Help:Contents" title="Guidance on how to use and edit Wikipedia">Help</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/Kahan_summation_algorithm" title="List of all English Wikipedia pages containing links to this page [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/Kahan_summation_algorithm" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+<li id="t-upload"><a href="/wiki/Wikipedia:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="/w/index.php?title=Kahan_summation_algorithm&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/w/index.php?title=Kahan_summation_algorithm&amp;oldid=271198071" title="Permanent link to this version of the page">Permanent link</a></li><li id="t-cite"><a href="/w/index.php?title=Special:Cite&amp;page=Kahan_summation_algorithm&amp;id=271198071">Cite this page</a></li>			</ul>
+		</div>
+	</div>
+	<div id="p-lang" class="portlet">
+		<h5>Languages</h5>
+		<div class="pBody">
+			<ul>
+				<li class="interwiki-fr"><a href="http://fr.wikipedia.org/wiki/Somme_(algorithmique)">Français</a></li>
+				<li class="interwiki-lt"><a href="http://lt.wikipedia.org/wiki/Kahano_sud%C4%97ties_algoritmas">Lietuvių</a></li>
+				<li class="interwiki-ja"><a href="http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%8F%E3%83%B3%E3%81%AE%E5%8A%A0%E7%AE%97%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0">日本語</a></li>
+				<li class="interwiki-pl"><a href="http://pl.wikipedia.org/wiki/Algorytm_sumacyjny_Kahana">Polski</a></li>
+			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/skins-1.5/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" /></a></div>
+				<div id="f-copyrightico"><a href="http://wikimediafoundation.org/"><img src="/images/wikimedia-button.png" border="0" alt="Wikimedia Foundation"/></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 16 February 2009, at 21:29.</li>
+					<li id="copyright">All text is available under the terms of the <a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Text_of_the_GNU_Free_Documentation_License" title="Wikipedia:Text of the GNU Free Documentation License">GNU Free Documentation License</a>. (See <b><a class='internal' href="http://en.wikipedia.org/wiki/Wikipedia:Copyrights" title="Wikipedia:Copyrights">Copyrights</a></b> for details.) <br /> Wikipedia&reg; is a registered trademark of the <a href="http://www.wikimediafoundation.org">Wikimedia Foundation, Inc.</a>, a U.S. registered <a class='internal' href="http://en.wikipedia.org/wiki/501%28c%29#501.28c.29.283.29" title="501(c)(3)">501(c)(3)</a> <a href="http://wikimediafoundation.org/wiki/Deductibility_of_donations">tax-deductible</a> <a class='internal' href="http://en.wikipedia.org/wiki/Non-profit_organization" title="Non-profit organization">nonprofit</a> <a href="http://en.wikipedia.org/wiki/Charitable_organization" title="Charitable organization">charity</a>.<br /></li>
+					<li id="privacy"><a href="http://wikimediafoundation.org/wiki/Privacy_policy" title="wikimedia:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="/wiki/Wikipedia:About" title="Wikipedia:About">About Wikipedia</a></li>
+					<li id="disclaimer"><a href="/wiki/Wikipedia:General_disclaimer" title="Wikipedia:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served by srv98 in 0.075 secs. --></body></html>
